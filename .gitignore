@@ -31,3 +31,21 @@ google-services.json
 
 # Android Profiling
 *.hprof
+/.opencode
+/.reasonix
+/.trae
+/sdk
+/graphify-out
+opencode.json
+prototype.html
+/sdk-licenses
+/docs/designs
+docs/competitive-analysis.md
+docs/edits.md
+docs/errors.txt
+docs/logcat.txt
+gradle-8.5-bin.zip
+gradle.properties
+/gradle
+gradlew
+gradlew.bat

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="wechat_green">#07C160</color>
+    <color name="wechat_user_bubble">#95EC69</color>
+    <color name="wechat_ai_bubble">#FFFFFF</color>
+    <color name="danger">#FF3B30</color>
+    <color name="gold">#FFD700</color>
+    <color name="background">#FAFAFA</color>
+    <color name="divider">#E5E5E5</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+</resources>

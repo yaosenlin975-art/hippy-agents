@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hippy</string>
+    
+    <!-- 通用 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="add">添加</string>
+    <string name="search">搜索</string>
+    <string name="loading">加载中...</string>
+    <string name="error">错误</string>
+    <string name="success">成功</string>
+    
+    <!-- 导航 -->
+    <string name="nav_sessions">会话</string>
+    <string name="nav_agents">智能体</string>
+    <string name="nav_settings">设置</string>
+    
+    <!-- 会话 -->
+    <string name="new_session">新建会话</string>
+    <string name="session_list">会话列表</string>
+    <string name="no_sessions">暂无会话</string>
+    <string name="delete_session">删除会话</string>
+    <string name="delete_session_confirm">确定要删除这个会话吗？</string>
+    
+    <!-- 智能体 -->
+    <string name="agent_list">智能体列表</string>
+    <string name="new_agent">新建智能体</string>
+    <string name="agent_config">智能体配置</string>
+    <string name="agent_name">智能体名称</string>
+    <string name="agent_model">模型</string>
+    <string name="agent_provider">模型提供商</string>
+    
+    <!-- 底栏 -->
+    <string name="tab_sessions">会话</string>
+    <string name="tab_agents">智能体</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- 设置 -->
+    <string name="settings">设置</string>
+    <string name="language">语言(Language)</string>
+    <string name="notifications">通知</string>
+    <string name="data_storage">数据存储</string>
+    <string name="model_provider">模型提供商</string>
+    <string name="tool_security">工具安全策略</string>
+    <string name="skill_pool">技能池</string>
+    <string name="backup_restore">备份与恢复</string>
+    <string name="data_section">数据</string>
+    <string name="about_section">关于</string>
+    <string name="running_config">运行配置</string>
+    <string name="heartbeat">心跳</string>
+    <string name="mcp">MCP</string>
+    <string name="core_files">核心文件</string>
+    <string name="acp">ACP</string>
+    <string name="about">关于</string>
+    <string name="debug_info">调试信息</string>
+    <string name="model_provider_desc">管理模型提供商配置</string>
+    <string name="tool_security_desc">审批队列：%1$d 待处理</string>
+    <string name="skill_pool_desc">管理公共技能库</string>
+    <string name="last_backup">上次备份：%1$s</string>
+    <string name="last_backup_never">从未备份</string>
+    <string name="export_log">导出日志</string>
+    <string name="background_permission">后台运行</string>
+    <string name="app_version">版本 %1$s</string>
+    <string name="debug_info_desc">查看运行日志和状态</string>
+    
+    <!-- 聊天 -->
+    <string name="send_message">发送消息</string>
+    <string name="type_message">输入消息...</string>
+    <string name="thinking">思考中...</string>
+    <string name="executing_tool">执行工具中...</string>
+    
+    <!-- 技能 -->
+    <string name="skill_management">技能管理</string>
+    <string name="skill_pool_management">公共技能池</string>
+    <string name="no_skills">暂无技能</string>
+    <string name="install_skill">安装技能</string>
+    <string name="uninstall_skill">卸载技能</string>
+    
+    <!-- 通知 -->
+    <string name="notification_heartbeat">心跳提醒</string>
+    <string name="notification_task_complete">任务完成</string>
+    <string name="notification_error">错误告警</string>
+    <string name="quiet_hours">静默时段</string>
+    
+    <!-- 错误消息 -->
+    <string name="error_network">网络连接失败</string>
+    <string name="error_api_key">API 密钥无效</string>
+    <string name="error_model_config">模型配置错误</string>
+    <string name="error_file_not_found">文件不存在</string>
+    <string name="error_permission">权限不足</string>
+    
+    <!-- 系统权限 -->
+    <string name="system_permissions">系统权限</string>
+    <string name="background_run_permission">后台运行权限</string>
+    <string name="accessibility_permission">无障碍服务</string>
+    <string name="enabled">已开启</string>
+    <string name="disabled">未开启</string>
+    <string name="background_run_allowed">已允许后台运行</string>
+    <string name="background_run_restricted">⚠️ 受限 — 可能被系统杀死，点击解除限制</string>
+    <string name="accessibility_service">无障碍服务</string>
+    <string name="accessibility_enabled">已开启</string>
+    <string name="accessibility_disabled">未开启 — 部分功能（如通知监听）需要此权限，点击前往开启</string>
+    
+    <!-- 数据存储 -->
+    <string name="storage_overview">存储概览</string>
+    <string name="external_storage">外部存储（卸载保护）</string>
+    <string name="saf_authorized">✅ 外部存储已授权</string>
+    <string name="saf_not_authorized">⚠️ 数据存储在内部存储</string>
+    <string name="saf_authorized_desc">数据已迁移到外部目录，卸载应用不会丢失数据。</string>
+    <string name="saf_not_authorized_desc">当前数据存储在应用内部目录，卸载应用将丢失所有数据（配置、聊天记录、记忆）。建议授权外部存储目录。</string>
+    <string name="select_external_dir">选择外部存储目录</string>
+    <string name="re_migrate">重新迁移</string>
+    <string name="disable_external">关闭外部存储</string>
+    <string name="migrate_data">迁移数据到外部存储</string>
+    <string name="migrate_data_desc">将内部存储中的所有数据复制到外部存储目录。迁移过程中请勿关闭应用。\n\n此操作不会删除内部存储中的原文件。</string>
+    <string name="start_migration">开始迁移</string>
+    <string name="disable_external_desc">关闭外部存储后，新数据将写入内部存储。外部存储中的已有数据不会被删除。\n\n⚠️ 关闭后卸载应用仍会丢失新产生的数据。</string>
+    <string name="confirm_disable">确认关闭</string>
+    <string name="storage_location_info">存储位置说明</string>
+    <string name="workspace_dir">工作区</string>
+    <string name="secret_dir">敏感数据</string>
+    <string name="backup_dir">备份</string>
+    <string name="database_dir">数据库</string>
+    <string name="internal_storage">内部存储（卸载将丢失数据）</string>
+    <string name="external_storage_enabled">外部存储（已授权）</string>
+    <string name="migration_complete">迁移完成：%1$d 个文件</string>
+    <string name="migration_failed">迁移失败：%1$s</string>
+    
+    <!-- 安全 -->
+    <string name="security">安全</string>
+    
+    <!-- 无障碍服务 -->
+    <string name="accessibility_service_description">允许 Hippy 智能体感知屏幕内容并操控手机界面，实现自动化任务执行。此服务不会收集或上传任何个人数据。</string>
+</resources>
+
