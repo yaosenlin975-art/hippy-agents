@@ -2,6 +2,7 @@ package com.lin.hippyagent.core.cron
 
 import android.content.Context
 import androidx.work.*
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
 import kotlinx.coroutines.Dispatchers
@@ -192,12 +193,12 @@ class CronJobManager(
 
     private suspend fun resolveSessionId(job: CronJob): String {
         val sessions = sessionStore.getSessionsForAgent(job.agentId).getOrNull()
-        val cronSession = sessions?.find { it.title == "定时任务: ${job.name}" }
+        val cronSession = sessions?.find { it.title == context.getString(R.string.cron_job_session_title, job.name) }
         if (cronSession != null) return cronSession.id
 
         val newSession = sessionStore.createSession(
             agentId = job.agentId,
-            title = "定时任务: ${job.name}"
+            title = context.getString(R.string.cron_job_session_title, job.name)
         ).getOrNull()
         return newSession?.id ?: "cron:${job.id}"
     }

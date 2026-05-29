@@ -75,7 +75,7 @@ class NotificationOverlayService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "通知弹窗",
+                getString(R.string.notification_overlay_channel),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(false)
@@ -88,7 +88,7 @@ class NotificationOverlayService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("通知弹窗服务")
+            .setContentTitle(getString(R.string.notification_overlay_service))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pi)
             .setOngoing(true)
@@ -132,7 +132,7 @@ class NotificationOverlayService : Service() {
         }
 
         val confirmBtn = Button(ctx).apply {
-            text = "确定"
+            text = getString(R.string.ok)
             setTextColor(0xFF66FF66.toInt())
             setBackgroundColor(0x00000000)
             setOnClickListener { dismissAndStop() }

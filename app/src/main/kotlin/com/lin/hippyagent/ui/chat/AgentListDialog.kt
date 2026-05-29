@@ -48,13 +48,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.collaboration.AgentStatusManager
 import com.lin.hippyagent.core.agent.collaboration.AgentWorkState
 import com.lin.hippyagent.core.agent.collaboration.AgentWorkStatus
@@ -106,13 +109,13 @@ fun AgentListDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "群聊成员",
+                            text = stringResource(R.string.chat_group_members),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, "关闭")
+                        Icon(Icons.Default.Close, stringResource(R.string.common_close))
                     }
                 }
 
@@ -126,7 +129,7 @@ fun AgentListDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "暂无成员",
+                            text = stringResource(R.string.chat_no_members),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -174,9 +177,9 @@ private fun AgentListItem(
     }
 
     val statusText = when (agent.state) {
-        AgentWorkState.IDLE -> "闲置"
-        AgentWorkState.WORKING -> "任务中"
-        AgentWorkState.PAUSED -> "已暂停"
+        AgentWorkState.IDLE -> stringResource(R.string.chat_idle)
+        AgentWorkState.WORKING -> stringResource(R.string.chat_in_task)
+        AgentWorkState.PAUSED -> stringResource(R.string.chat_paused)
     }
 
     Row(
@@ -245,7 +248,7 @@ private fun AgentListItem(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("打断", fontSize = 14.sp)
+                Text(stringResource(R.string.chat_interrupt), fontSize = 14.sp)
             }
         }
     }
@@ -257,6 +260,7 @@ private fun InterruptConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
@@ -267,15 +271,15 @@ private fun InterruptConfirmDialog(
             )
         },
         title = {
-            Text("确认打断？")
+            Text(stringResource(R.string.chat_confirm_interrupt))
         },
         text = {
             Column {
-                Text("即将打断：${agent.agentName}")
+                Text(context.getString(R.string.chat_about_to_interrupt, agent.agentName))
                 if (agent.currentTask != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "当前任务：${agent.currentTask}",
+                        text = context.getString(R.string.chat_current_task, agent.currentTask),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -289,7 +293,7 @@ private fun InterruptConfirmDialog(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "打断后任务将无法恢复",
+                        text = stringResource(R.string.chat_interrupt_irreversible),
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Medium
                     )
@@ -303,12 +307,12 @@ private fun InterruptConfirmDialog(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("确认打断")
+                Text(stringResource(R.string.chat_confirm_interrupt_btn))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -334,7 +338,7 @@ fun AgentListBadge(
     ) {
         Icon(
             imageVector = Icons.Default.Group,
-            contentDescription = "群聊成员",
+            contentDescription = stringResource(R.string.chat_group_members),
             tint = MaterialTheme.colorScheme.onSurface
         )
     }

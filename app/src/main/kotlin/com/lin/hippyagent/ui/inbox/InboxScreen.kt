@@ -48,11 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.session.InboxEvent
 import com.lin.hippyagent.core.agent.session.PendingApproval
 import com.lin.hippyagent.ui.components.HippyTopBar
@@ -62,8 +64,6 @@ import java.util.Date
 import java.util.Locale
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-
-private val tabTitles = listOf("审批请求", "推送消息")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -76,6 +76,8 @@ fun InboxScreen(
     val approvals by viewModel.approvals.collectAsStateWithLifecycle()
     val unreadCount by viewModel.unreadCount.collectAsStateWithLifecycle()
 
+    val tabTitles = listOf(stringResource(R.string.inbox_approval_requests), stringResource(R.string.inbox_push_messages))
+
     val pagerState = rememberPagerState(initialPage = 0) { tabTitles.size }
     val coroutineScope = rememberCoroutineScope()
 
@@ -86,17 +88,17 @@ fun InboxScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "收件箱",
+                title = stringResource(R.string.nav_inbox),
                 showBackButton = false,
                 onBackClick = onBackClick,
                 actions = {
                     if (unreadCount > 0) {
                         IconButton(onClick = { viewModel.markAllRead() }) {
-                            Icon(Icons.Default.DoneAll, contentDescription = "全部已读")
+                            Icon(Icons.Default.DoneAll, contentDescription = stringResource(R.string.inbox_mark_all_read))
                         }
                     }
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.settings_logs))
                     }
                 }
             )
@@ -162,7 +164,7 @@ private fun ApprovalsTab(
     onDeny: (String) -> Unit
 ) {
     if (approvals.isEmpty()) {
-        EmptyStateView(message = "暂无审批记录")
+        EmptyStateView(message = stringResource(R.string.inbox_no_approvals))
         return
     }
 
@@ -190,9 +192,9 @@ private fun ApprovalCard(
     val isPending = approval.status == "pending"
     val cardAlpha = if (isPending) 1f else 0.6f
     val statusLabel = when (approval.status) {
-        "approved" -> "已批准"
-        "denied" -> "已拒绝"
-        "timeout" -> "已超时"
+        "approved" -> stringResource(R.string.inbox_approved)
+        "denied" -> stringResource(R.string.inbox_denied)
+        "timeout" -> stringResource(R.string.inbox_timed_out)
         else -> null
     }
     val statusColor = when (approval.status) {
@@ -258,7 +260,7 @@ private fun ApprovalCard(
             if (approval.findingsCount > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "发现 ${approval.findingsCount} 项",
+                    text = stringResource(R.string.inbox_findings_count, approval.findingsCount),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = cardAlpha),
                     fontWeight = FontWeight.Medium
@@ -277,7 +279,7 @@ private fun ApprovalCard(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("拒绝")
+                        Text(stringResource(R.string.inbox_deny))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -286,7 +288,7 @@ private fun ApprovalCard(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("批准")
+                        Text(stringResource(R.string.inbox_approve))
                     }
                 }
             }
@@ -301,7 +303,7 @@ private fun EventsTab(
     onDelete: (String) -> Unit
 ) {
     if (events.isEmpty()) {
-        EmptyStateView(message = "暂无推送消息")
+        EmptyStateView(message = stringResource(R.string.inbox_no_events))
         return
     }
 
@@ -374,7 +376,7 @@ private fun EventCard(
                     ) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "删除",
+                            contentDescription = stringResource(R.string.delete),
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

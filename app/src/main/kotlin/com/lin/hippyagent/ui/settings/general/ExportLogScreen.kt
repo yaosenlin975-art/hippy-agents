@@ -41,12 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.log.LogExporter
 import com.lin.hippyagent.ui.components.HippyTopBar
 import kotlinx.coroutines.Dispatchers
@@ -154,7 +156,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
         }
     }
 
-    Scaffold(topBar = { HippyTopBar(title = "日志", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.settings_logs), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         Column(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background)) {
             Column(Modifier.padding(horizontal = 16.dp)) {
                 Spacer(Modifier.height(8.dp))
@@ -165,19 +167,19 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                         enabled = !exporting,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text(if (exporting) "导出中..." else "导出", color = MaterialTheme.colorScheme.onPrimary)
+                        Text(if (exporting) stringResource(R.string.log_exporting) else stringResource(R.string.log_export_btn), color = MaterialTheme.colorScheme.onPrimary)
                     }
                     if (isStreaming) {
                         OutlinedButton(onClick = { logcatVm.stopStreaming() }) {
-                            Text("停止")
+                            Text(stringResource(R.string.log_stop))
                         }
                     } else {
                         OutlinedButton(onClick = { logcatVm.startStreaming() }) {
-                            Text("实时日志")
+                            Text(stringResource(R.string.log_live_log))
                         }
                     }
                     OutlinedButton(onClick = { logcatVm.clear() }) {
-                        Text("清空")
+                        Text(stringResource(R.string.log_clear))
                     }
                 }
 
@@ -198,7 +200,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                     FilterChip(
                         selected = selectedLevel == null,
                         onClick = { selectedLevel = null },
-                        label = { Text("全部", fontSize = 11.sp) }
+                        label = { Text(stringResource(R.string.log_filter_all), fontSize = 11.sp) }
                     )
                     listOf('V' to "Verbose", 'D' to "Debug", 'I' to "Info", 'W' to "Warn", 'E' to "Error", 'F' to "Fatal").forEach { (level, label) ->
                         FilterChip(
@@ -211,7 +213,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = onlyHippy, onCheckedChange = { onlyHippy = it })
-                    Text("只显示Hippy", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.log_only_hippy), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
@@ -225,8 +227,8 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 if (filteredLines.isEmpty()) {
                     Text(
                         if (lines.isEmpty()) {
-                            if (isStreaming) "等待日志..." else "点击「实时日志」开始查看"
-                        } else "无匹配日志",
+                            if (isStreaming) stringResource(R.string.log_waiting) else stringResource(R.string.log_start_hint)
+                        } else stringResource(R.string.log_no_match),
                         color = Color(0xFF888888),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
@@ -271,7 +273,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                                 contentColor = Color.White
                             )
                         ) {
-                            Text(if (autoScroll) "自动滚动" else "手动滚动", fontSize = 11.sp)
+                            Text(if (autoScroll) stringResource(R.string.log_auto_scroll) else stringResource(R.string.log_manual_scroll), fontSize = 11.sp)
                         }
                     }
                 }
@@ -302,12 +304,12 @@ private suspend fun doExport(ctx: android.content.Context) = withContext(Dispatc
                 withContext(Dispatchers.Main) {
                     try {
                         val intent = exporter.shareLogFile(file)
-                        ctx.startActivity(Intent.createChooser(intent, "分享日志"))
-                        "日志已导出: ${file.name}"
-                    } catch (e: Exception) { Timber.e(e, "Share failed"); "日志已保存: ${file.absolutePath}" }
+                        ctx.startActivity(Intent.createChooser(intent, ctx.getString(R.string.log_share_title)))
+                        ctx.getString(R.string.log_exported, file.name)
+                    } catch (e: Exception) { Timber.e(e, "Share failed"); ctx.getString(R.string.log_saved, file.absolutePath) }
                 }
             },
-            onFailure = { e -> "导出失败: ${e.message}" }
+            onFailure = { e -> ctx.getString(R.string.log_export_failed, e.message ?: "") }
         )
-    } catch (e: Exception) { "导出失败: ${e.message}" }
+    } catch (e: Exception) { ctx.getString(R.string.log_export_failed, e.message ?: "") }
 }

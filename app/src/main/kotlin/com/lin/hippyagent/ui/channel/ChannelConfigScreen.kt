@@ -17,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lin.hippyagent.ui.components.HippyTopBar
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import androidx.activity.compose.BackHandler
 
 @Immutable
@@ -24,7 +26,7 @@ data class ChannelTypeInfo(
     val id: String,
     val name: String,
     val iconRes: Int,
-    val description: String,
+    val descriptionResId: Int,
     val configFields: List<ConfigField>,
     val authType: AuthType = AuthType.MANUAL
 )
@@ -32,8 +34,8 @@ data class ChannelTypeInfo(
 @Immutable
 data class ConfigField(
     val key: String,
-    val label: String,
-    val placeholder: String,
+    val labelResId: Int,
+    val placeholderResId: Int,
     val isSecret: Boolean = false
 )
 
@@ -47,74 +49,74 @@ val SUPPORTED_CHANNELS = listOf(
         id = "feishu",
         name = "飞书",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_feishu,
-        description = "通过飞书机器人发送消息，支持扫码自动配置",
+        descriptionResId = R.string.channel_config_feishu_desc,
         authType = AuthType.QR_CODE,
         configFields = listOf(
-            ConfigField("webhookUrl", "Webhook URL", "https://open.feishu.cn/open-apis/bot/v2/hook/..."),
-            ConfigField("appId", "App ID", "扫码登录后自动获取"),
-            ConfigField("appSecret", "App Secret", "扫码登录后自动获取", isSecret = true)
+            ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_feishu_webhook_hint),
+            ConfigField("appId", R.string.channel_config_app_id, R.string.channel_config_auto_obtain),
+            ConfigField("appSecret", R.string.channel_config_app_secret, R.string.channel_config_auto_obtain, isSecret = true)
         )
     ),
     ChannelTypeInfo(
         id = "dingtalk",
         name = "钉钉",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_dingtalk,
-        description = "通过钉钉机器人发送消息，支持扫码自动配置",
+        descriptionResId = R.string.channel_config_dingtalk_desc,
         authType = AuthType.QR_CODE,
         configFields = listOf(
-            ConfigField("webhookUrl", "Webhook URL", "https://oapi.dingtalk.com/robot/send?access_token=..."),
-            ConfigField("secret", "加签密钥", "SEC...（可选，用于签名验证）", isSecret = true)
+            ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_dingtalk_webhook_hint),
+            ConfigField("secret", R.string.channel_config_secret_key, R.string.channel_config_secret_key_desc, isSecret = true)
         )
     ),
     ChannelTypeInfo(
         id = "wechat",
         name = "企业微信",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_wechat,
-        description = "通过企业微信机器人发送消息，支持扫码自动配置",
+        descriptionResId = R.string.channel_config_wechat_desc,
         authType = AuthType.QR_CODE,
         configFields = listOf(
-            ConfigField("webhookUrl", "Webhook URL", "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=..."),
-            ConfigField("corpId", "企业 ID", "ww...（接收消息时需要）"),
-            ConfigField("agentId", "应用 ID", "1000002（接收消息时需要）")
+            ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_wechat_webhook_hint),
+            ConfigField("corpId", R.string.channel_config_corp_id, R.string.channel_config_corp_id_desc),
+            ConfigField("agentId", R.string.channel_config_agent_id, R.string.channel_config_agent_id_desc)
         )
     ),
     ChannelTypeInfo(
         id = "weixin",
         name = "个人微信",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_weixin,
-        description = "通过个人微信 iLink Bot 接收和发送消息，支持扫码登录",
+        descriptionResId = R.string.channel_config_weixin_desc,
         authType = AuthType.QR_CODE,
         configFields = listOf(
-            ConfigField("botToken", "Bot Token", "扫码登录后自动获取（也可手动填写）"),
-            ConfigField("baseUrl", "API 地址", "https://ilinkai.weixin.qq.com")
+            ConfigField("botToken", R.string.channel_config_bot_token, R.string.channel_config_bot_token_desc_weixin),
+            ConfigField("baseUrl", R.string.channel_config_api_address, R.string.channel_config_weixin_api_url_hint)
         )
     ),
     ChannelTypeInfo(
         id = "qq",
         name = "QQ 机器人",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_qq,
-        description = "通过 QQ 机器人 Official API 接收和发送消息",
+        descriptionResId = R.string.channel_config_qq_desc,
         configFields = listOf(
-            ConfigField("appId", "App ID", "QQ 机器人的 App ID"),
-            ConfigField("appSecret", "App Secret", "QQ 机器人的 Client Secret", isSecret = true)
+            ConfigField("appId", R.string.channel_config_app_id, R.string.channel_config_bot_token_desc_qq),
+            ConfigField("appSecret", R.string.channel_config_app_secret, R.string.channel_config_bot_token_desc_qq_secret, isSecret = true)
         )
     ),
     ChannelTypeInfo(
         id = "telegram",
         name = "Telegram",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_telegram,
-        description = "通过 Telegram Bot API 接收和发送消息",
+        descriptionResId = R.string.channel_config_telegram_desc,
         configFields = listOf(
-            ConfigField("botToken", "Bot Token", "123456:ABC-DEF...", isSecret = true)
+            ConfigField("botToken", R.string.channel_config_bot_token, R.string.channel_config_telegram_bot_token_hint, isSecret = true)
         )
     ),
     ChannelTypeInfo(
         id = "discord",
         name = "Discord",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_discord,
-        description = "通过 Discord Webhook 发送消息",
+        descriptionResId = R.string.channel_config_discord_desc,
         configFields = listOf(
-            ConfigField("webhookUrl", "Webhook URL", "https://discord.com/api/webhooks/...")
+            ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_discord_webhook_hint)
         )
     )
 )
@@ -152,7 +154,7 @@ fun ChannelConfigScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = if (selectedChannel != null) selectedChannel!!.name else "频道配置",
+                title = if (selectedChannel != null) selectedChannel!!.name else stringResource(R.string.channel_config),
                 showBackButton = true,
                 onBackClick = {
                     if (selectedChannel != null) {
@@ -194,7 +196,7 @@ fun ChannelConfigScreen(
             ) {
                 item {
                     Text(
-                        "配置智能体的消息推送渠道。支持 Webhook 推送和双向通信。",
+                        stringResource(R.string.channel_config_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -221,7 +223,7 @@ fun ChannelConfigScreen(
         SnackbarHost(
             hostState = remember { SnackbarHostState() }.apply {
                 LaunchedEffect(showSaveSuccess) {
-                    if (showSaveSuccess) showSnackbar("频道配置已保存")
+                    if (showSaveSuccess) showSnackbar(context.getString(R.string.channel_config_saved))
                 }
             }
         )
@@ -261,7 +263,7 @@ private fun ChannelCard(
                         Spacer(Modifier.width(8.dp))
                         Icon(
                             Icons.Default.Check,
-                            contentDescription = "已配置",
+                            contentDescription = stringResource(R.string.channel_configured),
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -269,7 +271,7 @@ private fun ChannelCard(
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    channel.description,
+                    stringResource(channel.descriptionResId),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2
@@ -304,7 +306,7 @@ private fun ChannelEditView(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
             }
             Spacer(Modifier.width(8.dp))
             Image(
@@ -322,7 +324,7 @@ private fun ChannelEditView(
 
         Spacer(Modifier.height(8.dp))
         Text(
-            channelType.description,
+            stringResource(channelType.descriptionResId),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -335,13 +337,13 @@ private fun ChannelEditView(
             ) {
                 Icon(Icons.Default.QrCode2, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("扫码登录绑定")
+                Text(stringResource(R.string.channel_qr_bind))
             }
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
             Text(
-                "或手动填写配置：",
+                stringResource(R.string.channel_manual_config),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -352,8 +354,8 @@ private fun ChannelEditView(
             OutlinedTextField(
                 value = configValues[field.key] ?: "",
                 onValueChange = { configValues[field.key] = it },
-                label = { Text(field.label) },
-                placeholder = { Text(field.placeholder) },
+                label = { Text(stringResource(field.labelResId)) },
+                placeholder = { Text(stringResource(field.placeholderResId)) },
                 visualTransformation = if (field.isSecret) {
                     androidx.compose.ui.text.input.PasswordVisualTransformation()
                 } else {
@@ -372,7 +374,7 @@ private fun ChannelEditView(
             onClick = { onSave(configValues.toMap()) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("保存配置")
+            Text(stringResource(R.string.channel_save_config))
         }
 
         if (existingConfig != null) {
@@ -384,7 +386,7 @@ private fun ChannelEditView(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("删除配置")
+                Text(stringResource(R.string.channel_delete_config))
             }
         }
     }

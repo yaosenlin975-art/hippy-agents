@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.skill.SkillInfo
 import com.lin.hippyagent.core.skill.SkillManager
 import com.lin.hippyagent.ui.components.HippyTopBar
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -65,18 +67,18 @@ fun SkillPoolScreen(
                     val result = skillManager.installSkillFromZip(tempFile.absolutePath)
                     result.fold(
                         onSuccess = { skill ->
-                            showInstallResult = "技能 ${skill.name} 安装成功"
+                            showInstallResult = context.getString(R.string.skill_pool_install_success, skill.name)
                             refreshTrigger++
                         },
                         onFailure = { e ->
-                            showInstallResult = "安装失败: ${e.message}"
+                            showInstallResult = context.getString(R.string.skill_pool_install_failed, e.message)
                         }
                     )
 
                     tempFile.delete()
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to install skill from ZIP")
-                    showInstallResult = "安装失败: ${e.message}"
+                    showInstallResult = context.getString(R.string.skill_pool_install_failed, e.message)
                 }
             }
         }
@@ -88,12 +90,12 @@ fun SkillPoolScreen(
     if (showUriInput) {
         AlertDialog(
             onDismissRequest = { showUriInput = false },
-            title = { Text("从 URL 添加技能") },
+            title = { Text(stringResource(R.string.skill_pool_add_from_url_title)) },
             text = {
                 OutlinedTextField(
                     value = uriInputText,
                     onValueChange = { uriInputText = it },
-                    label = { Text("技能 URL") },
+                    label = { Text(stringResource(R.string.skill_pool_url_label)) },
                     placeholder = { Text("https://...") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -107,15 +109,15 @@ fun SkillPoolScreen(
                                     val result = skillManager.installSkillFromUrl(uriInputText.trim())
                                     result.fold(
                                         onSuccess = { skill ->
-                                            showInstallResult = "技能 ${skill.name} 安装成功"
+                                            showInstallResult = context.getString(R.string.skill_pool_install_success, skill.name)
                                             refreshTrigger++
                                         },
                                         onFailure = { e ->
-                                            showInstallResult = "安装失败: ${e.message}"
+                                            showInstallResult = context.getString(R.string.skill_pool_install_failed, e.message)
                                         }
                                     )
                                 } catch (e: Exception) {
-                                    showInstallResult = "安装失败: ${e.message}"
+                                    showInstallResult = context.getString(R.string.skill_pool_install_failed, e.message)
                                 }
                                 showUriInput = false
                                 uriInputText = ""
@@ -123,12 +125,12 @@ fun SkillPoolScreen(
                         }
                     }
                 ) {
-                    Text("添加")
+                    Text(stringResource(R.string.add))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showUriInput = false }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -145,15 +147,15 @@ fun SkillPoolScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "添加技能",
+                    text = stringResource(R.string.skill_pool_add_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 ListItem(
-                    headlineContent = { Text("从文件安装") },
-                    supportingContent = { Text("选择本地 ZIP 文件") },
+                    headlineContent = { Text(stringResource(R.string.skill_pool_from_file)) },
+                    supportingContent = { Text(stringResource(R.string.skill_pool_from_file_desc)) },
                     leadingContent = {
                         Icon(Icons.Default.FolderOpen, contentDescription = null)
                     },
@@ -164,8 +166,8 @@ fun SkillPoolScreen(
                 )
 
                 ListItem(
-                    headlineContent = { Text("从 URL 添加") },
-                    supportingContent = { Text("输入技能包下载地址") },
+                    headlineContent = { Text(stringResource(R.string.skill_pool_from_url)) },
+                    supportingContent = { Text(stringResource(R.string.skill_pool_from_url_desc)) },
                     leadingContent = {
                         Icon(Icons.Default.Link, contentDescription = null)
                     },
@@ -183,12 +185,12 @@ fun SkillPoolScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "技能池",
+                title = stringResource(R.string.skill_pool),
                 showBackButton = true,
                 onBackClick = onBackClick,
                 actions = {
                     IconButton(onClick = onNavigateToStore) {
-                        Icon(Icons.Default.Store, "商店", tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Default.Store, stringResource(R.string.skill_pool_store), tint = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             )
@@ -199,16 +201,16 @@ fun SkillPoolScreen(
                 onClick = { showAddSheet = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "添加", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Default.Add, stringResource(R.string.add), tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     ) { padding ->
         if (skills.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("暂无技能", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.skill_pool_no_skills), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text("点击右上角 + 添加技能", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.skill_pool_add_hint), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {
@@ -231,7 +233,7 @@ fun SkillPoolScreen(
                             }
                             if (!skill.isBuiltin) {
                                 IconButton(onClick = { showDeleteDialog = skill }) {
-                                    Icon(Icons.Default.Delete, "删除", tint = MaterialTheme.colorScheme.error)
+                                    Icon(Icons.Default.Delete, stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
                                 }
                             }
                         }
@@ -245,24 +247,24 @@ fun SkillPoolScreen(
     showInstallResult?.let { message ->
         AlertDialog(
             onDismissRequest = { showInstallResult = null },
-            title = { Text("安装结果") },
+            title = { Text(stringResource(R.string.skill_pool_install_result)) },
             text = { Text(message) },
-            confirmButton = { TextButton(onClick = { showInstallResult = null }) { Text("确定") } }
+            confirmButton = { TextButton(onClick = { showInstallResult = null }) { Text(stringResource(R.string.ok)) } }
         )
     }
 
     showDeleteDialog?.let { skill ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            title = { Text("删除技能") },
-            text = { Text("确定要删除 ${skill.name} 吗？") },
+            title = { Text(stringResource(R.string.skill_pool_delete_title)) },
+            text = { Text(stringResource(R.string.skill_pool_delete_confirm, skill.name)) },
             confirmButton = { TextButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     skillManager.uninstallSkill(skill.id)
                 }
                 refreshTrigger++; showDeleteDialog = null
-            }) { Text("删除", color = MaterialTheme.colorScheme.error) } },
-            dismissButton = { TextButton(onClick = { showDeleteDialog = null }) { Text("取消") } }
+            }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { showDeleteDialog = null }) { Text(stringResource(R.string.cancel)) } }
         )
     }
 

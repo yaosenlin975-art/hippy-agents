@@ -42,8 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,14 +100,14 @@ fun ModelSwitchSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "选择模型",
+                    text = stringResource(R.string.chat_select_model),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = onNavigateToSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "模型设置",
+                        contentDescription = stringResource(R.string.chat_model_settings),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -114,7 +116,7 @@ fun ModelSwitchSheet(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("搜索模型或供应商") },
+                placeholder = { Text(stringResource(R.string.chat_search_model_provider)) },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 singleLine = true,
                 modifier = Modifier
@@ -124,7 +126,7 @@ fun ModelSwitchSheet(
 
             if (availableModels.isEmpty()) {
                 Text(
-                    text = "暂无可用模型，请先在「设置 → 模型提供商」中配置",
+                    text = stringResource(R.string.chat_no_models_hint),
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -159,7 +161,7 @@ fun ModelSwitchSheet(
                                 )
                                 Icon(
                                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = if (isExpanded) "折叠" else "展开",
+                                    contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                                     modifier = Modifier.size(18.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -228,7 +230,7 @@ private fun ModelItem(
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "已选择",
+                    contentDescription = stringResource(R.string.chat_selected),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }

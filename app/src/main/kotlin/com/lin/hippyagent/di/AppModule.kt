@@ -78,7 +78,7 @@ val viewModelModule = module {
     viewModel { com.lin.hippyagent.ui.settings.env.EnvVarsViewModel(configStorage = get()) }
 
     single { androidContext().getSharedPreferences("ui_settings", android.content.Context.MODE_PRIVATE) }
-    viewModel { ConversationListViewModel(sessionStore = get(), agentRepository = get(), agentFactory = get(), groupRegistry = get(), sessionGroupDao = get<AppDatabase>().sessionGroupDao(), notificationService = get(), prefs = get()) }
+    viewModel { ConversationListViewModel(context = androidContext(), sessionStore = get(), agentRepository = get(), agentFactory = get(), groupRegistry = get(), sessionGroupDao = get<AppDatabase>().sessionGroupDao(), notificationService = get(), prefs = get()) }
 
     viewModel {
         GroupSettingsViewModel(
@@ -204,6 +204,7 @@ val appModule = module {
         com.lin.hippyagent.core.hooks.system.SystemHookManager(
             context = androidContext(),
             eventCallback = com.lin.hippyagent.core.hooks.system.SystemEventDispatcher(
+                context = androidContext(),
                 agentRegistry = get(),
                 agentFactory = get(),
                 sessionStore = get()
@@ -251,6 +252,7 @@ val appModule = module {
     single { com.lin.hippyagent.core.voice.SttRouter(context = androidContext(), voiceManager = get(), onDeviceModelManager = get()) }
 
     single { com.lin.hippyagent.core.voice.LiteRTLMTranscriber(
+        context = androidContext(),
         onDeviceModelManager = get(),
         serviceScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
     ) }

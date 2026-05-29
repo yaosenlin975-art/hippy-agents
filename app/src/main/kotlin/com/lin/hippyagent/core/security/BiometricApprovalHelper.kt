@@ -6,6 +6,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.suspendCancellableCoroutine
+import com.lin.hippyagent.R
 import timber.log.Timber
 import kotlin.coroutines.resume
 
@@ -21,7 +22,7 @@ class BiometricApprovalHelper(private val activity: FragmentActivity) {
             val promptInfo = BiometricPrompt.PromptInfo.Builder()
                 .setTitle(title)
                 .setSubtitle(description)
-                .setNegativeButtonText("拒绝")
+                .setNegativeButtonText(activity.getString(R.string.biometric_reject))
                 .setConfirmationRequired(true)
                 .build()
 

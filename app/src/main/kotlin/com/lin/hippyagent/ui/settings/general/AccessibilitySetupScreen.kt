@@ -17,8 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.accessibility.PhoneControlAccessibilityService
 import com.lin.hippyagent.ui.components.HippyTopBar
 
@@ -28,7 +30,7 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
     val ctx = LocalContext.current
     var isServiceEnabled by remember { mutableStateOf(checkAccessibilityEnabled(ctx)) }
 
-    Scaffold(topBar = { HippyTopBar(title = "无障碍手机操控", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.accessibility_phone_control), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
             item { Spacer(Modifier.height(16.dp)) }
 
@@ -48,12 +50,12 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = if (isServiceEnabled) "无障碍服务已启用" else "无障碍服务未启用",
+                                text = if (isServiceEnabled) stringResource(R.string.accessibility_service_enabled) else stringResource(R.string.accessibility_service_disabled_title),
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = if (isServiceEnabled) "Agent 可以感知和操控手机屏幕" else "需要启用后 Agent 才能操控手机",
+                                text = if (isServiceEnabled) stringResource(R.string.accessibility_can_control) else stringResource(R.string.accessibility_need_enable),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -65,16 +67,16 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
             item { Spacer(Modifier.height(16.dp)) }
 
             item {
-                Text("开启步骤", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.accessibility_steps_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
-                        StepItem("1", "点击下方按钮跳转到系统无障碍设置")
-                        StepItem("2", "在列表中找到「Hippy」")
-                        StepItem("3", "点击进入并开启服务")
-                        StepItem("4", "返回本页面确认状态")
+                        StepItem("1", stringResource(R.string.accessibility_step_1))
+                        StepItem("2", stringResource(R.string.accessibility_step_2))
+                        StepItem("3", stringResource(R.string.accessibility_step_3))
+                        StepItem("4", stringResource(R.string.accessibility_step_4))
                     }
                 }
             }
@@ -89,7 +91,7 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("前往系统无障碍设置", fontSize = 15.sp)
+                    Text(stringResource(R.string.accessibility_go_to_settings), fontSize = 15.sp)
                 }
             }
 
@@ -100,23 +102,23 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                     onClick = { isServiceEnabled = checkAccessibilityEnabled(ctx) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("刷新状态", fontSize = 15.sp)
+                    Text(stringResource(R.string.accessibility_refresh_status), fontSize = 15.sp)
                 }
             }
 
             item { Spacer(Modifier.height(24.dp)) }
 
             item {
-                Text("安全说明", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.accessibility_safety_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
-                        InfoRow("银行/支付类 App 默认禁止操控")
-                        InfoRow("输入密码/支付金额等高风险操作需用户确认")
-                        InfoRow("所有操作均有审计日志可追溯")
-                        InfoRow("可随时在系统设置中关闭服务")
+                        InfoRow(stringResource(R.string.accessibility_safety_bank))
+                        InfoRow(stringResource(R.string.accessibility_safety_password))
+                        InfoRow(stringResource(R.string.accessibility_safety_audit))
+                        InfoRow(stringResource(R.string.accessibility_safety_disable))
                     }
                 }
             }
@@ -167,4 +169,3 @@ private fun checkAccessibilityEnabled(context: Context): Boolean {
     } catch (_: Exception) {}
     return PhoneControlAccessibilityService.isRunning()
 }
-

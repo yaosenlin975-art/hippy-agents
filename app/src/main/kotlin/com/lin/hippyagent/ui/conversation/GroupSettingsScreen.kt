@@ -54,8 +54,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.ui.chat.ModelSwitchSheet
 import com.lin.hippyagent.ui.components.getAvatarIcon
@@ -87,7 +89,7 @@ fun GroupSettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "群组设置",
+                        text = stringResource(R.string.group_settings),
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -96,7 +98,7 @@ fun GroupSettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = stringResource(R.string.common_back)
                         )
                     }
                 },
@@ -123,7 +125,7 @@ fun GroupSettingsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = uiState.errorMessage ?: "群组不存在",
+                    text = uiState.errorMessage ?: stringResource(R.string.group_not_found),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -150,7 +152,7 @@ fun GroupSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "群组名称",
+                                text = stringResource(R.string.group_name_label),
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
@@ -175,7 +177,7 @@ fun GroupSettingsScreen(
                                     onValueChange = { editName = it },
                                     modifier = Modifier.weight(1f),
                                     singleLine = true,
-                                    placeholder = { Text("输入群组名称") }
+                                    placeholder = { Text(stringResource(R.string.group_name_hint)) }
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 TextButton(
@@ -185,10 +187,10 @@ fun GroupSettingsScreen(
                                         isEditing = false
                                     }
                                 ) {
-                                    Text("保存")
+                                    Text(stringResource(R.string.save))
                                 }
                                 TextButton(onClick = { isEditing = false }) {
-                                    Text("取消")
+                                    Text(stringResource(R.string.cancel))
                                 }
                             }
                         }
@@ -205,7 +207,7 @@ fun GroupSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "群组ID",
+                                text = stringResource(R.string.group_id),
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
@@ -226,12 +228,12 @@ fun GroupSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "成员数量",
+                                text = stringResource(R.string.group_member_count),
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                text = "${uiState.memberAgents.size} 人",
+                                text = stringResource(R.string.group_people_count, uiState.memberAgents.size),
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -250,12 +252,12 @@ fun GroupSettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "只接收@消息",
+                                    text = stringResource(R.string.group_mention_only),
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
-                                    text = "开启后仅接收提及自己的消息，不接收广播",
+                                    text = stringResource(R.string.group_mention_only_desc),
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -280,12 +282,12 @@ fun GroupSettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "决策模型",
+                                    text = stringResource(R.string.group_decision_model),
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
-                                    text = "群发消息时选择发言者的LLM模型",
+                                    text = stringResource(R.string.group_decision_model_desc),
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -295,7 +297,7 @@ fun GroupSettingsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
-                                    text = uiState.llmSelectorModelName ?: "默认",
+                                    text = uiState.llmSelectorModelName ?: stringResource(R.string.group_default),
                                     fontSize = 13.sp,
                                     color = if (uiState.llmSelectorModelName != null)
                                         MaterialTheme.colorScheme.primary
@@ -305,7 +307,7 @@ fun GroupSettingsScreen(
                                 if (uiState.llmSelectorModelName != null) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "清除",
+                                        contentDescription = stringResource(R.string.group_clear),
                                         modifier = Modifier
                                             .size(16.dp)
                                             .clickable { viewModel.clearLlmSelector() },
@@ -327,12 +329,12 @@ fun GroupSettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "成员列表",
+                            text = stringResource(R.string.group_member_list),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "${uiState.memberAgents.size} 人",
+                            text = stringResource(R.string.group_people_count, uiState.memberAgents.size),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -391,7 +393,7 @@ fun GroupSettingsScreen(
                             .padding(horizontal = 16.dp)
                     ) {
                         Text(
-                            text = "解散群组",
+                            text = stringResource(R.string.group_dissolve),
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
@@ -428,13 +430,13 @@ fun GroupSettingsScreen(
             onDismissRequest = { viewModel.hideDissolveDialog() },
             title = {
                 Text(
-                    text = "解散群组",
+                    text = stringResource(R.string.group_dissolve),
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
-                    text = "确定要解散群组「${uiState.groupName}」吗？\n解散后所有群聊记录将保留，但群组将被删除。",
+                    text = stringResource(R.string.group_dissolve_confirm, uiState.groupName),
                     fontSize = 14.sp,
                     lineHeight = 22.sp
                 )
@@ -443,12 +445,12 @@ fun GroupSettingsScreen(
                 TextButton(
                     onClick = { viewModel.dissolveGroup() }
                 ) {
-                    Text("解散", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.group_dissolve_btn), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDissolveDialog() }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -539,7 +541,7 @@ private fun MemberAvatar(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "移除",
+                    contentDescription = stringResource(R.string.group_remove),
                     tint = Color.White,
                     modifier = Modifier.size(12.dp)
                 )
@@ -567,14 +569,14 @@ private fun AddMemberButton(
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "添加成员",
+                contentDescription = stringResource(R.string.group_add_member),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "添加",
+            text = stringResource(R.string.group_add),
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -593,12 +595,12 @@ private fun AddMemberPickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "添加成员", fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.group_add_member), fontWeight = FontWeight.Bold)
         },
         text = {
             if (availableAgents.isEmpty()) {
                 Text(
-                    text = "没有可添加的智能体",
+                    text = stringResource(R.string.group_no_agents_to_add),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
@@ -660,7 +662,7 @@ private fun AddMemberPickerDialog(
                                 )
                                 if (isBootstrap) {
                                     Text(
-                                        text = "未初始化，请先与该智能体对话完成初始化",
+                                        text = stringResource(R.string.group_agent_not_initialized),
                                         fontSize = 11.sp,
                                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                                     )
@@ -684,12 +686,12 @@ private fun AddMemberPickerDialog(
                 },
                 enabled = selectedAgentId != null && selectedAgentId !in bootstrapAgentIds
             ) {
-                Text("添加")
+                Text(stringResource(R.string.group_add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

@@ -59,9 +59,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.agent.AgentConfigViewModel
 import com.lin.hippyagent.ui.agent.AgentProfileFields
 import com.lin.hippyagent.ui.agent.CoreFileEditorDialog
@@ -141,12 +143,12 @@ fun AgentConfigSection(
                     }
                     val result = skillManager.installSkillFromZip(tempFile.absolutePath)
                     result.fold(
-                        onSuccess = { skill -> installResultMessage = "技能 ${skill.name} 安装成功" },
-                        onFailure = { e -> installResultMessage = "安装失败: ${e.message}" }
+                        onSuccess = { skill -> installResultMessage = context.getString(R.string.agent_skill_installed, skill.name) },
+                        onFailure = { e -> installResultMessage = context.getString(R.string.agent_skill_install_failed, e.message ?: "") }
                     )
                     tempFile.delete()
                 } catch (e: Exception) {
-                    installResultMessage = "安装失败: ${e.message}"
+                    installResultMessage = context.getString(R.string.agent_skill_install_failed, e.message ?: "")
                 }
             }
         }
@@ -187,7 +189,7 @@ fun AgentConfigSection(
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "删除",
+                            contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(18.dp)
                         )
@@ -196,7 +198,7 @@ fun AgentConfigSection(
                 IconButton(onClick = { isExpanded = !isExpanded }) {
                     Icon(
                         if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = if (isExpanded) "收起" else "展开",
+                        contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                         tint = MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(20.dp)
                     )
@@ -224,7 +226,7 @@ fun AgentConfigSection(
                             .padding(horizontal = 16.dp)
                     ) {
                         SectionHeader(
-                            title = "基本信息",
+                            title = stringResource(R.string.agent_basic_info),
                             expanded = basicInfoExpanded,
                             onToggle = { basicInfoExpanded = !basicInfoExpanded }
                         )
@@ -253,7 +255,7 @@ fun AgentConfigSection(
                                         IconButton(onClick = { showAgentSwitcher = true }) {
                                             Icon(
                                                 Icons.Default.KeyboardArrowDown,
-                                                contentDescription = "切换智能体",
+                                                contentDescription = stringResource(R.string.agent_switch),
                                                 tint = MaterialTheme.colorScheme.outline,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -291,7 +293,7 @@ fun AgentConfigSection(
 
                         Spacer(Modifier.height(16.dp))
                         SectionHeader(
-                            title = "快捷配置",
+                            title = stringResource(R.string.agent_quick_config),
                             expanded = quickConfigExpanded,
                             onToggle = { quickConfigExpanded = !quickConfigExpanded }
                         )
@@ -300,61 +302,61 @@ fun AgentConfigSection(
                                 Column(modifier = Modifier.padding(8.dp)) {
                                     QuickActionButton(
                                         icon = Icons.Default.Settings,
-                                        label = "运行配置",
+                                        label = stringResource(R.string.running_config),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToRunningConfig(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.FavoriteBorder,
-                                        label = "心跳配置",
+                                        label = stringResource(R.string.agent_heartbeat_config),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToHeartbeat(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Nightlight,
-                                        label = "睡梦系统",
+                                        label = stringResource(R.string.agent_dream_system),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToDream(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Power,
-                                        label = "MCP 配置",
+                                        label = stringResource(R.string.agent_mcp_config),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToMCP(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Handshake,
-                                        label = "ACP 配置",
+                                        label = stringResource(R.string.agent_acp_config),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToACP(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Extension,
-                                        label = "技能管理",
+                                        label = stringResource(R.string.skill_management),
                                         onClick = { showSkillsSheet = true },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Settings,
-                                        label = "工具管理",
+                                        label = stringResource(R.string.agent_tool_management),
                                         onClick = { showToolsSheet = true },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Shield,
-                                        label = "工具安全",
+                                        label = stringResource(R.string.tool_security),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToToolSecurity(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Schedule,
-                                        label = "定时任务",
+                                        label = stringResource(R.string.agent_cron_jobs),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToCronJobs(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                     QuickActionButton(
                                         icon = Icons.Default.Email,
-                                        label = "频道配置",
+                                        label = stringResource(R.string.agent_channel_config),
                                         onClick = { uiState.agent?.agentId?.let { onNavigateToChannelConfig(it) } },
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -363,7 +365,7 @@ fun AgentConfigSection(
                         }
 
                         SectionHeader(
-                            title = "文件",
+                            title = stringResource(R.string.tool_cat_file),
                             expanded = filesExpanded,
                             onToggle = { filesExpanded = !filesExpanded }
                         )
@@ -426,14 +428,14 @@ fun AgentConfigSection(
                                                 Column(modifier = Modifier.weight(1f)) {
                                                     Text("memories", fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                                     Text(
-                                                        "${memoryFiles.size} 个文件",
+                                                        context.getString(R.string.agent_file_count, memoryFiles.size),
                                                         fontSize = 11.sp,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
                                                 Icon(
                                                     imageVector = if (memorySectionExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                                    contentDescription = if (memorySectionExpanded) "收起" else "展开",
+                                                    contentDescription = if (memorySectionExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                                     modifier = Modifier.size(20.dp)
                                                 )
@@ -550,7 +552,7 @@ fun AgentConfigSection(
                 onSave = { content ->
                     viewModel.saveCoreFile(currentFilename, content) {
                         editingFilename = null
-                        Toast.makeText(context, "已保存", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.agent_saved), Toast.LENGTH_SHORT).show()
                     }
                 }
             )

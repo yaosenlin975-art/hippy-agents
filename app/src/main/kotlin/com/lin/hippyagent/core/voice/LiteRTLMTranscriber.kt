@@ -1,8 +1,10 @@
 package com.lin.hippyagent.core.voice
 
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.ondevice.OnDeviceCapability
 import com.lin.hippyagent.core.ondevice.OnDeviceModelManager
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +20,7 @@ import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicReference
 
 class LiteRTLMTranscriber(
+    private val context: Context,
     private val onDeviceModelManager: OnDeviceModelManager,
     private val serviceScope: CoroutineScope,
 ) {
@@ -80,7 +83,7 @@ class LiteRTLMTranscriber(
 
         serviceScope.launch {
             withContext(Dispatchers.Main) {
-                callback.onPartialResult(SttResult(text = "正在聆听...", isFinal = false))
+                callback.onPartialResult(SttResult(text = context.getString(R.string.chat_listening), isFinal = false))
             }
         }
     }
@@ -121,7 +124,7 @@ class LiteRTLMTranscriber(
 
         try {
             withContext(Dispatchers.Main) {
-                cb.onPartialResult(SttResult(text = "正在识别...", isFinal = false))
+                cb.onPartialResult(SttResult(text = context.getString(R.string.stt_recognizing), isFinal = false))
             }
             val text = onDeviceModelManager.transcribeAudio(pcmBytes)
             withContext(Dispatchers.Main) {

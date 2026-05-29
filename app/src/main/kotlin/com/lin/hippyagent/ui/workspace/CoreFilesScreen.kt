@@ -43,8 +43,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.config.CoreFile
 import com.lin.hippyagent.ui.components.HippyTopBar
 
@@ -62,12 +64,12 @@ fun CoreFilesScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "核心文件",
+                title = stringResource(R.string.core_files),
                 showBackButton = true,
                 onBackClick = onBackClick,
                 actions = {
                     IconButton(onClick = { viewModel.refreshFiles() }) {
-                        Icon(Icons.Default.Refresh, "刷新", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Default.Refresh, stringResource(R.string.refresh), tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
@@ -113,7 +115,7 @@ fun CoreFilesScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "暂无核心文件",
+                                text = stringResource(R.string.core_files_no_files),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -168,7 +170,7 @@ private fun CoreFileItem(
         ) {
             Icon(
                 imageVector = Icons.Default.DragIndicator,
-                contentDescription = "拖拽排序",
+                contentDescription = stringResource(R.string.core_files_drag_sort),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 12.dp)
             )
@@ -191,7 +193,7 @@ private fun CoreFileItem(
                     )
                     if (!file.exists) {
                         Text(
-                            text = "未创建",
+                            text = stringResource(R.string.core_files_not_created),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Medium
@@ -215,7 +217,7 @@ private fun CoreFileItem(
                         )
                     } else {
                         Text(
-                            text = "点击编辑以创建",
+                            text = stringResource(R.string.core_files_click_to_create),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
@@ -244,7 +246,7 @@ fun FileEditorDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("编辑 $filename")
+            Text(stringResource(R.string.core_files_edit, filename))
         },
         text = {
             Column {
@@ -263,12 +265,12 @@ fun FileEditorDialog(
         },
         confirmButton = {
             Button(onClick = { onSave(editedContent) }) {
-                Text("保存")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

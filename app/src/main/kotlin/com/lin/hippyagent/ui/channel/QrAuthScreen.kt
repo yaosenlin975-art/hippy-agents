@@ -32,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.channel.qr.AppLauncher
 import com.lin.hippyagent.core.channel.qr.QrAuthState
 import com.lin.hippyagent.core.channel.qr.QrImageSaver
@@ -58,7 +60,7 @@ fun QrAuthScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "${channelName}扫码登录",
+                title = stringResource(R.string.channel_qr_login, channelName),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -75,16 +77,16 @@ fun QrAuthScreen(
         ) {
             when (val s = state) {
                 is QrAuthState.Idle -> {
-                    Text("点击开始扫码绑定${channelName}")
+                    Text(stringResource(R.string.channel_qr_start_hint, channelName))
                     Spacer(Modifier.height(16.dp))
                     Button(onClick = { viewModel.startQrLogin() }) {
-                        Text("开始绑定")
+                        Text(stringResource(R.string.channel_start_bind))
                     }
                 }
                 is QrAuthState.Loading -> {
                     CircularProgressIndicator()
                     Spacer(Modifier.height(16.dp))
-                    Text("正在获取二维码...")
+                    Text(stringResource(R.string.channel_fetching_qr))
                 }
                 is QrAuthState.QrReady -> {
                     val bitmap = remember(s.qrcodeBase64) {
@@ -93,7 +95,7 @@ fun QrAuthScreen(
                     if (bitmap != null) {
                         Image(
                             bitmap = bitmap.asImageBitmap(),
-                            contentDescription = "${channelName}登录二维码",
+                            contentDescription = stringResource(R.string.channel_qr_code_desc, channelName),
                             modifier = Modifier.size(250.dp)
                         )
                     } else {
@@ -104,12 +106,12 @@ fun QrAuthScreen(
                             tint = MaterialTheme.colorScheme.error
                         )
                         Spacer(Modifier.height(8.dp))
-                        Text("二维码解码失败", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.channel_qr_decode_failed), color = MaterialTheme.colorScheme.error)
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text("请使用${channelName}扫描上方二维码")
+                    Text(stringResource(R.string.channel_scan_qr_hint, channelName))
                     Spacer(Modifier.height(8.dp))
-                    Text("二维码有效期 5 分钟", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.channel_qr_expiry), style = MaterialTheme.typography.bodySmall)
 
                     if (AppLauncher.isAppInstalled(context, channelId)) {
                         Spacer(Modifier.height(16.dp))
@@ -119,9 +121,9 @@ fun QrAuthScreen(
                                     val savedUri = QrImageSaver.saveToGallery(context, s.qrcodeBase64)
                                     val launched = AppLauncher.launchScan(context, channelId)
                                     if (launched && savedUri != null) {
-                                        snackbarHostState.showSnackbar("二维码已保存，请在${channelName}中从相册选取扫描")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.channel_qr_saved_hint, channelName))
                                     } else if (!launched) {
-                                        snackbarHostState.showSnackbar("未安装${channelName}，请用其他设备扫描")
+                                        snackbarHostState.showSnackbar(context.getString(R.string.channel_app_not_installed, channelName))
                                     }
                                 }
                             },
@@ -129,19 +131,19 @@ fun QrAuthScreen(
                         ) {
                             Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("跳转${channelName}扫码")
+                            Text(stringResource(R.string.channel_open_app_scan, channelName))
                         }
                     }
                 }
                 is QrAuthState.Scanned -> {
                     CircularProgressIndicator()
                     Spacer(Modifier.height(16.dp))
-                    Text("已扫描，请在手机上确认登录")
+                    Text(stringResource(R.string.channel_scanned_confirm))
                 }
                 is QrAuthState.Success -> {
                     Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(16.dp))
-                    Text("绑定成功！")
+                    Text(stringResource(R.string.channel_bind_success))
                     LaunchedEffect(s) {
                         delay(1500)
                         onAuthSuccess()
@@ -154,7 +156,7 @@ fun QrAuthScreen(
                     if (s.retryable) {
                         Spacer(Modifier.height(16.dp))
                         OutlinedButton(onClick = { viewModel.startQrLogin() }) {
-                            Text("重试")
+                            Text(stringResource(R.string.common_retry))
                         }
                     }
                 }

@@ -38,11 +38,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.storage.SecureStorage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +60,7 @@ fun ApiKeyManagementScreen(
     Scaffold(
         topBar = {
             com.lin.hippyagent.ui.components.HippyTopBar(
-                title = "API 密钥管理",
+                title = stringResource(R.string.api_key_management),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -68,7 +70,7 @@ fun ApiKeyManagementScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "添加", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Default.Add, stringResource(R.string.add), tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     ) { padding ->
@@ -99,7 +101,7 @@ fun ApiKeyManagementScreen(
                         )
                     ) {
                         Text(
-                            text = "暂无 API 密钥，点击 + 添加",
+                            text = stringResource(R.string.api_key_no_keys),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -156,7 +158,7 @@ private fun ApiKeyCard(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = if (hasKey) "已配置" else "未配置",
+                    text = if (hasKey) stringResource(R.string.api_key_configured) else stringResource(R.string.api_key_not_configured),
                     fontSize = 12.sp,
                     color = if (hasKey) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.error
@@ -165,13 +167,13 @@ private fun ApiKeyCard(
             IconButton(onClick = { showKey = !showKey }) {
                 Icon(
                     imageVector = if (showKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (showKey) "隐藏" else "显示"
+                    contentDescription = if (showKey) stringResource(R.string.api_key_hide) else stringResource(R.string.api_key_show)
                 )
             }
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "删除",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -191,14 +193,14 @@ private fun AddApiKeyDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("添加 API 密钥") },
+        title = { Text(stringResource(R.string.api_key_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = providerId,
                     onValueChange = { providerId = it },
-                    label = { Text("提供商 ID") },
-                    placeholder = { Text("如 openai, deepseek") },
+                    label = { Text(stringResource(R.string.provider_id_label)) },
+                    placeholder = { Text(stringResource(R.string.api_key_provider_id_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
@@ -224,14 +226,13 @@ private fun AddApiKeyDialog(
                 onClick = { onConfirm(providerId, apiKey) },
                 enabled = providerId.isNotBlank() && apiKey.isNotBlank()
             ) {
-                Text("保存")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
-

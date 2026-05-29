@@ -17,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.model.ModelConfig
 import java.util.UUID
 
@@ -39,20 +41,20 @@ fun ModelConfigDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (model != null) "编辑模型" else "添加模型") },
+        title = { Text(if (model != null) stringResource(R.string.model_edit_title) else stringResource(R.string.model_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("模型名称") },
-                    placeholder = { Text("如 gpt-4, claude-3-sonnet") },
+                    label = { Text(stringResource(R.string.model_name_label)) },
+                    placeholder = { Text(stringResource(R.string.model_name_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = displayName,
                     onValueChange = { displayName = it },
-                    label = { Text("显示名称（可选）") },
+                    label = { Text(stringResource(R.string.model_display_name_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -60,7 +62,7 @@ fun ModelConfigDialog(
                     value = maxTokensStr,
                     onValueChange = { if (it.all { c -> c.isDigit() }) maxTokensStr = it },
                     label = { Text("Max Tokens") },
-                    placeholder = { Text("如 4096") },
+                    placeholder = { Text(stringResource(R.string.placeholder_max_tokens)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -69,7 +71,7 @@ fun ModelConfigDialog(
                     value = contextWindowStr,
                     onValueChange = { if (it.all { c -> c.isDigit() }) contextWindowStr = it },
                     label = { Text("Context Window") },
-                    placeholder = { Text("如 8192") },
+                    placeholder = { Text(stringResource(R.string.placeholder_context_window)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -109,14 +111,13 @@ fun ModelConfigDialog(
                 },
                 enabled = name.isNotBlank()
             ) {
-                Text("保存")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
-

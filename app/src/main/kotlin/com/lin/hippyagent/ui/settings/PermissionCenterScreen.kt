@@ -53,45 +53,47 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
+import androidx.compose.ui.res.stringResource
 
 @Immutable
 private data class PermissionItem(
     val key: String,
-    val name: String,
-    val description: String,
-    val category: String,
+    val nameRes: Int,
+    val descriptionRes: Int,
+    val categoryRes: Int,
     val dangerousApi: String? = null
 )
 
 private val PERMISSION_LIST = listOf(
-    PermissionItem("notification", "通知", "读取和回复通知消息", "通信",
+    PermissionItem("notification", R.string.perm_notification, R.string.perm_notification_desc, R.string.perm_category_communication,
         dangerousApi = null),
-    PermissionItem("camera", "相机", "拍照和录制视频", "硬件",
+    PermissionItem("camera", R.string.perm_camera, R.string.perm_camera_desc, R.string.perm_category_hardware,
         dangerousApi = Manifest.permission.CAMERA),
-    PermissionItem("microphone", "麦克风", "语音输入和录音", "硬件",
+    PermissionItem("microphone", R.string.perm_microphone, R.string.perm_microphone_desc, R.string.perm_category_hardware,
         dangerousApi = Manifest.permission.RECORD_AUDIO),
-    PermissionItem("location", "位置", "获取当前位置信息", "硬件",
+    PermissionItem("location", R.string.perm_location, R.string.perm_location_desc, R.string.perm_category_hardware,
         dangerousApi = Manifest.permission.ACCESS_FINE_LOCATION),
-    PermissionItem("contacts", "通讯录", "读取联系人信息", "通信",
+    PermissionItem("contacts", R.string.perm_contacts, R.string.perm_contacts_desc, R.string.perm_category_communication,
         dangerousApi = Manifest.permission.READ_CONTACTS),
-    PermissionItem("sms", "短信", "读取和发送短信", "通信",
+    PermissionItem("sms", R.string.perm_sms, R.string.perm_sms_desc, R.string.perm_category_communication,
         dangerousApi = Manifest.permission.READ_SMS),
-    PermissionItem("phone", "电话", "拨打电话和读取通话记录", "通信",
+    PermissionItem("phone", R.string.perm_phone, R.string.perm_phone_desc, R.string.perm_category_communication,
         dangerousApi = Manifest.permission.CALL_PHONE),
-    PermissionItem("calendar", "日历", "读取和编辑日历事件", "数据",
+    PermissionItem("calendar", R.string.perm_calendar, R.string.perm_calendar_desc, R.string.perm_category_data,
         dangerousApi = Manifest.permission.READ_CALENDAR),
-    PermissionItem("storage", "存储", "读取和写入文件", "数据",
+    PermissionItem("storage", R.string.perm_storage, R.string.perm_storage_desc, R.string.perm_category_data,
         dangerousApi = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_IMAGES
         else Manifest.permission.READ_EXTERNAL_STORAGE),
-    PermissionItem("bluetooth", "蓝牙", "扫描和连接蓝牙设备", "硬件",
+    PermissionItem("bluetooth", R.string.perm_bluetooth, R.string.perm_bluetooth_desc, R.string.perm_category_hardware,
         dangerousApi = if (Build.VERSION.SDK_INT >= 31) Manifest.permission.BLUETOOTH_CONNECT
         else Manifest.permission.BLUETOOTH),
-    PermissionItem("wifi", "WiFi", "读取WiFi网络信息", "硬件",
+    PermissionItem("wifi", R.string.perm_wifi, R.string.perm_wifi_desc, R.string.perm_category_hardware,
         dangerousApi = Manifest.permission.ACCESS_WIFI_STATE),
-    PermissionItem("overlay", "悬浮窗", "在其他应用上层显示界面", "系统",
+    PermissionItem("overlay", R.string.perm_overlay, R.string.perm_overlay_desc, R.string.perm_category_system,
         dangerousApi = null),
-    PermissionItem("alarm", "定时闹钟", "精准定时任务", "系统",
+    PermissionItem("alarm", R.string.perm_alarm, R.string.perm_alarm_desc, R.string.perm_category_system,
         dangerousApi = null),
 )
 
@@ -143,7 +145,7 @@ fun PermissionCenterScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "权限中心",
+                title = stringResource(R.string.perm_center_title),
                 onBackClick = onBackClick
             )
         },
@@ -180,13 +182,13 @@ fun PermissionCenterScreen(
                         Spacer(Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "$grantedCount / $totalCount 项已授权",
+                                stringResource(R.string.perm_granted_count, grantedCount, totalCount),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "Agent 执行操作时将按需请求权限，建议提前授权常用权限以避免对话中断。",
+                                stringResource(R.string.perm_center_hint),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -197,11 +199,11 @@ fun PermissionCenterScreen(
                 Spacer(Modifier.height(12.dp))
             }
 
-            val categories = PERMISSION_LIST.groupBy { it.category }
-            categories.forEach { (category, items) ->
+            val categories = PERMISSION_LIST.groupBy { it.categoryRes }
+            categories.forEach { (categoryRes, items) ->
                 item {
                     Text(
-                        category,
+                        stringResource(categoryRes),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -238,12 +240,12 @@ fun PermissionCenterScreen(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        item.name,
+                                        stringResource(item.nameRes),
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                     Text(
-                                        item.description,
+                                        stringResource(item.descriptionRes),
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -262,7 +264,7 @@ fun PermissionCenterScreen(
                                     }
                                 }
                                 Text(
-                                    if (isGranted) "已授权" else "未授权",
+                                    if (isGranted) stringResource(R.string.perm_granted) else stringResource(R.string.perm_not_granted),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = statusColor

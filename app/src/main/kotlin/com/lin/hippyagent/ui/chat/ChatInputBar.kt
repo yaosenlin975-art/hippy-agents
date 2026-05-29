@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,13 +65,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.skill.SkillInfo
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import timber.log.Timber
 
 private sealed class SlashItem {
     abstract val label: String
-    abstract val description: String
-    data class Command(override val label: String, override val description: String) : SlashItem()
-    data class Skill(override val label: String, override val description: String) : SlashItem()
+    abstract val descriptionResId: Int
+    data class Command(override val label: String, override val descriptionResId: Int) : SlashItem()
+    data class Skill(override val label: String, override val descriptionResId: Int) : SlashItem()
 }
 
 @Immutable
@@ -118,9 +121,8 @@ private val IMAGE_CHIP_COLORS   get() = ChipColors(container = Color(0xFFE8F5E9)
 private val SKILL_CHIP_COLORS   get() = ChipColors(container = Color(0xFFF3E5F5), content = Color(0xFF7B1FA2), icon = Color(0xFF8E24AA))
 private val MENTION_CHIP_COLORS get() = ChipColors(container = Color(0xFFFFF8E1), content = Color(0xFFF57F17), icon = Color(0xFFFFA000))
 
-// 退格整段删除模式：@mention / [附件: xxx] / /skill
-private val WHOLE_DELETE_PATTERN = Regex("(?:@[\\w\\u4e00-\\u9fff-]+ |\\[附件: .+?\\] ?|/[^\\s/]+ )$")
-private val ATTACHMENT_LABEL_PATTERN = Regex("\\[附件: (.+?)\\]")
+// 退格整段删除模式：@mention / /skill
+private val WHOLE_DELETE_PATTERN = Regex("(?:@[\\w\\u4e00-\\u9fff-]+ |/[^\\s/]+ )$")
 
 private data class ChipColors(val container: Color, val content: Color, val icon: Color)
 
@@ -164,16 +166,16 @@ fun ChatInputBar(
 
     val slashCommands = remember {
         listOf(
-            "/compact" to "压缩上下文",
-            "/new" to "创建新会话",
-            "/clear" to "清除消息",
-            "/history" to "查看历史",
-            "/mission" to "启动任务模式",
-            "/plan" to "生成任务计划",
-            "/proactive" to "主动记忆开关",
-            "/stats" to "查看统计",
-            "/backup" to "备份管理",
-            "/summarize_status" to "总结状态",
+            "/compact" to R.string.slash_compact,
+            "/new" to R.string.slash_new,
+            "/clear" to R.string.slash_clear,
+            "/history" to R.string.slash_history,
+            "/mission" to R.string.slash_mission,
+            "/plan" to R.string.slash_plan,
+            "/proactive" to R.string.slash_proactive,
+            "/stats" to R.string.slash_stats,
+            "/backup" to R.string.slash_backup,
+            "/summarize_status" to R.string.slash_summarize_status,
         )
     }
     val filteredSlashItems = remember(isTypingSlash, slashFilter, state.agentSkills) {
@@ -186,7 +188,7 @@ fun ChatInputBar(
                 if (slashFilter.isEmpty()) true else id.startsWith(slashFilter)
             }
             cmdMatches.map { SlashItem.Command(it.first, it.second) } +
-                skillMatches.map { SlashItem.Skill(it.first, it.second) }
+                skillMatches.map { SlashItem.Skill(it.first, 0) }
         }
     }
     val showSlashDropdown = isTypingSlash && filteredSlashItems.isNotEmpty()
@@ -202,13 +204,17 @@ fun ChatInputBar(
 
     val showMentionDropdown = state.isGroupChat && (showMentionPicker || (isTypingMention && filteredMembers.isNotEmpty()))
 
+    val attachmentChips = remember(state.chips) {
+        state.chips.filter { it.type == InputChipType.FILE || it.type == InputChipType.IMAGE }
+    }
+
     if (showSkillPicker) {
         AlertDialog(
             onDismissRequest = { showSkillPicker = false },
-            title = { Text("选择技能", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.chat_select_skill), fontWeight = FontWeight.Bold) },
             text = {
                 if (state.agentSkills.isEmpty()) {
-                    Text("当前智能体暂无可用技能", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.chat_no_agent_skills), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     LazyColumn {
                         items(state.agentSkills, key = { it.id }) { skill ->
@@ -244,7 +250,7 @@ fun ChatInputBar(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showSkillPicker = false }) { Text("关闭") }
+                TextButton(onClick = { showSkillPicker = false }) { Text(stringResource(R.string.common_close)) }
             }
         )
     }
@@ -284,7 +290,7 @@ fun ChatInputBar(
                     ) {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "取消引用",
+                            contentDescription = stringResource(R.string.chat_cancel_quote),
                             modifier = Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -301,22 +307,73 @@ fun ChatInputBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(onClick = { callbacks.onExitMultiSelect() }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
-                Text("${state.selectedCount} 条已选", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.chat_items_selected, state.selectedCount), style = MaterialTheme.typography.bodyMedium)
                 Row {
                     TextButton(onClick = { callbacks.onForwardSelected() }) {
-                        Text("转发")
+                        Text(stringResource(R.string.chat_forward))
                     }
                     TextButton(onClick = { callbacks.onExportSelected() }) {
-                        Text("导出")
+                        Text(stringResource(R.string.chat_export))
                     }
                     TextButton(onClick = { callbacks.onDeleteSelected() }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
-                        Text("删除")
+                        Text(stringResource(R.string.delete))
                     }
                 }
             }
             return
+        }
+        if (attachmentChips.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                attachmentChips.forEach { chip ->
+                    val colors = chipColorsForType(chip.type)
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = colors.container
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(start = 8.dp, end = 2.dp, top = 4.dp, bottom = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (chip.type == InputChipType.IMAGE) Icons.Default.Image else Icons.Default.AttachFile,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = colors.icon
+                            )
+                            Text(
+                                text = chip.label,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = colors.content,
+                                modifier = Modifier.widthIn(max = 150.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    callbacks.onRemoveChip(chip.id)
+                                },
+                                modifier = Modifier.size(18.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(12.dp),
+                                    tint = colors.content
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         Row(
             modifier = Modifier
@@ -335,14 +392,6 @@ fun ChatInputBar(
                         val match = WHOLE_DELETE_PATTERN.find(oldValue)
                         if (match != null) {
                             val expanded = oldValue.removeRange(match.range)
-                            // 同步删除对应的附件 chip
-                            val attachmentMatch = ATTACHMENT_LABEL_PATTERN.find(match.value)
-                            if (attachmentMatch != null) {
-                                val chipLabel = attachmentMatch.groupValues[1]
-                                state.chips.find { it.type == InputChipType.FILE || it.type == InputChipType.IMAGE }
-                                    ?.takeIf { it.label == chipLabel }
-                                    ?.let { callbacks.onRemoveChip(it.id) }
-                            }
                             if (expanded != newValue) {
                                 textFieldValue = TextFieldValue(text = expanded, selection = TextRange(expanded.length))
                                 callbacks.onValueChange(expanded)
@@ -358,10 +407,10 @@ fun ChatInputBar(
                     .focusRequester(focusRequester),
                 placeholder = {
                     Text(
-                        if (state.isSttListening) "正在聆听..."
-                        else if (state.isAgentThinking && state.queueSize > 0) "排队中 (${state.queueSize})..."
-                        else if (state.isAgentThinking) "智能体思考中，仍可输入..."
-                        else "输入消息..."
+                        if (state.isSttListening) stringResource(R.string.chat_listening)
+                        else if (state.isAgentThinking && state.queueSize > 0) stringResource(R.string.chat_queued, state.queueSize)
+                        else if (state.isAgentThinking) stringResource(R.string.chat_agent_thinking_input_hint)
+                        else stringResource(R.string.type_message)
                     )
                 },
                 maxLines = 4,
@@ -378,7 +427,7 @@ fun ChatInputBar(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AttachFile,
-                                contentDescription = "附件",
+                                contentDescription = stringResource(R.string.chat_attachment),
                                 modifier = Modifier.size(18.dp),
                                 tint = if (state.chips.isNotEmpty()) MaterialTheme.colorScheme.primary
                                 else if (state.enabled) MaterialTheme.colorScheme.onSurfaceVariant
@@ -390,7 +439,7 @@ fun ChatInputBar(
                             onDismissRequest = { showAttachMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("选择图片") },
+                                text = { Text(stringResource(R.string.chat_select_image)) },
                                 onClick = {
                                     showAttachMenu = false
                                     callbacks.onAttachImage()
@@ -398,7 +447,7 @@ fun ChatInputBar(
                                 leadingIcon = { Icon(Icons.Default.Image, null) }
                             )
                             DropdownMenuItem(
-                                text = { Text("拍照") },
+                                text = { Text(stringResource(R.string.chat_take_photo)) },
                                 onClick = {
                                     showAttachMenu = false
                                     callbacks.onTakePicture()
@@ -406,7 +455,7 @@ fun ChatInputBar(
                                 leadingIcon = { Icon(Icons.Default.CameraAlt, null) }
                             )
                             DropdownMenuItem(
-                                text = { Text("选择文件") },
+                                text = { Text(stringResource(R.string.chat_select_file)) },
                                 onClick = {
                                     showAttachMenu = false
                                     callbacks.onAttachFile()
@@ -415,7 +464,7 @@ fun ChatInputBar(
                             )
                             if (!state.isGroupChat) {
                                 DropdownMenuItem(
-                                    text = { Text("技能") },
+                                    text = { Text(stringResource(R.string.chat_skill)) },
                                     onClick = {
                                         showAttachMenu = false
                                         showSkillPicker = true
@@ -442,7 +491,7 @@ fun ChatInputBar(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AlternateEmail,
-                                    contentDescription = "@提及智能体",
+                                    contentDescription = stringResource(R.string.chat_mention_agent),
                                     modifier = Modifier.size(19.dp),
                                     tint = if (isTypingMention) MaterialTheme.colorScheme.primary
                                     else MaterialTheme.colorScheme.onSurfaceVariant
@@ -475,7 +524,7 @@ fun ChatInputBar(
                             ) {
                                 Icon(
                                     imageVector = if (state.isRecordingVoice) Icons.Default.Stop else Icons.Default.Mic,
-                                    contentDescription = if (state.isRecordingVoice) "松开发送" else if (state.isSttListening) "停止聆听" else "语音输入",
+                                    contentDescription = if (state.isRecordingVoice) stringResource(R.string.chat_release_to_send) else if (state.isSttListening) stringResource(R.string.chat_stop_listening) else stringResource(R.string.chat_voice_input),
                                     modifier = Modifier.size(19.dp),
                                     tint = if (state.isRecordingVoice) Color(0xFFFF4444)
                                     else if (state.isSttListening) Color(0xFFFF4444)
@@ -502,7 +551,7 @@ fun ChatInputBar(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
-                                contentDescription = "发送",
+                                contentDescription = stringResource(R.string.send_message),
                                 modifier = Modifier.size(19.dp),
                                 tint = if (state.value.isNotBlank() || state.chips.isNotEmpty()) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurfaceVariant
@@ -629,7 +678,7 @@ fun ChatInputBar(
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                text = item.description,
+                                text = if (item is SlashItem.Command && item.descriptionResId != 0) stringResource(item.descriptionResId) else item.label,
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

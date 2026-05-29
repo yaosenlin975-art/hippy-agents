@@ -36,6 +36,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.chat.ThinkingBlock
 
 private const val STREAMING_CURSOR = "▎"
@@ -125,7 +127,7 @@ fun ThinkingBlockView(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = buildString {
-                            append(if (depth == 0) "思考过程" else "深度思考 · $depth")
+                            append(if (depth == 0) stringResource(R.string.chat_thinking_process) else stringResource(R.string.chat_deep_thinking) + " · $depth")
                             if (!isStreaming && block.durationMs > 0) {
                                 append(" · ${formatDuration(block.durationMs)}")
                             }

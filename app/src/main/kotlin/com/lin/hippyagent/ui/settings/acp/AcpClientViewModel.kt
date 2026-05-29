@@ -3,6 +3,7 @@ package com.lin.hippyagent.ui.settings.acp
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.collaboration.AcpClientStore
 import com.lin.hippyagent.core.agent.collaboration.AcpRemoteServer
 import com.lin.hippyagent.core.agent.collaboration.DelegateExternalAgentTool
@@ -25,7 +26,8 @@ data class AcpClientUiState(
 )
 
 class AcpClientViewModel(
-    private val clientStore: AcpClientStore
+    private val clientStore: AcpClientStore,
+    private val context: android.app.Application,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AcpClientUiState())
@@ -95,7 +97,7 @@ class AcpClientViewModel(
                 _uiState.update {
                     it.copy(
                         isDiscovering = it.isDiscovering - server.id,
-                        successMessage = "发现 ${agents.size} 个智能体"
+                        successMessage = context.getString(R.string.acp_discovered_agents, agents.size)
                     )
                 }
                 loadServers()
@@ -104,7 +106,7 @@ class AcpClientViewModel(
                 _uiState.update {
                     it.copy(
                         isDiscovering = it.isDiscovering - server.id,
-                        error = "发现失败: ${e.message}"
+                        error = context.getString(R.string.acp_discover_failed, e.message ?: "")
                     )
                 }
             }

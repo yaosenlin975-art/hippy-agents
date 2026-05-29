@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.i18n
+package com.lin.hippyagent.core.i18n
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -13,7 +13,7 @@ class LanguageManager(
     private val context: Context
 ) {
     private val prefs: SharedPreferences by lazy {
-        context.getSharedPreferences("language_settings", Context.MODE_PRIVATE)
+        context.getSharedPreferences("hippy_settings", Context.MODE_PRIVATE)
     }
 
     private var currentLanguage: String = loadLanguage()
@@ -80,7 +80,7 @@ class LanguageManager(
     }
 
     companion object {
-        private const val KEY_LANGUAGE = "app_language"
+        private const val KEY_LANGUAGE = "language"
     }
 }
 

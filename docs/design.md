@@ -1076,7 +1076,7 @@
 - **功能描述**：统一的多供应LLM 调用接口
 - **支持协议**
   - **OpenAI**：兼OpenAI API 格式（支SSE 流式
-  - **Anthropic**：Anthropic Messages API（支SSE 流式
+  - **Anthropic**：Anthropic Messages API（支SSE 流式），支持 contentBlocks 多模态消息序列化（image_url 转为 Anthropic 原生 base64 image source 格式）
   - **Ollama**：Ollama 本地模型 API
 - **流程**
   1. 构建请求（消息列+ 工具定义 + 参数
@@ -1084,6 +1084,22 @@
   3. 解析响应（流式逐块解析 / 非流式整块解析）
   4. 返回 ModelCallResponse Flow<ModelStreamChunk>
 - **关键机制**：OkHttp SSE、序列化/反序列化、错误重试、API Key 日志脱敏（仅显示末4位）；SSE onFailure 中提取 HTTP 状态码（如 429），用 runCatching 安全读取 response.body 避免二次 IOException
+
+### 视觉能力检测与图片消息处理
+
+- **功能描述**：在发送图片时检测当前模型是否支持视觉理解，提供 UI 警告和 Agent 侧降级引导
+- **检测机制**
+  1. 正则名称启发式匹配：MODEL_VISION_REGEX 匹配模型名中的 vision/vl/gemini/gpt-4o/gpt-5/claude-3/claude-4/qwen-vl/llava/deepseek-vl/flash-image 关键字
+  2. ModelConfig.capabilities 集合查询：检查 ModelCapability.VISION 是否在模型能力集中
+- **发送前 UI 警告**
+  1. ChatViewModel.sendMessage 中检测到图片 chips 且当前模型无视觉能力时，弹出 Toast 提示「当前模型不支持图片理解，图片将以文本形式发送」
+  2. 消息仍然正常发送，但图片不会以 base64 编码发送
+- **Agent 侧降级引导**
+  1. Agent.buildPrompt 中通过 effectiveModelName 参数（来自 overrideModel 或 profile.modelName）判断视觉能力
+  2. 有视觉能力：最新用户消息中的图片编码为 ContentBlock.ImageUrl（base64）
+  3. 无视觉能力：图片降级为文本引导，附加提示「当前模型不支持图片理解，如需分析图片请切换到支持视觉的模型」
+  4. 非最新消息中的图片始终降级为文本引用（view_image 工具引导）
+- **涉及文件**：Agent.kt（buildPrompt）、ChatViewModel.kt（isCurrentModelVisionCapable）、ModelClient.kt（Anthropic contentBlocks 序列化）
 
 ### 模型路由
 
@@ -2032,6 +2048,18 @@
   9. 通知样式升级：使用 MessagingStyle + Person API 替代 setContentTitle/ContentText，添加 setCategory(CATEGORY_MESSAGE) + setDefaults(DEFAULT_ALL)，系统将通知识别为消息类通知，优先展示 heads-up 横幅
 - **关键机制**：NotificationChannel（v2 渠道绕过缓存）、MessagingStyle、Person、CATEGORY_MESSAGE、ForegroundSessionTracker
 
+### 智能体消息通知增强
+
+- **功能描述**：当智能体发送消息且用户不在对应会话中时，用系统通知弹窗提示用户
+- **交互逻辑**
+  1. 智能体发送消息时，通过 ForegroundSessionTracker 判断用户是否在前台会话
+  2. 不在前台时，发送 MessagingStyle 通知（含 Person API + CATEGORY_MESSAGE + DEFAULT_ALL）
+  3. 用户点击通知跳转到对应会话
+  4. 进入前台会话后，自动取消该会话的所有通知
+- **通知渠道**：agent_message_v2（已升级 v2），配置显式声音/振动/锁屏可见性
+- **旧渠道清理**：启动时删除旧版 agent_message 渠道
+- **通知追踪**：activeSessionNotifications (ConcurrentHashMap) 追踪每个会话的通知 ID，进入前台时批量取消
+
 ### 通知弹窗服务
 
 - **功能描述**：智能体发送通知时，在屏幕顶部弹出悬浮窗显示通知内容，可在其他应用上方显
@@ -2172,6 +2200,17 @@
   3. 麦克风按钮图标保持不变
 - **输入规则**：无
 - **输出结果**：麦克风按钮区域更简洁，仅显示图标和录音时长
+
+### 附件 Chip 可视化显示
+
+- **功能描述**：附件和图片 chip 在输入栏上方以 FlowRow 形式排列显示
+- **交互逻辑**
+  1. 用户选择附件/图片后，chip 在输入框上方以 FlowRow 排列
+  2. 每个 chip 显示：类型图标（IMAGE=Image图标, FILE=AttachFile图标）+ label + 关闭按钮(X)
+  3. 点击 X 删除 chip，同时清理输入框中对应的 [附件: label] 文本
+  4. SKILL/MENTION 类型 chip 不在此区域渲染（SKILL 以 /skillname 文本形式，MENTION 以 @name 文本形式存在于输入框内）
+- **输入规则**：FILE 和 IMAGE 类型的 InputChip
+- **输出结果**：FlowRow 排列的可删除 chip 列表，使用 chipColorsForType 着色（FILE=蓝, IMAGE=绿）
 
 ## 界面 > 模型与连接
 

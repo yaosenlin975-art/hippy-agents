@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
     <string name="app_name">Hippy</string>
-    
     <!-- 通用 -->
+
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="save">保存</string>
@@ -13,33 +15,33 @@
     <string name="loading">加载中...</string>
     <string name="error">错误</string>
     <string name="success">成功</string>
-    
     <!-- 导航 -->
+
     <string name="nav_sessions">会话</string>
     <string name="nav_agents">智能体</string>
     <string name="nav_settings">设置</string>
-    
     <!-- 会话 -->
+
     <string name="new_session">新建会话</string>
     <string name="session_list">会话列表</string>
     <string name="no_sessions">暂无会话</string>
     <string name="delete_session">删除会话</string>
-    <string name="delete_session_confirm">确定要删除这个会话吗？</string>
-    
+    <string name="delete_session_confirm">确定要删除这个会话吗</string>
     <!-- 智能体 -->
+
     <string name="agent_list">智能体列表</string>
     <string name="new_agent">新建智能体</string>
     <string name="agent_config">智能体配置</string>
     <string name="agent_name">智能体名称</string>
     <string name="agent_model">模型</string>
     <string name="agent_provider">模型提供商</string>
-    
     <!-- 底栏 -->
+
     <string name="tab_sessions">会话</string>
     <string name="tab_agents">智能体</string>
     <string name="tab_settings">设置</string>
-
     <!-- 设置 -->
+
     <string name="settings">设置</string>
     <string name="language">语言(Language)</string>
     <string name="notifications">通知</string>
@@ -58,67 +60,67 @@
     <string name="about">关于</string>
     <string name="debug_info">调试信息</string>
     <string name="model_provider_desc">管理模型提供商配置</string>
-    <string name="tool_security_desc">审批队列：%1$d 待处理</string>
+    <string name="tool_security_desc">审批队列: %1$d 待处理</string>
     <string name="skill_pool_desc">管理公共技能库</string>
-    <string name="last_backup">上次备份：%1$s</string>
+    <string name="last_backup">上次备份: %1$s</string>
     <string name="last_backup_never">从未备份</string>
     <string name="export_log">导出日志</string>
     <string name="background_permission">后台运行</string>
     <string name="app_version">版本 %1$s</string>
     <string name="debug_info_desc">查看运行日志和状态</string>
-    
     <!-- 聊天 -->
+
     <string name="send_message">发送消息</string>
     <string name="type_message">输入消息...</string>
     <string name="thinking">思考中...</string>
     <string name="executing_tool">执行工具中...</string>
-    
     <!-- 技能 -->
+
     <string name="skill_management">技能管理</string>
     <string name="skill_pool_management">公共技能池</string>
     <string name="no_skills">暂无技能</string>
     <string name="install_skill">安装技能</string>
     <string name="uninstall_skill">卸载技能</string>
-    
     <!-- 通知 -->
+
     <string name="notification_heartbeat">心跳提醒</string>
     <string name="notification_task_complete">任务完成</string>
-    <string name="notification_error">错误告警</string>
+    <string name="notification_error">错误警告</string>
     <string name="quiet_hours">静默时段</string>
-    
     <!-- 错误消息 -->
+
     <string name="error_network">网络连接失败</string>
     <string name="error_api_key">API 密钥无效</string>
     <string name="error_model_config">模型配置错误</string>
     <string name="error_file_not_found">文件不存在</string>
     <string name="error_permission">权限不足</string>
-    
     <!-- 系统权限 -->
+
     <string name="system_permissions">系统权限</string>
     <string name="background_run_permission">后台运行权限</string>
     <string name="accessibility_permission">无障碍服务</string>
     <string name="enabled">已开启</string>
     <string name="disabled">未开启</string>
     <string name="background_run_allowed">已允许后台运行</string>
-    <string name="background_run_restricted">⚠️ 受限 — 可能被系统杀死，点击解除限制</string>
+    <string name="background_run_restricted">⚠️ 受限 - 可能被系统杀死，点击解除限制</string>
     <string name="accessibility_service">无障碍服务</string>
     <string name="accessibility_enabled">已开启</string>
-    <string name="accessibility_disabled">未开启 — 部分功能（如通知监听）需要此权限，点击前往开启</string>
-    
+    <string name="accessibility_disabled">未开启 - 部分功能（如通知监听）需要此权限，点击前往开启</string>
     <!-- 数据存储 -->
+
     <string name="storage_overview">存储概览</string>
     <string name="external_storage">外部存储（卸载保护）</string>
     <string name="saf_authorized">✅ 外部存储已授权</string>
     <string name="saf_not_authorized">⚠️ 数据存储在内部存储</string>
-    <string name="saf_authorized_desc">数据已迁移到外部目录，卸载应用不会丢失数据。</string>
-    <string name="saf_not_authorized_desc">当前数据存储在应用内部目录，卸载应用将丢失所有数据（配置、聊天记录、记忆）。建议授权外部存储目录。</string>
+    <string name="saf_authorized_desc">数据已迁移到外部目录，卸载应用不会丢失数据</string>
+    <string name="saf_not_authorized_desc">当前数据存储在应用内部目录，卸载应用将丢失所有数据（配置、聊天记录、记忆）。建议授权外部存储目录</string>
     <string name="select_external_dir">选择外部存储目录</string>
     <string name="re_migrate">重新迁移</string>
     <string name="disable_external">关闭外部存储</string>
     <string name="migrate_data">迁移数据到外部存储</string>
-    <string name="migrate_data_desc">将内部存储中的所有数据复制到外部存储目录。迁移过程中请勿关闭应用。\n\n此操作不会删除内部存储中的原文件。</string>
+    <string name="migrate_data_desc">将内部存储中的所有数据复制到外部存储目录。迁移过程中请勿关闭应用。\n\n此操作不会删除内部存储中的原文件</string>
     <string name="start_migration">开始迁移</string>
-    <string name="disable_external_desc">关闭外部存储后，新数据将写入内部存储。外部存储中的已有数据不会被删除。\n\n⚠️ 关闭后卸载应用仍会丢失新产生的数据。</string>
+    <string name="disable_external_desc">关闭外部存储后，新数据将写入内部存储。外部存储中的已有数据不会被删除。\n\n⚠️ 关闭后卸载应用仍会丢失新产生的数据</string>
     <string name="confirm_disable">确认关闭</string>
     <string name="storage_location_info">存储位置说明</string>
     <string name="workspace_dir">工作区</string>
@@ -127,13 +129,1740 @@
     <string name="database_dir">数据库</string>
     <string name="internal_storage">内部存储（卸载将丢失数据）</string>
     <string name="external_storage_enabled">外部存储（已授权）</string>
-    <string name="migration_complete">迁移完成：%1$d 个文件</string>
-    <string name="migration_failed">迁移失败：%1$s</string>
-    
+    <string name="migration_complete">迁移完成: %1$d 个文件</string>
+    <string name="migration_failed">迁移失败: %1$s</string>
     <!-- 安全 -->
+
     <string name="security">安全</string>
-    
     <!-- 无障碍服务 -->
-    <string name="accessibility_service_description">允许 Hippy 智能体感知屏幕内容并操控手机界面，实现自动化任务执行。此服务不会收集或上传任何个人数据。</string>
+
+    <string name="accessibility_service_description">允许 Hippy 智能体感知屏幕内容并操控手机界面，实现自动化任务执行。此服务不会收集或上传任何个人数据</string>
+    <!-- 通用扩展 -->
+
+    <string name="common_back">返回</string>
+    <string name="common_close">关闭</string>
+    <string name="common_yesterday">昨天</string>
+    <string name="common_collapse">收起</string>
+    <string name="common_expand">展开</string>
+    <string name="common_retry">重试</string>
+    <string name="common_create">创建</string>
+    <string name="common_skip">跳过</string>
+    <!-- 聊天扩展 -->
+
+    <string name="chat_pinned">已置顶</string>
+    <string name="chat_executing">执行中</string>
+    <string name="chat_stopped">已停止</string>
+    <string name="chat_no_messages">暂无消息</string>
+    <string name="chat_max_badge">99+</string>
+    <string name="chat_search_all_messages">搜索所有消息...</string>
+    <string name="chat_search_no_results">未找到匹配的消息</string>
+    <string name="chat_stt_failed">语音识别失败: %1$s</string>
+    <string name="chat_mic_permission_needed">需要麦克风权限才能使用语音输入</string>
+    <string name="chat_agents_working">%1$d 个智能体工作中</string>
+    <string name="chat_mic_permission_title">需要麦克风权限</string>
+    <string name="chat_mic_permission_denied">麦克风权限已被拒绝，请在系统设置中手动开启</string>
+    <string name="chat_go_to_settings">去设置</string>
+    <string name="chat_camera_permission_needed">需要相机权限才能拍照</string>
+    <string name="chat_copy">复制</string>
+    <string name="chat_quote">引用</string>
+    <string name="chat_regenerate">重新生成</string>
+    <string name="chat_speak">语音播报</string>
+    <string name="chat_multi_select">多选</string>
+    <string name="chat_select_model">选择模型</string>
+    <string name="chat_model_settings">模型设置</string>
+    <string name="chat_search_model_provider">搜索模型或供应商</string>
+    <string name="chat_no_models_hint">暂无可用模型，请先在「设置 - 模型提供商」中配置</string>
+    <string name="chat_selected">已选择</string>
+    <string name="chat_tool_permission_title">工具权限授权</string>
+    <string name="chat_command_auth_request">命令授权请求</string>
+    <string name="chat_perm_device_access">设备访问（电池、传感器、位置等）</string>
+    <string name="chat_perm_clipboard">剪贴板访问（读取/写入剪贴板）</string>
+    <string name="chat_perm_ssh">SSH 服务管理（启动/停止/用户管理）</string>
+    <string name="chat_perm_file_transfer">文件传输（Android 与容器间传输文件）</string>
+    <string name="chat_perm_shell">Shell 命令执行</string>
+    <string name="chat_agent_request_permission">智能体请求使用以下功能，请确认是否允许：</string>
+    <string name="chat_agent_request_command">Agent 请求执行以下命令</string>
+    <string name="chat_deny">拒绝</string>
+    <string name="chat_deny_always">不再允许</string>
+    <string name="chat_approve_always">始终允许</string>
+    <string name="chat_approve_once">允许一次</string>
+    <string name="chat_execute_plan">执行计划</string>
+    <string name="chat_no_active_plan">暂无活动计划</string>
+    <string name="chat_progress">进度</string>
+    <string name="chat_completion_summary">完成总结</string>
+    <string name="chat_thinking_process">思考过程</string>
+    <string name="chat_deep_thinking">深度思考</string>
+    <string name="chat_copy_params">复制参数</string>
+    <string name="chat_params_copied">已复制参数</string>
+    <string name="chat_copy_result">复制结果</string>
+    <string name="chat_result_copied">已复制结果</string>
+    <string name="chat_copy_params_and_result">复制参数和结果</string>
+    <string name="chat_params_and_result_copied">已复制参数和结果</string>
+    <string name="chat_calling">调用</string>
+    <string name="chat_failed">失败</string>
+    <string name="chat_params_label">参数:</string>
+    <string name="chat_result_label">结果:</string>
+    <string name="chat_waiting_result">等待结果...</string>
+    <string name="chat_running">运行</string>
+    <string name="chat_new_file">新文件</string>
+    <string name="chat_append_content">追加内容</string>
+    <string name="chat_changes">变更</string>
+    <string name="chat_discussion_copied">已复制讨论内容</string>
+    <string name="chat_discussion_with">📋 与 %1$s 的讨论</string>
+    <string name="chat_quoted_message">引用消息</string>
+    <string name="chat_sent_image">发送的图片</string>
+    <string name="chat_replied">已回复</string>
+    <string name="chat_working">工作中</string>
+    <string name="chat_read">已读</string>
+    <string name="chat_you"></string>
+    <string name="chat_edit_message">编辑消息</string>
+    <string name="chat_select_skill">选择技能</string>
+    <string name="chat_no_agent_skills">当前智能体暂无可用技能</string>
+    <string name="chat_cancel_quote">取消引用</string>
+    <string name="chat_items_selected">%1$d 条已选</string>
+    <string name="chat_forward">转发</string>
+    <string name="chat_export">导出</string>
+    <string name="chat_listening">正在聆听...</string>
+    <string name="chat_queued">排队中(%1$d)...</string>
+    <string name="chat_agent_thinking_input_hint">智能体思考中，仍可输入...</string>
+    <string name="chat_attachment">附件</string>
+    <string name="chat_select_image">选择图片</string>
+    <string name="chat_take_photo">拍照</string>
+    <string name="chat_select_file">选择文件</string>
+    <string name="chat_skill">技能</string>
+    <string name="chat_mention_agent">@提及智能体</string>
+    <string name="chat_release_to_send">松开发送</string>
+    <string name="chat_stop_listening">停止聆听</string>
+    <string name="chat_voice_input">语音输入</string>
+    <string name="chat_stop_generation">停止生成</string>
+    <string name="chat_queue">队列</string>
+    <string name="chat_iterations_exhausted">轮次已耗尽</string>
+    <string name="chat_forward_to">转发到</string>
+    <string name="chat_auth_request">授权请求</string>
+    <string name="chat_agent_accessibility_request">智能体请求执行无障碍操作，请确认是否允许</string>
+    <string name="chat_action_label">动作: %1$s</string>
+    <string name="chat_target_label">目标: %1$s</string>
+    <string name="chat_risk_level_label">风险等级: %1$s</string>
+    <string name="risk_low">低</string>
+    <string name="risk_medium">中</string>
+    <string name="risk_high">高</string>
+    <string name="risk_blocked">已阻止</string>
+    <string name="chat_allow_this_time">允许本次</string>
+    <string name="chat_allow_always">一直允许</string>
+    <string name="chat_image_attachment">图片附件</string>
+    <string name="chat_cannot_open">无法打开: %1$s</string>
+    <string name="chat_view">查看</string>
+    <string name="chat_saved_to_downloads">已保存到 Downloads/%1$s</string>
+    <string name="chat_save_failed">保存失败: %1$s</string>
+    <string name="chat_share_file">分享文件</string>
+    <string name="chat_share_failed">分享失败: %1$s</string>
+    <string name="chat_fullscreen_preview">全屏预览</string>
+    <string name="chat_processed">已处理</string>
+    <string name="chat_more_items">...还有 %1$d 项</string>
+    <string name="chat_option_selected">已选择: %1$s</string>
+    <string name="chat_skipped">已跳过</string>
+    <string name="chat_image">图片</string>
+    <string name="chat_new_session">新会话</string>
+    <string name="chat_create_session_failed">创建会话失败</string>
+    <string name="chat_load_messages_failed">加载消息失败: %1$s</string>
+    <string name="chat_session_not_initialized">会话尚未初始化，请稍后重试</string>
+    <string name="chat_command_execution_failed">命令执行失败</string>
+    <string name="chat_command_execution_failed_with_msg">命令执行失败: %1$s</string>
+    <string name="chat_model_no_image_support">当前模型不支持图片理解，图片将以文本形式发送</string>
+    <string name="chat_group_mention_only_notice">📘 当前群组已开启「只接收@信息」，@目标智能体以发送消息</string>
+    <string name="chat_agent_not_found">智能体未找到: %1$s，请检查智能体配置</string>
+    <string name="chat_model_not_configured">未配置模型，请先在「设置模型提供商」中配置模型</string>
+    <string name="chat_agent_fallback_name">智能体</string>
+    <string name="chat_group_name">群聊</string>
+    <string name="chat_error_max_retries_reached">模型请求失败，已达到最大重试次数。请检查模型配置或切换其他模型</string>
+    <string name="chat_error_forbidden">无权限访问该模型，请检查 API 密钥权限</string>
+    <string name="chat_error_not_found">模型不存在或已下线，请检查模型名</string>
+    <string name="chat_error_rate_limited">请求过于频繁，请稍后重试</string>
+    <string name="chat_error_bad_request">模型请求参数错误，请检查模型配置</string>
+    <string name="chat_error_bad_gateway">模型服务网关错误，请稍后重试</string>
+    <string name="chat_error_service_unavailable">模型服务暂不可用，请稍后重试</string>
+    <string name="chat_error_network_connection">网络连接失败，请检查网络设置</string>
+    <string name="chat_error_sse_failed">流式连接失败，请检查网络或模型服务</string>
+    <string name="chat_error_generic">处理消息失败，请稍后重试</string>
+    <string name="chat_group_message_failed">群组消息处理失败</string>
+    <string name="chat_group_message_failed_with_error">⚠️ 群组消息处理失败: %1$s</string>
+    <string name="chat_group_message_exception">⚠️ 群组消息处理异常: %1$s</string>
+    <string name="chat_voice_message">[语音消息]</string>
+    <string name="chat_interrupt_notice">我注意到你打断了任务，是有什么要补充的吗</string>
+    <string name="chat_user_role">用户</string>
+    <string name="chat_forwarded_message">📋 **转发的消息**:</string>
+    <string name="chat_compressed_summary">📋 之前的对话已压缩：\n%1$s</string>
+    <string name="chat_compaction_started">🆔 上下文压缩中...\n📑 当前 Token: %1$s / %2$s (%3$d%%)\n💰 总消息 %4$d 压缩 %5$d + 保留 %6$d</string>
+    <string name="chat_compaction_completed">🆔 上下文压缩完成\n📑 Token: %1$s -> %2$s / %3$s (%4$d%%)  节省 %5$s\n💰 %6$d 条消息已压缩</string>
+    <string name="chat_save">保存</string>
+    <string name="chat_share">分享</string>
+    <string name="chat_executing_with_dots">执行中</string>
+    <string name="chat_waiting_result_inline">等待结果...</string>
+    <string name="chat_changes_label">变更</string>
+    <string name="chat_diff_summary">📑 变更: %1$s%2$s</string>
+    <string name="chat_diff_file_summary">📑 %1$s%2$s</string>
+    <string name="chat_lines_omitted">\n... (%1$d 行已省略)</string>
+    <string name="chat_new_file_label">新文件</string>
+    <string name="chat_append_content_label">追加内容</string>
+    <string name="chat_agent_workflow">%1$s 的工作流</string>
+    <string name="chat_no_process_info">暂无过程信息</string>
+    <string name="chat_step_process">%1$d步过程</string>
+    <string name="chat_collapse_process">收起过程</string>
+    <string name="chat_error_label">❌ 错误</string>
+    <string name="chat_api_calls">%1$d次请求</string>
+    <string name="chat_group_members">群聊成员</string>
+    <string name="chat_no_members">暂无成员</string>
+    <string name="chat_idle">闲置</string>
+    <string name="chat_in_task">任务</string>
+    <string name="chat_paused">已暂停</string>
+    <string name="chat_interrupt">打断</string>
+    <string name="chat_confirm_interrupt">确认打断</string>
+    <string name="chat_about_to_interrupt">即将打断: %1$s</string>
+    <string name="chat_current_task">当前任务: %1$s</string>
+    <string name="chat_interrupt_irreversible">打断后任务将无法恢复</string>
+    <string name="chat_confirm_interrupt_btn">确认打断</string>
+    <string name="chat_pause">暂停</string>
+    <string name="chat_play">播放</string>
+    <string name="chat_messages_copied">已复制 %1$d 条消息到剪贴板</string>
+    <string name="chat_message_export">消息导出</string>
+    <string name="chat_no_agent_skills_available">暂无可用技能</string>
+    <!-- 斜杠命令 -->
+
+    <string name="slash_compact">压缩上下文</string>
+    <string name="slash_new">创建新会话</string>
+    <string name="slash_clear">清除消息</string>
+    <string name="slash_history">查看历史</string>
+    <string name="slash_mission">启动任务模式</string>
+    <string name="slash_plan">生成任务计划</string>
+    <string name="slash_proactive">主动记忆开关</string>
+    <string name="slash_stats">查看统计</string>
+    <string name="slash_backup">备份管理</string>
+    <string name="slash_summarize_status">总结状态</string>
+    <!-- 工具分类 -->
+
+    <string name="tool_cat_file">文件</string>
+    <string name="tool_cat_terminal">终端</string>
+    <string name="tool_cat_search">搜索</string>
+    <string name="tool_cat_network">网络</string>
+    <string name="tool_cat_code">代码</string>
+    <string name="tool_cat_memory">记忆</string>
+    <string name="tool_cat_tool">工具</string>
+    <!-- 会话列表 -->
+
+    <string name="conversation_avatar">头像</string>
+    <string name="conversation_search_hint">搜索会话...</string>
+    <string name="conversation_clear">清除</string>
+    <string name="conversation_inactive">不活跃对话</string>
+    <string name="conversation_move_to">放入「%1$s」</string>
+    <string name="conversation_group">群组</string>
+    <string name="conversation_no_match">未找到匹配的会话</string>
+    <string name="conversation_all_disabled">所有智能体已禁用，请先启用一个智能体</string>
+    <string name="conversation_create_from_bar">从底栏创建新对话</string>
+    <string name="conversation_select_agent">选择智能体</string>
+    <string name="conversation_current_use">当前使用</string>
+    <string name="conversation_agent_settings">%1$s设置</string>
+    <string name="conversation_system_settings">系统设置</string>
+    <string name="conversation_delete_confirm">确定删除「%1$s」？此操作不可恢复</string>
+    <string name="conversation_new_group">新建分组</string>
+    <string name="conversation_group_name">分组名称</string>
+    <string name="conversation_unpin">取消置顶</string>
+    <string name="conversation_pin">置顶</string>
+    <string name="conversation_unmute">取消静音</string>
+    <string name="conversation_mute">静音</string>
+    <string name="conversation_muted">已静音</string>
+    <string name="conversation_idle">空闲</string>
+    <!-- 群组设置 -->
+
+    <string name="group_settings">群组设置</string>
+    <string name="group_not_found">群组不存在</string>
+    <string name="group_name_hint">输入群组名称</string>
+    <string name="group_id">群组ID</string>
+    <string name="group_member_count">成员数量</string>
+    <string name="group_people_count">%1$d 人</string>
+    <string name="group_mention_only">只接收@消息</string>
+    <string name="group_mention_only_desc">开启后仅接收提及自己的消息，不接收广播</string>
+    <string name="group_decision_model">决策模型</string>
+    <string name="group_decision_model_desc">群发消息时选择发言者的LLM模型</string>
+    <string name="group_default">默认</string>
+    <string name="group_member_list">成员列表</string>
+    <string name="group_add_member">添加成员</string>
+    <string name="group_remove">移除</string>
+    <string name="group_dissolve">解散群组</string>
+    <string name="group_dissolve_confirm">确定要解散群组「%1$s」吗？\n解散后所有群聊记录将保留，但群组将被删除</string>
+    <string name="group_dissolve_btn">解散</string>
+    <string name="group_no_agents_to_add">没有可添加的智能体</string>
+    <string name="group_agent_not_initialized">未初始化，请先与该智能体对话完成初始化</string>
+    <string name="group_create">创建群组</string>
+    <string name="group_select_members">选择成员</string>
+    <string name="group_no_available_agents">暂无可用智能体</string>
+    <!-- 设置扩展 -->
+
+    <string name="settings_general">通用</string>
+    <string name="settings_closed">已关闭</string>
+    <string name="settings_ui_settings">界面设置</string>
+    <string name="settings_ui_settings_desc">不活跃对话时长等界面偏好</string>
+    <string name="settings_model_and_ai">模型 & AI</string>
+    <string name="settings_model_provider_desc_new">管理 API Key 和模型</string>
+    <string name="settings_global_rules">全局规则</string>
+    <string name="settings_global_rules_desc">对所有智能体生效的通用规则</string>
+    <string name="settings_skill_pool_desc_new">管理智能体技能</string>
+    <string name="settings_common_memory">公共记忆</string>
+    <string name="settings_common_memory_desc">所有智能体的共享记忆</string>
+    <string name="settings_system_and_permissions">系统与权限</string>
+    <string name="settings_permission_center">权限中心</string>
+    <string name="settings_permission_center_desc">统一管理所有系统权限</string>
+    <string name="settings_accessibility_setup">无障碍设置</string>
+    <string name="settings_accessibility_setup_desc">配置手机自动化权限</string>
+    <string name="settings_env_check">环境检查</string>
+    <string name="env_check">环境检查</string>
+    <string name="settings_env_check_desc">检测常用环境安装状态</string>
+    <string name="settings_env_vars">环境变量</string>
+    <string name="settings_env_vars_desc">管理全局环境变量</string>
+    <string name="settings_tool_approvals">工具审批</string>
+    <string name="settings_tool_approvals_desc">审批工具执行请求</string>
+    <string name="settings_security_rules">安全规则</string>
+    <string name="settings_security_rules_desc">管理工具审批的「不再询问」规则</string>
+    <string name="settings_tools_list">工具列表</string>
+    <string name="settings_tools_list_desc">查看所有可用工具</string>
+    <string name="settings_plugins">插件管理</string>
+    <string name="settings_plugins_desc">管理已安装插件</string>
+    <string name="settings_event_hooks">事件监听</string>
+    <string name="settings_event_hooks_desc">管理系统事件 Hook 和静默时段</string>
+    <string name="settings_logs">日志</string>
+    <string name="settings_debug_info_desc_new">收集诊断数据</string>
+    <string name="settings_search_hint">搜索设置</string>
+    <!-- 智能体配置扩展 -->
+
+    <string name="agent_basic_info">基本信息</string>
+    <string name="agent_quick_config">快捷配置</string>
+    <string name="agent_heartbeat_config">心跳配置</string>
+    <string name="agent_dream_system">睡眠系统</string>
+    <string name="agent_mcp_config">MCP 配置</string>
+    <string name="agent_acp_config">ACP 配置</string>
+    <string name="agent_tool_management">工具管理</string>
+    <string name="agent_cron_jobs">定时任务</string>
+    <string name="agent_channel_config">频道配置</string>
+    <string name="agent_memories_section">memories</string>
+    <string name="agent_file_count">%1$d 个文件</string>
+    <string name="agent_saved">已保存</string>
+    <string name="agent_skill_installed">技能 %1$s 安装成功</string>
+    <string name="agent_skill_install_failed">安装失败: %1$s</string>
+    <string name="agent_create">创建智能体</string>
+    <string name="agent_name_hint">给智能体起个名字（可选）</string>
+    <string name="agent_default_model">默认模型</string>
+    <string name="agent_select_model_hint">点击选择模型</string>
+    <string name="agent_fallback_model">备用模型</string>
+    <string name="agent_fallback_model_hint">未设置（主模型失败时使用）</string>
+    <string name="agent_complex_model">复杂模型</string>
+    <string name="agent_complex_model_hint">未设置（复杂任务自动路由）</string>
+    <string name="agent_initial_skills">初始技能</string>
+    <string name="agent_initial_skills_hint">选择智能体启动时启用的技能</string>
+    <string name="agent_tool_switch">工具开关</string>
+    <string name="agent_tool_switch_hint">选择智能体可使用的工具</string>
+    <string name="agent_avatar_from_gallery">从相册选择</string>
+    <string name="agent_avatar_default">使用默认头像</string>
+    <string name="agent_nickname_hint">输入昵称</string>
+    <string name="agent_enable">启用</string>
+    <string name="agent_enable_desc">关闭后该智能体不在后台运行</string>
+    <string name="agent_search_skills">搜索技能...</string>
+    <string name="agent_store">商店</string>
+    <string name="agent_install">安装</string>
+    <string name="agent_load">加载</string>
+    <string name="agent_sync">同步</string>
+    <string name="agent_skills_synced">已同步 %1$d 个技能到技能池</string>
+    <string name="agent_no_skills_to_sync">没有需要同步的技能</string>
+    <string name="agent_delete_skill">删除技能</string>
+    <string name="agent_enable_skill">启用此技能</string>
+    <string name="agent_load_from_pool">从技能池加载</string>
+    <string name="agent_no_skills_in_pool">技能池中没有可加载或更新的技能</string>
+    <string name="agent_skill_update_available">可更新 %1$s → v%2$s</string>
+    <string name="agent_new"></string>
+    <string name="agent_update">更新</string>
+    <string name="agent_search_tools">搜索工具...</string>
+    <string name="agent_no_tools">暂无工具</string>
+    <string name="agent_params">参数</string>
+    <string name="agent_confirm_delete">确认删除</string>
+    <string name="agent_delete_confirm">确定要删除智能体「%1$s」吗？\n\n注意：智能体的工作区数据文件夹不会被删除，仅移除配置。此操作不可撤销</string>
+    <string name="agent_install_result">安装结果</string>
+    <string name="agent_delete_file">删除文件</string>
+    <string name="agent_delete_file_confirm">确定要删除 %1$s 吗？此操作不可撤销</string>
+    <string name="agent_skills_title">智能体技能</string>
+    <string name="agent_install_skills_first">请先在技能池中安装技能</string>
+    <!-- 插件管理 -->
+    <string name="plugin_add">添加插件</string>
+    <string name="plugin_no_plugins">暂无插件</string>
+    <string name="plugin_add_hint">点击右下 + 添加插件</string>
+    <string name="plugin_create">创建插件</string>
+    <string name="plugin_name">插件名称</string>
+    <string name="plugin_desc">描述</string>
+    <string name="plugin_tool_name">工具名称</string>
+    <string name="plugin_tool_desc">工具描述</string>
+    <string name="plugin_script">脚本 (JS)</string>
+    <string name="plugin_tool_label">工具:</string>
+    <string name="store_title">Skill 商店</string>
+    <string name="store_search_hint">搜索技能...</string>
+    <string name="store_installing_nodejs">正在安装 Node.js 环境...</string>
+    <string name="store_checking_nodejs">正在检查 Node.js 环境...</string>
+    <string name="store_nodejs_install_failed">Node.js 环境安装失败</string>
+    <string name="store_go_to_env_check">前往环境检查</string>
+    <string name="store_searching">正在搜索...</string>
+    <string name="store_no_skill_data">暂无技能数据</string>
+    <string name="store_need_linux_nodejs">技能商店需要 Linux 环境和 Node.js，请确认已初始化</string>
+    <string name="store_reload">重新加载</string>
+    <string name="store_no_matching_skills">未找到匹配技能</string>
+    <string name="store_try_other_keywords">试试其他关键词</string>
+    <string name="store_hot_picks">热门推荐</string>
+    <string name="store_all_skills">全部技能</string>
+    <string name="store_installing">安装中...</string>
+    <string name="store_installed">已安装</string>
+    <string name="store_reinstall">重新安装</string>
+    <string name="store_install_confirm">确定要安装以下技能吗</string>
+    <string name="store_security_warning">此技能未通过安全审核，安装前请确认来源可信</string>
+    <string name="store_security_passed">已通过安全审核</string>
+    <string name="store_intro">简介</string>
+    <string name="store_category">分类: %1$s</string>
+    <string name="store_version">版本: %1$s</string>
+    <!-- 使用分析 -->
+
+    <string name="insights_usage_analysis">使用分析</string>
+    <string name="insights_refresh">刷新</string>
+    <string name="insights_days">%1$d 天</string>
+    <string name="insights_agent_chat_count">智能体对话次数</string>
+    <string name="insights_no_data">暂无数据</string>
+    <string name="insights_times">%1$d 次</string>
+    <string name="insights_overview">概览</string>
+    <string name="insights_session_count">会话</string>
+    <string name="insights_input_token">输入Token</string>
+    <string name="insights_output_token">输出Token</string>
+    <string name="insights_completed">完成</string>
+    <string name="insights_skill_ranking">技能排名</string>
+    <string name="insights_tool_ranking">工具排名</string>
+    <string name="insights_activity_pattern">活动模式</string>
+    <string name="insights_peak_hours">活跃高峰时段</string>
+    <string name="insights_peak_day">活跃高峰天</string>
+    <string name="insights_token_trend">Token 使用趋势</string>
+    <string name="insights_input">输入</string>
+    <string name="insights_output">输出</string>
+    <string name="insights_token_consumption">Token 消耗统计</string>
+    <string name="insights_to">到</string>
+    <string name="insights_by_model">按模型统计</string>
+    <string name="insights_no_stats">暂无统计数据</string>
+    <string name="insights_total">总计</string>
+    <string name="insights_total_calls">总调用</string>
+    <string name="insights_cache_read">缓存读取</string>
+    <string name="insights_cache_write">缓存写入</string>
+    <string name="insights_call_times">%1$d 次</string>
+    <string name="insights_mon">周一</string>
+    <string name="insights_tue">周二</string>
+    <string name="insights_wed">周三</string>
+    <string name="insights_thu">周四</string>
+    <string name="insights_fri">周五</string>
+    <string name="insights_sat">周六</string>
+    <string name="insights_sun">周日</string>
+    <!-- 导航扩展 -->
+
+    <string name="nav_inbox">收件箱</string>
+    <string name="nav_insights">洞察</string>
+    <string name="nav_create_new">新建</string>
+    <!-- 新建抽屉 -->
+
+    <string name="drawer_new_chat">新建对话</string>
+    <string name="drawer_new_chat_desc">与智能体开始新对话</string>
+    <string name="drawer_new_group">新建群组</string>
+    <string name="drawer_new_group_desc">创建多智能体协作群组</string>
+    <string name="drawer_new_session_group_desc">创建会话分组</string>
+    <string name="drawer_new_agent">新建智能体</string>
+    <string name="drawer_new_agent_desc">创建新的智能体</string>
+    <!-- 历史数据对话框 -->
+
+    <string name="dialog_previous_data_found">发现历史数据</string>
+    <string name="dialog_previous_data_desc">检测到设备上存在之前的 HippyAgent 数据，请选择如何处理</string>
+    <string name="dialog_file_count">%1$s · %2$d 个文件</string>
+    <string name="dialog_merge_mode">处理方式</string>
+    <string name="dialog_start_fresh">从头开始</string>
+    <string name="dialog_keep_current">只保留现有资料</string>
+    <string name="dialog_keep_current_desc">丢弃历史数据，保留当前工作区内容</string>
+    <string name="dialog_merge_data">合并数据</string>
+    <string name="dialog_merge_data_desc">将历史数据合并到当前工作区，以较新文件为准</string>
+    <string name="dialog_keep_history">只保留历史数据</string>
+    <string name="dialog_keep_history_desc">用历史数据覆盖当前工作区内容</string>
+    <!-- 频道配置 -->
+
+    <string name="channel_config">频道配置</string>
+    <string name="channel_config_desc">配置智能体的消息推送渠道。支持 Webhook 推送和双向通信</string>
+    <string name="channel_configured">已配置</string>
+    <string name="channel_qr_bind">扫码登录绑定</string>
+    <string name="channel_manual_config">或手动填写配置：</string>
+    <string name="channel_save_config">保存配置</string>
+    <string name="channel_delete_config">删除配置</string>
+    <string name="channel_config_saved">频道配置已保存</string>
+    <string name="channel_feishu">飞书</string>
+    <string name="channel_feishu_desc">通过飞书机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_dingtalk">钉钉</string>
+    <string name="channel_dingtalk_desc">通过钉钉机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_wechat">企业微信</string>
+    <string name="channel_wechat_desc">通过企业微信机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_weixin">个人微信</string>
+    <string name="channel_weixin_desc">通过个人微信 iLink Bot 接收和发送消息，支持扫码登录</string>
+    <string name="channel_qq">QQ 机器人</string>
+    <string name="channel_qq_desc">通过 QQ 机器人 Official API 接收和发送消息</string>
+    <string name="channel_telegram">Telegram</string>
+    <string name="channel_telegram_desc">通过 Telegram Bot API 接收和发送消息</string>
+    <string name="channel_discord">Discord</string>
+    <string name="channel_discord_desc">通过 Discord Webhook 发送消息</string>
+    <string name="channel_qr_login">%1$s扫码登录</string>
+    <string name="channel_qr_start_hint">点击开始扫码绑定 %1$s</string>
+    <string name="channel_start_bind">开始绑定</string>
+    <string name="channel_fetching_qr">正在获取二维码...</string>
+    <string name="channel_qr_code_desc">%1$s登录二维码</string>
+    <string name="channel_qr_decode_failed">二维码解码失败</string>
+    <string name="channel_scan_qr_hint">请使用 %1$s 扫描上方二维码</string>
+    <string name="channel_qr_expiry">二维码有效期 5 分钟</string>
+    <string name="channel_qr_saved_hint">二维码已保存，请在 %1$s 中从相册选取扫描</string>
+    <string name="channel_app_not_installed">未安装 %1$s，请用其他设备扫描</string>
+    <string name="channel_open_app_scan">跳转%1$s扫码</string>
+    <string name="channel_scanned_confirm">已扫描，请在手机上确认登录</string>
+    <string name="channel_bind_success">绑定成功</string>
+    <!-- 公共记忆 -->
+
+    <string name="memory_common">公共记忆</string>
+    <string name="memory_search_hint">搜索记忆</string>
+    <string name="memory_all">全部</string>
+    <string name="memory_type_identity">身份</string>
+    <string name="memory_type_preference">偏好</string>
+    <string name="memory_type_goal">目标</string>
+    <string name="memory_type_project">项目</string>
+    <string name="memory_type_habit">习惯</string>
+    <string name="memory_type_decision">决策</string>
+    <string name="memory_type_constraint">约束</string>
+    <string name="memory_type_relationship">关系</string>
+    <string name="memory_type_episode">事件</string>
+    <string name="memory_type_reflection">反思</string>
+    <string name="memory_count">共 %1$d 条记忆，活跃 %2$d</string>
+    <string name="memory_no_data">暂无记忆数据。\n与智能体对话后，它会自动从对话中提取关键信息</string>
+    <string name="memory_delete">删除记忆</string>
+    <string name="memory_delete_confirm">确定要删除这条记忆吗？此操作不可撤销</string>
+    <string name="memory_confidence">置信度</string>
+    <string name="memory_importance">重要性</string>
+    <!-- 收件箱 -->
+
+    <string name="inbox_mark_all_read">全部已读</string>
+    <string name="inbox_approval_requests">审批请求</string>
+    <string name="inbox_push_messages">推送消息</string>
+    <string name="inbox_no_approvals">暂无审批记录</string>
+    <string name="inbox_no_events">暂无推送消息</string>
+    <string name="inbox_approved">已批准</string>
+    <string name="inbox_denied">已拒绝</string>
+    <string name="inbox_deny">拒绝</string>
+    <string name="inbox_timed_out">已超时</string>
+    <string name="inbox_findings_count">发现 %1$d 项</string>
+    <string name="inbox_approve">批准</string>
+    <!-- 引导 -->
+
+    <string name="onboarding_welcome">欢迎来到 HippyAgent</string>
+    <string name="onboarding_welcome_desc">你的智能助手可在手机端运行 AI Agent，自动化完成任务，数据完全本地，隐私安全</string>
+    <string name="onboarding_config_provider">配置模型供应商</string>
+    <string name="onboarding_config_provider_desc">支持 GPT-4o、Claude、DeepSeek、Gemini 等多种模型，也可连接本地 LM Studio 或 llama.cpp</string>
+    <string name="onboarding_authorize_permissions">授权核心权限</string>
+    <string name="onboarding_authorize_permissions_desc">启用无障碍服务、通知监听等权限，让 Agent 能自动操作手机和响应消息</string>
+    <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_get_started_desc">创建你的第一个 Agent，或从预设模板开始。随时可通过设置重新体验引导</string>
+    <string name="onboarding_continue">继续</string>
+    <string name="onboarding_have_api_key">已有 API Key？直接配置</string>
+    <!-- 启动初始化 -->
+
+    <string name="startup_initializing">正在初始化...</string>
+    <string name="startup_starting_linux">正在启动 Linux 环境...</string>
+    <string name="startup_start_linux">启动 Linux 环境</string>
+    <string name="startup_linux_failed">Linux 环境启动失败，部分功能不可用</string>
+    <!-- 通知渠道 -->
+    <string name="notification_channel_heartbeat">心跳提醒</string>
+    <string name="notification_channel_heartbeat_desc">定时心跳状态通知</string>
+    <string name="notification_channel_task_complete">任务完成</string>
+    <string name="notification_channel_task_complete_desc">Agent 任务完成通知</string>
+    <string name="notification_channel_error">错误警告</string>
+    <string name="notification_channel_error_desc">Agent 运行错误通知</string>
+    <string name="notification_channel_agent_message">智能体消息</string>
+    <string name="notification_channel_agent_message_desc">智能体新消息提醒</string>
+    <string name="notification_channel_permission_request">权限请求</string>
+    <string name="notification_channel_permission_request_desc">后台无障碍权限请求通知</string>
+    <!-- 通知内容 -->
+    <string name="notification_mission_complete">Mission 完成</string>
+    <string name="notification_mission_success">成功</string>
+    <string name="notification_mission_fail">失败</string>
+    <string name="notification_tool_approval_title">%1$s 工具审批: %2$s</string>
+    <string name="notification_tool_approval_desc">智能体 %1$s 请求执行 %2$s</string>
+    <string name="notification_allow_once">允许本次</string>
+    <string name="notification_always_allow">始终允许</string>
+    <string name="notification_deny">拒绝</string>
+    <string name="notification_deny_always">不再允许</string>
+    <string name="notification_permission_request_title">权限请求</string>
+    <string name="notification_permission_request_desc">智能体请求执行操作：%1$s%2$s</string>
+    <string name="notification_always_allow_permission">一直允许</string>
+    <!-- 设备端模型页面 -->
+    <string name="ondevice_model_title">设备端模型</string>
+    <string name="ondevice_model_tab_huggingface">Huggingface</string>
+    <string name="ondevice_model_tab_management">模型管理</string>
+    <string name="ondevice_model_download_manager">下载管理</string>
+    <string name="ondevice_model_search_hf">搜索 Huggingface 模型...</string>
+    <string name="ondevice_model_search_input">输入关键词搜索模型</string>
+    <string name="ondevice_model_search_management">搜索模型名称或描述...</string>
+    <string name="ondevice_model_no_downloads">暂无下载任务</string>
+    <string name="ondevice_model_settings">设置</string>
+    <string name="ondevice_model_auto_unload">自动卸载引擎 (后台5分钟)</string>
+    <string name="ondevice_model_download">下载模型</string>
+    <string name="ondevice_model_pause">暂停</string>
+    <string name="ondevice_model_resume_download">继续下载</string>
+    <string name="ondevice_model_engine_loading">引擎加载中...</string>
+    <string name="ondevice_model_engine_loaded">引擎已加载(%1$s)</string>
+    <string name="ondevice_model_unload_engine">卸载引擎</string>
+    <string name="ondevice_model_delete_model">删除模型</string>
+    <string name="ondevice_model_engine_load_failed">引擎加载失败</string>
+    <string name="ondevice_model_engine_unloading">引擎卸载中...</string>
+    <string name="ondevice_model_download_failed">下载失败</string>
+    <string name="ondevice_model_retry_download">重新下载</string>
+    <string name="ondevice_model_backend">后端: %1$s</string>
+    <string name="ondevice_model_backend_auto">自动 (GPU→CPU)</string>
+    <string name="ondevice_model_load_engine">加载引擎</string>
+    <string name="ondevice_model_cap_text">文本</string>
+    <string name="ondevice_model_cap_vision">图像</string>
+    <string name="ondevice_model_cap_audio">音频</string>
+    <string name="ondevice_model_cap_thinking">推理</string>
+    <string name="ondevice_model_cap_tool_call">工具调用</string>
+    <string name="ondevice_model_ram_requirement">最低 %1$dGB RAM / 推荐 %2$dGB</string>
+    <string name="ondevice_model_download_button">下载</string>
+    <!-- 频道配置扩展 -->
+    <string name="channel_config_feishu_name">飞书</string>
+    <string name="channel_config_feishu_desc">通过飞书机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_config_dingtalk_name">钉钉</string>
+    <string name="channel_config_dingtalk_desc">通过钉钉机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_config_wechat_name">企业微信</string>
+    <string name="channel_config_wechat_desc">通过企业微信机器人发送消息，支持扫码自动配置</string>
+    <string name="channel_config_weixin_name">个人微信</string>
+    <string name="channel_config_weixin_desc">通过个人微信 iLink Bot 接收和发送消息，支持扫码登录</string>
+    <string name="channel_config_qq_name">QQ 机器人</string>
+    <string name="channel_config_qq_desc">通过 QQ 机器人 Official API 接收和发送消息</string>
+    <string name="channel_config_telegram_name">Telegram</string>
+    <string name="channel_config_telegram_desc">通过 Telegram Bot API 接收和发送消息</string>
+    <string name="channel_config_discord_name">Discord</string>
+    <string name="channel_config_discord_desc">通过 Discord Webhook 发送消息</string>
+    <string name="channel_config_webhook_url">Webhook URL</string>
+    <string name="channel_config_app_id">App ID</string>
+    <string name="channel_config_app_secret">App Secret</string>
+    <string name="channel_config_secret_key">加签密钥</string>
+    <string name="channel_config_secret_key_desc">SEC...（可选，用于签名验证）</string>
+    <string name="channel_config_corp_id">企业 ID</string>
+    <string name="channel_config_corp_id_desc">ww...（接收消息时需要）</string>
+    <string name="channel_config_agent_id">应用 ID</string>
+    <string name="channel_config_agent_id_desc">1000002（接收消息时需要）</string>
+    <string name="channel_config_bot_token">Bot Token</string>
+    <string name="channel_config_bot_token_desc_qq">QQ 机器人的 App ID</string>
+    <string name="channel_config_bot_token_desc_qq_secret">QQ 机器人的 Client Secret</string>
+    <string name="channel_config_bot_token_desc_weixin">扫码登录后自动获取（也可手动填写）</string>
+    <string name="channel_config_api_address">API 鍦板潃</string>
+    <string name="channel_config_auto_obtain">扫码登录后自动获取</string>
+    <string name="channel_config_feishu_webhook_hint">https://open.feishu.cn/open-apis/bot/v2/hook/...</string>
+    <string name="channel_config_dingtalk_webhook_hint">https://oapi.dingtalk.com/robot/sendaccess_token=...</string>
+    <string name="channel_config_wechat_webhook_hint">https://qyapi.weixin.qq.com/cgi-bin/webhook/sendkey=...</string>
+    <string name="channel_config_weixin_api_url_hint">https://ilinkai.weixin.qq.com</string>
+    <string name="channel_config_telegram_bot_token_hint">123456:ABC-DEF...</string>
+    <string name="channel_config_discord_webhook_hint">https://discord.com/api/webhooks/...</string>
+    <string name="startup_checking_env">正在检查必备环境...</string>
+    <string name="startup_installing_missing">正在安装缺失组件...</string>
+    <string name="startup_installing">正在安装 %1$s...</string>
+    <string name="startup_all_ready">所有必备环境已就绪</string>
+    <string name="startup_partial_failure">部分安装失败，可稍后手动安装</string>
+    <string name="startup_init_env_wait">正在初始化环境，请稍候...</string>
+    <string name="startup_skip_setup">跳过，稍后设置</string>
+    <string name="startup_enter_app">进入应用</string>
+    <!-- 核心文件 -->
+
+    <string name="core_files_no_files">暂无核心文件</string>
+    <string name="core_files_drag_sort">拖拽排序</string>
+    <string name="core_files_not_created">未创建</string>
+    <string name="core_files_click_to_create">点击编辑以创建</string>
+    <string name="core_files_edit">编辑 %1$s</string>
+    <string name="refresh">刷新</string>
+    <!-- 权限中心 -->
+
+    <string name="perm_notification">通知</string>
+    <string name="perm_notification_desc">读取和回复通知消息</string>
+    <string name="perm_camera">相机</string>
+    <string name="perm_camera_desc">拍照和录制视频</string>
+    <string name="perm_microphone">麦克风</string>
+    <string name="perm_microphone_desc">语音输入和录音</string>
+    <string name="perm_location">位置</string>
+    <string name="perm_location_desc">获取当前位置信息</string>
+    <string name="perm_contacts">通讯录</string>
+    <string name="perm_contacts_desc">读取联系人信息</string>
+    <string name="perm_sms">短信</string>
+    <string name="perm_sms_desc">读取和发送短信</string>
+    <string name="perm_phone">电话</string>
+    <string name="perm_phone_desc">拨打电话和获取通话记录</string>
+    <string name="perm_calendar">日历</string>
+    <string name="perm_calendar_desc">读取和编辑日历事件</string>
+    <string name="perm_storage">存储</string>
+    <string name="perm_storage_desc">读取和写入文件</string>
+    <string name="perm_bluetooth">蓝牙</string>
+    <string name="perm_bluetooth_desc">扫描和连接蓝牙设备</string>
+    <string name="perm_wifi">WiFi</string>
+    <string name="perm_wifi_desc">读取WiFi网络信息</string>
+    <string name="perm_overlay">悬浮窗</string>
+    <string name="perm_overlay_desc">在其他应用上层显示界面</string>
+    <string name="perm_alarm">定时闹钟</string>
+    <string name="perm_alarm_desc">精准定时任务</string>
+    <string name="perm_cat_communication">通信</string>
+    <string name="perm_cat_hardware">硬件</string>
+    <string name="perm_cat_data">数据</string>
+    <string name="perm_cat_system">系统</string>
+    <string name="perm_granted_count">%1$d / %2$d 项已授权</string>
+    <string name="perm_center_hint">Agent 执行操作时将按需请求权限，建议提前授权常用权限以避免对话中断</string>
+    <string name="perm_granted">已授权</string>
+    <string name="perm_not_granted">未授权</string>
+    <!-- 模型提供商详情 -->
+
+    <string name="provider_no_providers">暂无模型提供商，点击 + 添加</string>
+    <string name="provider_default_suffix"> (默认)</string>
+    <string name="provider_no_url">未配置 URL</string>
+    <string name="provider_model_count">模型: %1$d</string>
+    <string name="provider_add_title">添加模型提供商</string>
+    <string name="provider_add_model">添加模型</string>
+    <string name="provider_id_label">提供商 ID</string>
+    <string name="provider_id_hint">例如 openai, deepseek, ollama</string>
+    <string name="provider_display_name">显示名称</string>
+    <string name="provider_protocol_type">协议类型</string>
+    <string name="provider_protocol_openai_compat">OpenAI 兼容</string>
+    <string name="provider_model_list">模型列表 (%1$d)</string>
+    <string name="provider_no_models_hint">暂无模型，点击 + 添加或从服务器获取</string>
+    <string name="provider_test_connection">测试连接</string>
+    <string name="provider_fetch_models">获取模型</string>
+    <string name="provider_edit_api_key">修改 API Key</string>
+    <string name="provider_switch_protocol">切换协议类型</string>
+    <string name="provider_set_default">设为默认</string>
+    <string name="provider_edit_api_key_title">修改 API Key</string>
+    <string name="provider_enter_new_api_key">请输入新的 API Key</string>
+    <string name="provider_switch_protocol_title">切换协议类型</string>
+    <string name="provider_current_protocol">当前协议: %1$s</string>
+    <string name="provider_switch">切换</string>
+    <!-- 模型配置对话框 -->
+
+    <string name="model_edit_title">编辑模型</string>
+    <string name="model_add_title">添加模型</string>
+    <string name="model_name_label">模型名称</string>
+    <string name="model_name_hint">例如 gpt-4, claude-3-sonnet</string>
+    <string name="model_display_name_optional">显示名称（可选）</string>
+    <!-- Dream 模式 -->
+
+    <string name="dream_title">Dream 模式</string>
+    <string name="dream_desc">Dream 模式允许 Agent 在空闲时自动执行记忆整理、知识巩固等后台任务，类似于人类的睡眠过程</string>
+    <string name="dream_enable">启用 Dream 模式</string>
+    <string name="dream_enable_desc">允许 Agent 在后台执行整理任务</string>
+    <string name="dream_interval_hours">执行间隔（小时）</string>
+    <string name="dream_charge_only">仅充电时执行</string>
+    <string name="dream_wifi_required">需要 WiFi</string>
+    <string name="dream_idle_only">设备空闲时执行</string>
+    <string name="dream_retention_days">记忆保留天数</string>
+    <string name="dream_trigger_now">立即执行一次 Dream</string>
+    <string name="dream_executing">执行中...</string>
+    <string name="dream_history">执行历史</string>
+    <string name="dream_elapsed_ms">耗时: %1$dms</string>
+    <string name="dream_curator_title">技能策展人 (Curator)</string>
+    <string name="dream_auto_skill_mgmt">自动技能管理</string>
+    <string name="dream_curator_desc">Curator 在 Dream 期间自动从执行历史中提取、合并、优化技能，让 Agent 越用越智能</string>
+    <string name="dream_stat_extracted">已提取</string>
+    <string name="dream_stat_active">活跃</string>
+    <string name="dream_stat_archived">已归档</string>
+    <string name="dream_skill_usage_count">使用 %1$d 次</string>
+    <string name="dream_no_auto_skills">暂无自动提取的技能，Dream 执行后将自动生成</string>
+    <!-- MCP 配置 -->
+
+    <string name="mcp_client_title">MCP 客户端</string>
+    <string name="mcp_config_saved">MCP 配置已保存</string>
+    <string name="mcp_no_clients">暂无 MCP 客户端</string>
+    <string name="mcp_add_hint">点击右上 + 添加</string>
+    <string name="mcp_transport_label">传输: %1$s</string>
+    <string name="mcp_timeout_label">超时: %1$ds</string>
+    <string name="mcp_add_title">添加 MCP 客户端</string>
+    <string name="mcp_client_key">客户端标识 (key)</string>
+    <string name="mcp_client_name">客户端名称</string>
+    <string name="mcp_command_label">命令 (command)</string>
+    <string name="mcp_timeout_seconds">执行超时（秒）</string>
+    <string name="mcp_edit_title">编辑 MCP 客户端</string>
+    <string name="mcp_description_optional">描述（可选）</string>
+    <string name="mcp_cwd_optional">工作目录（可选）</string>
+    <!-- 工具审批 -->
+
+    <string name="tool_approval_desc">配置工具调用的审批策略，确保敏感操作需要用户确认</string>
+    <string name="tool_approval_required">需要审批</string>
+    <string name="tool_approval_required_desc">敏感工具调用前需要用户确认</string>
+    <string name="tool_approval_timeout_seconds">审批超时（秒）</string>
+    <string name="tool_approval_pending">待审批</string>
+    <string name="tool_approval_waiting">等待审批</string>
+    <string name="tool_approval_deny">拒绝</string>
+    <!-- 安全规则 -->
+
+    <string name="security_no_rules">暂无规则</string>
+    <string name="security_rules_hint">当你在审批工具时选择「始终允许」或「不再允许」，规则会出现在这里</string>
+    <string name="security_rules_match_hint">以下规则会在工具审批时自动匹配，点击删除图标可撤销规则</string>
+    <string name="security_clear_all_title">清除全部规则</string>
+    <string name="security_clear_all_confirm">确定要清除所有安全规则吗？清除后所有工具审批将重新询问</string>
+    <string name="security_clear">清除</string>
+    <string name="security_action_allow_always">始终允许</string>
+    <string name="security_action_deny_always">不再允许</string>
+    <string name="security_delete_rule">删除规则</string>
+    <!-- 工具列表/详情 -->
+
+    <string name="tools_search_hint">搜索工具</string>
+    <string name="tools_no_match">未找到匹配的工具</string>
+    <string name="tools_not_exist">工具不存在</string>
+    <string name="tools_name_label">名称: %1$s</string>
+    <string name="tools_desc_label">描述: %1$s</string>
+    <string name="tools_type_label">类型: %1$s</string>
+    <string name="tools_required_label">必需: %1$s</string>
+    <string name="tools_required_yes">是</string>
+    <string name="tools_required_no">否</string>
+    <string name="tools_params_count">参数: %1$d</string>
+    <!-- 关于 -->
+
+    <string name="about_subtitle">Android 端智能体运行框架</string>
+    <string name="about_core_features">核心特性</string>
+    <string name="about_feature_react">ReAct 智能体循环</string>
+    <string name="about_feature_react_desc">支持多轮推理-行动循环</string>
+    <string name="about_feature_multi_model">多模型支持</string>
+    <string name="about_feature_multi_model_desc">OpenAI / DeepSeek / Ollama / 本地模型</string>
+    <string name="about_feature_mcp">MCP 协议</string>
+    <string name="about_feature_mcp_desc">Model Context Protocol 客户端</string>
+    <string name="about_feature_tools">工具系统</string>
+    <string name="about_feature_tools_desc">文件/Shell/Git/Gradle/Android 原生</string>
+    <string name="about_feature_memory">记忆管理</string>
+    <string name="about_feature_memory_desc">短期/长期/语义搜索/Dream 优化</string>
+    <string name="about_feature_collab">多智能体协作</string>
+    <string name="about_feature_collab_desc">群组聊天/跨 Agent 通信</string>
+    <string name="about_feature_skills">技能系统</string>
+    <string name="about_feature_skills_desc">可扩展技能包 + 安全扫描</string>
+    <string name="about_feature_plugins">插件系统</string>
+    <string name="about_feature_plugins_desc">动态加载卸载插件</string>
+    <string name="about_feature_heartbeat">心跳机制</string>
+    <string name="about_feature_heartbeat_desc">定时任务 + 活跃时段</string>
+    <string name="about_feature_linux">ALinux 容器</string>
+    <string name="about_feature_linux_desc">内嵌 Ubuntu 24.04 Linux 环境</string>
+    <string name="about_tech_stack">技术栈</string>
+    <string name="about_opensource_license">开源许可</string>
+    <string name="about_opensource_desc">本项目基于 Apache 2.0 许可证开源</string>
+    <!-- API 密钥管理 -->
+
+    <string name="api_key_management">API 密钥管理</string>
+    <string name="api_key_no_keys">暂无 API 密钥，点击 + 添加</string>
+    <string name="api_key_configured">已配置</string>
+    <string name="api_key_not_configured">未配置</string>
+    <string name="api_key_hide">隐藏</string>
+    <string name="api_key_show">显示</string>
+    <string name="api_key_add_title">添加 API 密钥</string>
+    <string name="api_key_provider_id_hint">例如 openai, deepseek</string>
+    <!-- 记忆压缩 -->
+
+    <string name="memory_compaction">记忆压缩</string>
+    <string name="memory_compaction_desc">自动压缩过长的记忆，保留重要信息，删除冗余内容，提高记忆检索效率</string>
+    <string name="memory_auto_compact">自动压缩</string>
+    <string name="memory_auto_compact_desc">当记忆超过阈值时自动压缩</string>
+    <string name="memory_compact_threshold">压缩阈值（字符数）</string>
+    <string name="memory_keep_recent">保留最近记忆（条数）</string>
+    <!-- 环境检查 -->
+
+    <string name="env_cat_essential">必备</string>
+    <string name="env_cat_common">常用</string>
+    <string name="env_cat_network">网络</string>
+    <string name="env_cat_voice">语音扩展</string>
+    <string name="env_system_diagnostics">系统诊断</string>
+    <string name="env_collecting_info">正在收集系统信息...</string>
+    <string name="env_linux_initializing">Linux 环境初始化中</string>
+    <string name="env_linux_auto_init">正在自动初始化 Linux 环境，请稍候...</string>
+    <string name="env_checking">正在检查环境...</string>
+    <string name="env_overview">环境概览</string>
+    <string name="env_ready_count">%1$d / %2$d 已就绪</string>
+    <string name="env_recheck">重新检查</string>
+    <string name="env_installed">已安装</string>
+    <string name="env_not_installed">未安装</string>
+    <string name="env_pending_check">待检查</string>
+    <string name="env_unsupported">不支持</string>
+    <string name="env_pending_download">待下载</string>
+    <string name="env_ready">已就绪</string>
+    <string name="env_installing">安装中</string>
+    <string name="env_waiting">等待</string>
+    <string name="env_install_btn">安装</string>
+    <string name="env_install_success">安装成功</string>
+    <string name="env_install_failed">安装失败</string>
+    <string name="env_native_always_available">Android 原生组件，始终可用</string>
+    <string name="env_needs_api_35">需要 Android 15+ (API 35) 设备</string>
+    <string name="env_tts_no_download">使用 Android 系统 TTS 引擎，无需下载</string>
+    <string name="env_android_version">Android 版本</string>
+    <string name="env_device_model">设备型号</string>
+    <string name="env_cpu_arch">CPU 架构</string>
+    <string name="env_jvm_memory">JVM 内存</string>
+    <string name="env_storage_space">存储空间</string>
+    <string name="env_app_usage">应用占用</string>
+    <string name="env_available_processors">可用处理器</string>
+    <string name="env_cannot_get">无法获取</string>
+    <string name="env_get_failed">获取失败</string>
+    <string name="env_cores">%1$d 核</string>
+    <string name="env_storage_available">%1$s 可用 / %2$s 总计</string>
+    <string name="env_no_install_command">无安装命令</string>
+    <string name="env_clearing_locks">清理锁文件中...</string>
+    <string name="env_updating_packages">正在更新包列表中...</string>
+    <string name="env_installing_name">正在安装 %1$s...</string>
+    <string name="env_installing_deps">正在安装依赖...</string>
+    <string name="env_adding_nodesource">正在添加 NodeSource 仓库 (Node.js 22)...</string>
+    <string name="env_installing_nodejs">正在安装 Node.js 22...</string>
+    <string name="env_install_verify_failed">安装命令已执行成功，但验证未通过</string>
+    <string name="env_installed_with_path">已安装(%1$s)</string>
+    <string name="env_path_not_executable">路径存在但不可执行(%1$s)</string>
+    <string name="env_version_unavailable">版本信息获取失败</string>
+    <!-- 环境变量 -->
+
+    <string name="envvar_add_title">添加环境变量</string>
+    <string name="envvar_key_label">变量名</string>
+    <string name="envvar_value_label">变量值</string>
+    <string name="envvar_no_vars">暂无环境变量</string>
+    <string name="envvar_add_hint">点击右上 + 添加</string>
+    <string name="envvar_empty_value">(空)</string>
+    <!-- 语言 -->
+
+    <string name="language_select">选择语言</string>
+    <!-- 通知设置 -->
+
+    <string name="notification_settings">通知设置</string>
+    <string name="notification_enable">启用通知</string>
+    <string name="notification_need_permission">需要系统通知权限</string>
+    <string name="notification_types">通知类型</string>
+    <string name="notification_heartbeat_title">心跳通知</string>
+    <string name="notification_heartbeat_desc">Agent 心跳执行结果</string>
+    <string name="notification_message_title">消息通知</string>
+    <string name="notification_message_desc">收到新消息时提醒</string>
+    <string name="notification_error_title">错误通知</string>
+    <string name="notification_error_desc">Agent 运行出错时提醒</string>
+    <!-- 调试信息 -->
+
+    <string name="debug_app_info">应用信息</string>
+    <string name="debug_device">设备</string>
+    <string name="debug_runtime">运行时</string>
+    <string name="debug_storage">存储</string>
+    <string name="debug_data">数据</string>
+    <string name="debug_recent_errors">最近错误</string>
+    <string name="debug_error_label">错误</string>
+    <!-- 导出日志 -->
+
+    <string name="log_exporting">导出中...</string>
+    <string name="log_export_btn">导出</string>
+    <string name="log_stop">停止</string>
+    <string name="log_live_log">实时日志</string>
+    <string name="log_clear">清空</string>
+    <string name="log_filter_all">全部</string>
+    <string name="log_only_hippy">只显示 Hippy</string>
+    <string name="log_waiting">等待日志...</string>
+    <string name="log_start_hint">点击「实时日志」开始查看</string>
+    <string name="log_no_match">无匹配日志</string>
+    <string name="log_auto_scroll">自动滚动</string>
+    <string name="log_manual_scroll">手动滚动</string>
+    <string name="log_share_title">分享日志</string>
+    <string name="log_exported">日志已导出 %1$s</string>
+    <string name="log_saved">日志已保存 %1$s</string>
+    <string name="log_export_failed">导出失败: %1$s</string>
+    <!-- 界面设置 -->
+
+    <string name="ui_session_list">会话列表</string>
+    <string name="ui_inactive_threshold">不活跃对话时</string>
+    <string name="ui_inactive_threshold_desc">超过此时间未更新的对话将被折叠，0 表示禁用折叠</string>
+    <string name="ui_minutes">分钟</string>
+    <string name="ui_invalid_number">请输入有效的非负整数</string>
+    <string name="ui_chat_interface">聊天界面</string>
+    <string name="ui_font_scale">全局字号</string>
+    <string name="ui_font_scale_desc">调节整个应用的字号大小</string>
+    <string name="ui_font_small"></string>
+    <string name="ui_font_large"></string>
+    <string name="ui_preview">预览效果</string>
+    <string name="ui_preview_text">设计是接口的实现，不是界面的堆叠</string>
+    <string name="ui_example_tag">示例标签</string>
+    <string name="ui_example_button">按钮</string>
+    <string name="ui_show_agent_avatar">显示智能体头像</string>
+    <string name="ui_show_agent_avatar_desc">聊天界面中智能体消息旁显示头像表情</string>
+    <!-- 全局规则 -->
+
+    <string name="global_rules_saved">全局规则已保存</string>
+    <string name="global_rules_hint">全局规则将注入到所有智能体的系统提示词开头，对所有智能体生效</string>
+    <string name="global_rules_placeholder">输入全局规则...</string>
+    <!-- 无障碍设置 -->
+
+    <string name="accessibility_phone_control">无障碍手机操作</string>
+    <string name="accessibility_service_enabled">无障碍服务已启用</string>
+    <string name="accessibility_service_disabled_title">无障碍服务未启用</string>
+    <string name="accessibility_can_control">Agent 可以感知和操控手机屏幕</string>
+    <string name="accessibility_need_enable">需要启用后 Agent 才能操控手机</string>
+    <string name="accessibility_steps_title">开启步骤</string>
+    <string name="accessibility_step_1">点击下方按钮跳转到系统无障碍设置</string>
+    <string name="accessibility_step_2">在列表中找到「Hippy」</string>
+    <string name="accessibility_step_3">点击进入并开启服务</string>
+    <string name="accessibility_step_4">返回本页面确认状态</string>
+    <string name="accessibility_go_to_settings">前往系统无障碍设置</string>
+    <string name="accessibility_refresh_status">刷新状态</string>
+    <string name="accessibility_safety_title">安全说明</string>
+    <string name="accessibility_safety_bank">银行/支付类 App 默认禁止操控</string>
+    <string name="accessibility_safety_password">输入密码/支付金额等高风险操作需用户确认</string>
+    <string name="accessibility_safety_audit">所有操作均有审计日志可追溯</string>
+    <string name="accessibility_safety_disable">可随时在系统设置中关闭服务</string>
+    <!-- 工具安全策略 -->
+
+    <string name="tool_security_policy">工具安全策略</string>
+    <string name="tool_security_execution_policy">执行策略</string>
+    <string name="tool_security_allow_all">全部允许</string>
+    <string name="tool_security_require_approval">需要审批</string>
+    <string name="tool_security_deny_all">全部拒绝</string>
+    <string name="tool_security_manual_confirm">工具执行前需手动确认</string>
+    <string name="tool_security_permission_control">权限控制</string>
+    <string name="tool_security_file_access">文件访问</string>
+    <string name="tool_security_file_access_desc">读写设备文件</string>
+    <string name="tool_security_network_access">网络访问</string>
+    <string name="tool_security_network_access_desc">发起网络请求</string>
+    <string name="tool_security_shell_access">Shell 命令</string>
+    <string name="tool_security_shell_access_desc">执行系统命令</string>
+    <string name="tool_security_sms_access">短信</string>
+    <string name="tool_security_sms_access_desc">读取/发送短信</string>
+    <!-- 运行配置 -->
+
+    <string name="running_config_saved">配置已保存</string>
+    <string name="running_config_reset_default">重置默认</string>
+    <string name="running_tab_react">ReAct</string>
+    <string name="running_tab_llm_retry">LLM重试</string>
+    <string name="running_tab_concurrency">并发限流</string>
+    <string name="running_tab_long_term_memory">长期记忆</string>
+    <string name="running_react_agent">ReAct 智能体</string>
+    <string name="running_max_iters">最大迭代次数</string>
+    <string name="running_auto_continue">文本响应自动继续</string>
+    <string name="running_max_input_length">最大输入长度</string>
+    <string name="running_llm_auto_retry">LLM 自动重试</string>
+    <string name="running_enable_retry">启用重试</string>
+    <string name="running_max_retries">最大重试次数</string>
+    <string name="running_backoff_base">退避基准(秒)</string>
+    <string name="running_backoff_cap">退避上限(秒)</string>
+    <string name="running_llm_concurrency">LLM 并发限流</string>
+    <string name="running_max_concurrent">最大并发数</string>
+    <string name="running_max_qpm">最大QPM</string>
+    <string name="running_rate_limit_pause">限流暂停(秒)</string>
+    <string name="running_rate_limit_jitter">限流抖动(秒)</string>
+    <string name="running_acquire_timeout">获取超时(秒)</string>
+    <string name="running_context_compression">上下文压缩</string>
+    <string name="running_context_backend">上下文管理后端</string>
+    <string name="running_memory_backend">记忆管理后端</string>
+    <string name="running_long_term_memory">长期记忆</string>
+    <string name="running_summarize_when_compact">压缩时记录摘要</string>
+    <string name="running_auto_memory_search">自动记忆搜索</string>
+    <string name="running_auto_search_max_results">自动搜索最大结果数</string>
+    <string name="running_auto_search_min_score">自动搜索最低相关性分</string>
+    <string name="running_rebuild_index">启动时重建索引</string>
+    <!-- 心跳配置 -->
+
+    <string name="heartbeat_config_saved">心跳配置已保存</string>
+    <string name="heartbeat_enable_section">开启心跳</string>
+    <string name="heartbeat_enable_label">启用</string>
+    <string name="heartbeat_interval">执行间隔</string>
+    <string name="heartbeat_interval_zero_error">间隔不能为空</string>
+    <string name="heartbeat_reply_target">回复目标</string>
+    <string name="heartbeat_target_main">主会话</string>
+    <string name="heartbeat_target_last">最近会话</string>
+    <string name="heartbeat_active_hours">活跃时段</string>
+    <string name="heartbeat_enable_active_hours">启用活跃时段</string>
+    <string name="heartbeat_active_hours_desc">在指定时间范围内才执行</string>
+    <string name="heartbeat_start_time">开始时间</string>
+    <string name="heartbeat_end_time">结束时间</string>
+    <!-- 定时任务 -->
+
+    <string name="cron_no_jobs">暂无定时任务</string>
+    <string name="cron_add_first">点击 + 创建定时任务</string>
+    <string name="cron_edit_title">编辑定时任务</string>
+    <string name="cron_new_title">新建定时任务</string>
+    <string name="cron_job_name">任务名称</string>
+    <string name="cron_job_query">执行内容</string>
+    <string name="cron_select_session">选择会话</string>
+    <string name="cron_new_session">新建会话</string>
+    <string name="cron_silent_mode">后台静默执行</string>
+    <string name="cron_frequency">执行频率</string>
+    <string name="cron_field_minute">分钟</string>
+    <string name="cron_field_hour">小时</string>
+    <string name="cron_field_day">日期</string>
+    <string name="cron_field_month">月份</string>
+    <string name="cron_field_weekday">星期</string>
+    <string name="cron_silent_label">静默执行</string>
+    <string name="cron_add_task">添加定时任务</string>
+    <string name="cron_every_minute">每分钟</string>
+    <string name="cron_every_5min">每5分钟</string>
+    <string name="cron_every_10min">每10分钟</string>
+    <string name="cron_every_15min">每15分钟</string>
+    <string name="cron_every_30min">每30分钟</string>
+    <string name="cron_on_the_hour">整点</string>
+    <string name="cron_every_hour">每小时</string>
+    <string name="cron_every_2h">每2小时</string>
+    <string name="cron_every_4h">每4小时</string>
+    <string name="cron_every_6h">每6小时</string>
+    <string name="cron_every_12h">每12小时</string>
+    <string name="cron_midnight">凌晨0点</string>
+    <string name="cron_8am">早上8点</string>
+    <string name="cron_9am">上午9点</string>
+    <string name="cron_3pm">下午3点</string>
+    <string name="cron_9pm">晚上9点</string>
+    <string name="cron_every_day">每天</string>
+    <string name="cron_day_1">1日</string>
+    <string name="cron_day_15">15日</string>
+    <string name="cron_last_day">最后一天</string>
+    <string name="cron_every_month">每月</string>
+    <string name="cron_jan">1月</string>
+    <string name="cron_mar">3月</string>
+    <string name="cron_jun">6月</string>
+    <string name="cron_sep">9月</string>
+    <string name="cron_dec">12月</string>
+    <string name="cron_weekday">工作日</string>
+    <string name="cron_weekend">周末</string>
+    <string name="cron_mon">周一</string>
+    <string name="cron_wed">周三</string>
+    <string name="cron_fri">周五</string>
+    <string name="cron_sat">周六</string>
+    <string name="cron_sun">周日</string>
+    <!-- 技能池 -->
+    <string name="skill_pool_no_skills">暂无技能</string>
+    <string name="skill_pool_add_hint">点击右上 + 添加技能</string>
+    <string name="skill_pool_add_title">添加技能</string>
+    <string name="skill_pool_from_file">从文件安装</string>
+    <string name="skill_pool_from_file_desc">选择 ZIP 文件</string>
+    <string name="skill_pool_from_url">从 URL 添加</string>
+    <string name="skill_pool_from_url_desc">输入技能包下载地址</string>
+    <string name="skill_pool_add_from_url_title">从 URL 添加技能</string>
+    <string name="skill_pool_url_label">技能 URL</string>
+    <string name="skill_pool_delete_confirm">确定要删除 %1$s 吗？</string>
+    <!-- 端侧模型 -->
+
+    <string name="on_device_title">端侧模型</string>
+    <string name="on_device_management">模型管理</string>
+    <string name="on_device_search_hf">搜索 Huggingface 模型...</string>
+    <string name="on_device_search_hint">输入关键词搜索模型</string>
+    <string name="on_device_download">下载</string>
+    <string name="on_device_search_model_desc">搜索模型名称或描述...</string>
+    <string name="on_device_settings">设置</string>
+    <string name="on_device_auto_unload">自动卸载引擎 (后台5分钟)</string>
+    <string name="on_device_cap_text">文本</string>
+    <string name="on_device_cap_vision">图像</string>
+    <string name="on_device_cap_audio">音频</string>
+    <string name="on_device_cap_thinking">推理</string>
+    <string name="on_device_cap_tool_call">工具调用</string>
+    <string name="on_device_ram_requirement">最低 %1$dGB RAM / 推荐 %2$dGB</string>
+    <string name="on_device_download_model">下载模型</string>
+    <string name="on_device_pause">暂停</string>
+    <string name="on_device_resume_download">继续下载</string>
+    <string name="on_device_engine_loading">引擎加载中...</string>
+    <string name="on_device_engine_loaded">引擎已加载(%1$s)</string>
+    <string name="on_device_unload_engine">卸载引擎</string>
+    <string name="on_device_delete_model">删除模型</string>
+    <string name="on_device_engine_load_failed">引擎加载失败</string>
+    <string name="on_device_engine_unloading">引擎卸载中...</string>
+    <string name="on_device_download_failed">下载失败</string>
+    <string name="on_device_redownload">重新下载</string>
+    <string name="on_device_backend_label">后端: %1$s</string>
+    <string name="on_device_backend_auto">自动</string>
+    <string name="on_device_backend_auto_desc">自动 (GPU→CPU)</string>
+    <string name="on_device_load_engine">加载引擎</string>
+    <string name="on_device_download_management">下载管理</string>
+    <string name="on_device_no_downloads">暂无下载任务</string>
+    <string name="on_device_resume">继续</string>
+    <string name="on_device_download_manage">下载管理</string>
+    <!-- ACP 设置 -->
+
+    <string name="acp_settings">ACP 设置</string>
+    <string name="acp_client_management">客户端管理</string>
+    <string name="acp_start">启动</string>
+    <string name="acp_protocol_desc">ACP 允许将智能体暴露为 ACP 服务，通过 JSON-RPC 与其他系统通信。支持与其他 ACP 兼容系统（QwenPaw、Claude Code 等）进行交互</string>
+    <string name="acp_server_status">服务器状态</string>
+    <string name="acp_running">运行中</string>
+    <string name="acp_stopped">已停止</string>
+    <string name="acp_port_label">端口: %1$s</string>
+    <string name="acp_config">ACP 配置</string>
+    <string name="acp_enable">启用 ACP</string>
+    <string name="acp_enable_desc">允许外部系统通过 ACP 协议访问此智能体</string>
+    <string name="acp_supported_methods">支持 ACP 方法:</string>
+    <string name="acp_method_chat">发送消息给智能体</string>
+    <string name="acp_method_list">列出所有可用智能体</string>
+    <string name="acp_method_status">获取智能体状态</string>
+    <string name="acp_usage_guide">使用说明</string>
+    <!-- ACP 客户端 -->
+    <string name="acp_client_title">ACP 客户端</string>
+    <string name="acp_add_server">添加服务器</string>
+    <string name="acp_no_remote_servers">暂无远程服务器</string>
+    <string name="acp_add_server_hint">点击右下+ 添加 ACP 服务器</string>
+    <string name="acp_last_discovery">上次发现: %1$s</string>
+    <string name="acp_no_agents_discovered">未发现智能体</string>
+    <string name="acp_discovering">发现中...</string>
+    <string name="acp_discover_agents">发现智能体</string>
+    <string name="acp_discovered_count">已发现 %1$d 个智能体</string>
+    <string name="acp_edit_server">编辑服务器</string>
+    <string name="acp_server_name">名称</string>
+    <string name="acp_server_host">主机地址</string>
+    <string name="acp_server_port">端口</string>
+    <!-- 事件监听 -->
+
+    <string name="hooks_system_title">系统事件监听</string>
+    <string name="hooks_desc">Agent 可自动响应系统事件（通知、来电、电量变化等），实现主动感知能力。开启需要授予权限</string>
+    <string name="hooks_missing_permission">缺少权限</string>
+    <string name="hooks_enabled">已启用</string>
+    <string name="hooks_not_enabled">未启用</string>
+    <string name="hooks_silent_hours">静默时间</string>
+    <string name="hooks_silent_hours_desc">静默期间不触发事件（来电除外）</string>
+    <string name="hooks_silent_start">开始时间</string>
+    <string name="hooks_silent_end">结束</string>
+    <!-- 相机预览 -->
+
+    <string name="camera_preview">相机预览</string>
+    <!-- Core: Tool display names -->
+
+    <string name="tool_display_read_file">读取文件</string>
+    <string name="tool_display_write_file">写入文件</string>
+    <string name="tool_display_edit_file">编辑文件</string>
+    <string name="tool_display_append_file">追加文件</string>
+    <string name="tool_display_delete_file">删除文件</string>
+    <string name="tool_display_glob_search">文件名搜索</string>
+    <string name="tool_display_grep_search">内容搜索</string>
+    <string name="tool_display_list_directory">列出目录</string>
+    <string name="tool_display_get_current_time">获取当前时间</string>
+    <string name="tool_display_load_skill">加载</string>
+    <string name="tool_display_tool_search">工具搜索</string>
+    <string name="tool_display_execute_bash">exec</string>
+    <string name="tool_display_get_working_directory">获取工作目录</string>
+    <string name="tool_display_get_environment">获取变量</string>
+    <string name="tool_display_set_environment">设置变量</string>
+    <string name="tool_display_delete_environment">删除变量</string>
+    <string name="tool_display_get_system_info">获取系统信息</string>
+    <string name="tool_display_read_logcat">读取日志</string>
+    <string name="tool_display_vibrate">振动</string>
+    <string name="tool_display_get_volume">获取音量</string>
+    <string name="tool_display_set_volume">设置音量</string>
+    <string name="tool_display_launch_app">启动应用</string>
+    <string name="tool_display_list_apps">列出应用</string>
+    <string name="tool_display_read_clipboard">读取剪贴板</string>
+    <string name="tool_display_write_clipboard">写入剪贴板</string>
+    <string name="tool_display_get_screen_info">获取屏幕信息</string>
+    <string name="tool_display_set_timezone">设置时区</string>
+    <string name="tool_display_set_user_timezone">设置用户时区</string>
+    <string name="tool_display_send_file">发送文件</string>
+    <string name="tool_display_send_file_to_user">发送文件给用户</string>
+    <string name="tool_display_send_image">发送图片</string>
+    <string name="tool_display_send_image_to_user">发送图片给用户</string>
+    <string name="tool_display_image_generate">生成图片</string>
+    <string name="tool_display_send_notification">系统提示</string>
+    <string name="tool_display_view_image">查看图片</string>
+    <string name="tool_display_view_video">查看视频</string>
+    <string name="tool_display_get_wifi_info">获取WiFi信息</string>
+    <string name="tool_display_bluetooth_control">蓝牙控制</string>
+    <string name="tool_display_get_paired_devices">已配对设备</string>
+    <string name="tool_display_take_photo">拍照</string>
+    <string name="tool_display_record_video">录制视频</string>
+    <string name="tool_display_take_screenshot">截屏</string>
+    <string name="tool_display_start_recording">开始录制</string>
+    <string name="tool_display_read_sensor">读取传感器</string>
+    <string name="tool_display_notification_read">读取通知</string>
+    <string name="tool_display_notification_reply">回复通知</string>
+    <string name="tool_display_contact_list">联系人列表</string>
+    <string name="tool_display_contact_search">搜索联系人</string>
+    <string name="tool_display_sms_list">短信列表</string>
+    <string name="tool_display_sms_send">发送短信</string>
+    <string name="tool_display_media_control">媒体控制</string>
+    <string name="tool_display_search_media">搜索媒体</string>
+    <string name="tool_display_get_location">获取位置</string>
+    <string name="tool_display_get_current_location">获取当前位置</string>
+    <string name="tool_display_set_alarm">设置闹钟</string>
+    <string name="tool_display_read_calendar">读取日历</string>
+    <string name="tool_display_write_calendar">写入日历</string>
+    <string name="tool_display_make_call">拨打电话</string>
+    <string name="tool_display_read_call_log">通话记录</string>
+    <string name="tool_display_read_pdf">读取PDF</string>
+    <string name="tool_display_read_docx">读取Word</string>
+    <string name="tool_display_read_xlsx">读取Excel</string>
+    <string name="tool_display_read_pptx">读取PPT</string>
+    <string name="tool_display_skill_read_file">文档读取</string>
+    <string name="tool_display_guidance">引导助手</string>
+    <string name="tool_display_qa_source_index">问答索引</string>
+    <string name="tool_display_web_search">网页搜索</string>
+    <string name="tool_display_web_fetch">网页抓取</string>
+    <string name="tool_display_mention_in_group">群组@提及</string>
+    <string name="tool_display_get_group_history">群组历史</string>
+    <string name="tool_display_check_agent_task">查异步任务</string>
+    <string name="tool_display_send_to_agent">发给智能体</string>
+    <string name="tool_display_delegate_to_agent">委托任务</string>
+    <string name="tool_display_delegate_external_agent">委托外部智能体</string>
+    <string name="tool_display_delegate_to_subagent">委托子智能体</string>
+    <string name="tool_display_spawn_sub_agent">创建子智能体</string>
+    <string name="tool_display_spawn_subagent">生成子智能体</string>
+    <string name="tool_display_check_sub_agent_tasks">查子智能体任务状态</string>
+    <string name="tool_display_check_subagent_tasks">查子智能体任务状态</string>
+    <string name="tool_display_aggregate_sub_agent">汇总子智能体任务结果</string>
+    <string name="tool_display_aggregate_subagent_tasks">汇总子智能体任务结果</string>
+    <string name="tool_display_chat_with_agent">智能体间对话</string>
+    <string name="tool_display_list_agents">列出智能体</string>
+    <string name="tool_display_get_token_usage">Token用量</string>
+    <string name="tool_display_export_log">导出日志</string>
+    <string name="tool_display_cron">定时任务</string>
+    <string name="tool_display_screen_observe">观察屏幕</string>
+    <string name="tool_display_screen_interact">屏幕交互</string>
+    <string name="tool_display_phone_automate">手机自动</string>
+    <string name="tool_display_ask">提问</string>
+    <string name="tool_display_list_plugins">列出插件</string>
+    <string name="tool_display_connect_sms_bridge">短信桥接</string>
+    <string name="tool_display_install_package">安装</string>
+    <string name="tool_display_execute_python">py</string>
+    <string name="tool_display_file_transfer">transfer</string>
+    <string name="tool_display_clipboard_sync">写入剪贴板</string>
+    <string name="tool_display_device_access">请求许可</string>
+    <string name="tool_display_ssh_server">ssh</string>
+    <string name="tool_display_get_file_size">获取文件大小</string>
+    <string name="tool_display_get_text_lines_count">获取文本行数</string>
+    <string name="tool_display_get_group_members">获取群成员</string>
+    <string name="tool_display_create_plan">创建计划</string>
+    <string name="tool_display_update_subtask_state">更新子任务状态</string>
+    <string name="tool_display_revise_current_plan">修订当前计划</string>
+    <string name="tool_display_finish_plan">完成当前计划</string>
+    <string name="tool_display_create_agent">创建智能体</string>
+    <string name="tool_display_delete_agent">删除智能体</string>
+    <string name="tool_display_update_agent">更新智能体</string>
+    <string name="tool_display_agent_info">智能体信息</string>
+    <string name="tool_display_send_message">发送消息</string>
+    <string name="tool_display_create_subagent_task">创建子任务</string>
+    <string name="tool_display_get_subagent_status">获取子任务状态</string>
+    <string name="tool_display_list_subagent_tasks">列出子任务</string>
+    <string name="tool_display_cancel_subagent_task">取消子任务</string>
+    <string name="tool_display_qa_index_sources">索引知识</string>
+    <string name="tool_display_qa_search">知识搜索</string>
+    <string name="tool_display_memory_save">保存记忆</string>
+    <string name="tool_display_memory_search">搜索记忆</string>
+    <string name="tool_display_memory_delete">删除记忆</string>
+    <string name="tool_display_approve_tool">批准工具</string>
+    <string name="tool_display_deny_tool">拒绝工具</string>
+    <string name="tool_display_send_group_message">发群组消息</string>
+    <string name="tool_display_mention_agent">@提及智能体</string>
+    <string name="tool_display_broadcast_message">广播消息</string>
+    <string name="tool_display_execute_command">执行命令</string>
+    <!-- Core: Agent error messages -->
+
+    <string name="agent_error_network_unavailable">📡 网络不可用，消息已缓存</string>
+    <string name="agent_error_network_unavailable_stream">📡 网络不可用，消息已缓存，网络恢复后自动发送</string>
+    <string name="agent_error_timeout">⚠️ 请求超时，稍后重试</string>
+    <string name="agent_error_api_key_invalid">⚠️ API 密钥无效，请检查模型提供商配置</string>
+    <string name="agent_error_rate_limited">⚠️ 请求过于频繁，稍后重试</string>
+    <string name="agent_error_network">⚠️ 网络错误: %1$s</string>
+    <string name="agent_error_unknown">未知错误</string>
+    <string name="agent_error_oom">⚠️ 内存不足 (OOM)：上下文过长，请缩短对话或重试</string>
+    <string name="agent_error_iteration_exhausted">⚠️ 迭代已尽 (%1$d次)，任务未能完全完成。以下是当前进度：\n%2$s</string>
+    <string name="agent_error_iteration_no_summary">（智能体在最后一轮仍在调用工具，未生成文字总结）</string>
+    <string name="agent_error_loop_detected">⚠️ 检测到模型进入死循环（连续重复相似操作），已自动停止任务。请检查任务描述或调整智能体配置</string>
+    <string name="agent_error_security_blocked">安全检查未通过: %1$s</string>
+    <string name="agent_error_user_denied">用户拒绝了此操作: %1$s</string>
+    <string name="agent_error_tool_exception">工具执行异常: %1$s</string>
+    <string name="agent_error_max_retries">达到最大重试次数</string>
+    <!-- Core: Notification -->
+
+    <string name="notif_channel_heartbeat_name">心跳提醒</string>
+    <string name="notif_channel_heartbeat_desc">定时心跳状态通知</string>
+    <string name="notif_channel_task_complete_name">任务完成</string>
+    <string name="notif_channel_task_complete_desc">Agent 任务完成通知</string>
+    <string name="notif_channel_error_name">错误警告</string>
+    <string name="notif_channel_error_desc">Agent 运行错误通知</string>
+    <string name="notif_channel_agent_message_name">智能体消息</string>
+    <string name="notif_channel_agent_message_desc">智能体新消息提醒</string>
+    <string name="notif_channel_permission_name">权限请求</string>
+    <string name="notif_channel_permission_desc">后台无障碍权限请求</string>
+    <string name="notif_mission_complete">Mission 完成</string>
+    <string name="notif_mission_result_success">成功</string>
+    <string name="notif_mission_result_failed">失败</string>
+    <string name="notif_user_label"></string>
+    <string name="notif_tool_approval_title">%1$s 工具审批: %2$s</string>
+    <string name="notif_tool_approval_default">智能体 %1$s 请求执行 %2$s</string>
+    <string name="notif_tool_approval_allow_once">允许一次</string>
+    <string name="notif_tool_approval_allow_always">始终允许</string>
+    <string name="notif_tool_approval_deny">拒绝</string>
+    <string name="notif_tool_approval_deny_always">不再允许</string>
+    <string name="notif_permission_request_title">权限请求</string>
+    <string name="notif_permission_request_content">智能体请求执行操作：%1$s</string>
+    <string name="notif_permission_allow_once">允许一次</string>
+    <string name="notif_permission_always_allow">一直允许</string>
+    <string name="notif_permission_deny">拒绝</string>
+    <!-- Core: Guardian -->
+
+    <string name="guardian_tool_shell_execute_title">Shell 执行</string>
+    <string name="guardian_tool_shell_execute_desc">Shell 执行需要确认</string>
+    <string name="guardian_tool_delete_op_title">删除操作</string>
+    <string name="guardian_tool_delete_op_desc">删除操作需要确认</string>
+    <string name="guardian_tool_write_op_title">写入操作</string>
+    <string name="guardian_tool_write_op_desc">写入操作需要确认</string>
+    <string name="guardian_shell_evasion_title">Shell 逃逸混淆</string>
+    <string name="guardian_shell_evasion_desc">工具 %1$s 的参数 '%2$s' 包含疑似逃逸混淆模式: %3$s</string>
+    <string name="guardian_shell_obfuscation_title">Shell 混淆检测</string>
+    <string name="guardian_shell_obfuscation_desc">工具 %1$s 的参数 '%2$s' 包含疑似混淆指示: %3$s</string>
+    <string name="guardian_file_path_critical_title">访问系统关键路径</string>
+    <string name="guardian_file_path_critical_desc">工具 %1$s 尝试访问系统关键路径 %2$s</string>
+    <string name="guardian_file_path_traversal_title">路径穿越攻击</string>
+    <string name="guardian_file_path_traversal_desc">工具 %1$s 的参数 '%2$s' 包含路径穿越序列: %3$s</string>
+    <string name="guardian_file_path_sensitive_ext_title">访问敏感文件类型</string>
+    <string name="guardian_file_path_sensitive_ext_desc">工具 %1$s 尝试访问敏感文件类型 %2$s: %3$s</string>
+    <string name="guardian_file_path_symlink_title">通过符号链接绕过路径限制</string>
+    <string name="guardian_file_path_symlink_desc">工具 %1$s 的参数包含符号链接路径 %2$s</string>
+    <string name="guardian_android_permission_missing_title">缺少 Android 运行时权限</string>
+    <string name="guardian_android_permission_missing_desc">工具 %1$s 需要权限 %2$s 但未授予</string>
+    <string name="guardian_storage_access_restricted_title">访问受限存储区域</string>
+    <string name="guardian_storage_access_restricted_desc">工具 %1$s 尝试访问受限路径 %2$s</string>
+    <string name="guardian_network_localhost_title">访问本地网络</string>
+    <string name="guardian_network_localhost_desc">工具 %1$s 尝试访问本地地址 %2$s</string>
+    <string name="guardian_network_credential_title">网络请求密钥泄露</string>
+    <string name="guardian_network_credential_desc">工具 %1$s 的参数 '%2$s' 包含疑似密钥</string>
+    <string name="guardian_a11y_blocked_package_title">禁止操控系统安全应用</string>
+    <string name="guardian_a11y_blocked_package_desc">应用包名 %1$s 在黑名单中禁止操控</string>
+    <string name="guardian_a11y_sensitive_input_title">输入内容包含敏感信息</string>
+    <string name="guardian_a11y_sensitive_input_desc">输入文本参数包含密码/支付/删除等敏感内容，需要用户确认</string>
+    <string name="guardian_a11y_input_action_title">文本输入操作</string>
+    <string name="guardian_a11y_input_action_desc">Agent正在向输入框输入文本，首次使用需要用户确认</string>
+    <string name="guardian_a11y_launch_app_title">启动应用操作</string>
+    <string name="guardian_a11y_launch_app_desc">Agent正在启动第三方应用</string>
+    <string name="guardian_dangerous_pattern_title">检测到危险命令模式</string>
+    <string name="guardian_dangerous_pattern_desc">检测到危险命令模式: %1$s</string>
+    <string name="guardian_dangerous_path_title">检测到危险路径</string>
+    <string name="guardian_dangerous_path_desc">检测到危险路径: %1$s</string>
+    <string name="guardian_path_traversal_attempt_title">检测到路径遍历尝试</string>
+    <string name="guardian_path_traversal_attempt_desc">检测到路径遍历尝试</string>
+    <string name="guardian_input_too_long_title">输入过长</string>
+    <string name="guardian_input_too_long_desc">输入过长 (%1$d 字符)</string>
+    <string name="guardian_dangerous_command_title">检测到危险命令</string>
+    <string name="guardian_dangerous_command_desc">检测到危险命令: %1$s</string>
+    <!-- Core: System Commands -->
+
+    <string name="cmd_unknown">未知命令: /%1$s</string>
+    <string name="cmd_execution_failed">命令执行失败: %1$s</string>
+    <string name="cmd_compact_desc">压缩上下文，减少 token 使用</string>
+    <string name="cmd_compact_result">上下文已压缩，当前消息数: %1$d, 总字数: %2$d</string>
+    <string name="cmd_new_desc">创建新会话</string>
+    <string name="cmd_new_failed">创建新会话失败</string>
+    <string name="cmd_new_success">新会话已创建</string>
+    <string name="cmd_clear_desc">清除上下文，保留聊天记录</string>
+    <string name="cmd_clear_result">上下文已清除，聊天记录保留</string>
+    <string name="cmd_history_desc">查看历史消息</string>
+    <string name="cmd_history_result">最近 %1$d 条消息\n%2$s</string>
+    <string name="cmd_mission_desc">启动任务模式，Agent 可执行完成复杂任务</string>
+    <string name="cmd_mission_usage">用法: /mission &lt;任务描述&gt; [--verify 命令] [--max-iterations N]</string>
+    <string name="cmd_mission_empty_desc">任务描述不能为空</string>
+    <string name="cmd_mission_started">Mission 已启动\n任务: %1$s\n最大迭代: %2$d\n任务 ID: %3$s</string>
+    <string name="cmd_mission_start_failed">Mission 启动失败: %1$s</string>
+    <string name="cmd_proactive_desc">控制主动记忆开关</string>
+    <string name="cmd_proactive_on">主动记忆已开启，空闲 30 分钟后推送建议</string>
+    <string name="cmd_proactive_off">主动记忆已关闭</string>
+    <string name="cmd_proactive_usage">用法: /proactive [on/off/status]</string>
+    <string name="cmd_plan_desc">生成任务计划</string>
+    <string name="cmd_plan_no_messages">当前会话没有用户消息，无法生成</string>
+    <string name="cmd_summarize_status_desc">总结当前状态</string>
+    <string name="cmd_summarize_no_topic"></string>
+    <string name="cmd_backup_desc">备份管理 (create/list/restore/delete)</string>
+    <string name="cmd_backup_auto_name">自动备份_%1$d</string>
+    <string name="cmd_backup_created">备份已创建: %1$s\n大小: %2$dKB\nID: %3$s</string>
+    <string name="cmd_backup_create_failed">备份创建失败: %1$s</string>
+    <string name="cmd_backup_list_empty">暂无备份</string>
+    <string name="cmd_backup_list_header">备份列表:\n%1$s</string>
+    <string name="cmd_backup_restore_usage">用法: /backup restore &lt;备份ID&gt;</string>
+    <string name="cmd_backup_restored">备份已恢复: %1$s</string>
+    <string name="cmd_backup_restore_failed">恢复失败: %1$s</string>
+    <string name="cmd_backup_delete_usage">用法: /backup delete &lt;备份ID&gt;</string>
+    <string name="cmd_backup_deleted">备份已删除: %1$s</string>
+    <string name="cmd_backup_delete_failed">删除失败: %1$s</string>
+    <string name="cmd_backup_help">备份管理命令:\n- /backup create [名称]: 创建备份\n- /backup list: 列出所有备份\n- /backup restore &lt;ID&gt;: 恢复备份\n- /backup delete &lt;ID&gt;: 删除备份</string>
+    <string name="cmd_stats_desc">查看智能体统计信息</string>
+    <!-- Core: Skill descriptions -->
+
+    <string name="skill_himalaya_desc">邮件管理，支持 IMAP/SMTP 邮件收发</string>
+    <string name="skill_channel_message_desc">频道消息发送，主动向会话或频道发送单向消息</string>
+    <string name="skill_pdf_desc">读取 PDF 文件内容并提取文本</string>
+    <string name="skill_docx_desc">读取 Word (.docx) 文件内容并提取纯文本</string>
+    <string name="skill_xlsx_desc">读取 Excel (.xlsx) 文件内容并提取表格数据</string>
+    <string name="skill_pptx_desc">读取 PowerPoint (.pptx) 文件内容并提取幻灯片文本</string>
+    <string name="skill_guidance_desc">引导助手，搜索本地文档获取安装配置</string>
+    <string name="skill_qa_source_index_desc">知识库索引，按关键词搜索源代码和文档路径</string>
+    <string name="skill_image_generate_desc">根据文本描述生成图片，支持多种生图模型</string>
+    <!-- Core: Tool permissions -->
+
+    <string name="tool_perm_device_access">设备访问</string>
+    <string name="tool_perm_clipboard_access">剪贴板访问</string>
+    <string name="tool_perm_ssh_server">SSH 服务</string>
+    <string name="tool_perm_file_transfer">文件传输</string>
+    <string name="tool_perm_shell_execute">Shell 执行</string>
+    <string name="tool_perm_not_configured">权限未配置，默认拒绝：%1$s。请设置 permissionChecker。</string>
+    <string name="tool_perm_custom_missing_error">需要 %1$s 权限才能使用此功能，请在弹出的对话框中授权后重试。</string>
+    <string name="tool_perm_custom_missing_for_user">需要 %1$s 权限，请在弹出的对话框中授权。</string>
+    <string name="tool_perm_android_camera">相机</string>
+    <string name="tool_perm_android_microphone">麦克风</string>
+    <string name="tool_perm_android_location">位置</string>
+    <string name="tool_perm_android_contacts">联系人</string>
+    <string name="tool_perm_android_sms">短信</string>
+    <string name="tool_perm_android_phone">电话</string>
+    <string name="tool_perm_android_call_log">通话记录</string>
+    <string name="tool_perm_android_calendar">日历</string>
+    <string name="tool_perm_android_bluetooth">蓝牙</string>
+    <string name="tool_perm_android_media">媒体文件</string>
+    <string name="tool_perm_android_missing_error">需要 %1$s 权限才能使用此功能，请在弹出的对话框中授权后重试。</string>
+    <string name="tool_perm_android_missing_for_user">需要 %1$s 权限，请在设置中授权后重试。</string>
+    <!-- 数据存储扩展 -->
+
+    <string name="storage_total_capacity">总容量</string>
+    <string name="storage_used_gb">已用 %1$sGB</string>
+    <string name="storage_available_gb">可用 %1$sGB</string>
+    <string name="storage_app_data">应用数据</string>
+    <string name="storage_agent_data">智能体数据</string>
+    <string name="storage_session_records">会话记录</string>
+    <string name="storage_core_files_label">核心文件</string>
+    <string name="storage_database_label">数据库</string>
+    <string name="storage_room_internal">Room（内部存储）</string>
+    <string name="storage_room_note">注意：Room 数据库文件必须保留在内部存储（Android 限制）。配置、聊天记录、记忆等文件可存储在外部目录</string>
+    <string name="storage_mount_complete">挂载完成：%1$d 个文件已同步</string>
+    <string name="storage_mount_failed">挂载失败：%1$s</string>
+    <string name="storage_remount">重新挂载</string>
+    <string name="storage_external_authorized">外部存储已授权</string>
+    <string name="storage_internal_data">数据存储在内部存储</string>
+    <string name="storage_disable_external_desc">关闭外部存储后，新数据将写入内部存储。外部存储中的已有数据不会被删除。\n\n⚠️ 关闭后卸载应用仍会丢失新产生的数据</string>
+    <!-- 环境检查扩展 -->
+
+    <string name="env_item_nodejs_desc">JavaScript 运行时 + 包执行器，技能商店和部分工具依赖（需 v22+）</string>
+    <string name="env_item_python_desc">Python 运行时，代码执行和脚本工具依赖</string>
+    <string name="env_item_git_desc">版本控制，代码仓库操作和技能安装依赖</string>
+    <string name="env_item_pip_desc">Python 包管理器</string>
+    <string name="env_item_ssh_desc">远程连接和文件传输</string>
+    <string name="env_item_vim_desc">终端文本编辑器</string>
+    <string name="env_item_jq_desc">JSON 命令行处理器</string>
+    <string name="env_item_ffmpeg_desc">音视频处理工具</string>
+    <string name="env_item_himalaya_desc">CLI 邮件客户端，支持 IMAP/SMTP 收发邮件</string>
+    <string name="env_item_web_access">网页访问（OkHttp + WebView）</string>
+    <string name="env_item_web_access_desc">Android 原生网页访问，OkHttp 轻量 HTTP + WebView JS 渲染自动降级</string>
+    <string name="env_item_curl_linux">cURL（Linux 环境）</string>
+    <string name="env_item_curl_desc">Linux 终端 HTTP 客户端，仅在 Linux 环境中使用</string>
+    <string name="env_item_moonshine_desc">离线语音转文字，支持中英日韩等多语言，长按麦克风即可语音输入</string>
+    <string name="env_item_system_tts">系统 TTS</string>
+    <string name="env_item_system_tts_desc">文字转语音播报，使用 Android 系统 TTS 引擎</string>
+    <string name="env_install_verify_failed_msg">安装命令已执行成功，但验证未通过。\n这通常是 proot 环境的 PATH/链接缓存未刷新。\n\n建议操作：\n1. 重启应用后再次检查（最有效）\n2. 在终端手动执行 hash -r 刷新命令缓存\n\n验证详情: %1$s</string>
+    <string name="env_install_success_verify">安装成功\n%1$s</string>
+    <string name="env_install_success_verify_failed">安装成功（版本验证失败）</string>
+    <string name="env_installed_with_version">已安装(%1$s) · %2$s</string>
+    <string name="env_storage_available_format">%1$s 可用 / %2$s 总计</string>
+    <string name="env_cores_format">%1$d 核</string>
+    <!-- 模型提供商扩展 -->
+
+    <string name="provider_protocol_label">协议: %1$s</string>
+    <string name="provider_api_key_configured">API Key: %1$s</string>
+    <string name="provider_api_key_status_configured">已配置</string>
+    <string name="provider_api_key_status_not_configured">未配置</string>
+    <!-- 第三方 i18n：其他界面 -->
+
+    <string name="conversation_agent_default_name">智能体</string>
+    <string name="conversation_create_agent">创建智能体</string>
+    <string name="conversation_drop_to_group">放入此分组</string>
+    <string name="conversation_failed">失败</string>
+    <string name="conversation_error">错误</string>
+    <string name="conversation_stopped">已停止</string>
+    <string name="conversation_thinking">思考中</string>
+    <string name="conversation_executing">执行中</string>
+    <string name="conversation_idle_status">空闲</string>
+    <string name="conversation_date_yesterday">昨天</string>
+    <string name="conversation_date_month_day">M月d日</string>
+    <string name="conversation_date_year_month_day">yyyy年M月d日</string>
+    <string name="group_name_label">分组名称</string>
+    <string name="group_clear">清除</string>
+    <string name="group_people_format">%1$d 人</string>
+    <string name="group_add">添加</string>
+    <string name="insights_failed">失败</string>
+    <string name="store_retry">重试</string>
+    <string name="store_install_skill">安装技能</string>
+    <string name="nav_new">新建</string>
+    <string name="app_data_kept">已保留现有数据</string>
+    <string name="app_data_merged">历史数据已合并到当前工作区</string>
+    <string name="app_data_overwritten">已使用历史数据覆盖当前工作区</string>
+    <string name="group_created_success">群组「%1$s」创建成功</string>
+    <string name="chat_scroll_to_bottom">回到底部</string>
+    <string name="chat_stop_playback">停止播放</string>
+    <string name="chat_privacy_warning_title">隐私提醒</string>
+    <string name="chat_privacy_warning_text">你正在使用免费模型。免费模型可能将你的数据用于训练或分析，存在信息泄露风险。建议仅用于非敏感内容。</string>
+    <string name="chat_never_remind">永不提醒</string>
+    <string name="voice_pause">暂停</string>
+    <string name="voice_play">播放</string>
+    <!-- 第四方 i18n：设置和配置界面 -->
+
+    <string name="nav_back">返回</string>
+    <string name="settings_version_format">版本 %1$s</string>
+    <string name="running_config_title">运行配置</string>
+    <string name="running_config_tab_react">ReAct</string>
+    <string name="running_config_tab_retry">LLM重试</string>
+    <string name="running_config_tab_concurrent">并发限流</string>
+    <string name="running_config_tab_memory">长期记忆</string>
+    <string name="running_config_react_agent">ReAct 智能体</string>
+    <string name="running_config_max_iters">最大迭代次数</string>
+    <string name="running_config_auto_continue">文本响应自动继续</string>
+    <string name="running_config_max_input_length">最大输入长度</string>
+    <string name="running_config_llm_auto_retry">LLM 自动重试</string>
+    <string name="running_config_enable_retry">启用重试</string>
+    <string name="running_config_max_retries">最大重试次数</string>
+    <string name="running_config_backoff_base">退避基数(秒)</string>
+    <string name="running_config_backoff_cap">退避上限(秒)</string>
+    <string name="running_config_llm_concurrent">LLM 并发限流</string>
+    <string name="running_config_max_concurrent">最大并发数</string>
+    <string name="running_config_max_qpm">最大QPM</string>
+    <string name="running_config_rate_limit_pause">限流暂停(秒)</string>
+    <string name="running_config_rate_limit_jitter">限流抖动(秒)</string>
+    <string name="running_config_acquire_timeout">获取超时(秒)</string>
+    <string name="running_config_context_compression">上下文压缩</string>
+    <string name="running_config_context_backend">上下文管理后端</string>
+    <string name="running_config_memory_backend">记忆管理后端</string>
+    <string name="running_config_long_term_memory_label">长期记忆</string>
+    <string name="running_config_memory_on_compact">压缩时记录摘要</string>
+    <string name="running_config_auto_memory_search">自动记忆搜索</string>
+    <string name="running_config_auto_search_max_results">自动搜索最大结果数</string>
+    <string name="running_config_auto_search_min_score">自动搜索最低相关分</string>
+    <string name="running_config_rebuild_index">启动时重建索引</string>
+    <string name="language_title">语言</string>
+    <string name="storage_title">数据存储</string>
+    <string name="storage_external_protection">外部存储（卸载保护）</string>
+    <string name="storage_data_migrated_desc">数据已迁移到外部目录，卸载应用不会丢失数据</string>
+    <string name="storage_data_internal_desc">当前数据存储在应用内部目录，卸载应用将丢失所有数据（配置、聊天记录、记忆）。建议授权外部存储目录</string>
+    <string name="storage_select_external_dir">选择外部存储目录</string>
+    <string name="storage_disable_external">关闭外部存储</string>
+    <string name="storage_confirm_disable">确认关闭</string>
+    <string name="storage_workspace">工作区</string>
+    <string name="storage_sensitive_data">敏感数据</string>
+    <string name="storage_backup">备份</string>
+    <string name="perm_center_title">权限中心</string>
+    <string name="perm_category_communication">通信</string>
+    <string name="perm_category_hardware">硬件</string>
+    <string name="perm_category_data">数据</string>
+    <string name="perm_category_system">系统</string>
+    <string name="cron_create">创建</string>
+    <string name="env_item_web_access_name">网页访问（OkHttp + WebView）</string>
+    <string name="env_item_curl_linux_name">cURL（Linux 环境）</string>
+    <string name="env_item_system_tts_name">系统 TTS</string>
+    <string name="skill_pool_store">商店</string>
+    <string name="skill_pool_install_result">安装结果</string>
+    <string name="skill_pool_install_success">%1$s 安装成功</string>
+    <string name="skill_pool_install_failed">安装失败: %1$s</string>
+    <string name="skill_pool_delete_title">删除</string>
+    <string name="chat_tts_failed">语音播报失败: %1$s</string>
+    <string name="store_source_all">全部</string>
+    <!-- DialogHost -->
+    <string name="dialog_merge_mode_label">处理方式</string>
+    <string name="dialog_keep_current_data">只保留现有数据</string>
+    <string name="dialog_confirm">确认</string>
+    <!-- Heartbeat -->
+    <string name="heartbeat_config_saved_toast">心跳配置已保存</string>
+    <string name="heartbeat_reset">重置</string>
+    <string name="heartbeat_target_main_label">主会话</string>
+    <string name="heartbeat_target_last_label">最近会话</string>
+    <!-- QrAuth -->
+    <string name="channel_bind_success_toast">绑定成功</string>
+    <string name="channel_retry">重试</string>
+    <string name="channel_scanned_confirm_toast">已扫描，请在手机上确认登录</string>
+    <!-- Inbox -->
+    <string name="inbox_mark_all_read_desc">全部已读</string>
+    <string name="inbox_refresh">刷新</string>
+    <string name="inbox_approve_btn">批准</string>
+    <string name="inbox_deny_btn">拒绝</string>
+    <string name="inbox_delete_desc">删除</string>
+    <!-- 工具详情 -->
+    <string name="tools_basic_info">基本信息</string>
+    <string name="tools_name_label_fmt">名称: %1$s</string>
+    <string name="tools_desc_label_fmt">描述: %1$s</string>
+    <string name="tools_params">参数</string>
+    <string name="tools_type_label_fmt">类型: %1$s</string>
+    <string name="tools_required_label_fmt">必需: %1$s</string>
+    <!-- ToolApprovals -->
+    <string name="tool_approval_title">工具审批</string>
+    <string name="tool_approval_timeout_seconds_label">审批超时（秒）</string>
+    <string name="tool_approval_pending_label">待审批</string>
+    <string name="tool_approval_approve">批准</string>
+    <!-- ACP usage guide -->
+    <string name="acp_usage_guide_steps">1. 启用 ACP 功能\n2. 点击右下角按钮启动服务器\n3. 外部系统可通过 JSON-RPC 连接 localhost:%1$s\n4. 发送请求与智能体交互</string>
+    <!-- Placeholder hints -->
+    <string name="placeholder_max_tokens">4096</string>
+    <string name="placeholder_context_window">8192</string>
+    <string name="placeholder_base_url">https://api.openai.com/v1</string>
+    <!-- ViewModel 错误/状态消息 -->
+    <string name="agent_not_found_with_id">智能体不存在: %1$s</string>
+    <string name="agent_load_failed_with_msg">加载失败: %1$s</string>
+    <string name="agent_save_avatar_failed">保存头像失败: %1$s</string>
+    <string name="agent_core_file_save_failed">保存失败: %1$s</string>
+    <string name="agent_core_file_delete_failed">删除失败: %1$s</string>
+    <!-- 权限请求 -->
+    <string name="perm_tool_request">工具权限请求</string>
+    <string name="perm_shell_request">Shell 执行请求</string>
+    <!-- ACP -->
+    <string name="acp_discover_failed">发现失败: %1$s</string>
+    <!-- 配置加载/保存 -->
+    <string name="config_load_failed">加载配置失败: %1$s</string>
+    <string name="config_save_failed">保存失败: %1$s</string>
+    <!-- 核心文件 -->
+    <string name="core_files_load_failed">加载文件列表失败: %1$s</string>
+    <string name="core_file_save_failed">保存失败: %1$s</string>
+    <!-- 技能商店 -->
+    <string name="store_auto_installing_nodejs">正在自动安装 Node.js 环境...</string>
+    <string name="store_nodejs_install_failed_hint">Node.js 环境安装失败，请前往设置→环境检查手动安装</string>
+    <string name="store_linux_not_ready">Linux 环境未初始化，技能商店需要 Linux 环境来执行搜索命令。请先在设置中完成初始化</string>
+    <string name="store_load_failed">加载失败: %1$s</string>
+    <string name="store_install_failed">安装失败: %1$s</string>
+    <!-- 排序类型 -->
+    <string name="sort_hot">最热</string>
+    <string name="sort_new">最新</string>
+    <string name="sort_rating">评分最高</string>
+    <string name="sort_installs">安装最多</string>
+    <!-- 审批覆盖 -->
+    <string name="approval_overlay_channel">审批覆盖通道</string>
+    <string name="approval_overlay_service_running">Agent 审批服务运行中</string>
+    <string name="approval_overlay_title">等待操作审批...</string>
+    <string name="approval_agent_request">Agent 请求操作</string>
+    <string name="approval_content_label">内容:</string>
+    <string name="approval_allow_5_minutes">允许5分钟</string>
+    <!-- 通知弹窗 -->
+    <string name="notification_overlay_channel">通知弹窗</string>
+    <string name="notification_overlay_service">通知弹窗服务</string>
+    <!-- 屏内替身 -->
+    <string name="companion_status_ready">屏内替身 · 就绪</string>
+    <string name="companion_status_listening">屏内替身 · 聆听中...</string>
+    <string name="companion_status_processing">屏内替身 · 处理中...</string>
+    <string name="companion_status_executing">屏内替身 · 执行中...</string>
+    <!-- 环境变量页面 -->
+    <string name="env_vars_title">环境变量</string>
+    <string name="env_var_name">变量名</string>
+    <string name="env_var_value">变量值</string>
+    <string name="env_vars_add">添加环境变量</string>
+    <string name="env_vars_empty">暂无环境变量</string>
+    <string name="env_vars_empty_hint">点击右上 + 添加</string>
+    <!-- 端侧模型 -->
+    <string name="ondevice_no_gguf">该模型没有可用的 GGUF 文件</string>
+    <string name="ondevice_download_failed_msg">下载失败: %1$s</string>
+    <!-- ACP 客户端 -->
+    <string name="acp_discovered_agents">发现 %1$d 个智能体</string>
+    <!-- 智能体配置 -->
+    <string name="agent_switch">切换智能体</string>
+    <!-- Core 层国际化 -->
+    <string name="stt_recognizing">正在识别...</string>
+    <string name="tool_approval_request">工具审批请求: %1$s</string>
+    <string name="tool_approval_approved">工具审批已通过: %1$s</string>
+    <string name="tool_approval_denied">工具审批已拒绝 %1$s</string>
+    <string name="tool_blocked_by_security">工具被安全规则阻止 %1$s</string>
+    <string name="cron_job_session_title">定时任务: %1$s</string>
+    <string name="system_event_session_title">系统事件: %1$s</string>
+    <string name="biometric_reject">拒绝</string>
+    <!-- 引导步骤 -->
+    <string name="onboarding_step_welcome_title">欢迎使用 Hippy</string>
+    <string name="onboarding_step_welcome_desc">你的端侧智能体助手，数据完全本地，隐私安全</string>
+    <string name="onboarding_step_language_title">选择语言</string>
+    <string name="onboarding_step_language_desc">选择你偏好的交互语言</string>
+    <string name="onboarding_step_expertise_title">专业领域</string>
+    <string name="onboarding_step_expertise_desc">告诉我你的主要使用场景</string>
+    <string name="onboarding_step_model_title">选择模型</string>
+    <string name="onboarding_step_model_desc">选择端侧 AI 模型（可后续更改）</string>
+    <string name="onboarding_step_privacy_title">隐私说明</string>
+    <string name="onboarding_step_privacy_desc">所有数据默认存储在本地，不会上传到云端</string>
+    <string name="onboarding_step_complete_title">准备就绪</string>
+    <string name="onboarding_step_complete_desc">开始你的智能体之旅</string>
 </resources>
 

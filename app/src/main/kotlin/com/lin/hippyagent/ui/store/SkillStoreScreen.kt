@@ -77,6 +77,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.skill.store.SkillSource
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.store.StoreSkillItem
 
 @Composable
@@ -118,7 +120,7 @@ fun SkillStoreScreen(
     LaunchedEffect(uiState.nodeStatus) {
         val status = uiState.nodeStatus
         if (status != null && nodeCheckState != "ready") {
-            nodeCheckState = if (status.contains("失败")) "failed" else "installing"
+            nodeCheckState = if (status == "failed") "failed" else "installing"
         }
     }
 
@@ -134,10 +136,10 @@ fun SkillStoreScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back))
                     }
                     Text(
-                        "Skill 商店",
+                        stringResource(R.string.store_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -150,7 +152,7 @@ fun SkillStoreScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(12.dp)),
-                    placeholder = { Text("搜索技能...") },
+                    placeholder = { Text(stringResource(R.string.store_search_hint)) },
                     leadingIcon = { Icon(Icons.Default.Search, null) },
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
@@ -193,7 +195,7 @@ fun SkillStoreScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (nodeCheckState == "installing") "正在安装 Node.js 环境..." else "正在检测 Node.js 环境...",
+                        text = if (nodeCheckState == "installing") stringResource(R.string.store_installing_nodejs) else stringResource(R.string.store_checking_nodejs),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -211,7 +213,7 @@ fun SkillStoreScreen(
                     modifier = Modifier.fillMaxWidth().padding(12.dp)
                 ) {
                     Text(
-                        text = uiState.nodeStatus ?: "Node.js 环境安装失败",
+                        text = stringResource(R.string.store_nodejs_install_failed),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
@@ -220,7 +222,7 @@ fun SkillStoreScreen(
                         onClick = onNavigateToEnvCheck,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text("前往环境检测", fontSize = 12.sp)
+                        Text(stringResource(R.string.store_go_to_env_check), fontSize = 12.sp)
                     }
                 }
             }
@@ -236,7 +238,7 @@ fun SkillStoreScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator()
                     Spacer(Modifier.height(12.dp))
-                    Text("正在搜索...", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.store_searching), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else if (uiState.error != null && uiState.skills.isEmpty()) {
@@ -267,7 +269,7 @@ fun SkillStoreScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     TextButton(onClick = { viewModel.loadHotSkills() }) {
-                        Text("重试")
+                        Text(stringResource(R.string.store_retry))
                     }
                 }
             }
@@ -290,17 +292,17 @@ fun SkillStoreScreen(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text("暂无技能数据", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.store_no_skill_data), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "技能商店需要 Linux 环境和 Node.js，请确认已初始化",
+                        stringResource(R.string.store_need_linux_nodejs),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(16.dp))
                     TextButton(onClick = { viewModel.loadHotSkills() }) {
-                        Text("重新加载")
+                        Text(stringResource(R.string.store_reload))
                     }
                 }
             }
@@ -320,9 +322,9 @@ fun SkillStoreScreen(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text("未找到匹配技能", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.store_no_matching_skills), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "试试其他关键词",
+                        stringResource(R.string.store_try_other_keywords),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -340,7 +342,7 @@ fun SkillStoreScreen(
                 // 热门推荐（仅无搜索时显示）
                 if (uiState.searchQuery.isBlank() && uiState.hotSkills.isNotEmpty()) {
                     item {
-                        SectionHeader("热门推荐", Icons.Default.LocalFireDepartment)
+                        SectionHeader(stringResource(R.string.store_hot_picks), Icons.Default.LocalFireDepartment)
                         HotSkillsRow(
                             skills = uiState.hotSkills,
                             installedIds = uiState.installedIds,
@@ -352,7 +354,7 @@ fun SkillStoreScreen(
                     }
                 }
                 // 全部技能列表
-                item { SectionHeader("全部技能", Icons.Default.Sort) }
+                item { SectionHeader(stringResource(R.string.store_all_skills), Icons.Default.Sort) }
                 items(
                     count = uiState.skills.size,
                     key = { uiState.skills[it].identifier }
@@ -434,7 +436,7 @@ fun SourceTabRow(
     activeSource: SkillSource?,
     onSourceChange: (SkillSource?) -> Unit
 ) {
-    val sources = listOf(null to "全部") + SkillSource.entries.map { it to it.displayName }
+    val sources = listOf(null to stringResource(R.string.store_source_all)) + SkillSource.entries.map { it to it.displayName }
     val selectedIndex = sources.indexOfFirst { it.first == activeSource }.coerceAtLeast(0)
 
     TabRow(
@@ -614,7 +616,7 @@ fun StoreSkillCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                             Spacer(Modifier.width(6.dp))
-                            Text("安装中...", style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(R.string.store_installing), style = MaterialTheme.typography.labelSmall)
                         }
                     }
                     isInstalled -> {
@@ -626,13 +628,13 @@ fun StoreSkillCard(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(Modifier.width(4.dp))
-                                Text("已安装")
+                                Text(stringResource(R.string.store_installed))
                             }
                         }
                     }
                     else -> {
                         OutlinedButton(onClick = onInstall) {
-                            Text("安装")
+                            Text(stringResource(R.string.agent_install))
                         }
                     }
                 }
@@ -727,10 +729,10 @@ fun InstallConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (isInstalled) "重新安装" else "安装技能") },
+        title = { Text(if (isInstalled) stringResource(R.string.store_reinstall) else stringResource(R.string.store_install_skill)) },
         text = {
             Column {
-                Text("确定要安装以下技能吗？", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.store_install_confirm), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SourceBadge(skill.source)
@@ -756,7 +758,7 @@ fun InstallConfirmDialog(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            "此技能未通过安全审核，安装前请确认来源可信",
+                            stringResource(R.string.store_security_warning),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -766,12 +768,12 @@ fun InstallConfirmDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("安装")
+                Text(stringResource(R.string.agent_install))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -896,7 +898,7 @@ fun SkillDetailSheet(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        "已通过安全审核",
+                        stringResource(R.string.store_security_passed),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -917,7 +919,7 @@ fun SkillDetailSheet(
             // 简介
             if (skill.description.isNotBlank()) {
                 Text(
-                    "简介",
+                    stringResource(R.string.store_intro),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -960,14 +962,14 @@ fun SkillDetailSheet(
             ) {
                 if (skill.category.isNotBlank()) {
                     Text(
-                        "分类: ${skill.category}",
+                        stringResource(R.string.store_category, skill.category),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 if (skill.version.isNotBlank()) {
                     Text(
-                        "版本: ${skill.version}",
+                        stringResource(R.string.store_version, skill.version),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -986,7 +988,7 @@ fun SkillDetailSheet(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("安装中...", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.store_installing), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 isInstalled -> {
@@ -1002,7 +1004,7 @@ fun SkillDetailSheet(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(Modifier.width(4.dp))
-                            Text("已安装")
+                            Text(stringResource(R.string.store_installed))
                         }
                     }
                 }
@@ -1011,7 +1013,7 @@ fun SkillDetailSheet(
                         onClick = onInstall,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("安装")
+                        Text(stringResource(R.string.agent_install))
                     }
                 }
             }

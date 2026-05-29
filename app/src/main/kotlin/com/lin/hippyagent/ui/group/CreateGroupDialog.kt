@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.bootstrap.BootstrapHook
 import com.lin.hippyagent.data.repository.AgentRepository
@@ -39,24 +41,24 @@ fun CreateGroupDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("创建群组", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.group_create), fontWeight = FontWeight.Bold) },
         text = {
             Column {
                 OutlinedTextField(
                     value = groupName,
                     onValueChange = { groupName = it },
-                    label = { Text("群组名称") },
+                    label = { Text(stringResource(R.string.group_name_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("选择成员", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                Text(stringResource(R.string.group_select_members), fontWeight = FontWeight.Medium, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (agents.isEmpty()) {
-                    Text("暂无可用智能体", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.group_no_available_agents), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     LazyColumn(
                         modifier = Modifier.heightIn(max = 200.dp),
@@ -91,7 +93,7 @@ fun CreateGroupDialog(
                                     )
                                     if (isBootstrap) {
                                         Text(
-                                            text = "未初始化，请先与该智能体对话完成初始化",
+                                            text = stringResource(R.string.group_agent_not_initialized),
                                             fontSize = 11.sp,
                                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                                         )
@@ -114,12 +116,12 @@ fun CreateGroupDialog(
                 onClick = { onCreateGroup(groupName, selectedAgentIds.toList()) },
                 enabled = groupName.isNotBlank() && selectedAgentIds.size >= 2
             ) {
-                Text("创建")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

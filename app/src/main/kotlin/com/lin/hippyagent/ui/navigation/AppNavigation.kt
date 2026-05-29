@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.storage.PreviousDataScanner
 import com.lin.hippyagent.core.storage.PreviousDataLocation
 import kotlinx.coroutines.Dispatchers
@@ -97,9 +98,9 @@ fun AppNavigation(
                         }
                     }
                     val msg = when (mode) {
-                        DataMergeMode.KEEP_CURRENT -> "已保留现有数据"
-                        DataMergeMode.MERGE -> "历史数据已合并到当前工作区"
-                        DataMergeMode.KEEP_HISTORY -> "已使用历史数据覆盖当前工作区"
+                        DataMergeMode.KEEP_CURRENT -> ctx.getString(R.string.app_data_kept)
+                        DataMergeMode.MERGE -> ctx.getString(R.string.app_data_merged)
+                        DataMergeMode.KEEP_HISTORY -> ctx.getString(R.string.app_data_overwritten)
                     }
                     Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show()
                 }
@@ -170,7 +171,7 @@ fun AppNavigation(
                         showCreateGroupDialog = false
                         Toast.makeText(
                             navController.context,
-                            "群组「$name」创建成功",
+                            navController.context.getString(R.string.group_created_success, name),
                             Toast.LENGTH_SHORT
                         ).show()
                     },
@@ -505,7 +506,7 @@ fun AppNavigation(
             }
             composable(Screen.AcpClient.route) {
                 val clientStore: com.lin.hippyagent.core.agent.collaboration.AcpClientStore = org.koin.java.KoinJavaComponent.get(com.lin.hippyagent.core.agent.collaboration.AcpClientStore::class.java)
-                val viewModel = com.lin.hippyagent.ui.settings.acp.AcpClientViewModel(clientStore)
+                val viewModel = com.lin.hippyagent.ui.settings.acp.AcpClientViewModel(clientStore, androidx.compose.ui.platform.LocalContext.current.applicationContext as android.app.Application)
                 com.lin.hippyagent.ui.settings.acp.AcpClientScreen(
                     viewModel = viewModel,
                     onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
@@ -543,6 +544,19 @@ fun AppNavigation(
                 arguments = listOf(navArgument("agentId") { type = NavType.StringType })
             ) { backStackEntry ->
                 com.lin.hippyagent.ui.settings.MemoryCompactionScreen(
+                    onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
+                )
+            }
+
+            composable(
+                route = Screen.CommonMemory.route,
+                arguments = listOf(navArgument("agentId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val agentId = backStackEntry.arguments?.getString("agentId") ?: ""
+                com.lin.hippyagent.ui.memory.CommonMemoryScreen(
+                    viewModel = org.koin.androidx.compose.koinViewModel(
+                        parameters = { org.koin.core.parameter.parametersOf(agentId) }
+                    ),
                     onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
                 )
             }

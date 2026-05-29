@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.agent.AgentStatus
@@ -47,6 +48,7 @@ data class ConversationListUiState(
 )
 
 class ConversationListViewModel(
+    private val context: Context,
     private val sessionStore: SessionStore,
     private val agentRepository: AgentRepository,
     private val agentFactory: AgentFactory,
@@ -280,7 +282,7 @@ class ConversationListViewModel(
                 ?: agentRepository.getProfiles().first().keys.firstOrNull()
                 ?: AgentRepository.DEFAULT_AGENT_ID
 
-            sessionStore.createSession(agentId)
+            sessionStore.createSession(agentId, context.getString(R.string.chat_new_session))
                 .onSuccess { session ->
                     onCreated(session)
                 }

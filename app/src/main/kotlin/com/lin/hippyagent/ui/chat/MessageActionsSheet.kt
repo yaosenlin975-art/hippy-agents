@@ -26,8 +26,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +55,7 @@ fun MessageActionsSheet(
         ) {
             ActionRow(
                 icon = Icons.Default.ContentCopy,
-                label = "复制",
+                label = stringResource(R.string.chat_copy),
                 onClick = {
                     onCopy()
                     onDismiss()
@@ -62,7 +64,7 @@ fun MessageActionsSheet(
             if (onQuote != null) {
                 ActionRow(
                     icon = Icons.Default.FormatQuote,
-                    label = "引用",
+                    label = stringResource(R.string.chat_quote),
                     onClick = {
                         onQuote()
                         onDismiss()
@@ -72,7 +74,7 @@ fun MessageActionsSheet(
             if (!isAgent) {
                 ActionRow(
                     icon = Icons.Default.Edit,
-                    label = "编辑",
+                    label = stringResource(R.string.edit),
                     onClick = {
                         onEdit()
                         onDismiss()
@@ -82,7 +84,7 @@ fun MessageActionsSheet(
             if (isAgent) {
                 ActionRow(
                     icon = Icons.Default.Refresh,
-                    label = "重新生成",
+                    label = stringResource(R.string.chat_regenerate),
                     onClick = {
                         onRegenerate()
                         onDismiss()
@@ -92,7 +94,7 @@ fun MessageActionsSheet(
                 if (onSpeak != null) {
                     ActionRow(
                         icon = Icons.Default.VolumeUp,
-                        label = "语音播报",
+                        label = stringResource(R.string.chat_speak),
                         onClick = {
                             onSpeak()
                             onDismiss()
@@ -103,7 +105,7 @@ fun MessageActionsSheet(
             if (onMultiSelect != null) {
                 ActionRow(
                     icon = Icons.Default.Checklist,
-                    label = "多选",
+                    label = stringResource(R.string.chat_multi_select),
                     onClick = {
                         onMultiSelect()
                         onDismiss()
@@ -112,7 +114,7 @@ fun MessageActionsSheet(
             }
             ActionRow(
                 icon = Icons.Default.Delete,
-                label = "删除",
+                label = stringResource(R.string.delete),
                 onClick = {
                     onDelete()
                     onDismiss()

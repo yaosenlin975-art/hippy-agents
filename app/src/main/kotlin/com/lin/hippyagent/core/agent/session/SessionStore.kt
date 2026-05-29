@@ -93,7 +93,7 @@ data class MessageSearchResult(
 )
 
 interface SessionStore {
-    suspend fun createSession(agentId: String, title: String = "新会话", sessionId: String? = null): Result<Session>
+    suspend fun createSession(agentId: String, title: String, sessionId: String? = null): Result<Session>
     suspend fun getSession(sessionId: String): Result<Session?>
     suspend fun deleteSession(sessionId: String): Result<Unit>
     suspend fun updateSessionTitle(sessionId: String, title: String): Result<Unit>

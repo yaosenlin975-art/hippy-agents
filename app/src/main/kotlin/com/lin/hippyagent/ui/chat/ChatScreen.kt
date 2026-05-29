@@ -106,6 +106,8 @@ import java.io.File
 import com.lin.hippyagent.ui.chat.PlanProgressChip
 import com.lin.hippyagent.ui.chat.PlanPanel
 import com.lin.hippyagent.ui.settings.general.readChatFontSize
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 private enum class ActivePanel { NONE, DRAWER, SEARCH }
 
@@ -183,7 +185,7 @@ fun ChatScreen(
                 sttListening = false
                 sttPartialText = null
                 coroutineScope.launch {
-                    Toast.makeText(context, "语音识别失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.chat_stt_failed, error.message), Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -203,7 +205,7 @@ fun ChatScreen(
             if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, android.Manifest.permission.RECORD_AUDIO)) {
                 showAudioPermissionDialog = true
             } else {
-                Toast.makeText(context, "需要麦克风权限才能使用语音输入", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.chat_mic_permission_needed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -257,11 +259,9 @@ fun ChatScreen(
     val filePickers = rememberChatFilePickers(
         onImagePicked = { chip ->
             inputViewModel.addChip(chip)
-            inputViewModel.appendAttachmentText("[附件: ${chip.label}]")
         },
         onFilePicked = { chip ->
             inputViewModel.addChip(chip)
-            inputViewModel.appendAttachmentText("[附件: ${chip.label}]")
         }
     )
 
@@ -288,7 +288,6 @@ fun ChatScreen(
                 label = fileName,
                 uri = photoUri.toString()
             ))
-            inputViewModel.appendAttachmentText("[附件: $fileName]")
         }
     }
 
@@ -321,7 +320,7 @@ fun ChatScreen(
             cameraPhotoUri = uri
             cameraLauncher.launch(uri)
         } else {
-            Toast.makeText(context, "需要相机权限才能拍照", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.chat_camera_permission_needed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -398,8 +397,8 @@ fun ChatScreen(
     fun exportSelectedMessages() {
         val markdown = viewModel.exportSelectedMessagesAsMarkdown()
         val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("消息导出", markdown))
-        Toast.makeText(context, "已复制 ${uiState.selectedMessageIds.size} 条消息到剪贴板", Toast.LENGTH_SHORT).show()
+        clipboard.setPrimaryClip(android.content.ClipData.newPlainText(context.getString(R.string.chat_message_export), markdown))
+        Toast.makeText(context, context.getString(R.string.chat_messages_copied, uiState.selectedMessageIds.size), Toast.LENGTH_SHORT).show()
         viewModel.exitMultiSelectMode()
     }
 
@@ -426,7 +425,7 @@ fun ChatScreen(
                             Spacer(modifier = Modifier.width(2.dp))
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "会话列表",
+                                contentDescription = stringResource(R.string.session_list),
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
@@ -439,7 +438,7 @@ fun ChatScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Stop,
-                                        contentDescription = "停止生成",
+                                        contentDescription = stringResource(R.string.chat_stop_generation),
                                         modifier = Modifier.size(18.dp),
                                         tint = MaterialTheme.colorScheme.error
                                     )
@@ -478,7 +477,7 @@ fun ChatScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back))
                     }
                 },
                 actions = {
@@ -488,7 +487,7 @@ fun ChatScreen(
                     ) {
                         Icon(
                             Icons.Default.Inventory,
-                            contentDescription = "队列",
+                            contentDescription = stringResource(R.string.chat_queue),
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -509,7 +508,7 @@ fun ChatScreen(
                         )
                     }
                     IconButton(onClick = { activePanel = ActivePanel.SEARCH }) {
-                        Icon(Icons.Default.Search, contentDescription = "搜索")
+                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
                 }
             )
@@ -520,7 +519,7 @@ fun ChatScreen(
                     uiState.agentStatus == AgentStatus.EXECUTING_TOOL) {
                     com.lin.hippyagent.ui.components.PulsingStatusDot(
                         isThinking = uiState.agentStatus == AgentStatus.THINKING,
-                        label = if (uiState.agentStatus == AgentStatus.THINKING) "思考中" else "执行中",
+                        label = if (uiState.agentStatus == AgentStatus.THINKING) stringResource(R.string.thinking) else stringResource(R.string.chat_executing),
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
@@ -537,7 +536,7 @@ fun ChatScreen(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "轮次已耗尽",
+                            text = stringResource(R.string.chat_iterations_exhausted),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.error,
                             fontWeight = FontWeight.Medium
@@ -755,7 +754,7 @@ fun ChatScreen(
             ) {
                 coil.compose.AsyncImage(
                     model = imageModel,
-                    contentDescription = "全屏预览",
+                    contentDescription = stringResource(R.string.chat_fullscreen_preview),
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable { showFullScreenImage = null },
@@ -781,32 +780,32 @@ fun ChatScreen(
         val approval = accessApproval!!
         AlertDialog(
             onDismissRequest = { permissionViewModel.respondToApproval(false) },
-            title = { Text("授权请求", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
+            title = { Text(stringResource(R.string.chat_auth_request), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("智能体请求执行无障碍操作，请确认是否允许：", fontSize = 14.sp)
-                    Text("动作：${approval.action}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    approval.target?.let { Text("目标：$it", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    Text("风险等级：${when (approval.riskLevel) {
-                        com.lin.hippyagent.core.accessibility.RiskLevel.LOW -> "低"
-                        com.lin.hippyagent.core.accessibility.RiskLevel.MEDIUM -> "中"
-                        com.lin.hippyagent.core.accessibility.RiskLevel.HIGH -> "高"
-                        else -> "已阻断"
-                    }}", fontSize = 13.sp, color = MaterialTheme.colorScheme.tertiary)
+                    Text(stringResource(R.string.chat_agent_accessibility_request), fontSize = 14.sp)
+                    Text(stringResource(R.string.chat_action_label, approval.action), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    approval.target?.let { Text(stringResource(R.string.chat_target_label, it), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Text(stringResource(R.string.chat_risk_level_label, when (approval.riskLevel) {
+                        com.lin.hippyagent.core.accessibility.RiskLevel.LOW -> stringResource(R.string.risk_low)
+                        com.lin.hippyagent.core.accessibility.RiskLevel.MEDIUM -> stringResource(R.string.risk_medium)
+                        com.lin.hippyagent.core.accessibility.RiskLevel.HIGH -> stringResource(R.string.risk_high)
+                        else -> stringResource(R.string.risk_blocked)
+                    }), fontSize = 13.sp, color = MaterialTheme.colorScheme.tertiary)
                 }
             },
             confirmButton = {
                 Button(onClick = { permissionViewModel.respondToApproval(true, com.lin.hippyagent.core.accessibility.ApprovalDuration.ONCE) }) {
-                    Text("允许本次")
+                    Text(stringResource(R.string.chat_allow_this_time))
                 }
             },
             dismissButton = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = { permissionViewModel.respondToApproval(true, com.lin.hippyagent.core.accessibility.ApprovalDuration.SESSION) }) {
-                        Text("一直允许")
+                        Text(stringResource(R.string.chat_allow_always))
                     }
                     TextButton(onClick = { permissionViewModel.respondToApproval(false) }) {
-                        Text("拒绝")
+                        Text(stringResource(R.string.chat_deny))
                     }
                 }
             }
@@ -823,7 +822,7 @@ fun ChatScreen(
     if (showForwardDialog) {
         AlertDialog(
             onDismissRequest = { showForwardDialog = false },
-            title = { Text("转发到") },
+            title = { Text(stringResource(R.string.chat_forward_to)) },
             text = {
                 LazyColumn {
                     items(agentProfiles.entries.toList()) { (agentId, name) ->
@@ -844,7 +843,7 @@ fun ChatScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showForwardDialog = false }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -853,8 +852,8 @@ fun ChatScreen(
     if (showAudioPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showAudioPermissionDialog = false },
-            title = { Text("需要麦克风权限") },
-            text = { Text("麦克风权限已被拒绝，请在系统设置中手动开启。") },
+            title = { Text(stringResource(R.string.chat_mic_permission_title)) },
+            text = { Text(stringResource(R.string.chat_mic_permission_denied)) },
             confirmButton = {
                 TextButton(onClick = {
                     showAudioPermissionDialog = false
@@ -862,10 +861,10 @@ fun ChatScreen(
                         data = Uri.fromParts("package", context.packageName, null)
                     }
                     context.startActivity(intent)
-                }) { Text("去设置") }
+                }) { Text(stringResource(R.string.chat_go_to_settings)) }
             },
             dismissButton = {
-                TextButton(onClick = { showAudioPermissionDialog = false }) { Text("取消") }
+                TextButton(onClick = { showAudioPermissionDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -941,7 +940,7 @@ internal fun MessageContentWithAttachments(
                 if (ext in imageExtensions) {
                     coil.compose.AsyncImage(
                         model = File(tag.value),
-                        contentDescription = "图片附件",
+                        contentDescription = stringResource(R.string.chat_image_attachment),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
@@ -1026,7 +1025,7 @@ internal fun MessageContentWithAttachments(
             if (ext in imageExtensions) {
                 coil.compose.AsyncImage(
                     model = File(tag.value),
-                    contentDescription = "图片附件",
+                    contentDescription = stringResource(R.string.chat_image_attachment),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -1195,7 +1194,7 @@ internal fun FileAttachmentCard(
                     try {
                         val file = File(filePath)
                         if (!file.exists()) {
-                            Toast.makeText(context, "文件不存在", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show()
                             return@IconButton
                         }
                         val uri = FileProvider.getUriForFile(
@@ -1211,14 +1210,14 @@ internal fun FileAttachmentCard(
                         }
                         context.startActivity(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(context, "无法打开: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.chat_cannot_open, e.message), Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.size(32.dp)
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Outlined.Article,
-                    contentDescription = "查看",
+                    contentDescription = stringResource(R.string.chat_view),
                     modifier = Modifier.size(18.dp),
                     tint = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     else MaterialTheme.colorScheme.primary
@@ -1229,7 +1228,7 @@ internal fun FileAttachmentCard(
                     try {
                         val file = File(filePath)
                         if (!file.exists()) {
-                            Toast.makeText(context, "文件不存在", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show()
                             return@IconButton
                         }
                         val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
@@ -1237,16 +1236,16 @@ internal fun FileAttachmentCard(
                         )
                         val dest = File(downloadsDir, fileName)
                         file.copyTo(dest, overwrite = true)
-                        Toast.makeText(context, "已保存到 Downloads/$fileName", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.chat_saved_to_downloads, fileName), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.chat_save_failed, e.message), Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.size(32.dp)
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Outlined.Save,
-                    contentDescription = "保存",
+                    contentDescription = stringResource(R.string.chat_save),
                     modifier = Modifier.size(18.dp),
                     tint = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     else MaterialTheme.colorScheme.primary
@@ -1257,7 +1256,7 @@ internal fun FileAttachmentCard(
                     try {
                         val file = File(filePath)
                         if (!file.exists()) {
-                            Toast.makeText(context, "文件不存在", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show()
                             return@IconButton
                         }
                         val uri = FileProvider.getUriForFile(
@@ -1272,16 +1271,16 @@ internal fun FileAttachmentCard(
                             putExtra(Intent.EXTRA_STREAM, uri)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-                        context.startActivity(Intent.createChooser(shareIntent, "分享文件"))
+                        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.chat_share_file)))
                     } catch (e: Exception) {
-                        Toast.makeText(context, "分享失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.chat_share_failed, e.message), Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.size(32.dp)
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Outlined.Share,
-                    contentDescription = "分享",
+                    contentDescription = stringResource(R.string.chat_share),
                     modifier = Modifier.size(18.dp),
                     tint = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     else MaterialTheme.colorScheme.primary
@@ -1415,7 +1414,7 @@ internal fun PermissionTurnCard(
                         }
                         if (turn.findings.size > 3) {
                             Text(
-                                text = "• ...还有 ${turn.findings.size - 3} 项",
+                                text = stringResource(R.string.chat_more_items, turn.findings.size - 3),
                                 fontSize = 10.sp,
                                 color = onContainerColor.copy(alpha = 0.5f)
                             )
@@ -1431,24 +1430,24 @@ internal fun PermissionTurnCard(
                         onClick = onDenyOnce,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                    ) { Text("拒绝", fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_deny), fontSize = 11.sp) }
                     OutlinedButton(
                         onClick = onDenyAlways,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) { Text("不再允许", fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_deny_always), fontSize = 11.sp) }
                     Button(
                         onClick = onApproveOnce,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                    ) { Text("允许一次", fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_approve_once), fontSize = 11.sp) }
                     Button(
                         onClick = onApproveAlways,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) { Text("始终允许", fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_approve_always), fontSize = 11.sp) }
                 }
             } else {
                 Spacer(Modifier.height(4.dp))
@@ -1463,7 +1462,7 @@ internal fun PermissionTurnCard(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = "已处理",
+                        text = stringResource(R.string.chat_processed),
                         fontSize = 11.sp,
                         color = onContainerColor.copy(alpha = 0.6f)
                     )
@@ -1546,7 +1545,7 @@ internal fun ClarificationTurnCard(
                     OutlinedButton(
                         onClick = onSkip,
                         shape = RoundedCornerShape(8.dp)
-                    ) { Text("跳过", fontSize = 12.sp) }
+                    ) { Text(stringResource(R.string.common_skip), fontSize = 12.sp) }
                 }
             }
             if (turn.isResolved) {
@@ -1562,7 +1561,7 @@ internal fun ClarificationTurnCard(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = if (turn.selectedOption != null) "已选择: ${turn.selectedOption}" else "已跳过",
+                        text = if (turn.selectedOption != null) stringResource(R.string.chat_option_selected, turn.selectedOption) else stringResource(R.string.chat_skipped),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

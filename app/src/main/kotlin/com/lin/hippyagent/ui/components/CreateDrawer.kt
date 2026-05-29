@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +59,7 @@ fun CreateDrawer(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                "新建",
+                stringResource(R.string.nav_create_new),
                 fontSize = 18.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -66,29 +68,29 @@ fun CreateDrawer(
 
             DrawerItem(
                 icon = Icons.Default.Chat,
-                title = "新建对话",
-                subtitle = "与智能体开始新对话",
+                title = stringResource(R.string.drawer_new_chat),
+                subtitle = stringResource(R.string.drawer_new_chat_desc),
                 onClick = onNewChat
             )
 
             DrawerItem(
                 icon = Icons.Default.Group,
-                title = "新建群组",
-                subtitle = "创建多智能体协作群组",
+                title = stringResource(R.string.drawer_new_group),
+                subtitle = stringResource(R.string.drawer_new_group_desc),
                 onClick = onNewGroup
             )
 
             DrawerItem(
                 icon = Icons.Default.Folder,
-                title = "新建分组",
-                subtitle = "创建会话分组",
+                title = stringResource(R.string.conversation_new_group),
+                subtitle = stringResource(R.string.drawer_new_session_group_desc),
                 onClick = onNewSessionGroup
             )
 
             DrawerItem(
                 icon = Icons.Default.SmartToy,
-                title = "新建智能体",
-                subtitle = "创建新的智能体",
+                title = stringResource(R.string.drawer_new_agent),
+                subtitle = stringResource(R.string.drawer_new_agent_desc),
                 onClick = onNewAgent
             )
 

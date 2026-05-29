@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.mission.MissionState
 import com.lin.hippyagent.core.mission.MissionStatus
 import com.lin.hippyagent.core.mission.StoryStatus
@@ -78,7 +80,7 @@ fun MissionProgressBar(
             )
             if (mission.status == MissionStatus.RUNNING) {
                 IconButton(onClick = onCancel, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Cancel, "取消", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Cancel, stringResource(R.string.cancel), tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                 }
             }
         }

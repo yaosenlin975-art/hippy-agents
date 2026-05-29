@@ -64,6 +64,8 @@ import com.lin.hippyagent.core.chat.TurnMetadata
 import com.lin.hippyagent.core.chat.TurnStatus
 import com.lin.hippyagent.ui.components.PulsingStatusDot
 import com.lin.hippyagent.ui.components.getAvatarIcon
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 private const val STREAMING_CURSOR = "▎"
 
@@ -224,7 +226,7 @@ fun AgentTurnCard(
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = turn.quotedSenderName ?: "引用消息",
+                            text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
                             fontSize = 11.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
@@ -365,7 +367,7 @@ fun AgentTurnCard(
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = turn.quotedSenderName ?: "引用消息",
+                            text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
                             fontSize = 11.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
@@ -424,9 +426,9 @@ fun AgentTurnCard(
                 agentReadStates.forEach { (agentId, state) ->
                     val displayName = agentProfiles[agentId] ?: agentId
                     val (stateText, stateColor) = when (state) {
-                        "已回复" -> "已回复" to MaterialTheme.colorScheme.primary
-                        "工作中" -> "工作中" to MaterialTheme.colorScheme.tertiary
-                        else -> "已读" to MaterialTheme.colorScheme.onSurfaceVariant
+                        "已回复" -> stringResource(R.string.chat_replied) to MaterialTheme.colorScheme.primary
+                        "工作中" -> stringResource(R.string.chat_working) to MaterialTheme.colorScheme.tertiary
+                        else -> stringResource(R.string.chat_read) to MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(
                         text = "$displayName $stateText",
@@ -475,12 +477,12 @@ fun AgentTurnCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "$agentName 的运作流程", fontSize = 16.sp)
+                    Text(text = stringResource(R.string.chat_agent_workflow, agentName), fontSize = 16.sp)
                 }
             },
             text = {
                 if (processSegments.isEmpty()) {
-                    Text("暂无过程信息", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.chat_no_process_info), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     Column(
                         modifier = Modifier
@@ -509,7 +511,7 @@ fun AgentTurnCard(
             },
             confirmButton = {
                 TextButton(onClick = { showProcessDialog = false }) {
-                    Text("关闭")
+                    Text(stringResource(R.string.common_close))
                 }
             }
         )
@@ -573,7 +575,7 @@ private fun ProcessDrawer(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "${stepCount}步过程",
+                        text = stringResource(R.string.chat_step_process, stepCount),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
@@ -605,7 +607,7 @@ private fun ProcessCollapseButton(
             Text(text = "▲", fontSize = 10.sp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "收起过程",
+                text = stringResource(R.string.chat_collapse_process),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
@@ -680,7 +682,7 @@ private fun AgentHeader(
             Spacer(modifier = Modifier.width(6.dp))
             PulsingStatusDot(
                 isThinking = agentStatus == AgentStatus.THINKING,
-                label = if (agentStatus == AgentStatus.THINKING) "思考中" else "执行中"
+                label = if (agentStatus == AgentStatus.THINKING) stringResource(R.string.thinking) else stringResource(R.string.chat_executing)
             )
         }
     }
@@ -828,7 +830,7 @@ private fun AgentBubbleContent(
 
         if (isError) {
             Text(
-                text = "⚠ 错误",
+                text = stringResource(R.string.chat_error_label),
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)
@@ -866,7 +868,7 @@ private fun TurnMetadataBar(
         items.add(cacheParts.joinToString(" "))
     }
     if (metadata.apiCalls > 0) {
-        items.add("${metadata.apiCalls}次请求")
+        items.add(stringResource(R.string.chat_api_calls, metadata.apiCalls))
     }
     if (metadata.model.isNotBlank()) {
         items.add(if (metadata.isFallback) "🔄 ${metadata.model} (fallback)" else metadata.model)

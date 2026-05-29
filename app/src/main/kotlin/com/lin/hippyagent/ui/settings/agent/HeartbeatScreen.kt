@@ -28,10 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,11 +46,12 @@ fun HeartbeatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
             snackbarHostState.showSnackbar(
-                message = "心跳配置已保存",
+                message = context.getString(R.string.heartbeat_config_saved),
                 duration = SnackbarDuration.Short
             )
             viewModel.clearSaveSuccess()
@@ -57,12 +61,12 @@ fun HeartbeatScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "心跳",
+                title = stringResource(R.string.heartbeat),
                 showBackButton = true,
                 onBackClick = onBackClick,
                 actions = {
                     IconButton(onClick = { viewModel.resetConfig() }) {
-                        Icon(Icons.Default.Refresh, "重置", tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Default.Refresh, stringResource(R.string.running_config_reset_default), tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             )
@@ -85,9 +89,8 @@ fun HeartbeatScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                // 开启心跳
                 item {
-                    Text("开启心跳", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_enable_section), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -97,7 +100,7 @@ fun HeartbeatScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("启用", fontSize = 14.sp)
+                            Text(stringResource(R.string.heartbeat_enable_label), fontSize = 14.sp)
                             Switch(
                                 checked = uiState.heartbeatConfig.enabled,
                                 onCheckedChange = viewModel::updateEnabled
@@ -106,9 +109,8 @@ fun HeartbeatScreen(
                     }
                 }
 
-                // 执行间隔
                 item {
-                    Text("执行间隔", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_interval), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -126,7 +128,7 @@ fun HeartbeatScreen(
                                 singleLine = true,
                                 isError = uiState.intervalValue < 1,
                                 supportingText = if (uiState.intervalValue < 1) {
-                                    { Text("间隔不能为0", color = MaterialTheme.colorScheme.error) }
+                                    { Text(stringResource(R.string.heartbeat_interval_zero_error), color = MaterialTheme.colorScheme.error) }
                                 } else null
                             )
                             Row(modifier = Modifier.padding(start = 8.dp)) {
@@ -147,9 +149,8 @@ fun HeartbeatScreen(
                     }
                 }
 
-                // 回复目标
                 item {
-                    Text("回复目标", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_reply_target), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -158,7 +159,7 @@ fun HeartbeatScreen(
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            listOf("main" to "主会话", "last" to "最近会话").forEach { (target, label) ->
+                            listOf("main" to stringResource(R.string.heartbeat_target_main), "last" to stringResource(R.string.heartbeat_target_last)).forEach { (target, label) ->
                                 val selected = uiState.heartbeatConfig.target == target
                                 androidx.compose.material3.Card(
                                     modifier = Modifier.weight(1f).padding(0.dp),
@@ -175,9 +176,8 @@ fun HeartbeatScreen(
                     }
                 }
 
-                // 活跃时段
                 item {
-                    Text("活跃时段", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_active_hours), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     val activeHoursEnabled = uiState.heartbeatConfig.activeHours != null
                     androidx.compose.material3.Card(
@@ -189,8 +189,8 @@ fun HeartbeatScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("启用活跃时段", fontSize = 14.sp)
-                                Text("在指定时间范围内才执行", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_enable_active_hours), fontSize = 14.sp)
+                                Text(stringResource(R.string.heartbeat_active_hours_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(
                                 checked = activeHoursEnabled,
@@ -207,7 +207,7 @@ fun HeartbeatScreen(
                             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("开始时间", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_start_time), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = uiState.heartbeatConfig.activeHours?.start ?: "08:00",
                                     fontSize = 18.sp,
@@ -224,7 +224,7 @@ fun HeartbeatScreen(
                             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("结束时间", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_end_time), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = uiState.heartbeatConfig.activeHours?.end ?: "22:00",
                                     fontSize = 18.sp,
@@ -241,4 +241,3 @@ fun HeartbeatScreen(
         }
     }
 }
-

@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.lin.hippyagent.R
 
 object CompanionFloatWindow {
     private var windowManager: WindowManager? = null
@@ -27,7 +28,7 @@ object CompanionFloatWindow {
         }
 
         statusText = TextView(context).apply {
-            text = "屏内替身 · 就绪"
+            text = context.getString(R.string.companion_status_ready)
             setTextColor(0xFFFFFFFF.toInt())
             textSize = 13f
         }

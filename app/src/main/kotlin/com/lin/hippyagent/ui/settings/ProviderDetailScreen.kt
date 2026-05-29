@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.model.ModelConfig
 import com.lin.hippyagent.core.model.ModelProvider
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +92,7 @@ fun ProviderDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back))
                 }
                 Text(
                     text = provider.name,
@@ -108,7 +110,7 @@ fun ProviderDetailScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "添加模型", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Default.Add, stringResource(R.string.provider_add_model), tint = MaterialTheme.colorScheme.onPrimary)
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -134,7 +136,7 @@ fun ProviderDetailScreen(
 
             item {
                 Text(
-                    text = "模型列表 (${provider.models.size})",
+                    text = stringResource(R.string.provider_model_list, provider.models.size),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -162,7 +164,7 @@ fun ProviderDetailScreen(
                         )
                     ) {
                         Text(
-                            text = "暂无模型，点击 + 添加或从服务器获取",
+                            text = stringResource(R.string.provider_no_models_hint),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -245,16 +247,16 @@ private fun ProviderInfoCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "协议: ${when (provider.protocol) {
+                text = stringResource(R.string.provider_protocol_label, when (provider.protocol) {
                     "anthropic" -> "Anthropic"
                     "ollama" -> "Ollama"
                     else -> "OpenAI"
-                }}",
+                }),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "API Key: ${if (provider.apiKey.isNotEmpty()) "已配置" else "未配置"}",
+                text = stringResource(R.string.provider_api_key_configured, if (provider.apiKey.isNotEmpty()) stringResource(R.string.provider_api_key_status_configured) else stringResource(R.string.provider_api_key_status_not_configured)),
                 fontSize = 12.sp,
                 color = if (provider.apiKey.isNotEmpty()) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.error
@@ -273,7 +275,7 @@ private fun ProviderInfoCard(
                             strokeWidth = 2.dp
                         )
                     }
-                    Text("测试连接")
+                    Text(stringResource(R.string.provider_test_connection))
                 }
                 TextButton(
                     onClick = onFetchModels,
@@ -285,7 +287,7 @@ private fun ProviderInfoCard(
                             strokeWidth = 2.dp
                         )
                     }
-                    Text("获取模型")
+                    Text(stringResource(R.string.provider_fetch_models))
                 }
                 TextButton(onClick = onEditApiKey) {
                     Icon(
@@ -293,7 +295,7 @@ private fun ProviderInfoCard(
                         contentDescription = null,
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    Text("修改 API Key")
+                    Text(stringResource(R.string.provider_edit_api_key))
                 }
             }
             Row(
@@ -306,7 +308,7 @@ private fun ProviderInfoCard(
                         contentDescription = null,
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    Text("切换协议类型")
+                    Text(stringResource(R.string.provider_switch_protocol))
                 }
             }
         }
@@ -347,7 +349,7 @@ private fun ModelCard(
                     )
                     if (model.isDefault) {
                         Text(
-                            text = " (默认)",
+                            text = stringResource(R.string.provider_default_suffix),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = 4.dp)
@@ -387,7 +389,7 @@ private fun ModelCard(
                     Icon(
                         imageVector = if (model.isDefault) Icons.Default.Star
                         else Icons.Default.StarBorder,
-                        contentDescription = "设为默认",
+                        contentDescription = stringResource(R.string.provider_set_default),
                         tint = if (model.isDefault) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -395,14 +397,14 @@ private fun ModelCard(
                 IconButton(onClick = onEdit) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "编辑",
+                        contentDescription = stringResource(R.string.edit),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "删除",
+                        contentDescription = stringResource(R.string.delete),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -422,11 +424,11 @@ private fun EditApiKeyDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("修改 API Key") },
+        title = { Text(stringResource(R.string.provider_edit_api_key_title)) },
         text = {
             Column {
                 Text(
-                    text = "请输入新的 API Key",
+                    text = stringResource(R.string.provider_enter_new_api_key),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -456,12 +458,12 @@ private fun EditApiKeyDialog(
                 onClick = { onConfirm(apiKey) },
                 enabled = apiKey.isNotBlank()
             ) {
-                Text("保存")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -474,15 +476,15 @@ private fun SwitchProtocolDialog(
     onConfirm: (String) -> Unit
 ) {
     var selectedProtocol by remember { mutableStateOf(currentProtocol) }
-    val protocols = listOf("openai" to "OpenAI 兼容", "anthropic" to "Anthropic", "ollama" to "Ollama")
+    val protocols = listOf("openai" to stringResource(R.string.provider_protocol_openai_compat), "anthropic" to "Anthropic", "ollama" to "Ollama")
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("切换协议类型") },
+        title = { Text(stringResource(R.string.provider_switch_protocol_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    text = "当前协议: ${protocols.firstOrNull { it.first == currentProtocol }?.second ?: currentProtocol}",
+                    text = stringResource(R.string.provider_current_protocol, protocols.firstOrNull { it.first == currentProtocol }?.second ?: currentProtocol),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -528,12 +530,12 @@ private fun SwitchProtocolDialog(
                 onClick = { onConfirm(selectedProtocol) },
                 enabled = selectedProtocol != currentProtocol
             ) {
-                Text("切换")
+                Text(stringResource(R.string.provider_switch))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

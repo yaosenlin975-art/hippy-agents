@@ -9,12 +9,14 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.lin.hippyagent.R
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 
 class HippyAgentNotificationService(
     private val context: Context
 ) {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val settingsManager = NotificationSettingsManager(context)
+    private val activeSessionNotifications = ConcurrentHashMap<String, MutableSet<Int>>()
 
     init {
         createNotificationChannels()
@@ -28,31 +30,31 @@ class HippyAgentNotificationService(
             val channels = listOf(
                 NotificationChannel(
                     CHANNEL_HEARTBEAT,
-                    "心跳提醒",
+                    context.getString(R.string.notification_channel_heartbeat),
                     NotificationManager.IMPORTANCE_DEFAULT
                 ).apply {
-                    description = "定时心跳状态通知"
+                    description = context.getString(R.string.notification_channel_heartbeat_desc)
                 },
                 NotificationChannel(
                     CHANNEL_TASK_COMPLETE,
-                    "任务完成",
+                    context.getString(R.string.notification_channel_task_complete),
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Agent 任务完成通知"
+                    description = context.getString(R.string.notification_channel_task_complete_desc)
                 },
                 NotificationChannel(
                     CHANNEL_ERROR,
-                    "错误告警",
+                    context.getString(R.string.notification_channel_error),
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Agent 运行错误通知"
+                    description = context.getString(R.string.notification_channel_error_desc)
                 },
                 NotificationChannel(
                     CHANNEL_AGENT_MESSAGE,
-                    "智能体消息",
+                    context.getString(R.string.notification_channel_agent_message),
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "智能体新消息提醒"
+                    description = context.getString(R.string.notification_channel_agent_message_desc)
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 200, 100, 200)
                     setShowBadge(true)
@@ -64,16 +66,18 @@ class HippyAgentNotificationService(
                 },
                 NotificationChannel(
                     CHANNEL_PERMISSION_REQUEST,
-                    "权限请求",
+                    context.getString(R.string.notification_channel_permission_request),
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "后台无障碍权限请求通知"
+                    description = context.getString(R.string.notification_channel_permission_request_desc)
                 }
             )
 
             channels.forEach { channel ->
                 notificationManager.createNotificationChannel(channel)
             }
+
+            notificationManager.deleteNotificationChannel("agent_message")
         }
     }
 
@@ -184,7 +188,7 @@ class HippyAgentNotificationService(
             val notification = NotificationCompat.Builder(context, CHANNEL_TASK_COMPLETE)
                 .setSmallIcon(if (success) android.R.drawable.ic_dialog_info else android.R.drawable.ic_dialog_alert)
                 .setContentTitle("Mission 完成")
-                .setContentText("$taskName - ${if (success) "成功" else "失败"}")
+                .setContentText("$taskName - ${if (success) context.getString(R.string.notification_mission_success) else context.getString(R.string.notification_mission_fail)}")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -252,6 +256,7 @@ class HippyAgentNotificationService(
                 .build()
 
             notificationManager.notify(notificationId, notification)
+            activeSessionNotifications.getOrPut(sessionId) { ConcurrentHashMap.newKeySet() }.add(notificationId)
             Timber.i("Agent message notification sent: $agentName for session $sessionId")
         } catch (e: Exception) {
             Timber.e(e, "Failed to send agent message notification")
@@ -276,21 +281,21 @@ class HippyAgentNotificationService(
         val denyAlwaysIntent = createToolApprovalActionIntent(requestId, "deny_always")
 
         val severityLabel = when (severity) {
-            "critical" -> "🔴 严重"
-            "high" -> "🟠 高"
-            else -> "🟡 中"
+            "critical" -> context.getString(R.string.notification_severity_critical)
+            "high" -> context.getString(R.string.notification_severity_high)
+            else -> context.getString(R.string.notification_severity_medium)
         }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_PERMISSION_REQUEST)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("$severityLabel 工具审批: $toolName")
-            .setContentText(findingsSummary.ifBlank { "智能体 $agentId 请求执行 $toolName" })
+            .setContentTitle(context.getString(R.string.notification_tool_approval_title, severityLabel, toolName))
+            .setContentText(findingsSummary.ifBlank { context.getString(R.string.notification_tool_approval_desc, agentId, toolName) })
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .addAction(android.R.drawable.ic_menu_view, "允许本次", allowOnceIntent)
-            .addAction(android.R.drawable.ic_menu_view, "始终允许", alwaysAllowIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "拒绝", denyIntent)
-            .addAction(android.R.drawable.ic_delete, "不再允许", denyAlwaysIntent)
+            .addAction(android.R.drawable.ic_menu_view, context.getString(R.string.notification_allow_once), allowOnceIntent)
+            .addAction(android.R.drawable.ic_menu_view, context.getString(R.string.notification_always_allow), alwaysAllowIntent)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.notification_deny), denyIntent)
+            .addAction(android.R.drawable.ic_delete, context.getString(R.string.notification_deny_always), denyAlwaysIntent)
             .build()
 
         notificationManager.notify(NOTIFICATION_PERMISSION_REQUEST + requestIdHash, notification)
@@ -326,13 +331,13 @@ class HippyAgentNotificationService(
 
         val notification = NotificationCompat.Builder(context, CHANNEL_PERMISSION_REQUEST)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("权限请求")
-            .setContentText("智能体请求执行操作：${request.action}" + (request.target?.let { " → $it" } ?: ""))
+            .setContentTitle(context.getString(R.string.notification_permission_request_title))
+            .setContentText(context.getString(R.string.notification_permission_request_desc, request.action, request.target?.let { " → $it" } ?: ""))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .addAction(android.R.drawable.ic_menu_view, "允许本次", allowOnceIntent)
-            .addAction(android.R.drawable.ic_menu_view, "一直允许", alwaysAllowIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "拒绝", denyIntent)
+            .addAction(android.R.drawable.ic_menu_view, context.getString(R.string.notification_allow_once), allowOnceIntent)
+            .addAction(android.R.drawable.ic_menu_view, context.getString(R.string.notification_always_allow_permission), alwaysAllowIntent)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.notification_deny), denyIntent)
             .build()
 
         notificationManager.notify(NOTIFICATION_PERMISSION_REQUEST + requestIdHash, notification)
@@ -403,6 +408,12 @@ class HippyAgentNotificationService(
      */
     fun cancelNotification(notificationId: Int) {
         notificationManager.cancel(notificationId)
+    }
+
+    fun cancelSessionNotifications(sessionId: String) {
+        activeSessionNotifications.remove(sessionId)?.forEach { notificationId ->
+            notificationManager.cancel(notificationId)
+        }
     }
 
     companion object {

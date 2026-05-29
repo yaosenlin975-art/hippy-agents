@@ -89,7 +89,8 @@ import com.lin.hippyagent.core.skill.SkillManager
 import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.ui.components.getAvatarIcon
-import com.lin.hippyagent.ui.components.AVATAR_ICONS
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 @Composable
 fun ModelSelectorRow(
@@ -162,7 +163,7 @@ fun AgentProfileFields(
                         }
                         AsyncImage(
                             model = model,
-                            contentDescription = "头像",
+                            contentDescription = stringResource(R.string.conversation_avatar),
                             modifier = Modifier
                                 .size(64.dp)
                                 .clip(RoundedCornerShape(12.dp))
@@ -180,7 +181,7 @@ fun AgentProfileFields(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.SmartToy,
-                                contentDescription = "头像",
+                                contentDescription = stringResource(R.string.conversation_avatar),
                                 modifier = Modifier.size(32.dp),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
@@ -191,7 +192,7 @@ fun AgentProfileFields(
                         onDismissRequest = { showAvatarMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("从相册选择") },
+                            text = { Text(stringResource(R.string.agent_avatar_from_gallery)) },
                             onClick = {
                                 showAvatarMenu = false
                                 onPickImage()
@@ -199,7 +200,7 @@ fun AgentProfileFields(
                             leadingIcon = { Icon(Icons.Default.Image, null) }
                         )
                         DropdownMenuItem(
-                            text = { Text("使用默认头像") },
+                            text = { Text(stringResource(R.string.agent_avatar_default)) },
                             onClick = {
                                 showAvatarMenu = false
                                 onResetAvatar()
@@ -212,7 +213,7 @@ fun AgentProfileFields(
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChange,
-                    placeholder = { Text("输入昵称") },
+                    placeholder = { Text(stringResource(R.string.agent_nickname_hint)) },
                     modifier = Modifier.weight(1f),
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontSize = 16.sp,
@@ -231,8 +232,8 @@ fun AgentProfileFields(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("启用", fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-                    Text("关闭后该智能体不在后台运行", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.agent_enable), fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+                    Text(stringResource(R.string.agent_enable_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Switch(
                     checked = enabled,
@@ -246,36 +247,36 @@ fun AgentProfileFields(
 
             Spacer(Modifier.height(12.dp))
             ModelSelectorRow(
-                label = "默认模型",
+                label = stringResource(R.string.agent_default_model),
                 modelText = if (modelName.isNotEmpty()) {
                     val p = providerNames[modelProvider] ?: modelProvider
                     "$p/$modelName"
                 } else "",
-                placeholder = "点击选择模型",
+                placeholder = stringResource(R.string.agent_select_model_hint),
                 icon = Icons.Default.Settings,
                 onClick = onShowModelSelector
             )
 
             Spacer(Modifier.height(8.dp))
             ModelSelectorRow(
-                label = "备用模型",
+                label = stringResource(R.string.agent_fallback_model),
                 modelText = if (fallbackModelName.isNotEmpty()) {
                     val p = providerNames[fallbackModelProvider] ?: fallbackModelProvider
                     "$p/$fallbackModelName"
                 } else "",
-                placeholder = "未设置（主模型失败时使用）",
+                placeholder = stringResource(R.string.agent_fallback_model_hint),
                 icon = Icons.Default.Build,
                 onClick = onShowFallbackModelSelector
             )
 
             Spacer(Modifier.height(8.dp))
             ModelSelectorRow(
-                label = "复杂模型",
+                label = stringResource(R.string.agent_complex_model),
                 modelText = if (complexModelName.isNotEmpty()) {
                     val p = providerNames[complexModelProvider] ?: complexModelProvider
                     "$p/$complexModelName"
                 } else "",
-                placeholder = "未设置（复杂任务自动路由）",
+                placeholder = stringResource(R.string.agent_complex_model_hint),
                 icon = Icons.Default.Tune,
                 onClick = onShowComplexModelSelector
             )
@@ -315,7 +316,7 @@ fun SkillsManagementSheet(
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = "技能管理",
+                text = stringResource(R.string.skill_management),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
@@ -325,7 +326,7 @@ fun SkillsManagementSheet(
                 value = skillSearchQuery,
                 onValueChange = { skillSearchQuery = it },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                placeholder = { Text("搜索技能...", fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.agent_search_skills), fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp)) },
                 singleLine = true
             )
@@ -335,14 +336,14 @@ fun SkillsManagementSheet(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 listOf(
-                    Triple(Icons.Default.Store, "商店") { onNavigateToStore() },
-                    Triple(Icons.Default.FileUpload, "安装") { onInstallFromZip() },
-                    Triple(Icons.Default.Extension, "载入") { showLoadFromPoolSheet = true },
-                    Triple(Icons.Default.Save, "同步") {
+                    Triple(Icons.Default.Store, stringResource(R.string.agent_store)) { onNavigateToStore() },
+                    Triple(Icons.Default.FileUpload, stringResource(R.string.agent_install)) { onInstallFromZip() },
+                    Triple(Icons.Default.Extension, stringResource(R.string.agent_load)) { showLoadFromPoolSheet = true },
+                    Triple(Icons.Default.Save, stringResource(R.string.agent_sync)) {
                         val poolSkillIds = allPoolSkills.map { it.id }.toSet()
                         val uniqueSkills = skills.filter { it !in poolSkillIds }
                         onSyncResult(
-                            if (uniqueSkills.isNotEmpty()) "已同步 ${uniqueSkills.size} 个技能到技能池" else "没有需要同步的技能"
+                            if (uniqueSkills.isNotEmpty()) context.getString(R.string.agent_skills_synced, uniqueSkills.size) else context.getString(R.string.agent_no_skills_to_sync)
                         )
                     }
                 ).forEach { (icon, label, action) ->
@@ -368,7 +369,7 @@ fun SkillsManagementSheet(
                     (info?.description?.contains(skillSearchQuery, ignoreCase = true) == true)
             }
             if (skills.isEmpty()) {
-                Text(text = "暂无技能", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.no_skills), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredSkills, key = { it }) { skillId ->
@@ -422,7 +423,7 @@ fun SkillsManagementSheet(
                                 ) {
                                     Icon(
                                         Icons.Default.Delete,
-                                        contentDescription = "删除技能",
+                                        contentDescription = stringResource(R.string.agent_delete_skill),
                                         tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -499,7 +500,7 @@ fun SkillDetailDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("启用此技能", fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+                        Text(stringResource(R.string.agent_enable_skill), fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
                         Switch(
                             checked = isSkillEnabled,
                             onCheckedChange = { enabled -> onToggleSkill(skill.id, enabled) },
@@ -521,7 +522,7 @@ fun SkillDetailDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("关闭") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_close)) }
         }
     )
 }
@@ -540,6 +541,8 @@ fun LoadFromPoolSheet(
         val isUpdate: Boolean,
         val agentVersion: String?
     )
+
+    val context = LocalContext.current
 
     val newSkills = allPoolSkills.filter { it.id !in agentSkillIds }
         .map { PoolSkillEntry(it, false, null) }
@@ -563,14 +566,14 @@ fun LoadFromPoolSheet(
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = "从技能池载入",
+                text = stringResource(R.string.agent_load_from_pool),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             if (loadableSkills.isEmpty()) {
                 Text(
-                    text = "技能池中没有可载入或更新的技能",
+                    text = stringResource(R.string.agent_no_skills_in_pool),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -603,13 +606,13 @@ fun LoadFromPoolSheet(
                                         Spacer(Modifier.width(6.dp))
                                         if (entry.isUpdate) {
                                             Text(
-                                                text = "可更新 ${entry.agentVersion} → v${skill.version}",
+                                                text = context.getString(R.string.agent_skill_update_available, entry.agentVersion ?: "", skill.version),
                                                 fontSize = 10.sp,
                                                 color = MaterialTheme.colorScheme.primary
                                             )
                                         } else {
                                             Text(
-                                                text = "新",
+                                                text = stringResource(R.string.agent_new),
                                                 fontSize = 10.sp,
                                                 color = MaterialTheme.colorScheme.tertiary
                                             )
@@ -631,7 +634,7 @@ fun LoadFromPoolSheet(
                                 }
                                 Icon(
                                     imageVector = if (entry.isUpdate) Icons.Default.FileUpload else Icons.Default.Add,
-                                    contentDescription = if (entry.isUpdate) "更新" else "载入",
+                                    contentDescription = if (entry.isUpdate) stringResource(R.string.agent_update) else stringResource(R.string.agent_load),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -667,7 +670,7 @@ fun ToolsManagementSheet(
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = "工具管理",
+                text = stringResource(R.string.agent_tool_management),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
@@ -677,7 +680,7 @@ fun ToolsManagementSheet(
                 value = toolSearchQuery,
                 onValueChange = { toolSearchQuery = it },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                placeholder = { Text("搜索工具...", fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.agent_search_tools), fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp)) },
                 singleLine = true
             )
@@ -691,7 +694,7 @@ fun ToolsManagementSheet(
             }
 
             if (filteredTools.isEmpty()) {
-                Text(text = "暂无工具", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.agent_no_tools), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredTools, key = { it.name }) { toolDef ->
@@ -762,7 +765,7 @@ fun ToolDetailDialog(
                 )
                 if (tool.parameters.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text("参数", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.agent_params), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(4.dp))
                     tool.parameters.values.forEach { param ->
                         Row(modifier = Modifier.padding(vertical = 2.dp)) {
@@ -796,7 +799,7 @@ fun ToolDetailDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("关闭") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_close)) }
         }
     )
 }
@@ -807,15 +810,16 @@ fun DeleteAgentDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("确认删除") },
-        text = { Text("确定要删除智能体「$agentName」吗？\n\n注意：智能体的工作区数据文件夹不会被删除，仅移除配置。此操作不可撤销。") },
+        title = { Text(stringResource(R.string.agent_confirm_delete)) },
+        text = { Text(context.getString(R.string.agent_delete_confirm, agentName)) },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("删除", color = MaterialTheme.colorScheme.error) }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
@@ -827,10 +831,10 @@ fun InstallResultDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("安装结果") },
+        title = { Text(stringResource(R.string.agent_install_result)) },
         text = { Text(message) },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("确定") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ok)) }
         }
     )
 }
@@ -861,7 +865,7 @@ fun CoreFileEditorDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = filename, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                TextButton(onClick = { onSave(editedContent) }) { Text("保存") }
+                TextButton(onClick = { onSave(editedContent) }) { Text(stringResource(R.string.save)) }
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(
@@ -881,7 +885,7 @@ fun CoreFileEditorDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onDismiss) { Text("取消") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             }
         }
     }
@@ -919,6 +923,7 @@ fun CoreFileItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Card(
@@ -947,7 +952,7 @@ fun CoreFileItem(
             ) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "删除",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(18.dp)
                 )
@@ -958,16 +963,16 @@ fun CoreFileItem(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("删除文件") },
-            text = { Text("确定要删除 $filename 吗？此操作不可撤销。") },
+            title = { Text(stringResource(R.string.agent_delete_file)) },
+            text = { Text(context.getString(R.string.agent_delete_file_confirm, filename)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteConfirm = false
                     onDelete()
-                }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("取消") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }

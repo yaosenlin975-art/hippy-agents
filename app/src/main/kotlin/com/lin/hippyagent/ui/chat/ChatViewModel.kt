@@ -64,6 +64,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import com.lin.hippyagent.R
 
 /**
  * Delivery Scope 管理- 管理所ChatViewModel deliveryScope 生命周期
@@ -97,7 +98,7 @@ enum class SessionPhase {
 @Immutable
 data class ChatUiState(
     val sessionId: String = "",
-    val sessionTitle: String = "新会话",
+    val sessionTitle: String = "",
     val agentId: String = "",
     val turns: List<ChatTurn> = emptyList(),
     val agentStatus: AgentStatus = AgentStatus.IDLE,
@@ -157,7 +158,7 @@ class ChatViewModel(
 
     private val commandRegistry = CommandRegistry().apply {
         register(CompactCommandHandler(sessionStore))
-        register(NewSessionCommandHandler(sessionStore))
+        register(NewSessionCommandHandler(context, sessionStore))
         register(ClearCommandHandler(sessionStore))
         register(HistoryCommandHandler(sessionStore))
         register(PlanCommandHandler(sessionStore))
@@ -279,8 +280,8 @@ class ChatViewModel(
             _streamingState.update { StreamingState() }
 
             val sid = if (sessionId.isEmpty()) {
-                sessionStore.createSession(agentId).getOrNull()?.id ?: run {
-                    _uiState.update { it.copy(sessionPhase = SessionPhase.ERROR, isLoading = false, errorMessage = "创建会话失败") }
+                sessionStore.createSession(agentId, context.getString(R.string.chat_new_session)).getOrNull()?.id ?: run {
+                    _uiState.update { it.copy(sessionPhase = SessionPhase.ERROR, isLoading = false, errorMessage = context.getString(R.string.chat_create_session_failed)) }
                     return@launch
                 }
             } else {
@@ -310,7 +311,7 @@ class ChatViewModel(
                         } else {
                             _uiState.update { it.copy(sessionTitle = session.title) }
                         }
-                        if (session.title != "新会话") {
+                        if (session.title != context.getString(R.string.chat_new_session)) {
                             hasDerivedTitle = true
                         }
                     } else {
@@ -341,7 +342,7 @@ class ChatViewModel(
                     val summaryTurn = currentSession?.compressedSummary?.let { summary ->
                         if (summary.isNotBlank()) ChatTurn.SystemTurn(
                             id = "compressed_summary_$sid",
-                            content = "📋 之前的对话已压缩：\n$summary",
+                            content = context.getString(R.string.chat_compressed_summary, summary),
                             type = SystemTurnType.INFO
                         ) else null
                     }
@@ -361,7 +362,7 @@ class ChatViewModel(
                         it.copy(
                             isLoading = false,
                             sessionPhase = SessionPhase.ERROR,
-                            errorMessage = "加载消息失败: ${e.message}"
+                            errorMessage = context.getString(R.string.chat_load_messages_failed, e.message)
                         )
                     }
                 }
@@ -470,7 +471,8 @@ class ChatViewModel(
                         val sid = currentSid
                         if (sid.isNotEmpty() && (newStatus == AgentStatus.EXECUTING_TOOL ||
                                 (newStatus == AgentStatus.THINKING && previousStatus == AgentStatus.EXECUTING_TOOL) ||
-                                (newStatus == AgentStatus.IDLE && previousStatus != AgentStatus.IDLE))) {
+                                (newStatus == AgentStatus.IDLE && previousStatus != AgentStatus.IDLE) ||
+                                (newStatus == AgentStatus.ERROR && previousStatus != AgentStatus.ERROR))) {
                             // 保留 streaming 状态，仅更turns 列表中的 toolCalls
                             val currentStreamingTurnId = _streamingState.value.streamingTurnId
                             // 保留已有originalImageUri（id 匹配 + content 内容兜底
@@ -671,7 +673,7 @@ class ChatViewModel(
                 if (group != null) {
                     _uiState.update { it.copy(agentName = group.groupName) }
                 } else {
-                    _uiState.update { it.copy(agentName = "群聊") }
+                    _uiState.update { it.copy(agentName = context.getString(R.string.chat_group_name)) }
                 }
             }
         }
@@ -696,7 +698,7 @@ class ChatViewModel(
                     loadedSession = session
                     if (session != null) {
                         _uiState.update { it.copy(sessionTitle = session.title) }
-                        hasDerivedTitle = session.title != "新会话"
+                        hasDerivedTitle = session.title != context.getString(R.string.chat_new_session)
                     }
                 }
 
@@ -706,7 +708,7 @@ class ChatViewModel(
                     val summaryTurn = loadedSession?.compressedSummary?.let { summary ->
                         if (summary.isNotBlank()) ChatTurn.SystemTurn(
                             id = "compressed_summary_$sessionId",
-                            content = "📋 之前的对话已压缩：\n$summary",
+                            content = context.getString(R.string.chat_compressed_summary, summary),
                             type = SystemTurnType.INFO
                         ) else null
                     }
@@ -736,7 +738,7 @@ class ChatViewModel(
 
     fun sendMessage(content: String, attachedFileUri: String? = null, chips: List<InputChip> = emptyList(), quotedMessage: QuotedMessage? = null) {
         if (_uiState.value.sessionPhase != SessionPhase.READY) {
-            _uiState.update { it.copy(errorMessage = "会话尚未初始化，请稍后重试") }
+            _uiState.update { it.copy(errorMessage = context.getString(R.string.chat_session_not_initialized)) }
             return
         }
 
@@ -749,13 +751,13 @@ class ChatViewModel(
             viewModelScope.launch {
                 try {
                     val result = commandRegistry.execute(content, CommandContext(sessionId, agentId))
-                    val resultText = result?.message ?: "命令执行失败"
+                    val resultText = result?.message ?: context.getString(R.string.chat_command_execution_failed)
                     sessionStore.addMessage(sessionId, MessageRole.USER, content)
                     sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, resultText)
                     reloadTurnsFromStore(sessionId)
                 } catch (e: Exception) {
                     Timber.e(e, "Command execution failed")
-                    val errorText = "命令执行失败: ${e.message}"
+                    val errorText = context.getString(R.string.chat_command_execution_failed_with_msg, e.message)
                     sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, errorText)
                     reloadTurnsFromStore(sessionId)
                 }
@@ -789,11 +791,7 @@ class ChatViewModel(
             for ((chip, copiedPath, imageUri) in processedChips) {
                 if (imageUri != null) imageUris.add(imageUri)
                 if (copiedPath != null) {
-                    // 如果文本中已[附件: ...] 占位符（来自输入框注入），替换为实际路径；否则追
-                    val placeholder = "[附件: ${chip.label}]"
-                    if (finalContent.contains(placeholder)) {
-                        finalContent = finalContent.replaceFirst(placeholder, "[附件: $copiedPath]")
-                    } else if (!finalContent.contains("[附件: $copiedPath]")) {
+                    if (!finalContent.contains("[附件: $copiedPath]")) {
                         finalContent = if (finalContent.isBlank()) "[附件: $copiedPath]" else "$finalContent\n[附件: $copiedPath]"
                     }
                 }
@@ -824,6 +822,13 @@ class ChatViewModel(
             val planContextText = planViewModel?.buildPlanContext()
 
             val primaryImageUri = imageUris.firstOrNull()
+
+            if (imageUris.isNotEmpty()) {
+                val hasVisionCapability = isCurrentModelVisionCapable()
+                if (!hasVisionCapability) {
+                    android.widget.Toast.makeText(context, context.getString(R.string.chat_model_no_image_support), android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
 
             // 群组聊天：提前计算目标智能体 ID（用于已读状态精确展示）
             val mentionChipIds: List<String>
@@ -895,7 +900,7 @@ class ChatViewModel(
                         }
                     }
                     if (targetedAgentIds?.isEmpty() == true) {
-                        sessionStore.addMessage(sessionId, MessageRole.SYSTEM, "📢 当前群组已开启「只接收@信息」，@目标智能体以发送消息")
+                        sessionStore.addMessage(sessionId, MessageRole.SYSTEM, context.getString(R.string.chat_group_mention_only_notice))
                         reloadTurnsFromStore(sessionId)
                         _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
                     } else {
@@ -943,7 +948,7 @@ class ChatViewModel(
                     sessionStore.addMessage(
                         sessionId,
                         MessageRole.ASSISTANT,
-                        "智能体未找到: $agentId，请检查智能体配置"
+                        context.getString(R.string.chat_agent_not_found, agentId)
                     ).onSuccess { errorMsg ->
                         _uiState.update {
                             it.copy(turns = it.turns + ChatTurn.AgentTurn(
@@ -1046,7 +1051,7 @@ class ChatViewModel(
             sessionStore.addMessage(
                 sessionId,
                 MessageRole.ASSISTANT,
-                "未配置模型，请先在「设模型提供商」中配置模型"
+                context.getString(R.string.chat_model_not_configured)
             ).onSuccess { errorMsg ->
                 _uiState.update {
                     it.copy(turns = it.turns + ChatTurn.AgentTurn(
@@ -1131,11 +1136,7 @@ class ChatViewModel(
                             val tokenPct = if (chunk.maxTokens > 0) (chunk.totalTokens * 100 / chunk.maxTokens) else 0
                             val totalK = if (chunk.totalTokens >= 1000) "${"%.1f".format(chunk.totalTokens / 1000.0)}k" else "${chunk.totalTokens}"
                             val maxK = if (chunk.maxTokens >= 1000) "${"%.1f".format(chunk.maxTokens / 1000.0)}k" else "${chunk.maxTokens}"
-                            val content = """
-                                📊 上下文压缩中...
-                                📝 当前 Token: $totalK / $maxK ($tokenPct%)
-                                💬 总消${chunk.messagesToCompress + chunk.messagesToKeep} 压缩 ${chunk.messagesToCompress} + 保留 ${chunk.messagesToKeep} 
-                            """.trimIndent()
+                            val content = context.getString(R.string.chat_compaction_started, totalK, maxK, tokenPct, chunk.messagesToCompress + chunk.messagesToKeep, chunk.messagesToCompress, chunk.messagesToKeep)
                             _uiState.update { state ->
                                 val systemTurn = ChatTurn.SystemTurn(
                                     id = "compaction_${System.currentTimeMillis()}",
@@ -1158,11 +1159,7 @@ class ChatViewModel(
                             val beforeK = if (chunk.beforeTokens >= 1000) "${"%.1f".format(chunk.beforeTokens / 1000.0)}k" else "${chunk.beforeTokens}"
                             val savedK = if ((chunk.beforeTokens - chunk.newTokenEstimate) >= 1000) "${"%.1f".format((chunk.beforeTokens - chunk.newTokenEstimate) / 1000.0)}k" else "${(chunk.beforeTokens - chunk.newTokenEstimate).coerceAtLeast(0)}"
                             val newPct = if (chunk.maxTokens > 0) (chunk.newTokenEstimate * 100 / chunk.maxTokens) else 0
-                            val content = """
-                                📊 上下文压缩完
-                                📝 Token: $beforeK $newK / $maxK ($newPct%)  节省 $savedK
-                                💬 ${chunk.compressedCount} 条消息已压缩
-                            """.trimIndent()
+                            val content = context.getString(R.string.chat_compaction_completed, beforeK, newK, maxK, newPct, savedK, chunk.compressedCount)
                             _uiState.update { state ->
                                 val turns = state.turns.map { turn ->
                                     if (turn is ChatTurn.SystemTurn && turn.id.startsWith("compaction_")) {
@@ -1216,7 +1213,7 @@ class ChatViewModel(
                 .filterIsInstance<ChatTurn.AgentTurn>()
                 .lastOrNull()?.response
             if (lastAssistantMsg != null && lastAssistantMsg.content.isNotEmpty()) {
-                val name = _uiState.value.agentName.ifEmpty { "智能体" }
+                val name = _uiState.value.agentName.ifEmpty { context.getString(R.string.chat_agent_fallback_name) }
                 val sessionName = _uiState.value.sessionTitle
             Timber.d("ChatViewModel: sending agent notification, sessionId=%s", sessionId)
                 notificationService?.sendAgentMessageNotification(
@@ -1270,7 +1267,7 @@ class ChatViewModel(
                         .filterIsInstance<ChatTurn.AgentTurn>()
                         .lastOrNull()?.response
                     if (lastAssistantMsg != null && lastAssistantMsg.content.isNotEmpty()) {
-                        val name = _uiState.value.agentName.ifEmpty { "智能体" }
+                        val name = _uiState.value.agentName.ifEmpty { context.getString(R.string.chat_agent_fallback_name) }
                 val sessionName = _uiState.value.sessionTitle
                 notificationService?.sendAgentMessageNotification(
                             agentName = name,
@@ -1293,18 +1290,18 @@ class ChatViewModel(
                 state.copy(turns = state.turns.filter { it.id != streamingTurnId })
             }
             val errorText = when {
-                e.message?.contains("达到最大重") == true -> "模型请求失败，已达到最大重试次数。请检查模型配置或切换其他模型"
-                e.message?.contains("401") == true -> "API 密钥无效，请检查模型提供商配置"
-                e.message?.contains("403") == true -> "无权限访问该模型，请检查 API 密钥权限"
-                e.message?.contains("404") == true -> "模型不存在或已下线，请检查模型名称"
-                e.message?.contains("429") == true -> "请求过于频繁，请稍后重试"
-                e.message?.contains("400") == true -> "模型请求参数错误，请检查模型配置"
-                e.message?.contains("502") == true -> "模型服务网关错误，请稍后重试"
-                e.message?.contains("503") == true -> "模型服务暂不可用，请稍后重试"
+                e.message?.contains("达到最大重") == true -> context.getString(R.string.chat_error_max_retries_reached)
+                e.message?.contains("401") == true -> context.getString(R.string.chat_error_forbidden)
+                e.message?.contains("403") == true -> context.getString(R.string.chat_error_forbidden)
+                e.message?.contains("404") == true -> context.getString(R.string.chat_error_not_found)
+                e.message?.contains("429") == true -> context.getString(R.string.chat_error_rate_limited)
+                e.message?.contains("400") == true -> context.getString(R.string.chat_error_bad_request)
+                e.message?.contains("502") == true -> context.getString(R.string.chat_error_bad_gateway)
+                e.message?.contains("503") == true -> context.getString(R.string.chat_error_service_unavailable)
                 e.message?.contains("connect") == true || e.message?.contains("timeout") == true ->
-                    "网络连接失败，请检查网络设置"
-                e.message?.contains("SSE failed") == true -> "流式连接失败，请检查网络或模型服务"
-                else -> "处理消息失败，请稍后重试"
+                    context.getString(R.string.chat_error_network_connection)
+                e.message?.contains("SSE failed") == true -> context.getString(R.string.chat_error_sse_failed)
+                else -> context.getString(R.string.chat_error_generic)
             }
             sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, errorText)
                 .onSuccess { errorMsg ->
@@ -1317,7 +1314,7 @@ class ChatViewModel(
                     }
                 }
 
-            val name = _uiState.value.agentName.ifEmpty { "智能体" }
+            val name = _uiState.value.agentName.ifEmpty { context.getString(R.string.chat_agent_fallback_name) }
             val sessionName = _uiState.value.sessionTitle
             notificationService?.sendAgentMessageNotification(
                 agentName = name,
@@ -1343,7 +1340,7 @@ class ChatViewModel(
             _uiState.update { it.copy(agentStatus = AgentStatus.THINKING) }
 
             group.onAgentReplied = { agentId, agentName, content, sid ->
-                val name = agentName.ifEmpty { "智能体" }
+                val name = agentName.ifEmpty { context.getString(R.string.chat_agent_fallback_name) }
                 val sessionName = _uiState.value.sessionTitle
                 notificationService?.sendAgentMessageNotification(
                     agentName = name,
@@ -1401,10 +1398,10 @@ class ChatViewModel(
                 Timber.d("deliverGroupMessage: success, response=${result.getOrDefault("").take(100)}")
                 _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
             } else {
-                val error = result.exceptionOrNull()?.message ?: "群组消息处理失败"
+                val error = result.exceptionOrNull()?.message ?: context.getString(R.string.chat_group_message_failed)
                 Timber.w("deliverGroupMessage: failed: $error")
                 _uiState.update { it.copy(agentStatus = AgentStatus.ERROR) }
-                sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, "⚠️ 群组消息处理失败: $error")
+                sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, context.getString(R.string.chat_group_message_failed_with_error, error))
                     .onSuccess { errorMsg ->
                         _uiState.update {
                             it.copy(turns = it.turns + ChatTurn.AgentTurn(
@@ -1421,7 +1418,7 @@ class ChatViewModel(
         } catch (e: Exception) {
             _uiState.update { it.copy(agentStatus = AgentStatus.ERROR) }
             Timber.e(e, "Group message delivery failed")
-            sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, "⚠️ 群组消息处理异常: ${e.message}")
+            sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, context.getString(R.string.chat_group_message_exception, e.message))
                 .onSuccess { errorMsg ->
                     _uiState.update {
                         it.copy(turns = it.turns + ChatTurn.AgentTurn(
@@ -1590,6 +1587,25 @@ class ChatViewModel(
         }
     }
 
+    private companion object {
+        private val VISION_MODEL_REGEX = Regex("(?i)(vision|vl|gemini|gpt-4o|gpt-5|claude-3|claude-4|qwen-vl|llava|deepseek-vl|flash-image)")
+    }
+
+    private fun isCurrentModelVisionCapable(): Boolean {
+        val selectedModel = _uiState.value.selectedModel
+        if (selectedModel.isBlank()) return false
+        if (VISION_MODEL_REGEX.containsMatchIn(selectedModel)) return true
+        val allProviders = cachedProviders ?: return false
+        for (provider in allProviders) {
+            for (m in provider.models) {
+                if (m.name == selectedModel && com.lin.hippyagent.core.model.ModelCapability.VISION in m.capabilities) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     fun checkFreeModelBeforeSend(text: String, chips: List<InputChip>): Boolean {
         val prefs = context.getSharedPreferences("free_model_warning", Application.MODE_PRIVATE)
         if (prefs.getBoolean("suppressed", false)) return true
@@ -1673,7 +1689,7 @@ class ChatViewModel(
                     ?: throw IllegalStateException("OnDeviceModelManager 不可用")
             } catch (e: Exception) {
                 Timber.w(e, "Voice STT failed, sending without transcription")
-                "[语音消息]"
+                context.getString(R.string.chat_voice_message)
             }
             val voiceMeta = JSONObject().apply {
                 put("voiceFile", result.file.absolutePath)
@@ -1709,7 +1725,7 @@ class ChatViewModel(
     private fun addInterruptNotice() {
         val interruptTurn = ChatTurn.SystemTurn(
             id = "interrupt_${System.currentTimeMillis()}",
-            content = "我注意到你打断了任务，是有什么要补充的吗?",
+            content = context.getString(R.string.chat_interrupt_notice),
             type = com.lin.hippyagent.core.chat.SystemTurnType.WARNING
         )
         _uiState.update { state ->
@@ -1816,8 +1832,8 @@ class ChatViewModel(
                     else -> continue
                 }
                 val role = when (turn) {
-                    is ChatTurn.UserTurn -> "用户"
-                    is ChatTurn.AgentTurn -> turn.senderAgentId ?: "智能体"
+                    is ChatTurn.UserTurn -> context.getString(R.string.chat_user_role)
+                    is ChatTurn.AgentTurn -> turn.senderAgentId ?: context.getString(R.string.chat_agent_fallback_name)
                     else -> continue
                 }
                 sb.append("**$role**:\n$content\n\n")
@@ -1830,7 +1846,7 @@ class ChatViewModel(
         viewModelScope.launch {
             val selectedIds = _uiState.value.selectedMessageIds
             val turns = _uiState.value.turns
-            val sb = StringBuilder("📋 **转发的消息**:\n\n")
+            val sb = StringBuilder(context.getString(R.string.chat_forwarded_message) + "\n\n")
             for (turn in turns) {
                 val messageId = when (turn) {
                     is ChatTurn.UserTurn -> turn.message.id
@@ -1844,14 +1860,14 @@ class ChatViewModel(
                         else -> continue
                     }
                     val role = when (turn) {
-                        is ChatTurn.UserTurn -> "用户"
-                        is ChatTurn.AgentTurn -> turn.senderAgentId ?: "智能体"
+                        is ChatTurn.UserTurn -> context.getString(R.string.chat_user_role)
+                        is ChatTurn.AgentTurn -> turn.senderAgentId ?: context.getString(R.string.chat_agent_fallback_name)
                         else -> continue
                     }
                     sb.append("**$role**:\n$content\n\n---\n\n")
                 }
             }
-            val newSessionId = sessionStore.createSession(targetAgentId).getOrNull()?.id ?: return@launch
+            val newSessionId = sessionStore.createSession(targetAgentId, context.getString(R.string.chat_new_session)).getOrNull()?.id ?: return@launch
             val forwardContent = sb.toString()
             sessionStore.addMessage(newSessionId, MessageRole.USER, forwardContent)
             exitMultiSelectMode()

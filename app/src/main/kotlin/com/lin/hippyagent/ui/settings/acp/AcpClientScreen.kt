@@ -53,9 +53,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.collaboration.AcpRemoteServer
 import com.lin.hippyagent.core.agent.collaboration.DiscoveredAgent
 import com.lin.hippyagent.ui.components.HippyTopBar
@@ -88,7 +90,7 @@ fun AcpClientScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "ACP 客户端",
+                title = stringResource(R.string.acp_client_title),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -96,7 +98,7 @@ fun AcpClientScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(onClick = viewModel::showAddDialog) {
-                Icon(Icons.Default.Add, "添加服务器")
+                Icon(Icons.Default.Add, stringResource(R.string.acp_add_server))
             }
         }
     ) { padding ->
@@ -115,9 +117,9 @@ fun AcpClientScreen(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("暂无远程服务器", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.acp_no_remote_servers), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "点击右下角 + 添加 ACP 服务器",
+                    stringResource(R.string.acp_add_server_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -144,7 +146,6 @@ fun AcpClientScreen(
         }
     }
 
-    // 添加/编辑对话框
     if (uiState.showAddDialog) {
         AddServerDialog(
             initial = uiState.editingServer,
@@ -173,7 +174,6 @@ private fun ServerCard(
         )
     ) {
         Column(Modifier.padding(16.dp)) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -199,17 +199,16 @@ private fun ServerCard(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Edit, "编辑", modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Edit, stringResource(R.string.edit), modifier = Modifier.size(16.dp))
                     }
                     IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Delete, "删除", modifier = Modifier.size(16.dp),
+                        Icon(Icons.Default.Delete, stringResource(R.string.delete), modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.error)
                     }
                     Switch(checked = server.enabled, onCheckedChange = { onToggle() })
                 }
             }
 
-            // 发现按钮
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -218,12 +217,12 @@ private fun ServerCard(
                 if (server.lastDiscoveryAt > 0) {
                     val sdf = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
                     Text(
-                        "上次发现: ${sdf.format(Date(server.lastDiscoveryAt))}",
+                        stringResource(R.string.acp_last_discovery, sdf.format(Date(server.lastDiscoveryAt))),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    Text("未发现智能体", style = MaterialTheme.typography.labelSmall,
+                    Text(stringResource(R.string.acp_no_agents_discovered), style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 TextButton(
@@ -236,15 +235,14 @@ private fun ServerCard(
                     }
                     Icon(Icons.Default.Search, null, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text(if (isDiscovering) "发现中..." else "发现智能体")
+                    Text(if (isDiscovering) stringResource(R.string.acp_discovering) else stringResource(R.string.acp_discover_agents))
                 }
             }
 
-            // 已发现的智能体列表
             if (server.discoveredAgents.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "已发现 ${server.discoveredAgents.size} 个智能体",
+                    stringResource(R.string.acp_discovered_count, server.discoveredAgents.size),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -294,13 +292,13 @@ private fun AddServerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initial != null) "编辑服务器" else "添加服务器") },
+        title = { Text(if (initial != null) stringResource(R.string.acp_edit_server) else stringResource(R.string.acp_add_server)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("名称") },
+                    label = { Text(stringResource(R.string.acp_server_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -308,7 +306,7 @@ private fun AddServerDialog(
                 OutlinedTextField(
                     value = host,
                     onValueChange = { host = it },
-                    label = { Text("主机地址") },
+                    label = { Text(stringResource(R.string.acp_server_host)) },
                     placeholder = { Text("192.168.1.100") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -317,7 +315,7 @@ private fun AddServerDialog(
                 OutlinedTextField(
                     value = port,
                     onValueChange = { port = it.filter { c -> c.isDigit() } },
-                    label = { Text("端口") },
+                    label = { Text(stringResource(R.string.acp_server_port)) },
                     placeholder = { Text("8090") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -334,12 +332,11 @@ private fun AddServerDialog(
                 },
                 enabled = name.isNotBlank() && host.isNotBlank()
             ) {
-                Text("确定")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
-

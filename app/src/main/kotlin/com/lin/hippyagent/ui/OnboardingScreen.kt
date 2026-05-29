@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,34 +39,35 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.lin.hippyagent.R
 
 @Immutable
 private data class OnboardingStep(
     val icon: ImageVector,
-    val title: String,
-    val description: String
+    val titleResId: Int,
+    val descriptionResId: Int
 )
 
 private val ONBOARDING_STEPS = listOf(
     OnboardingStep(
         icon = Icons.Default.Rocket,
-        title = "欢迎来到 HippyAgent",
-        description = "你的智能助手可在手机端运行 AI Agent，自动化完成任务，数据完全本地，隐私安全。"
+        titleResId = R.string.onboarding_welcome,
+        descriptionResId = R.string.onboarding_welcome_desc
     ),
     OnboardingStep(
         icon = Icons.Default.Settings,
-        title = "配置模型供应商",
-        description = "支持 GPT-4o、Claude、DeepSeek、Gemini 等多种模型，也可连接本地 LM Studio 或 llama.cpp。"
+        titleResId = R.string.onboarding_config_provider,
+        descriptionResId = R.string.onboarding_config_provider_desc
     ),
     OnboardingStep(
         icon = Icons.Default.Lock,
-        title = "授权核心权限",
-        description = "启用无障碍服务、通知监听等权限，让 Agent 能自动操作手机和响应消息。"
+        titleResId = R.string.onboarding_authorize_permissions,
+        descriptionResId = R.string.onboarding_authorize_permissions_desc
     ),
     OnboardingStep(
         icon = Icons.Default.Build,
-        title = "开始使用",
-        description = "创建你的第一个 Agent，或从预设模板开始。随时可通过设置重新体验引导。"
+        titleResId = R.string.onboarding_get_started,
+        descriptionResId = R.string.onboarding_get_started_desc
     )
 )
 
@@ -92,7 +94,7 @@ fun OnboardingScreen(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onComplete) {
-                Text("跳过", fontSize = 15.sp)
+                Text(stringResource(R.string.common_skip), fontSize = 15.sp)
             }
         }
 
@@ -101,13 +103,13 @@ fun OnboardingScreen(
         val step = ONBOARDING_STEPS[currentStep]
         Icon(
             imageVector = step.icon,
-            contentDescription = step.title,
+            contentDescription = stringResource(step.titleResId),
             modifier = Modifier.size(64.dp).padding(bottom = 24.dp),
             tint = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            step.title,
+            stringResource(step.titleResId),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -117,7 +119,7 @@ fun OnboardingScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            step.description,
+            stringResource(step.descriptionResId),
             fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -161,7 +163,7 @@ fun OnboardingScreen(
             )
         ) {
             Text(
-                if (currentStep < ONBOARDING_STEPS.size - 1) "继续" else "开始使用",
+                if (currentStep < ONBOARDING_STEPS.size - 1) stringResource(R.string.onboarding_continue) else stringResource(R.string.onboarding_get_started),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onPrimary
@@ -171,7 +173,7 @@ fun OnboardingScreen(
         if (currentStep == 1) {
             Spacer(Modifier.height(12.dp))
             TextButton(onClick = onNavigateToModelProvider) {
-                Text("已有 API Key？直接配置 →", fontSize = 13.sp)
+                Text(stringResource(R.string.onboarding_have_api_key), fontSize = 13.sp)
             }
         }
 

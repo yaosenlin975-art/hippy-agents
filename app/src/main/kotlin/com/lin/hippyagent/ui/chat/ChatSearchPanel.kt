@@ -38,7 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.session.MessageSearchResult
 import java.time.Instant
 import java.time.ZoneId
@@ -73,7 +77,7 @@ fun ChatSearchPanel(
                 TextField(
                     value = uiState.query,
                     onValueChange = viewModel::onQueryChanged,
-                    placeholder = { Text("搜索所有消息...", fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.chat_search_all_messages), fontSize = 14.sp) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                     colors = TextFieldDefaults.textFieldColors(
@@ -107,7 +111,7 @@ fun ChatSearchPanel(
                     modifier = Modifier.fillMaxWidth().padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("未找到匹配的消息", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                    Text(stringResource(R.string.chat_search_no_results), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
             } else {
                 LazyColumn {
@@ -153,7 +157,7 @@ private fun SearchResultItem(
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = formatSearchTime(result.timestamp),
+                text = formatSearchTime(LocalContext.current, result.timestamp),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -170,12 +174,12 @@ private fun SearchResultItem(
     }
 }
 
-private fun formatSearchTime(timestamp: Instant): String {
+private fun formatSearchTime(context: Context, timestamp: Instant): String {
     val localDate = timestamp.atZone(ZoneId.systemDefault()).toLocalDate()
     val now = java.time.LocalDate.now()
     return when {
         localDate == now -> DateTimeFormatter.ofPattern("HH:mm").format(timestamp.atZone(ZoneId.systemDefault()))
-        localDate == now.minusDays(1) -> "昨天"
+        localDate == now.minusDays(1) -> context.getString(R.string.common_yesterday)
         localDate.year == now.year -> DateTimeFormatter.ofPattern("M/d").format(localDate)
         else -> DateTimeFormatter.ofPattern("yyyy/M/d").format(localDate)
     }

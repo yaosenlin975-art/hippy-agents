@@ -33,12 +33,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.security.ApprovalAction
 import com.lin.hippyagent.core.security.ApprovalRule
 import com.lin.hippyagent.core.security.ToolApprovalManager
@@ -89,16 +91,16 @@ fun SecurityRulesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("安全规则") },
+                title = { Text(stringResource(R.string.settings_security_rules)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 actions = {
                     if (rules.isNotEmpty()) {
                         IconButton(onClick = { showClearDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "清除全部")
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.security_clear))
                         }
                     }
                 }
@@ -111,10 +113,10 @@ fun SecurityRulesScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("暂无规则", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.security_no_rules), style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "当你在审批工具时选择「始终允许」或「不再允许」，规则会出现在这里",
+                        stringResource(R.string.security_rules_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -128,7 +130,7 @@ fun SecurityRulesScreen(
             ) {
                 item {
                     Text(
-                        "以下规则会在工具审批时自动匹配，点击删除图标可撤销规则",
+                        stringResource(R.string.security_rules_match_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -147,16 +149,16 @@ fun SecurityRulesScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("清除全部规则") },
-            text = { Text("确定要清除所有安全规则吗？清除后所有工具审批将重新询问。") },
+            title = { Text(stringResource(R.string.security_clear_all_title)) },
+            text = { Text(stringResource(R.string.security_clear_all_confirm)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllRules()
                     showClearDialog = false
-                }) { Text("清除") }
+                }) { Text(stringResource(R.string.security_clear)) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("取消") }
+                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -168,8 +170,8 @@ private fun RuleCard(rule: ApprovalRule, onDelete: () -> Unit) {
     val toolName = parts.firstOrNull() ?: rule.key
     val argHint = parts.drop(1).firstOrNull()?.take(40) ?: ""
     val actionLabel = when (rule.action) {
-        ApprovalAction.ALLOW_ALWAYS -> "始终允许"
-        ApprovalAction.DENY_ALWAYS -> "不再允许"
+        ApprovalAction.ALLOW_ALWAYS -> stringResource(R.string.security_action_allow_always)
+        ApprovalAction.DENY_ALWAYS -> stringResource(R.string.security_action_deny_always)
         else -> rule.action.name
     }
     val actionColor = when (rule.action) {
@@ -204,7 +206,7 @@ private fun RuleCard(rule: ApprovalRule, onDelete: () -> Unit) {
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "删除规则",
+                    contentDescription = stringResource(R.string.security_delete_rule),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

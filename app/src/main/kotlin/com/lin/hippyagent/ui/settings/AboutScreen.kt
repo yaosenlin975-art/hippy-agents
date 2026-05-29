@@ -24,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +42,7 @@ fun AboutScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "关于",
+                title = stringResource(R.string.about),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -74,12 +76,12 @@ fun AboutScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "版本 $versionName",
+                        text = context.getString(R.string.app_version, versionName),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Android 端智能体运行框架",
+                        text = stringResource(R.string.about_subtitle),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
@@ -90,22 +92,22 @@ fun AboutScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "核心特性",
+                        text = stringResource(R.string.about_core_features),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     listOf(
-                        "ReAct 智能体循环" to "支持多轮推理-行动循环",
-                        "多模型支持" to "OpenAI / DeepSeek / Ollama / 本地模型",
-                        "MCP 协议" to "Model Context Protocol 客户端",
-                        "工具系统" to "文件/Shell/Git/Gradle/Android 原生",
-                        "记忆管理" to "短期/长期/语义检索/Dream 优化",
-                        "多智能体协作" to "群组聊天/跨 Agent 通信",
-                        "技能系统" to "可扩展技能包 + 安全扫描",
-                        "插件系统" to "动态加载/卸载插件",
-                        "心跳机制" to "定时任务 + 活跃时段",
-                        "ALinux 容器" to "内嵌 Ubuntu 24.04 Linux 环境"
+                        stringResource(R.string.about_feature_react) to stringResource(R.string.about_feature_react_desc),
+                        stringResource(R.string.about_feature_multi_model) to stringResource(R.string.about_feature_multi_model_desc),
+                        stringResource(R.string.about_feature_mcp) to stringResource(R.string.about_feature_mcp_desc),
+                        stringResource(R.string.about_feature_tools) to stringResource(R.string.about_feature_tools_desc),
+                        stringResource(R.string.about_feature_memory) to stringResource(R.string.about_feature_memory_desc),
+                        stringResource(R.string.about_feature_collab) to stringResource(R.string.about_feature_collab_desc),
+                        stringResource(R.string.about_feature_skills) to stringResource(R.string.about_feature_skills_desc),
+                        stringResource(R.string.about_feature_plugins) to stringResource(R.string.about_feature_plugins_desc),
+                        stringResource(R.string.about_feature_heartbeat) to stringResource(R.string.about_feature_heartbeat_desc),
+                        stringResource(R.string.about_feature_linux) to stringResource(R.string.about_feature_linux_desc)
                     ).forEach { (title, desc) ->
                         Row(modifier = Modifier.padding(vertical = 4.dp)) {
                             Text(
@@ -126,7 +128,7 @@ fun AboutScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "技术栈",
+                        text = stringResource(R.string.about_tech_stack),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
@@ -152,13 +154,13 @@ DataStore (偏好存储)
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "开源许可",
+                        text = stringResource(R.string.about_opensource_license),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "本项目基于 Apache 2.0 许可证开源",
+                        text = stringResource(R.string.about_opensource_desc),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

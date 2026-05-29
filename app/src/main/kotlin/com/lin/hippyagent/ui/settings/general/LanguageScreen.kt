@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.core.i18n.LanguageManager
 import com.lin.hippyagent.ui.components.HippyTopBar
 
@@ -29,9 +31,9 @@ fun LanguageScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     val langManager = remember { LanguageManager(ctx) }
     var selected by remember { mutableStateOf(langManager.getCurrentLanguage()) }
     val langs = remember { langManager.getSupportedLanguages() }
-    Scaffold(topBar = { HippyTopBar(title = "语言", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.language_title), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
-            item { Spacer(Modifier.height(8.dp)); Text("选择语言", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
+            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.language_select), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
             items(langs, key = { it.code }) { lang ->
                 Card(modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp).clickable {
                     selected = lang.code

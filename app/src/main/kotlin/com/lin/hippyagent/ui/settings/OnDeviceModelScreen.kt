@@ -60,6 +60,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.ondevice.BackendPreference
 import com.lin.hippyagent.core.ondevice.DownloadProgress
 import com.lin.hippyagent.core.ondevice.DownloadState
@@ -80,7 +83,7 @@ fun OnDeviceModelScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showDownloadSheet by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Huggingface", "模型管理")
+    val tabs = listOf(stringResource(R.string.ondevice_model_tab_huggingface), stringResource(R.string.ondevice_model_tab_management))
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
@@ -106,10 +109,10 @@ fun OnDeviceModelScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("端侧模型") },
+                title = { Text(stringResource(R.string.ondevice_model_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 actions = {
@@ -124,7 +127,7 @@ fun OnDeviceModelScreen(
                                     )
                                 }
                             ) {
-                                Icon(Icons.Default.Download, contentDescription = "下载管理")
+                                Icon(Icons.Default.Download, contentDescription = stringResource(R.string.ondevice_model_download_manager))
                             }
                         }
                     }
@@ -194,7 +197,7 @@ private fun HuggingFaceTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            placeholder = { Text("搜索 Huggingface 模型...") },
+            placeholder = { Text(stringResource(R.string.ondevice_model_search_hf)) },
             leadingIcon = {
                 Icon(Icons.Default.Search, contentDescription = null)
             },
@@ -227,7 +230,7 @@ private fun HuggingFaceTab(
                         modifier = Modifier.fillMaxWidth().padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("输入关键词搜索模型", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ondevice_model_search_input), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -286,7 +289,7 @@ private fun HuggingFaceModelCard(model: HuggingFaceModel, onDownload: () -> Unit
             IconButton(onClick = onDownload, modifier = Modifier.size(32.dp)) {
                 Icon(
                     Icons.Default.Download,
-                    contentDescription = "下载",
+                    contentDescription = stringResource(R.string.ondevice_model_download_button),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp),
                 )
@@ -334,7 +337,7 @@ private fun ModelManagementTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            placeholder = { Text("搜索模型名称或描述...") },
+            placeholder = { Text(stringResource(R.string.ondevice_model_search_management)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             singleLine = true,
         )
@@ -356,52 +359,52 @@ private fun ModelManagementTab(
             item { Spacer(Modifier.height(4.dp)) }
 
             items(downloadableModels, key = { it.id }) { config ->
-            val state = uiState.modelStates[config.id]
-            val progress = uiState.downloadProgress[config.id]
-            val isEngineLoaded = uiState.currentEngineModelId == config.id &&
-                state?.engineState == EngineState.LOADED
+                val state = uiState.modelStates[config.id]
+                val progress = uiState.downloadProgress[config.id]
+                val isEngineLoaded = uiState.currentEngineModelId == config.id &&
+                    state?.engineState == EngineState.LOADED
 
-            ModelCard(
-                config = config,
-                state = state,
-                progress = progress,
-                isEngineLoaded = isEngineLoaded,
-                isLoading = uiState.isLoading,
-                onDownload = { onDownload(config.id) },
-                onPause = { onPause(config.id) },
-                onDelete = { onDelete(config.id) },
-                onLoadEngine = { backend -> onLoadEngine(config.id, backend) },
-                onUnloadEngine = onUnloadEngine,
-            )
-        }
+                ModelCard(
+                    config = config,
+                    state = state,
+                    progress = progress,
+                    isEngineLoaded = isEngineLoaded,
+                    isLoading = uiState.isLoading,
+                    onDownload = { onDownload(config.id) },
+                    onPause = { onPause(config.id) },
+                    onDelete = { onDelete(config.id) },
+                    onLoadEngine = { backend -> onLoadEngine(config.id, backend) },
+                    onUnloadEngine = onUnloadEngine,
+                )
+            }
 
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "设置",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("自动卸载引擎 (后台5分钟)")
-                        Switch(checked = uiState.autoUnload, onCheckedChange = onSetAutoUnload)
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.ondevice_model_settings),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(stringResource(R.string.ondevice_model_auto_unload))
+                            Switch(checked = uiState.autoUnload, onCheckedChange = onSetAutoUnload)
+                        }
                     }
                 }
             }
-        }
 
-        item { Spacer(Modifier.height(16.dp)) }
+            item { Spacer(Modifier.height(16.dp)) }
         }
     }
 }
@@ -419,16 +422,17 @@ private fun ModelCard(
     onLoadEngine: (BackendPreference) -> Unit,
     onUnloadEngine: () -> Unit,
 ) {
+    val context = LocalContext.current
     val downloadState = state?.downloadState ?: DownloadState.NOT_DOWNLOADED
     val engineState = state?.engineState ?: EngineState.NOT_LOADED
     val capLabels = remember(config.capabilities) {
         config.capabilities.map { cap ->
             when (cap) {
-                OnDeviceCapability.TEXT -> "文本"
-                OnDeviceCapability.VISION -> "图像"
-                OnDeviceCapability.AUDIO -> "音频"
-                OnDeviceCapability.THINKING -> "推理"
-                OnDeviceCapability.TOOL_CALL -> "工具调用"
+                OnDeviceCapability.TEXT -> context.getString(R.string.ondevice_model_cap_text)
+                OnDeviceCapability.VISION -> context.getString(R.string.ondevice_model_cap_vision)
+                OnDeviceCapability.AUDIO -> context.getString(R.string.ondevice_model_cap_audio)
+                OnDeviceCapability.THINKING -> context.getString(R.string.ondevice_model_cap_thinking)
+                OnDeviceCapability.TOOL_CALL -> context.getString(R.string.ondevice_model_cap_tool_call)
             }
         }
     }
@@ -466,13 +470,13 @@ private fun ModelCard(
             }
             Spacer(Modifier.height(4.dp))
             Text(capLabels.joinToString(" + "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("最低 ${config.minRamMb / 1024}GB RAM / 推荐 ${config.recommendedRamMb / 1024}GB", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.ondevice_model_ram_requirement, config.minRamMb / 1024, config.recommendedRamMb / 1024), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             when (downloadState) {
                 DownloadState.NOT_DOWNLOADED -> {
                     Spacer(Modifier.height(8.dp))
                     Button(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
-                        Text("下载模型")
+                        Text(stringResource(R.string.ondevice_model_download))
                     }
                 }
                 DownloadState.DOWNLOADING -> {
@@ -486,7 +490,7 @@ private fun ModelCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text("$progressPercent%  $speedStr", style = MaterialTheme.typography.bodySmall)
-                        OutlinedButton(onClick = onPause) { Text("暂停") }
+                        OutlinedButton(onClick = onPause) { Text(stringResource(R.string.ondevice_model_pause)) }
                     }
                 }
                 DownloadState.PAUSED -> {
@@ -496,7 +500,7 @@ private fun ModelCard(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Button(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
-                        Text("继续下载")
+                        Text(stringResource(R.string.ondevice_model_resume_download))
                     }
                 }
                 DownloadState.DOWNLOADED -> {
@@ -509,37 +513,37 @@ private fun ModelCard(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 CircularProgressIndicator(modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(8.dp))
-                                Text("引擎加载中...")
+                                Text(stringResource(R.string.ondevice_model_engine_loading))
                             }
                         }
                         EngineState.LOADED -> {
-                            Text("引擎已加载 (${state?.activeBackend ?: ""})", color = MaterialTheme.colorScheme.primary)
+                            Text(stringResource(R.string.ondevice_model_engine_loaded, state?.activeBackend ?: ""), color = MaterialTheme.colorScheme.primary)
                             Spacer(Modifier.height(4.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(onClick = onUnloadEngine) { Text("卸载引擎") }
+                                OutlinedButton(onClick = onUnloadEngine) { Text(stringResource(R.string.ondevice_model_unload_engine)) }
                                 OutlinedButton(
                                     onClick = onDelete,
                                     colors = ButtonDefaults.outlinedButtonColors(
                                         contentColor = MaterialTheme.colorScheme.error
                                     )
-                                ) { Text("删除模型") }
+                                ) { Text(stringResource(R.string.ondevice_model_delete_model)) }
                             }
                         }
                         EngineState.LOAD_FAILED -> {
-                            Text("引擎加载失败", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.ondevice_model_engine_load_failed), color = MaterialTheme.colorScheme.error)
                             Spacer(Modifier.height(4.dp))
                             EngineLoadRow(onLoadEngine = onLoadEngine, isLoading = isLoading)
                         }
                         EngineState.UNLOADING -> {
-                            Text("引擎卸载中...")
+                            Text(stringResource(R.string.ondevice_model_engine_unloading))
                         }
                     }
                 }
                 DownloadState.DOWNLOAD_FAILED -> {
                     Spacer(Modifier.height(8.dp))
-                    Text("下载失败", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.ondevice_model_download_failed), color = MaterialTheme.colorScheme.error)
                     Button(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
-                        Text("重新下载")
+                        Text(stringResource(R.string.ondevice_model_retry_download))
                     }
                 }
             }
@@ -572,11 +576,11 @@ private fun EngineLoadRow(
                 onClick = { expanded = true },
                 modifier = Modifier.menuAnchor(),
             ) {
-                Text("后端: $backendLabel")
+                Text(stringResource(R.string.ondevice_model_backend, backendLabel))
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             }
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(text = { Text("自动 (GPU→CPU)") }, onClick = { selectedBackend = BackendPreference.AUTO; expanded = false })
+                DropdownMenuItem(text = { Text(stringResource(R.string.ondevice_model_backend_auto)) }, onClick = { selectedBackend = BackendPreference.AUTO; expanded = false })
                 DropdownMenuItem(text = { Text("CPU") }, onClick = { selectedBackend = BackendPreference.CPU; expanded = false })
                 DropdownMenuItem(text = { Text("GPU") }, onClick = { selectedBackend = BackendPreference.GPU; expanded = false })
                 DropdownMenuItem(text = { Text("NPU") }, onClick = { selectedBackend = BackendPreference.NPU; expanded = false })
@@ -590,7 +594,7 @@ private fun EngineLoadRow(
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                 Spacer(Modifier.width(4.dp))
             }
-            Text("加载引擎")
+            Text(stringResource(R.string.ondevice_model_load_engine))
         }
     }
 }
@@ -623,14 +627,14 @@ private fun DownloadManagementSheet(
                 .padding(bottom = 32.dp),
         ) {
             Text(
-                text = "下载管理",
+                text = stringResource(R.string.ondevice_model_download_manager),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(12.dp))
 
             if (downloads.isEmpty()) {
-                Text("暂无下载任务", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.ondevice_model_no_downloads), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 downloads.forEach { item ->
                     val config = availableModels.find { it.id == item.modelId }
@@ -661,9 +665,9 @@ private fun DownloadManagementSheet(
                             ) {
                                 Text("$progressPercent%  $speedStr", style = MaterialTheme.typography.bodySmall)
                                 if (item.state.downloadState == DownloadState.DOWNLOADING) {
-                                    OutlinedButton(onClick = { onPause(item.modelId) }) { Text("暂停") }
+                                    OutlinedButton(onClick = { onPause(item.modelId) }) { Text(stringResource(R.string.ondevice_model_pause)) }
                                 } else if (item.state.downloadState == DownloadState.PAUSED) {
-                                    Button(onClick = { onResume(item.modelId) }) { Text("继续") }
+                                    Button(onClick = { onResume(item.modelId) }) { Text(stringResource(R.string.common_skip)) }
                                 }
                             }
                         }

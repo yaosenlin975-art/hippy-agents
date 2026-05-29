@@ -1,8 +1,5 @@
 package com.lin.hippyagent.ui
 
-// TODO: Wire up navigation — this screen has planned functionality (see docs/architecture-review.md)
-//  Should be expanded into a full startup initialization flow. Currently not registered in NavHost.
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,10 +16,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -56,7 +55,6 @@ fun StartupInitScreen(
     var allDone by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        // Phase 1: 初始化 Linux
         phase = "linux"
         currentMessage = "正在启动 Linux 环境..."
         steps = listOf(InitStep("启动 Linux 环境", StepStatus.IN_PROGRESS))
@@ -77,7 +75,6 @@ fun StartupInitScreen(
             return@LaunchedEffect
         }
 
-        // Phase 2: 检测必备环境
         phase = "check"
         currentMessage = "正在检测必备环境..."
         val checkSteps = REQUIRED_ENV_ITEMS.map { InitStep(it.first, StepStatus.IN_PROGRESS) }
@@ -94,7 +91,6 @@ fun StartupInitScreen(
             delay(300)
         }
 
-        // Phase 3: 安装缺失环境
         val missing = checkResults.filter { !it.second }
         if (missing.isEmpty()) {
             currentMessage = "所有必备环境已就绪"
@@ -166,7 +162,7 @@ fun StartupInitScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "正在初始化环境，请稍候...",
+                text = stringResource(R.string.startup_init_env_wait),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -249,7 +245,7 @@ fun StartupInitScreen(
                 exit = fadeOut()
             ) {
                 TextButton(onClick = onComplete) {
-                    Text("跳过，稍后设置", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.startup_skip_setup), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -259,7 +255,7 @@ fun StartupInitScreen(
                 exit = fadeOut()
             ) {
                 Button(onClick = onComplete) {
-                    Text("进入应用")
+                    Text(stringResource(R.string.startup_enter_app))
                 }
             }
         }
@@ -299,4 +295,3 @@ private suspend fun installEnv(
     }
     try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (_: Exception) {}
 }
-

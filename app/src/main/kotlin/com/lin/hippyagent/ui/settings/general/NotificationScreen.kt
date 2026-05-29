@@ -21,9 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,13 +47,13 @@ fun NotificationScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
         if (granted) createChannel(ctx)
     }
 
-    Scaffold(topBar = { HippyTopBar(title = "通知", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.notifications), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
-            item { Spacer(Modifier.height(8.dp)); Text("通知设置", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
+            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.notification_settings), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(Modifier.weight(1f)) { Text("启用通知", fontSize = 15.sp); Text("需要系统通知权限", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        Column(Modifier.weight(1f)) { Text(stringResource(R.string.notification_enable), fontSize = 15.sp); Text(stringResource(R.string.notification_need_permission), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         Switch(checked = enabled, onCheckedChange = { on ->
                             if (on && Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                                 launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -65,19 +67,19 @@ fun NotificationScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 }
             }
             if (enabled) {
-                item { Text("通知类型", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
+                item { Text(stringResource(R.string.notification_types), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column {
-                            NotiRow("心跳通知", "Agent 心跳执行结果", heartbeat) {
+                            NotiRow(stringResource(R.string.notification_heartbeat_title), stringResource(R.string.notification_heartbeat_desc), heartbeat) {
                                 heartbeat = it
                                 prefs.edit().putBoolean("notification_heartbeat", it).apply()
                             }
-                            NotiRow("消息通知", "收到新消息时提醒", message) {
+                            NotiRow(stringResource(R.string.notification_message_title), stringResource(R.string.notification_message_desc), message) {
                                 message = it
                                 prefs.edit().putBoolean("notification_message", it).apply()
                             }
-                            NotiRow("错误通知", "Agent 运行出错时提醒", error) {
+                            NotiRow(stringResource(R.string.notification_error_title), stringResource(R.string.notification_error_desc), error) {
                                 error = it
                                 prefs.edit().putBoolean("notification_error", it).apply()
                             }

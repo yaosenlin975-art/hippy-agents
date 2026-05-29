@@ -36,12 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lin.hippyagent.core.plugin.PluginManager
 import com.lin.hippyagent.core.plugin.PluginManifest
 import com.lin.hippyagent.core.plugin.PluginToolDef
 import com.lin.hippyagent.core.plugin.PluginParamDef
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -87,14 +89,14 @@ fun PluginScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "插件管理",
+                title = stringResource(R.string.settings_plugins),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "添加插件")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.plugin_add))
             }
         }
     ) { padding ->
@@ -104,9 +106,9 @@ fun PluginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("暂无插件", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.plugin_no_plugins), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
-                Text("点击右下角 + 添加插件", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.plugin_add_hint), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(
@@ -153,12 +155,12 @@ private fun PluginCard(manifest: PluginManifest, onDelete: () -> Unit) {
                     }
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
                 }
             }
             if (manifest.tools.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
-                Text("工具:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.plugin_tool_label), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 manifest.tools.forEach { tool ->
                     Text("  • ${tool.name}: ${tool.description}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -181,17 +183,17 @@ private fun CreatePluginDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("创建插件") },
+        title = { Text(stringResource(R.string.plugin_create)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("插件名称") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("描述") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = toolName, onValueChange = { toolName = it }, label = { Text("工具名称") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = toolDescription, onValueChange = { toolDescription = it }, label = { Text("工具描述") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.plugin_name)) }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(stringResource(R.string.plugin_desc)) }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = toolName, onValueChange = { toolName = it }, label = { Text(stringResource(R.string.plugin_tool_name)) }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = toolDescription, onValueChange = { toolDescription = it }, label = { Text(stringResource(R.string.plugin_tool_desc)) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(
                     value = script,
                     onValueChange = { script = it },
-                    label = { Text("脚本 (JS)") },
+                    label = { Text(stringResource(R.string.plugin_script)) },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     maxLines = 8
                 )
@@ -212,9 +214,9 @@ private fun CreatePluginDialog(
                         )
                     )
                 )
-            }) { Text("创建") }
+            }) { Text(stringResource(R.string.add)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
     )
 }
 

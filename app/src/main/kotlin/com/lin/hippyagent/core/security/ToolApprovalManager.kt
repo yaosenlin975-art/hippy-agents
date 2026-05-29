@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.inbox.ApprovalService
 import com.lin.hippyagent.core.inbox.InboxStore
 import com.lin.hippyagent.core.tools.ToolGuardian
@@ -150,7 +151,7 @@ class ToolApprovalManager(
             eventType = "approval_requested",
             status = "pending",
             severity = severity,
-            title = "工具审批请求: $toolName",
+            title = context.getString(R.string.tool_approval_request, toolName),
             body = findingsSummary,
             payload = arguments.toString()
         )
@@ -198,7 +199,11 @@ class ToolApprovalManager(
                 ToolGuardian.RiskLevel.HIGH -> "high"
                 else -> "medium"
             },
-            title = "工具审批${if (decisionStr == "approved") "已通过" else "已拒绝"}: ${pending.toolName}",
+            title = if (decisionStr == "approved") {
+                context.getString(R.string.tool_approval_approved, pending.toolName)
+            } else {
+                context.getString(R.string.tool_approval_denied, pending.toolName)
+            },
             body = "操作: ${action.name}",
             payload = pending.arguments.toString()
         )
@@ -256,7 +261,7 @@ class ToolApprovalManager(
             eventType = "blocked_by_guardian",
             status = "denied",
             severity = "high",
-            title = "工具被安全规则阻止: $toolName",
+            title = context.getString(R.string.tool_blocked_by_security, toolName),
             body = reason,
             payload = arguments.toString()
         )

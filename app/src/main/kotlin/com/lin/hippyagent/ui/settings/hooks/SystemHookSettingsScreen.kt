@@ -26,12 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.hooks.system.SystemEventType
 import com.lin.hippyagent.core.hooks.system.SystemHookManager
 import com.lin.hippyagent.ui.components.HippyTopBar
@@ -127,7 +129,7 @@ fun SystemHookSettingsScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "事件监听",
+                title = stringResource(R.string.settings_event_hooks),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -143,10 +145,10 @@ fun SystemHookSettingsScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("系统事件监听", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.hooks_system_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Agent 可主动响应系统事件（短信、来电、电量变化等），实现主动感知能力。开启后需要授予对应权限。",
+                            stringResource(R.string.hooks_desc),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -181,19 +183,19 @@ fun SystemHookSettingsScreen(
                             Text(type.description, fontSize = 14.sp)
                             if (!hasPermission) {
                                 Text(
-                                    "缺少权限",
+                                    stringResource(R.string.hooks_missing_permission),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.error
                                 )
                             } else if (isEnabled) {
                                 Text(
-                                    "已启用",
+                                    stringResource(R.string.hooks_enabled),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Text(
-                                    "未启用",
+                                    stringResource(R.string.hooks_not_enabled),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -216,9 +218,9 @@ fun SystemHookSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("静默时间", fontSize = 14.sp)
+                                Text(stringResource(R.string.hooks_silent_hours), fontSize = 14.sp)
                                 Text(
-                                    "静默期间不触发事件（来电除外）",
+                                    stringResource(R.string.hooks_silent_hours_desc),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -241,7 +243,7 @@ fun SystemHookSettingsScreen(
                                             if (h in 0..23) viewModel.setSilentStartHour(h)
                                         }
                                     },
-                                    label = { Text("开始时") },
+                                    label = { Text(stringResource(R.string.hooks_silent_start)) },
                                     modifier = Modifier.weight(1f),
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -253,7 +255,7 @@ fun SystemHookSettingsScreen(
                                             if (h in 0..23) viewModel.setSilentEndHour(h)
                                         }
                                     },
-                                    label = { Text("结束时") },
+                                    label = { Text(stringResource(R.string.hooks_silent_end)) },
                                     modifier = Modifier.weight(1f),
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

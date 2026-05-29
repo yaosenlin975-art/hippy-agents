@@ -20,11 +20,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lin.hippyagent.core.storage.ConfigStorage
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -100,10 +103,11 @@ fun GlobalRulesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            snackbarHostState.showSnackbar("全局规则已保存", duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar(context.getString(R.string.global_rules_saved), duration = SnackbarDuration.Short)
             viewModel.clearSaveSuccess()
         }
     }
@@ -111,7 +115,7 @@ fun GlobalRulesScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "全局规则",
+                title = stringResource(R.string.settings_global_rules),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -127,7 +131,7 @@ fun GlobalRulesScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "全局规则将注入到所有智能体的系统提示词开头，对所有智能体生效。",
+                text = stringResource(R.string.global_rules_hint),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
@@ -139,7 +143,7 @@ fun GlobalRulesScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                placeholder = { Text("输入全局规则...") },
+                placeholder = { Text(stringResource(R.string.global_rules_placeholder)) },
                 minLines = 6
             )
         }

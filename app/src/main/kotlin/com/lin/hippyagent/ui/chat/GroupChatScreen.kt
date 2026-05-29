@@ -52,6 +52,8 @@ import com.lin.hippyagent.core.agent.collaboration.AgentWorkState
 import com.lin.hippyagent.core.voice.STTService
 import com.lin.hippyagent.core.voice.SttCallback
 import com.lin.hippyagent.core.voice.SttResult
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,7 +97,7 @@ fun GroupChatScreen(
                 sttListening = false
                 sttPartialText = null
                 coroutineScope.launch {
-                    Toast.makeText(context, "语音识别失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.chat_stt_failed, error.message), Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -114,7 +116,7 @@ fun GroupChatScreen(
             if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)) {
                 showAudioPermissionDialog = true
             } else {
-                Toast.makeText(context, "需要麦克风权限才能使用语音输入", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.chat_mic_permission_needed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -138,11 +140,9 @@ fun GroupChatScreen(
     val filePickers = rememberChatFilePickers(
         onImagePicked = { chip ->
             inputViewModel.addChip(chip)
-            inputViewModel.appendAttachmentText("[附件: ${chip.label}]")
         },
         onFilePicked = { chip ->
             inputViewModel.addChip(chip)
-            inputViewModel.appendAttachmentText("[附件: ${chip.label}]")
         }
     )
 
@@ -224,7 +224,7 @@ fun GroupChatScreen(
                         )
                         if (workingCount > 0) {
                             Text(
-                                text = "$workingCount 个智能体工作中",
+                                text = stringResource(R.string.chat_agents_working, workingCount),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -233,7 +233,7 @@ fun GroupChatScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back))
                     }
                 },
                 actions = {
@@ -346,8 +346,8 @@ fun GroupChatScreen(
     if (showAudioPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showAudioPermissionDialog = false },
-            title = { Text("需要麦克风权限") },
-            text = { Text("麦克风权限已被拒绝，请在系统设置中手动开启。") },
+            title = { Text(stringResource(R.string.chat_mic_permission_title)) },
+            text = { Text(stringResource(R.string.chat_mic_permission_denied)) },
             confirmButton = {
                 TextButton(onClick = {
                     showAudioPermissionDialog = false
@@ -355,10 +355,10 @@ fun GroupChatScreen(
                         data = Uri.fromParts("package", context.packageName, null)
                     }
                     context.startActivity(intent)
-                }) { Text("去设置") }
+                }) { Text(stringResource(R.string.chat_go_to_settings)) }
             },
             dismissButton = {
-                TextButton(onClick = { showAudioPermissionDialog = false }) { Text("取消") }
+                TextButton(onClick = { showAudioPermissionDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }

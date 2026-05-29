@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Switch
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 private const val PREFS_NAME = "ui_settings"
@@ -112,7 +114,7 @@ fun UiSettingsScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "界面设置",
+                title = stringResource(R.string.settings_ui_settings),
                 onBackClick = onBack
             )
         }
@@ -127,7 +129,7 @@ fun UiSettingsScreen(
         ) {
             item {
                 Text(
-                    text = "会话列表",
+                    text = stringResource(R.string.ui_session_list),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
@@ -157,12 +159,12 @@ fun UiSettingsScreen(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "不活跃对话时长",
+                                text = stringResource(R.string.ui_inactive_threshold),
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                text = "超过此时长未更新的对话将被折叠，0 表示禁用折叠",
+                                text = stringResource(R.string.ui_inactive_threshold_desc),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 2.dp)
@@ -182,7 +184,7 @@ fun UiSettingsScreen(
                             modifier = Modifier.width(88.dp),
                             singleLine = true,
                             isError = isError,
-                            suffix = { Text("分钟", fontSize = 12.sp) },
+                            suffix = { Text(stringResource(R.string.ui_minutes), fontSize = 12.sp) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                     }
@@ -192,7 +194,7 @@ fun UiSettingsScreen(
             item {
                 if (isError) {
                     Text(
-                        text = "请输入有效的非负整数",
+                        text = stringResource(R.string.ui_invalid_number),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(start = 8.dp, top = 4.dp)
@@ -202,7 +204,7 @@ fun UiSettingsScreen(
 
             item {
                 Text(
-                    text = "聊天界面",
+                    text = stringResource(R.string.ui_chat_interface),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
@@ -237,12 +239,12 @@ fun UiSettingsScreen(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "全局字号",
+                                text = stringResource(R.string.ui_font_scale),
                                 fontSize = 15.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
-                                text = "调节整个应用的字号大小",
+                                text = stringResource(R.string.ui_font_scale_desc),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 2.dp)
@@ -255,7 +257,7 @@ fun UiSettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "小",
+                            text = stringResource(R.string.ui_font_small),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -270,7 +272,7 @@ fun UiSettingsScreen(
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "大",
+                            text = stringResource(R.string.ui_font_large),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -290,13 +292,13 @@ fun UiSettingsScreen(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
-                                text = "预览效果",
+                                text = stringResource(R.string.ui_preview),
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
                             Text(
-                                text = "设计是接口的实现，不是界面的堆砌。",
+                                text = stringResource(R.string.ui_preview_text),
                                 fontSize = (14 * fontScale).sp,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 lineHeight = (20 * fontScale).sp
@@ -312,13 +314,13 @@ fun UiSettingsScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 AssistChip(
                                     onClick = {},
-                                    label = { Text("示例标签", fontSize = (11 * fontScale).sp) }
+                                    label = { Text(stringResource(R.string.ui_example_tag), fontSize = (11 * fontScale).sp) }
                                 )
                                 OutlinedButton(
                                     onClick = {},
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                                 ) {
-                                    Text("按钮", fontSize = (12 * fontScale).sp)
+                                    Text(stringResource(R.string.ui_example_button), fontSize = (12 * fontScale).sp)
                                 }
                             }
                         }
@@ -341,8 +343,8 @@ fun UiSettingsScreen(
                     ) {
                         Icon(Icons.Default.Face, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("显示智能体头像", fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
-                            Text("聊天界面中智能体消息旁显示头像表情", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_show_agent_avatar), fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
+                            Text(stringResource(R.string.ui_show_agent_avatar_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(checked = showAvatar, onCheckedChange = {
                             showAvatar = it

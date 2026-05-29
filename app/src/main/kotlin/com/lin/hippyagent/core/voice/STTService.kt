@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.lin.hippyagent.R
 import timber.log.Timber
 import java.io.File
 
@@ -174,7 +175,7 @@ class STTService(
             startMethod.invoke(transcriberInstance)
 
             withContext(Dispatchers.Main) {
-                callback.onPartialResult(SttResult(text = "正在聆听...", isFinal = false))
+                callback.onPartialResult(SttResult(text = context.getString(R.string.chat_listening), isFinal = false))
             }
 
             while (_isListening.value) {

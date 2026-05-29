@@ -1,8 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
     <string name="app_name">Hippy</string>
-    
-    <!-- General -->
+    <!-- 通用 -->
+
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -13,33 +15,33 @@
     <string name="loading">Loading...</string>
     <string name="error">Error</string>
     <string name="success">Success</string>
-    
-    <!-- Navigation -->
+    <!-- 导航 -->
+
     <string name="nav_sessions">Sessions</string>
     <string name="nav_agents">Agents</string>
     <string name="nav_settings">Settings</string>
-    
-    <!-- Sessions -->
+    <!-- 会话 -->
+
     <string name="new_session">New Session</string>
     <string name="session_list">Session List</string>
     <string name="no_sessions">No sessions</string>
     <string name="delete_session">Delete Session</string>
     <string name="delete_session_confirm">Are you sure you want to delete this session?</string>
-    
-    <!-- Agents -->
+    <!-- 智能体 -->
+
     <string name="agent_list">Agent List</string>
     <string name="new_agent">New Agent</string>
     <string name="agent_config">Agent Configuration</string>
     <string name="agent_name">Agent Name</string>
     <string name="agent_model">Model</string>
     <string name="agent_provider">Model Provider</string>
-    
-    <!-- Bottom tabs -->
+    <!-- 底栏 -->
+
     <string name="tab_sessions">Sessions</string>
     <string name="tab_agents">Agents</string>
     <string name="tab_settings">Settings</string>
+    <!-- 设置 -->
 
-    <!-- Settings -->
     <string name="settings">Settings</string>
     <string name="language">Language(语言)</string>
     <string name="notifications">Notifications</string>
@@ -48,48 +50,67 @@
     <string name="tool_security">Tool Security</string>
     <string name="skill_pool">Skill Pool</string>
     <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="data_section">Data</string>
+    <string name="about_section">About</string>
+    <string name="running_config">Running Config</string>
+    <string name="heartbeat">Heartbeat</string>
+    <string name="mcp">MCP</string>
+    <string name="core_files">Core Files</string>
+    <string name="acp">ACP</string>
     <string name="about">About</string>
     <string name="debug_info">Debug Info</string>
-    
-    <!-- Chat -->
+    <string name="model_provider_desc">Manage model provider config</string>
+    <string name="tool_security_desc">Approval queue: %1$d pending</string>
+    <string name="skill_pool_desc">Manage public skill pool</string>
+    <string name="last_backup">Last backup: %1$s</string>
+    <string name="last_backup_never">Never</string>
+    <string name="export_log">Export Log</string>
+    <string name="background_permission">Background Run</string>
+    <string name="app_version">Version %1$s</string>
+    <string name="debug_info_desc">View running logs and status</string>
+    <!-- 聊天 -->
+
     <string name="send_message">Send Message</string>
     <string name="type_message">Type a message...</string>
     <string name="thinking">Thinking...</string>
     <string name="executing_tool">Executing tool...</string>
-    
-    <!-- Skills -->
+    <!-- 技能 -->
+
     <string name="skill_management">Skill Management</string>
     <string name="skill_pool_management">Public Skill Pool</string>
     <string name="no_skills">No skills</string>
     <string name="install_skill">Install Skill</string>
     <string name="uninstall_skill">Uninstall Skill</string>
-    
-    <!-- Notifications -->
+    <!-- 通知 -->
+
     <string name="notification_heartbeat">Heartbeat Reminder</string>
     <string name="notification_task_complete">Task Complete</string>
     <string name="notification_error">Error Alert</string>
     <string name="quiet_hours">Quiet Hours</string>
-    
-    <!-- Error Messages -->
+    <!-- 错误消息 -->
+
     <string name="error_network">Network connection failed</string>
     <string name="error_api_key">Invalid API key</string>
     <string name="error_model_config">Model configuration error</string>
     <string name="error_file_not_found">File not found</string>
     <string name="error_permission">Insufficient permissions</string>
-    
-    <!-- System Permissions -->
+    <!-- 系统权限 -->
+
     <string name="system_permissions">System Permissions</string>
     <string name="background_run_permission">Background Run Permission</string>
+    <string name="accessibility_permission">无障碍服务</string>
+    <string name="enabled">已开启</string>
+    <string name="disabled">未开启</string>
     <string name="background_run_allowed">Background running allowed</string>
-    <string name="background_run_restricted">⚠️ Restricted — may be killed by system, tap to unrestrict</string>
+    <string name="background_run_restricted">⚠️ Restricted �?may be killed by system, tap to unrestrict</string>
     <string name="accessibility_service">Accessibility Service</string>
     <string name="accessibility_enabled">Enabled</string>
-    <string name="accessibility_disabled">Disabled — some features (e.g. notification listening) need this permission, tap to enable</string>
-    
-    <!-- Data Storage -->
+    <string name="accessibility_disabled">Disabled �?some features (e.g. notification listening) need this permission, tap to enable</string>
+    <!-- 数据存储 -->
+
     <string name="storage_overview">Storage Overview</string>
     <string name="external_storage">External Storage (Uninstall Protection)</string>
-    <string name="saf_authorized">✅ External storage authorized</string>
+    <string name="saf_authorized">�?External storage authorized</string>
     <string name="saf_not_authorized">⚠️ Data stored in internal storage</string>
     <string name="saf_authorized_desc">Data migrated to external directory. Uninstalling the app will not lose data.</string>
     <string name="saf_not_authorized_desc">Data is stored in the app\'s internal directory. Uninstalling will lose all data (configs, chat history, memories). Authorize an external storage directory is recommended.</string>
@@ -110,24 +131,1747 @@
     <string name="external_storage_enabled">External Storage (authorized)</string>
     <string name="migration_complete">Migration complete: %1$d files</string>
     <string name="migration_failed">Migration failed: %1$s</string>
-    
-    <!-- Security -->
+    <!-- 安全 -->
+
     <string name="security">Security</string>
-    <string name="model_provider_desc">Manage model provider config</string>
-    <string name="tool_security_desc">Approval queue: %1$d pending</string>
-    <string name="skill_pool_desc">Manage public skill pool</string>
-    <string name="last_backup">Last backup: %1$s</string>
-    <string name="last_backup_never">Never</string>
-    <string name="export_log">Export Log</string>
-    <string name="background_permission">Background Run</string>
-    <string name="app_version">Version %1$s</string>
-    <string name="debug_info_desc">View running logs and status</string>
-    <string name="data_section">Data</string>
-    <string name="about_section">About</string>
-    <string name="running_config">Running Config</string>
-    <string name="heartbeat">Heartbeat</string>
-    <string name="mcp">MCP</string>
-    <string name="core_files">Core Files</string>
-    <string name="acp">ACP</string>
+    <!-- 无障碍服务 -->
+
+    <string name="accessibility_service_description">允许 Hippy 智能体感知屏幕内容并操控手机界面，实现自动化任务执行。此服务不会收集或上传任何个人数据</string>
+    <!-- 通用扩展 -->
+
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_yesterday">Yesterday</string>
+    <string name="common_collapse">Collapse</string>
+    <string name="common_expand">Expand</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_create">Create</string>
+    <string name="common_skip">Skip</string>
+    <!-- 聊天扩展 -->
+
+    <string name="chat_pinned">Pinned</string>
+    <string name="chat_executing">Executing</string>
+    <string name="chat_stopped">Stopped</string>
+    <string name="chat_no_messages">No messages</string>
+    <string name="chat_max_badge">99+</string>
+    <string name="chat_search_all_messages">Search all messages...</string>
+    <string name="chat_search_no_results">No matching messages found</string>
+    <string name="chat_stt_failed">Voice recognition failed: %1$s</string>
+    <string name="chat_mic_permission_needed">Microphone permission required for voice input</string>
+    <string name="chat_agents_working">%1$d agents working</string>
+    <string name="chat_mic_permission_title">Microphone Permission Required</string>
+    <string name="chat_mic_permission_denied">Microphone permission denied. Please enable it in system settings.</string>
+    <string name="chat_go_to_settings">Go to Settings</string>
+    <string name="chat_camera_permission_needed">Camera permission required to take photos</string>
+    <string name="chat_copy">Copy</string>
+    <string name="chat_quote">Quote</string>
+    <string name="chat_regenerate">Regenerate</string>
+    <string name="chat_speak">Speak</string>
+    <string name="chat_multi_select">Multi-select</string>
+    <string name="chat_select_model">Select Model</string>
+    <string name="chat_model_settings">Model Settings</string>
+    <string name="chat_search_model_provider">Search models or providers</string>
+    <string name="chat_no_models_hint">No models available. Please configure in Settings �?Model Provider</string>
+    <string name="chat_selected">Selected</string>
+    <string name="chat_tool_permission_title">Tool Permission</string>
+    <string name="chat_command_auth_request">Command Authorization</string>
+    <string name="chat_perm_device_access">Device access (battery, sensors, location, etc.)</string>
+    <string name="chat_perm_clipboard">Clipboard access (read/write)</string>
+    <string name="chat_perm_ssh">SSH service management (start/stop/user management)</string>
+    <string name="chat_perm_file_transfer">File transfer (between Android and container)</string>
+    <string name="chat_perm_shell">Shell command execution</string>
+    <string name="chat_agent_request_permission">Agent requests to use the following features. Allow?</string>
+    <string name="chat_agent_request_command">Agent requests to execute the following command:</string>
+    <string name="chat_deny">Deny</string>
+    <string name="chat_deny_always">Don\'t allow again</string>
+    <string name="chat_approve_always">Always allow</string>
+    <string name="chat_approve_once">Allow once</string>
+    <string name="chat_execute_plan">Execute Plan</string>
+    <string name="chat_no_active_plan">No active plan</string>
+    <string name="chat_progress">Progress</string>
+    <string name="chat_completion_summary">Completion Summary</string>
+    <string name="chat_thinking_process">Thinking Process</string>
+    <string name="chat_deep_thinking">Deep Thinking</string>
+    <string name="chat_copy_params">Copy Parameters</string>
+    <string name="chat_params_copied">Parameters copied</string>
+    <string name="chat_copy_result">Copy Result</string>
+    <string name="chat_result_copied">Result copied</string>
+    <string name="chat_copy_params_and_result">Copy Parameters &amp; Result</string>
+    <string name="chat_params_and_result_copied">Parameters and result copied</string>
+    <string name="chat_calling">Calling</string>
+    <string name="chat_failed">Failed</string>
+    <string name="chat_params_label">Parameters:</string>
+    <string name="chat_result_label">Result:</string>
+    <string name="chat_waiting_result">�?Waiting for result...</string>
+    <string name="chat_running">Running</string>
+    <string name="chat_new_file">New file</string>
+    <string name="chat_append_content">Append</string>
+    <string name="chat_changes">Changes</string>
+    <string name="chat_discussion_copied">Discussion copied</string>
+    <string name="chat_discussion_with">📋 Discussion with %1$s</string>
+    <string name="chat_quoted_message">Quoted message</string>
+    <string name="chat_sent_image">Sent image</string>
+    <string name="chat_replied">Replied</string>
+    <string name="chat_working">Working</string>
+    <string name="chat_read">Read</string>
+    <string name="chat_you">You</string>
+    <string name="chat_edit_message">Edit message</string>
+    <string name="chat_select_skill">Select Skill</string>
+    <string name="chat_no_agent_skills">No skills available for this agent</string>
+    <string name="chat_cancel_quote">Cancel quote</string>
+    <string name="chat_items_selected">%1$d selected</string>
+    <string name="chat_forward">Forward</string>
+    <string name="chat_export">Export</string>
+    <string name="chat_listening">Listening...</string>
+    <string name="chat_queued">Queued (%1$d)...</string>
+    <string name="chat_agent_thinking_input_hint">Agent thinking, you can still type...</string>
+    <string name="chat_attachment">Attachment</string>
+    <string name="chat_select_image">Select Image</string>
+    <string name="chat_take_photo">Take Photo</string>
+    <string name="chat_select_file">Select File</string>
+    <string name="chat_skill">Skill</string>
+    <string name="chat_mention_agent">\@Mention agent</string>
+    <string name="chat_release_to_send">Release to send</string>
+    <string name="chat_stop_listening">Stop listening</string>
+    <string name="chat_voice_input">Voice input</string>
+    <string name="chat_stop_generation">Stop generation</string>
+    <string name="chat_queue">Queue</string>
+    <string name="chat_iterations_exhausted">Iterations exhausted</string>
+    <string name="chat_forward_to">Forward to</string>
+    <string name="chat_auth_request">Authorization Request</string>
+    <string name="chat_agent_accessibility_request">Agent requests to perform accessibility actions. Allow?</string>
+    <string name="chat_action_label">Action: %1$s</string>
+    <string name="chat_target_label">Target: %1$s</string>
+    <string name="chat_risk_level_label">Risk level: %1$s</string>
+    <string name="risk_low">Low</string>
+    <string name="risk_medium">Medium</string>
+    <string name="risk_high">High</string>
+    <string name="risk_blocked">Blocked</string>
+    <string name="chat_allow_this_time">Allow this time</string>
+    <string name="chat_allow_always">Always allow</string>
+    <string name="chat_image_attachment">Image attachment</string>
+    <string name="chat_cannot_open">Cannot open: %1$s</string>
+    <string name="chat_view">View</string>
+    <string name="chat_saved_to_downloads">Saved to Downloads/%1$s</string>
+    <string name="chat_save_failed">Save failed: %1$s</string>
+    <string name="chat_share_file">Share file</string>
+    <string name="chat_share_failed">Share failed: %1$s</string>
+    <string name="chat_fullscreen_preview">Full screen preview</string>
+    <string name="chat_processed">Processed</string>
+    <string name="chat_more_items">�?1$d more items</string>
+    <string name="chat_option_selected">Selected: %1$s</string>
+    <string name="chat_skipped">Skipped</string>
+    <string name="chat_image">Image</string>
+    <string name="chat_new_session">New session</string>
+    <string name="chat_create_session_failed">Failed to create session</string>
+    <string name="chat_load_messages_failed">Failed to load messages: %1$s</string>
+    <string name="chat_session_not_initialized">Session not initialized, please retry later</string>
+    <string name="chat_command_execution_failed">Command execution failed</string>
+    <string name="chat_command_execution_failed_with_msg">Command execution failed: %1$s</string>
+    <string name="chat_model_no_image_support">Current model does not support image understanding, image will be sent as text</string>
+    <string name="chat_group_mention_only_notice">📘 Group has "@mention only" enabled, @ the agent to send a message</string>
+    <string name="chat_agent_not_found">Agent not found: %1$s, please check agent configuration</string>
+    <string name="chat_model_not_configured">No model configured, please configure a model in Settings</string>
+    <string name="chat_agent_fallback_name">Agent</string>
+    <string name="chat_group_name">Group</string>
+    <string name="chat_error_max_retries_reached">Model request failed, max retries reached. Please check model config or switch models</string>
+    <string name="chat_error_forbidden">No permission to access this model, please check API key permissions</string>
+    <string name="chat_error_not_found">Model does not exist or has been deprecated, please check model name</string>
+    <string name="chat_error_rate_limited">Too many requests, please retry later</string>
+    <string name="chat_error_bad_request">Model request parameter error, please check model configuration</string>
+    <string name="chat_error_bad_gateway">Model service gateway error, please retry later</string>
+    <string name="chat_error_service_unavailable">Model service temporarily unavailable, please retry later</string>
+    <string name="chat_error_network_connection">Network connection failed, please check network settings</string>
+    <string name="chat_error_sse_failed">Streaming connection failed, please check network or model service</string>
+    <string name="chat_error_generic">Failed to process message, please retry later</string>
+    <string name="chat_group_message_failed">Group message processing failed</string>
+    <string name="chat_group_message_failed_with_error">⚠️ Group message processing failed: %1$s</string>
+    <string name="chat_group_message_exception">⚠️ Group message processing exception: %1$s</string>
+    <string name="chat_voice_message">[Voice message]</string>
+    <string name="chat_interrupt_notice">I noticed you interrupted the task. Is there anything to add?</string>
+    <string name="chat_user_role">User</string>
+    <string name="chat_forwarded_message">📋 **Forwarded message**:</string>
+    <string name="chat_compressed_summary">📋 Previous conversation compressed:
+%1$s</string>
+    <string name="chat_compaction_started">🆔 Context compressing...
+📑 Tokens: %1$s / %2$s (%3$d%%)
+💰 %4$d messages, compressing %5$d + keeping %6$d</string>
+    <string name="chat_compaction_completed">🆔 Context compression complete
+📑 Tokens: %1$s -> %2$s / %3$s (%4$d%%)  Saved %5$s
+💰 %6$d messages compressed</string>
+    <string name="chat_save">Save</string>
+    <string name="chat_share">Share</string>
+    <string name="chat_executing_with_dots">Executing...</string>
+    <string name="chat_waiting_result_inline">Waiting for result...</string>
+    <string name="chat_changes_label">Changes</string>
+    <string name="chat_diff_summary">📑 Changes: %1$s%2$s</string>
+    <string name="chat_diff_file_summary">📑 %1$s%2$s</string>
+    <string name="chat_lines_omitted">
+... (%1$d lines omitted)</string>
+    <string name="chat_new_file_label">New file</string>
+    <string name="chat_append_content_label">Append content</string>
+    <string name="chat_agent_workflow">%1$s workflow</string>
+    <string name="chat_no_process_info">No process info</string>
+    <string name="chat_step_process">%1$d steps</string>
+    <string name="chat_collapse_process">Collapse process</string>
+    <string name="chat_error_label">�?Error</string>
+    <string name="chat_api_calls">%1$d requests</string>
+    <string name="chat_group_members">Group Members</string>
+    <string name="chat_no_members">No members</string>
+    <string name="chat_idle">Idle</string>
+    <string name="chat_in_task">In task</string>
+    <string name="chat_paused">Paused</string>
+    <string name="chat_interrupt">Interrupt</string>
+    <string name="chat_confirm_interrupt">Confirm interrupt?</string>
+    <string name="chat_about_to_interrupt">About to interrupt: %1$s</string>
+    <string name="chat_current_task">Current task: %1$s</string>
+    <string name="chat_interrupt_irreversible">Task cannot be resumed after interruption</string>
+    <string name="chat_confirm_interrupt_btn">Confirm Interrupt</string>
+    <string name="chat_pause">Pause</string>
+    <string name="chat_play">Play</string>
+    <string name="chat_messages_copied">Copied %1$d messages to clipboard</string>
+    <string name="chat_message_export">Message Export</string>
+    <string name="chat_no_agent_skills_available">No skills available</string>
+    <!-- 斜杠命令 -->
+
+    <string name="slash_compact">Compact context</string>
+    <string name="slash_new">New session</string>
+    <string name="slash_clear">Clear messages</string>
+    <string name="slash_history">View history</string>
+    <string name="slash_mission">Start mission mode</string>
+    <string name="slash_plan">Generate task plan</string>
+    <string name="slash_proactive">Toggle proactive memory</string>
+    <string name="slash_stats">View statistics</string>
+    <string name="slash_backup">Backup management</string>
+    <string name="slash_summarize_status">Summarize status</string>
+    <!-- 工具分类 -->
+
+    <string name="tool_cat_file">File</string>
+    <string name="tool_cat_terminal">Terminal</string>
+    <string name="tool_cat_search">Search</string>
+    <string name="tool_cat_network">Network</string>
+    <string name="tool_cat_code">Code</string>
+    <string name="tool_cat_memory">Memory</string>
+    <string name="tool_cat_tool">Tool</string>
+    <!-- 会话列表 -->
+
+    <string name="conversation_avatar">Avatar</string>
+    <string name="conversation_search_hint">Search sessions...</string>
+    <string name="conversation_clear">Clear</string>
+    <string name="conversation_inactive">Inactive conversations</string>
+    <string name="conversation_move_to">Move to \"%1$s\"</string>
+    <string name="conversation_group">Group</string>
+    <string name="conversation_no_match">No matching sessions found</string>
+    <string name="conversation_all_disabled">All agents disabled. Please enable one first.</string>
+    <string name="conversation_create_from_bar">Create new conversation from bottom bar</string>
+    <string name="conversation_select_agent">Select Agent</string>
+    <string name="conversation_current_use">Currently using</string>
+    <string name="conversation_agent_settings">%1$s Settings</string>
+    <string name="conversation_system_settings">System Settings</string>
+    <string name="conversation_delete_confirm">Delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="conversation_new_group">New Group</string>
+    <string name="conversation_group_name">Group Name</string>
+    <string name="conversation_unpin">Unpin</string>
+    <string name="conversation_pin">Pin</string>
+    <string name="conversation_unmute">Unmute</string>
+    <string name="conversation_mute">Mute</string>
+    <string name="conversation_muted">Muted</string>
+    <string name="conversation_idle">Idle</string>
+    <!-- 群组设置 -->
+
+    <string name="group_settings">Group Settings</string>
+    <string name="group_not_found">Group not found</string>
+    <string name="group_name_hint">Enter group name</string>
+    <string name="group_id">Group ID</string>
+    <string name="group_member_count">Member count</string>
+    <string name="group_people_count">%1$d people</string>
+    <string name="group_mention_only">Only receive @mentions</string>
+    <string name="group_mention_only_desc">When enabled, only receive messages that mention you, not broadcasts</string>
+    <string name="group_decision_model">Decision Model</string>
+    <string name="group_decision_model_desc">Select the LLM model for speakers when broadcasting</string>
+    <string name="group_default">Default</string>
+    <string name="group_member_list">Member List</string>
+    <string name="group_add_member">Add Member</string>
+    <string name="group_remove">Remove</string>
+    <string name="group_dissolve">Dissolve Group</string>
+    <string name="group_dissolve_confirm">Dissolve group \"%1$s\"?\nAll chat history will be preserved, but the group will be deleted.</string>
+    <string name="group_dissolve_btn">Dissolve</string>
+    <string name="group_no_agents_to_add">No agents available to add</string>
+    <string name="group_agent_not_initialized">Not initialized. Chat with this agent first to complete initialization.</string>
+    <string name="group_create">Create Group</string>
+    <string name="group_select_members">Select Members</string>
+    <string name="group_no_available_agents">No agents available</string>
+    <!-- 设置扩展 -->
+
+    <string name="settings_general">General</string>
+    <string name="settings_closed">Off</string>
+    <string name="settings_ui_settings">UI Settings</string>
+    <string name="settings_ui_settings_desc">Inactive conversation timeout and other UI preferences</string>
+    <string name="settings_model_and_ai">Models &amp; AI</string>
+    <string name="settings_model_provider_desc_new">Manage API Keys and models</string>
+    <string name="settings_global_rules">Global Rules</string>
+    <string name="settings_global_rules_desc">Common rules applied to all agents</string>
+    <string name="settings_skill_pool_desc_new">Manage agent skills</string>
+    <string name="settings_common_memory">Common Memory</string>
+    <string name="settings_common_memory_desc">Shared memory for all agents</string>
+    <string name="settings_system_and_permissions">System &amp; Permissions</string>
+    <string name="settings_permission_center">Permission Center</string>
+    <string name="settings_permission_center_desc">Manage all system permissions</string>
+    <string name="settings_accessibility_setup">Accessibility Setup</string>
+    <string name="settings_accessibility_setup_desc">Configure phone automation permissions</string>
+    <string name="settings_env_check">Environment Check</string>
+    <string name="env_check">Environment check</string>
+    <string name="settings_env_check_desc">Check installation status of common environments</string>
+    <string name="settings_env_vars">Environment Variables</string>
+    <string name="settings_env_vars_desc">Manage global environment variables</string>
+    <string name="settings_tool_approvals">Tool Approvals</string>
+    <string name="settings_tool_approvals_desc">Approve tool execution requests</string>
+    <string name="settings_security_rules">Security Rules</string>
+    <string name="settings_security_rules_desc">Manage \"Don\'t ask again\" rules for tool approvals</string>
+    <string name="settings_tools_list">Tools List</string>
+    <string name="settings_tools_list_desc">View all available tools</string>
+    <string name="settings_plugins">Plugins</string>
+    <string name="settings_plugins_desc">Manage installed plugins</string>
+    <string name="settings_event_hooks">Event Hooks</string>
+    <string name="settings_event_hooks_desc">Manage system event hooks and quiet hours</string>
+    <string name="settings_logs">Logs</string>
+    <string name="settings_debug_info_desc_new">Collect diagnostic data</string>
+    <string name="settings_search_hint">Search settings</string>
+    <!-- 智能体配置扩展 -->
+
+    <string name="agent_basic_info">Basic Info</string>
+    <string name="agent_quick_config">Quick Config</string>
+    <string name="agent_heartbeat_config">Heartbeat Config</string>
+    <string name="agent_dream_system">Dream System</string>
+    <string name="agent_mcp_config">MCP Config</string>
+    <string name="agent_acp_config">ACP Config</string>
+    <string name="agent_tool_management">Tool Management</string>
+    <string name="agent_cron_jobs">Cron Jobs</string>
+    <string name="agent_channel_config">Channel Config</string>
+    <string name="agent_memories_section">memories</string>
+    <string name="agent_file_count">%1$d files</string>
+    <string name="agent_saved">Saved</string>
+    <string name="agent_skill_installed">Skill %1$s installed successfully</string>
+    <string name="agent_skill_install_failed">Install failed: %1$s</string>
+    <string name="agent_create">Create Agent</string>
+    <string name="agent_name_hint">Give the agent a name (optional)</string>
+    <string name="agent_default_model">Default Model</string>
+    <string name="agent_select_model_hint">Tap to select model</string>
+    <string name="agent_fallback_model">Fallback Model</string>
+    <string name="agent_fallback_model_hint">Not set (used when primary model fails)</string>
+    <string name="agent_complex_model">Complex Model</string>
+    <string name="agent_complex_model_hint">Not set (auto-route for complex tasks)</string>
+    <string name="agent_initial_skills">Initial Skills</string>
+    <string name="agent_initial_skills_hint">Select skills to enable on agent startup</string>
+    <string name="agent_tool_switch">Tool Switches</string>
+    <string name="agent_tool_switch_hint">Select tools the agent can use</string>
+    <string name="agent_avatar_from_gallery">Choose from gallery</string>
+    <string name="agent_avatar_default">Use default avatar</string>
+    <string name="agent_nickname_hint">Enter nickname</string>
+    <string name="agent_enable">Enable</string>
+    <string name="agent_enable_desc">When disabled, this agent won\'t run in the background</string>
+    <string name="agent_search_skills">Search skills...</string>
+    <string name="agent_store">Store</string>
+    <string name="agent_install">Install</string>
+    <string name="agent_load">Load</string>
+    <string name="agent_sync">Sync</string>
+    <string name="agent_skills_synced">Synced %1$d skills to skill pool</string>
+    <string name="agent_no_skills_to_sync">No skills to sync</string>
+    <string name="agent_delete_skill">Delete Skill</string>
+    <string name="agent_enable_skill">Enable this skill</string>
+    <string name="agent_load_from_pool">Load from skill pool</string>
+    <string name="agent_no_skills_in_pool">No skills available to load or update from skill pool</string>
+    <string name="agent_skill_update_available">Update available: %1$s �?v%2$s</string>
+    <string name="agent_new">New</string>
+    <string name="agent_update">Update</string>
+    <string name="agent_search_tools">Search tools...</string>
+    <string name="agent_no_tools">No tools</string>
+    <string name="agent_params">Parameters</string>
+    <string name="agent_confirm_delete">Confirm Delete</string>
+    <string name="agent_delete_confirm">Delete agent \"%1$s\"?\n\nNote: The agent\'s workspace data folder will not be deleted, only the configuration is removed. This action cannot be undone.</string>
+    <string name="agent_install_result">Install Result</string>
+    <string name="agent_delete_file">Delete File</string>
+    <string name="agent_delete_file_confirm">Delete %1$s? This action cannot be undone.</string>
+    <string name="agent_skills_title">Agent Skills</string>
+    <string name="agent_install_skills_first">Please install skills in the skill pool first</string>
+    <!-- 插件管理 -->
+    <string name="plugin_add">Add plugin</string>
+    <string name="plugin_no_plugins">No plugins</string>
+    <string name="plugin_add_hint">Tap + to add a plugin</string>
+    <string name="plugin_create">Create plugin</string>
+    <string name="plugin_name">Plugin name</string>
+    <string name="plugin_desc">Description</string>
+    <string name="plugin_tool_name">Tool name</string>
+    <string name="plugin_tool_desc">Tool description</string>
+    <string name="plugin_script">Script (JS)</string>
+    <string name="plugin_tool_label">Tool:</string>
+    <string name="store_title">Skill Store</string>
+    <string name="store_search_hint">Search skills...</string>
+    <string name="store_installing_nodejs">Installing Node.js environment...</string>
+    <string name="store_checking_nodejs">Checking Node.js environment...</string>
+    <string name="store_nodejs_install_failed">Node.js installation failed</string>
+    <string name="store_go_to_env_check">Go to Environment Check</string>
+    <string name="store_searching">Searching...</string>
+    <string name="store_no_skill_data">No skill data available</string>
+    <string name="store_need_linux_nodejs">Skill Store requires Linux environment and Node.js. Please initialize first.</string>
+    <string name="store_reload">Reload</string>
+    <string name="store_no_matching_skills">No matching skills found</string>
+    <string name="store_try_other_keywords">Try other keywords</string>
+    <string name="store_hot_picks">Popular</string>
+    <string name="store_all_skills">All Skills</string>
+    <string name="store_installing">Installing...</string>
+    <string name="store_installed">Installed</string>
+    <string name="store_reinstall">Reinstall</string>
+    <string name="store_install_confirm">Install the following skill?</string>
+    <string name="store_security_warning">This skill has not passed security review. Confirm the source is trusted before installing.</string>
+    <string name="store_security_passed">Security review passed</string>
+    <string name="store_intro">Introduction</string>
+    <string name="store_category">Category: %1$s</string>
+    <string name="store_version">Version: %1$s</string>
+    <!-- 使用分析 -->
+
+    <string name="insights_usage_analysis">Usage Analytics</string>
+    <string name="insights_refresh">Refresh</string>
+    <string name="insights_days">%1$d days</string>
+    <string name="insights_agent_chat_count">Agent chat count</string>
+    <string name="insights_no_data">No data</string>
+    <string name="insights_times">%1$d times</string>
+    <string name="insights_overview">Overview</string>
+    <string name="insights_session_count">Sessions</string>
+    <string name="insights_input_token">Input Tokens</string>
+    <string name="insights_output_token">Output Tokens</string>
+    <string name="insights_completed">Completed</string>
+    <string name="insights_skill_ranking">Skill Ranking</string>
+    <string name="insights_tool_ranking">Tool Ranking</string>
+    <string name="insights_activity_pattern">Activity Pattern</string>
+    <string name="insights_peak_hours">Peak Hours</string>
+    <string name="insights_peak_day">Peak Day</string>
+    <string name="insights_token_trend">Token Usage Trend</string>
+    <string name="insights_input">Input</string>
+    <string name="insights_output">Output</string>
+    <string name="insights_token_consumption">Token Consumption</string>
+    <string name="insights_to">to</string>
+    <string name="insights_by_model">By Model</string>
+    <string name="insights_no_stats">No statistics available</string>
+    <string name="insights_total">Total</string>
+    <string name="insights_total_calls">Total Calls</string>
+    <string name="insights_cache_read">Cache Read</string>
+    <string name="insights_cache_write">Cache Write</string>
+    <string name="insights_call_times">%1$d times</string>
+    <string name="insights_mon">Mon</string>
+    <string name="insights_tue">Tue</string>
+    <string name="insights_wed">Wed</string>
+    <string name="insights_thu">Thu</string>
+    <string name="insights_fri">Fri</string>
+    <string name="insights_sat">Sat</string>
+    <string name="insights_sun">Sun</string>
+    <!-- 导航扩展 -->
+
+    <string name="nav_inbox">Inbox</string>
+    <string name="nav_insights">Insights</string>
+    <string name="nav_create_new">New</string>
+    <!-- 新建抽屉 -->
+
+    <string name="drawer_new_chat">New Chat</string>
+    <string name="drawer_new_chat_desc">Start a new conversation with an agent</string>
+    <string name="drawer_new_group">New Group</string>
+    <string name="drawer_new_group_desc">Create a multi-agent collaboration group</string>
+    <string name="drawer_new_session_group_desc">Create a session group</string>
+    <string name="drawer_new_agent">New Agent</string>
+    <string name="drawer_new_agent_desc">Create a new agent</string>
+    <!-- 历史数据对话框 -->
+
+    <string name="dialog_previous_data_found">Previous Data Found</string>
+    <string name="dialog_previous_data_desc">Previous HippyAgent data detected on this device. Choose how to handle it:</string>
+    <string name="dialog_file_count">%1$s · %2$d files</string>
+    <string name="dialog_merge_mode">Merge mode:</string>
+    <string name="dialog_start_fresh">Start Fresh</string>
+    <string name="dialog_keep_current">Keep Current Only</string>
+    <string name="dialog_keep_current_desc">Discard historical data, keep current workspace content</string>
+    <string name="dialog_merge_data">Merge Data</string>
+    <string name="dialog_merge_data_desc">Merge historical data into current workspace, newer files take precedence</string>
+    <string name="dialog_keep_history">Keep History Only</string>
+    <string name="dialog_keep_history_desc">Overwrite current workspace with historical data</string>
+    <!-- 频道配置 -->
+
+    <string name="channel_config">Channel Config</string>
+    <string name="channel_config_desc">Configure message push channels for the agent. Supports Webhook push and bidirectional communication.</string>
+    <string name="channel_configured">Configured</string>
+    <string name="channel_qr_bind">Scan QR to bind</string>
+    <string name="channel_manual_config">Or fill in manually:</string>
+    <string name="channel_save_config">Save Config</string>
+    <string name="channel_delete_config">Delete Config</string>
+    <string name="channel_config_saved">Channel config saved</string>
+    <string name="channel_feishu">Feishu</string>
+    <string name="channel_feishu_desc">Send messages via Feishu bot, supports QR auto-configuration</string>
+    <string name="channel_dingtalk">DingTalk</string>
+    <string name="channel_dingtalk_desc">Send messages via DingTalk bot, supports QR auto-configuration</string>
+    <string name="channel_wechat">WeCom</string>
+    <string name="channel_wechat_desc">Send messages via WeCom bot, supports QR auto-configuration</string>
+    <string name="channel_weixin">WeChat</string>
+    <string name="channel_weixin_desc">Send and receive messages via WeChat iLink Bot, supports QR login</string>
+    <string name="channel_qq">QQ Bot</string>
+    <string name="channel_qq_desc">Send and receive messages via QQ Bot Official API</string>
+    <string name="channel_telegram">Telegram</string>
+    <string name="channel_telegram_desc">Send and receive messages via Telegram Bot API</string>
+    <string name="channel_discord">Discord</string>
+    <string name="channel_discord_desc">Send messages via Discord Webhook</string>
+    <string name="channel_qr_login">%1$s QR Login</string>
+    <string name="channel_qr_start_hint">Tap to start QR binding for %1$s</string>
+    <string name="channel_start_bind">Start Binding</string>
+    <string name="channel_fetching_qr">Fetching QR code...</string>
+    <string name="channel_qr_code_desc">%1$s login QR code</string>
+    <string name="channel_qr_decode_failed">QR code decode failed</string>
+    <string name="channel_scan_qr_hint">Scan the QR code above with %1$s</string>
+    <string name="channel_qr_expiry">QR code expires in 5 minutes</string>
+    <string name="channel_qr_saved_hint">QR code saved. Please scan from gallery in %1$s</string>
+    <string name="channel_app_not_installed">%1$s not installed. Please scan with another device</string>
+    <string name="channel_open_app_scan">Open %1$s to scan</string>
+    <string name="channel_scanned_confirm">Scanned. Please confirm login on your phone.</string>
+    <string name="channel_bind_success">Binding successful!</string>
+    <!-- 公共记忆 -->
+
+    <string name="memory_common">Common Memory</string>
+    <string name="memory_search_hint">Search memories</string>
+    <string name="memory_all">All</string>
+    <string name="memory_type_identity">Identity</string>
+    <string name="memory_type_preference">Preference</string>
+    <string name="memory_type_goal">Goal</string>
+    <string name="memory_type_project">Project</string>
+    <string name="memory_type_habit">Habit</string>
+    <string name="memory_type_decision">Decision</string>
+    <string name="memory_type_constraint">Constraint</string>
+    <string name="memory_type_relationship">Relationship</string>
+    <string name="memory_type_episode">Episode</string>
+    <string name="memory_type_reflection">Reflection</string>
+    <string name="memory_count">%1$d memories total, %2$d active</string>
+    <string name="memory_no_data">No memory data yet.\nAfter chatting with an agent, it will automatically extract key information from conversations.</string>
+    <string name="memory_delete">Delete Memory</string>
+    <string name="memory_delete_confirm">Delete this memory? This action cannot be undone.</string>
+    <string name="memory_confidence">Confidence</string>
+    <string name="memory_importance">Importance</string>
+    <!-- 收件箱 -->
+
+    <string name="inbox_mark_all_read">Mark all read</string>
+    <string name="inbox_approval_requests">Approval Requests</string>
+    <string name="inbox_push_messages">Push Messages</string>
+    <string name="inbox_no_approvals">No approval records</string>
+    <string name="inbox_no_events">No push messages</string>
+    <string name="inbox_approved">Approved</string>
+    <string name="inbox_denied">Denied</string>
+    <string name="inbox_deny">Deny</string>
+    <string name="inbox_timed_out">Timed out</string>
+    <string name="inbox_findings_count">%1$d findings</string>
+    <string name="inbox_approve">Approve</string>
+    <!-- 引导 -->
+
+    <string name="onboarding_welcome">Welcome to HippyAgent</string>
+    <string name="onboarding_welcome_desc">Your smart assistant runs AI Agents on your phone, automates tasks, and keeps all data locally for privacy.</string>
+    <string name="onboarding_config_provider">Configure Model Provider</string>
+    <string name="onboarding_config_provider_desc">Supports GPT-4o, Claude, DeepSeek, Gemini and more. You can also connect to local LM Studio or llama.cpp.</string>
+    <string name="onboarding_authorize_permissions">Authorize Core Permissions</string>
+    <string name="onboarding_authorize_permissions_desc">Enable accessibility service, notification listener and other permissions so the Agent can operate your phone and respond to messages.</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_get_started_desc">Create your first Agent or start from a preset template. You can revisit this guide anytime in Settings.</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_have_api_key">Already have an API Key? Configure now</string>
+    <!-- 启动初始化 -->
+
+    <string name="startup_initializing">Initializing...</string>
+    <string name="startup_starting_linux">Starting Linux environment...</string>
+    <string name="startup_start_linux">Start Linux environment</string>
+    <string name="startup_linux_failed">Linux environment failed to start. Some features unavailable.</string>
+    <!-- 通知渠道 -->
+    <string name="notification_channel_heartbeat">Heartbeat reminder</string>
+    <string name="notification_channel_heartbeat_desc">Scheduled heartbeat notification</string>
+    <string name="notification_channel_task_complete">Task complete</string>
+    <string name="notification_channel_task_complete_desc">Agent task complete notification</string>
+    <string name="notification_channel_error">Error alert</string>
+    <string name="notification_channel_error_desc">Agent error notification</string>
+    <string name="notification_channel_agent_message">Agent message</string>
+    <string name="notification_channel_agent_message_desc">New agent message notification</string>
+    <string name="notification_channel_permission_request">Permission request</string>
+    <string name="notification_channel_permission_request_desc">Background accessibility permission request</string>
+    <!-- 通知内容 -->
+    <string name="notification_mission_complete">Mission complete</string>
+    <string name="notification_mission_success">Success</string>
+    <string name="notification_mission_fail">Failed</string>
+    <string name="notification_tool_approval_title">%1$s tool approval: %2$s</string>
+    <string name="notification_tool_approval_desc">Agent %1$s requests to execute %2$s</string>
+    <string name="notification_allow_once">Allow once</string>
+    <string name="notification_always_allow">Always allow</string>
+    <string name="notification_deny">Deny</string>
+    <string name="notification_deny_always">Deny always</string>
+    <string name="notification_permission_request_title">Permission request</string>
+    <string name="notification_permission_request_desc">Agent requests permission to execute operation: %1$s%2$s</string>
+    <string name="notification_always_allow_permission">Always allow</string>
+    <!-- 设备端模型页面 -->
+    <string name="ondevice_model_title">On-device model</string>
+    <string name="ondevice_model_tab_huggingface">Huggingface</string>
+    <string name="ondevice_model_tab_management">Model management</string>
+    <string name="ondevice_model_download_manager">Download manager</string>
+    <string name="ondevice_model_search_hf">Search Huggingface models...</string>
+    <string name="ondevice_model_search_input">Enter keywords to search models</string>
+    <string name="ondevice_model_search_management">Search model name or description...</string>
+    <string name="ondevice_model_no_downloads">No download tasks</string>
+    <string name="ondevice_model_settings">Settings</string>
+    <string name="ondevice_model_auto_unload">Auto unload engine (5 min idle)</string>
+    <string name="ondevice_model_download">Download model</string>
+    <string name="ondevice_model_pause">Pause</string>
+    <string name="ondevice_model_resume_download">Resume download</string>
+    <string name="ondevice_model_engine_loading">Engine loading...</string>
+    <string name="ondevice_model_engine_loaded">Engine loaded (%1$s)</string>
+    <string name="ondevice_model_unload_engine">Unload engine</string>
+    <string name="ondevice_model_delete_model">Delete model</string>
+    <string name="ondevice_model_engine_load_failed">Engine load failed</string>
+    <string name="ondevice_model_engine_unloading">Engine unloading...</string>
+    <string name="ondevice_model_download_failed">Download failed</string>
+    <string name="ondevice_model_retry_download">Retry download</string>
+    <string name="ondevice_model_backend">Backend: %1$s</string>
+    <string name="ondevice_model_backend_auto">Auto (GPU→CPU)</string>
+    <string name="ondevice_model_load_engine">Load engine</string>
+    <string name="ondevice_model_cap_text">Text</string>
+    <string name="ondevice_model_cap_vision">Vision</string>
+    <string name="ondevice_model_cap_audio">Audio</string>
+    <string name="ondevice_model_cap_thinking">Reasoning</string>
+    <string name="ondevice_model_cap_tool_call">Tool calling</string>
+    <string name="ondevice_model_ram_requirement">Min %1$dGB RAM / Recommended %2$dGB</string>
+    <string name="ondevice_model_download_button">Download</string>
+    <!-- 频道配置扩展 -->
+    <string name="channel_config_feishu_name">Feishu</string>
+    <string name="channel_config_feishu_desc">Send messages via Feishu bot, supports QR code auto-config</string>
+    <string name="channel_config_dingtalk_name">DingTalk</string>
+    <string name="channel_config_dingtalk_desc">Send messages via DingTalk bot, supports QR code auto-config</string>
+    <string name="channel_config_wechat_name">WeCom</string>
+    <string name="channel_config_wechat_desc">Send messages via WeCom bot, supports QR code auto-config</string>
+    <string name="channel_config_weixin_name">WeChat</string>
+    <string name="channel_config_weixin_desc">Send/receive messages via WeChat iLink Bot, supports QR login</string>
+    <string name="channel_config_qq_name">QQ Bot</string>
+    <string name="channel_config_qq_desc">Send/receive messages via QQ Bot Official API</string>
+    <string name="channel_config_telegram_name">Telegram</string>
+    <string name="channel_config_telegram_desc">Send/receive messages via Telegram Bot API</string>
+    <string name="channel_config_discord_name">Discord</string>
+    <string name="channel_config_discord_desc">Send messages via Discord Webhook</string>
+    <string name="channel_config_webhook_url">Webhook URL</string>
+    <string name="channel_config_app_id">App ID</string>
+    <string name="channel_config_app_secret">App Secret</string>
+    <string name="channel_config_secret_key">Secret key</string>
+    <string name="channel_config_secret_key_desc">SEC... (optional, for signature verification)</string>
+    <string name="channel_config_corp_id">Corp ID</string>
+    <string name="channel_config_corp_id_desc">ww... (required for receiving messages)</string>
+    <string name="channel_config_agent_id">Agent ID</string>
+    <string name="channel_config_agent_id_desc">1000002 (required for receiving messages)</string>
+    <string name="channel_config_bot_token">Bot Token</string>
+    <string name="channel_config_bot_token_desc_qq">QQ bot App ID</string>
+    <string name="channel_config_bot_token_desc_qq_secret">QQ bot Client Secret</string>
+    <string name="channel_config_bot_token_desc_weixin">Auto-obtained after QR login (can also be filled manually)</string>
+    <string name="channel_config_api_address">API address</string>
+    <string name="channel_config_auto_obtain">Auto-obtained after QR login</string>
+    <string name="channel_config_feishu_webhook_hint">https://open.feishu.cn/open-apis/bot/v2/hook/...</string>
+    <string name="channel_config_dingtalk_webhook_hint">https://oapi.dingtalk.com/robot/send?access_token=...</string>
+    <string name="channel_config_wechat_webhook_hint">https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=...</string>
+    <string name="channel_config_weixin_api_url_hint">https://ilinkai.weixin.qq.com</string>
+    <string name="channel_config_telegram_bot_token_hint">123456:ABC-DEF...</string>
+    <string name="channel_config_discord_webhook_hint">https://discord.com/api/webhooks/...</string>
+    <string name="startup_checking_env">Checking required environments...</string>
+    <string name="startup_installing_missing">Installing missing environments...</string>
+    <string name="startup_installing">Installing %1$s...</string>
+    <string name="startup_all_ready">All required environments are ready</string>
+    <string name="startup_partial_failure">Some environments failed to install. You can install them manually later.</string>
+    <string name="startup_init_env_wait">Initializing environment, please wait...</string>
+    <string name="startup_skip_setup">Skip, set up later</string>
+    <string name="startup_enter_app">Enter App</string>
+    <!-- 核心文件 -->
+
+    <string name="core_files_no_files">No core files</string>
+    <string name="core_files_drag_sort">Drag to reorder</string>
+    <string name="core_files_not_created">Not created</string>
+    <string name="core_files_click_to_create">Tap to edit and create</string>
+    <string name="core_files_edit">Edit %1$s</string>
+    <string name="refresh">Refresh</string>
+    <!-- 权限中心 -->
+
+    <string name="perm_notification">Notification</string>
+    <string name="perm_notification_desc">Read and reply to notifications</string>
+    <string name="perm_camera">Camera</string>
+    <string name="perm_camera_desc">Take photos and record videos</string>
+    <string name="perm_microphone">Microphone</string>
+    <string name="perm_microphone_desc">Voice input and recording</string>
+    <string name="perm_location">Location</string>
+    <string name="perm_location_desc">Get current location info</string>
+    <string name="perm_contacts">Contacts</string>
+    <string name="perm_contacts_desc">Read contact information</string>
+    <string name="perm_sms">SMS</string>
+    <string name="perm_sms_desc">Read and send SMS messages</string>
+    <string name="perm_phone">Phone</string>
+    <string name="perm_phone_desc">Make calls and read call logs</string>
+    <string name="perm_calendar">Calendar</string>
+    <string name="perm_calendar_desc">Read and edit calendar events</string>
+    <string name="perm_storage">Storage</string>
+    <string name="perm_storage_desc">Read and write files</string>
+    <string name="perm_bluetooth">Bluetooth</string>
+    <string name="perm_bluetooth_desc">Scan and connect Bluetooth devices</string>
+    <string name="perm_wifi">WiFi</string>
+    <string name="perm_wifi_desc">Read WiFi network info</string>
+    <string name="perm_overlay">Overlay</string>
+    <string name="perm_overlay_desc">Display over other apps</string>
+    <string name="perm_alarm">Exact Alarm</string>
+    <string name="perm_alarm_desc">Precise scheduled tasks</string>
+    <string name="perm_cat_communication">Communication</string>
+    <string name="perm_cat_hardware">Hardware</string>
+    <string name="perm_cat_data">Data</string>
+    <string name="perm_cat_system">System</string>
+    <string name="perm_granted_count">%1$d / %2$d granted</string>
+    <string name="perm_center_hint">Agent will request permissions as needed. Pre-authorizing common permissions is recommended to avoid conversation interruptions.</string>
+    <string name="perm_granted">Granted</string>
+    <string name="perm_not_granted">Not granted</string>
+    <!-- 模型提供商详情 -->
+
+    <string name="provider_no_providers">No model providers, tap + to add</string>
+    <string name="provider_default_suffix"> (default)</string>
+    <string name="provider_no_url">URL not configured</string>
+    <string name="provider_model_count">Models: %1$d</string>
+    <string name="provider_add_title">Add Model Provider</string>
+    <string name="provider_add_model">Add model</string>
+    <string name="provider_id_label">Provider ID</string>
+    <string name="provider_id_hint">e.g. openai, deepseek, ollama</string>
+    <string name="provider_display_name">Display Name</string>
+    <string name="provider_protocol_type">Protocol Type</string>
+    <string name="provider_protocol_openai_compat">OpenAI Compatible</string>
+    <string name="provider_model_list">Model List (%1$d)</string>
+    <string name="provider_no_models_hint">No models, tap + to add or fetch from server</string>
+    <string name="provider_test_connection">Test Connection</string>
+    <string name="provider_fetch_models">Fetch Models</string>
+    <string name="provider_edit_api_key">Edit API Key</string>
+    <string name="provider_switch_protocol">Switch Protocol</string>
+    <string name="provider_set_default">Set as Default</string>
+    <string name="provider_edit_api_key_title">Edit API Key</string>
+    <string name="provider_enter_new_api_key">Enter new API Key</string>
+    <string name="provider_switch_protocol_title">Switch Protocol Type</string>
+    <string name="provider_current_protocol">Current protocol: %1$s</string>
+    <string name="provider_switch">Switch</string>
+    <!-- 模型配置对话框 -->
+
+    <string name="model_edit_title">Edit Model</string>
+    <string name="model_add_title">Add Model</string>
+    <string name="model_name_label">Model Name</string>
+    <string name="model_name_hint">e.g. gpt-4, claude-3-sonnet</string>
+    <string name="model_display_name_optional">Display Name (optional)</string>
+    <!-- Dream 模式 -->
+
+    <string name="dream_title">Dream Mode</string>
+    <string name="dream_desc">Dream mode allows the Agent to automatically perform memory consolidation, knowledge reinforcement and other background tasks during idle time, similar to the human sleep process.</string>
+    <string name="dream_enable">Enable Dream Mode</string>
+    <string name="dream_enable_desc">Allow Agent to perform maintenance tasks in background</string>
+    <string name="dream_interval_hours">Execution Interval (hours)</string>
+    <string name="dream_charge_only">Only when charging</string>
+    <string name="dream_wifi_required">Require WiFi</string>
+    <string name="dream_idle_only">Only when device idle</string>
+    <string name="dream_retention_days">Memory retention (days)</string>
+    <string name="dream_trigger_now">Run Dream once now</string>
+    <string name="dream_executing">Executing...</string>
+    <string name="dream_history">Execution History</string>
+    <string name="dream_elapsed_ms">Elapsed: %1$dms</string>
+    <string name="dream_curator_title">Skill Curator</string>
+    <string name="dream_auto_skill_mgmt">Auto Skill Management</string>
+    <string name="dream_curator_desc">Curator automatically extracts, merges, and optimizes skills from execution history during Dream, making the Agent smarter over time.</string>
+    <string name="dream_stat_extracted">Extracted</string>
+    <string name="dream_stat_active">Active</string>
+    <string name="dream_stat_archived">Archived</string>
+    <string name="dream_skill_usage_count">Used %1$d times</string>
+    <string name="dream_no_auto_skills">No auto-extracted skills yet. Skills will be generated automatically after Dream runs.</string>
+    <!-- MCP 配置 -->
+
+    <string name="mcp_client_title">MCP Client</string>
+    <string name="mcp_config_saved">MCP config saved</string>
+    <string name="mcp_no_clients">No MCP clients</string>
+    <string name="mcp_add_hint">Tap + in the top right to add</string>
+    <string name="mcp_transport_label">Transport: %1$s</string>
+    <string name="mcp_timeout_label">Timeout: %1$ds</string>
+    <string name="mcp_add_title">Add MCP Client</string>
+    <string name="mcp_client_key">Client Key</string>
+    <string name="mcp_client_name">Client Name</string>
+    <string name="mcp_command_label">Command</string>
+    <string name="mcp_timeout_seconds">Execution Timeout (seconds)</string>
+    <string name="mcp_edit_title">Edit MCP Client</string>
+    <string name="mcp_description_optional">Description (optional)</string>
+    <string name="mcp_cwd_optional">Working Directory (optional)</string>
+    <!-- 工具审批 -->
+
+    <string name="tool_approval_desc">Configure tool call approval policies to ensure sensitive operations require user confirmation.</string>
+    <string name="tool_approval_required">Require Approval</string>
+    <string name="tool_approval_required_desc">Sensitive tool calls require user confirmation</string>
+    <string name="tool_approval_timeout_seconds">Approval Timeout (seconds)</string>
+    <string name="tool_approval_pending">Pending Approval</string>
+    <string name="tool_approval_waiting">Waiting for Approval</string>
+    <string name="tool_approval_deny">Deny</string>
+    <!-- 安全规则 -->
+
+    <string name="security_no_rules">No rules</string>
+    <string name="security_rules_hint">When you select \"Always allow\" or \"Don\'t allow again\" during tool approval, rules will appear here</string>
+    <string name="security_rules_match_hint">These rules are automatically matched during tool approval. Tap the delete icon to revoke a rule.</string>
+    <string name="security_clear_all_title">Clear All Rules</string>
+    <string name="security_clear_all_confirm">Are you sure you want to clear all security rules? All tool approvals will be re-asked after clearing.</string>
+    <string name="security_clear">Clear</string>
+    <string name="security_action_allow_always">Always Allow</string>
+    <string name="security_action_deny_always">Don\'t Allow Again</string>
+    <string name="security_delete_rule">Delete Rule</string>
+    <!-- 工具列表/详情 -->
+
+    <string name="tools_search_hint">Search tools</string>
+    <string name="tools_no_match">No matching tools found</string>
+    <string name="tools_not_exist">Tool does not exist</string>
+    <string name="tools_name_label">Name: %1$s</string>
+    <string name="tools_desc_label">Description: %1$s</string>
+    <string name="tools_type_label">Type: %1$s</string>
+    <string name="tools_required_label">Required: %1$s</string>
+    <string name="tools_required_yes">Yes</string>
+    <string name="tools_required_no">No</string>
+    <string name="tools_params_count">Parameters: %1$d</string>
+    <!-- 关于 -->
+
+    <string name="about_subtitle">Android Agent Runtime Framework</string>
+    <string name="about_core_features">Core Features</string>
+    <string name="about_feature_react">ReAct Agent Loop</string>
+    <string name="about_feature_react_desc">Multi-round reasoning-action loop</string>
+    <string name="about_feature_multi_model">Multi-Model Support</string>
+    <string name="about_feature_multi_model_desc">OpenAI / DeepSeek / Ollama / Local Models</string>
+    <string name="about_feature_mcp">MCP Protocol</string>
+    <string name="about_feature_mcp_desc">Model Context Protocol Client</string>
+    <string name="about_feature_tools">Tool System</string>
+    <string name="about_feature_tools_desc">File/Shell/Git/Gradle/Android Native</string>
+    <string name="about_feature_memory">Memory Management</string>
+    <string name="about_feature_memory_desc">Short-term/Long-term/Semantic Search/Dream Optimization</string>
+    <string name="about_feature_collab">Multi-Agent Collaboration</string>
+    <string name="about_feature_collab_desc">Group Chat / Cross-Agent Communication</string>
+    <string name="about_feature_skills">Skill System</string>
+    <string name="about_feature_skills_desc">Extensible Skill Packs + Security Scanning</string>
+    <string name="about_feature_plugins">Plugin System</string>
+    <string name="about_feature_plugins_desc">Dynamic Plugin Load/Unload</string>
+    <string name="about_feature_heartbeat">Heartbeat Mechanism</string>
+    <string name="about_feature_heartbeat_desc">Scheduled Tasks + Active Hours</string>
+    <string name="about_feature_linux">ALinux Container</string>
+    <string name="about_feature_linux_desc">Embedded Ubuntu 24.04 Linux Environment</string>
+    <string name="about_tech_stack">Tech Stack</string>
+    <string name="about_opensource_license">Open Source License</string>
+    <string name="about_opensource_desc">This project is open source under the Apache 2.0 License</string>
+    <!-- API 密钥管理 -->
+
+    <string name="api_key_management">API Key Management</string>
+    <string name="api_key_no_keys">No API keys, tap + to add</string>
+    <string name="api_key_configured">Configured</string>
+    <string name="api_key_not_configured">Not Configured</string>
+    <string name="api_key_hide">Hide</string>
+    <string name="api_key_show">Show</string>
+    <string name="api_key_add_title">Add API Key</string>
+    <string name="api_key_provider_id_hint">e.g. openai, deepseek</string>
+    <!-- 记忆压缩 -->
+
+    <string name="memory_compaction">Memory Compaction</string>
+    <string name="memory_compaction_desc">Automatically compress lengthy memories, retain important info, remove redundant content, and improve memory retrieval efficiency.</string>
+    <string name="memory_auto_compact">Auto Compress</string>
+    <string name="memory_auto_compact_desc">Auto-compress when memory exceeds threshold</string>
+    <string name="memory_compact_threshold">Compression Threshold (characters)</string>
+    <string name="memory_keep_recent">Keep Recent Memories (count)</string>
+    <!-- 环境检查 -->
+
+    <string name="env_cat_essential">Essential</string>
+    <string name="env_cat_common">Common</string>
+    <string name="env_cat_network">Network</string>
+    <string name="env_cat_voice">Voice Extensions</string>
+    <string name="env_system_diagnostics">System Diagnostics</string>
+    <string name="env_collecting_info">Collecting system info...</string>
+    <string name="env_linux_initializing">Linux environment initializing</string>
+    <string name="env_linux_auto_init">Auto-initializing Linux environment, please wait...</string>
+    <string name="env_checking">Checking environment...</string>
+    <string name="env_overview">Environment Overview</string>
+    <string name="env_ready_count">%1$d / %2$d ready</string>
+    <string name="env_recheck">Re-check</string>
+    <string name="env_installed">Installed</string>
+    <string name="env_not_installed">Not Installed</string>
+    <string name="env_pending_check">Pending Check</string>
+    <string name="env_unsupported">Unsupported</string>
+    <string name="env_pending_download">Pending Download</string>
+    <string name="env_ready">Ready</string>
+    <string name="env_installing">Installing</string>
+    <string name="env_waiting">Waiting</string>
+    <string name="env_install_btn">Install</string>
+    <string name="env_install_success">Install Success</string>
+    <string name="env_install_failed">Install Failed</string>
+    <string name="env_native_always_available">Android native component, always available</string>
+    <string name="env_needs_api_35">Requires Android 15+ (API 35) device</string>
+    <string name="env_tts_no_download">Uses Android system TTS engine, no download needed</string>
+    <string name="env_android_version">Android Version</string>
+    <string name="env_device_model">Device Model</string>
+    <string name="env_cpu_arch">CPU Architecture</string>
+    <string name="env_jvm_memory">JVM Memory</string>
+    <string name="env_storage_space">Storage Space</string>
+    <string name="env_app_usage">App Usage</string>
+    <string name="env_available_processors">Available Processors</string>
+    <string name="env_cannot_get">Cannot retrieve</string>
+    <string name="env_get_failed">Retrieval failed</string>
+    <string name="env_cores">%1$d cores</string>
+    <string name="env_storage_available">%1$s available / %2$s total</string>
+    <string name="env_no_install_command">No install command</string>
+    <string name="env_clearing_locks">Clearing lock files...</string>
+    <string name="env_updating_packages">Updating package list...</string>
+    <string name="env_installing_name">Installing %1$s...</string>
+    <string name="env_installing_deps">Installing dependencies...</string>
+    <string name="env_adding_nodesource">Adding NodeSource repository (Node.js 22)...</string>
+    <string name="env_installing_nodejs">Installing Node.js 22...</string>
+    <string name="env_install_verify_failed">Install command executed successfully, but verification failed.</string>
+    <string name="env_installed_with_path">Installed (%1$s)</string>
+    <string name="env_path_not_executable">Path exists but not executable (%1$s)</string>
+    <string name="env_version_unavailable">Version info unavailable</string>
+    <!-- 环境变量 -->
+
+    <string name="envvar_add_title">Add Environment Variable</string>
+    <string name="envvar_key_label">Variable Name</string>
+    <string name="envvar_value_label">Variable Value</string>
+    <string name="envvar_no_vars">No environment variables</string>
+    <string name="envvar_add_hint">Tap + in the top right to add</string>
+    <string name="envvar_empty_value">(empty)</string>
+    <!-- 语言 -->
+
+    <string name="language_select">Select Language</string>
+    <!-- 通知设置 -->
+
+    <string name="notification_settings">Notification Settings</string>
+    <string name="notification_enable">Enable Notifications</string>
+    <string name="notification_need_permission">System notification permission required</string>
+    <string name="notification_types">Notification Types</string>
+    <string name="notification_heartbeat_title">Heartbeat Notification</string>
+    <string name="notification_heartbeat_desc">Agent heartbeat execution results</string>
+    <string name="notification_message_title">Message Notification</string>
+    <string name="notification_message_desc">Alert on new messages</string>
+    <string name="notification_error_title">Error Notification</string>
+    <string name="notification_error_desc">Alert on Agent runtime errors</string>
+    <!-- 调试信息 -->
+
+    <string name="debug_app_info">App Info</string>
+    <string name="debug_device">Device</string>
+    <string name="debug_runtime">Runtime</string>
+    <string name="debug_storage">Storage</string>
+    <string name="debug_data">Data</string>
+    <string name="debug_recent_errors">Recent Errors</string>
+    <string name="debug_error_label">Error</string>
+    <!-- 导出日志 -->
+
+    <string name="log_exporting">Exporting...</string>
+    <string name="log_export_btn">Export</string>
+    <string name="log_stop">Stop</string>
+    <string name="log_live_log">Live Log</string>
+    <string name="log_clear">Clear</string>
+    <string name="log_filter_all">All</string>
+    <string name="log_only_hippy">Hippy Only</string>
+    <string name="log_waiting">Waiting for logs...</string>
+    <string name="log_start_hint">Tap \"Live Log\" to start viewing</string>
+    <string name="log_no_match">No matching logs</string>
+    <string name="log_auto_scroll">Auto Scroll</string>
+    <string name="log_manual_scroll">Manual Scroll</string>
+    <string name="log_share_title">Share Log</string>
+    <string name="log_exported">Log exported: %1$s</string>
+    <string name="log_saved">Log saved: %1$s</string>
+    <string name="log_export_failed">Export failed: %1$s</string>
+    <!-- 界面设置 -->
+
+    <string name="ui_session_list">Session List</string>
+    <string name="ui_inactive_threshold">Inactive Conversation Timeout</string>
+    <string name="ui_inactive_threshold_desc">Conversations not updated within this time will be collapsed. 0 disables collapsing.</string>
+    <string name="ui_minutes">minutes</string>
+    <string name="ui_invalid_number">Please enter a valid non-negative integer</string>
+    <string name="ui_chat_interface">Chat Interface</string>
+    <string name="ui_font_scale">Global Font Scale</string>
+    <string name="ui_font_scale_desc">Adjust font size across the app</string>
+    <string name="ui_font_small">Small</string>
+    <string name="ui_font_large">Large</string>
+    <string name="ui_preview">Preview</string>
+    <string name="ui_preview_text">Design is the implementation of interfaces, not the stacking of UIs.</string>
+    <string name="ui_example_tag">Sample Tag</string>
+    <string name="ui_example_button">Button</string>
+    <string name="ui_show_agent_avatar">Show Agent Avatar</string>
+    <string name="ui_show_agent_avatar_desc">Display avatar emoji next to agent messages in chat</string>
+    <!-- 全局规则 -->
+
+    <string name="global_rules_saved">Global rules saved</string>
+    <string name="global_rules_hint">Global rules are injected at the beginning of all agents\' system prompts and apply to all agents.</string>
+    <string name="global_rules_placeholder">Enter global rules...</string>
+    <!-- 无障碍设置 -->
+
+    <string name="accessibility_phone_control">Accessibility Phone Control</string>
+    <string name="accessibility_service_enabled">Accessibility service enabled</string>
+    <string name="accessibility_service_disabled_title">Accessibility service not enabled</string>
+    <string name="accessibility_can_control">Agent can perceive and control the phone screen</string>
+    <string name="accessibility_need_enable">Agent needs this enabled to control the phone</string>
+    <string name="accessibility_steps_title">Steps to Enable</string>
+    <string name="accessibility_step_1">Tap the button below to go to system accessibility settings</string>
+    <string name="accessibility_step_2">Find \"Hippy\" in the list</string>
+    <string name="accessibility_step_3">Tap to enter and enable the service</string>
+    <string name="accessibility_step_4">Return to this page to confirm status</string>
+    <string name="accessibility_go_to_settings">Go to System Accessibility Settings</string>
+    <string name="accessibility_refresh_status">Refresh Status</string>
+    <string name="accessibility_safety_title">Safety Notes</string>
+    <string name="accessibility_safety_bank">Banking/Payment apps are blocked by default</string>
+    <string name="accessibility_safety_password">High-risk operations like entering passwords or payment amounts require user confirmation</string>
+    <string name="accessibility_safety_audit">All operations have audit logs for traceability</string>
+    <string name="accessibility_safety_disable">You can disable the service anytime in system settings</string>
+    <!-- 工具安全策略 -->
+
+    <string name="tool_security_policy">Tool Security Policy</string>
+    <string name="tool_security_execution_policy">Execution Policy</string>
+    <string name="tool_security_allow_all">Allow All</string>
+    <string name="tool_security_require_approval">Require Approval</string>
+    <string name="tool_security_deny_all">Deny All</string>
+    <string name="tool_security_manual_confirm">Manual confirmation required before tool execution</string>
+    <string name="tool_security_permission_control">Permission Control</string>
+    <string name="tool_security_file_access">File Access</string>
+    <string name="tool_security_file_access_desc">Read/write device files</string>
+    <string name="tool_security_network_access">Network Access</string>
+    <string name="tool_security_network_access_desc">Make network requests</string>
+    <string name="tool_security_shell_access">Shell Commands</string>
+    <string name="tool_security_shell_access_desc">Execute system commands</string>
+    <string name="tool_security_sms_access">SMS</string>
+    <string name="tool_security_sms_access_desc">Read/send SMS messages</string>
+    <!-- 运行配置 -->
+
+    <string name="running_config_saved">Config saved</string>
+    <string name="running_config_reset_default">Reset to Default</string>
+    <string name="running_tab_react">ReAct</string>
+    <string name="running_tab_llm_retry">LLM Retry</string>
+    <string name="running_tab_concurrency">Concurrency Limit</string>
+    <string name="running_tab_long_term_memory">Long-term Memory</string>
+    <string name="running_react_agent">ReAct Agent</string>
+    <string name="running_max_iters">Max Iterations</string>
+    <string name="running_auto_continue">Auto-continue Text Response</string>
+    <string name="running_max_input_length">Max Input Length</string>
+    <string name="running_llm_auto_retry">LLM Auto Retry</string>
+    <string name="running_enable_retry">Enable Retry</string>
+    <string name="running_max_retries">Max Retries</string>
+    <string name="running_backoff_base">Backoff Base (sec)</string>
+    <string name="running_backoff_cap">Backoff Cap (sec)</string>
+    <string name="running_llm_concurrency">LLM Concurrency Limit</string>
+    <string name="running_max_concurrent">Max Concurrency</string>
+    <string name="running_max_qpm">Max QPM</string>
+    <string name="running_rate_limit_pause">Rate Limit Pause (sec)</string>
+    <string name="running_rate_limit_jitter">Rate Limit Jitter (sec)</string>
+    <string name="running_acquire_timeout">Acquire Timeout (sec)</string>
+    <string name="running_context_compression">Context Compression</string>
+    <string name="running_context_backend">Context Management Backend</string>
+    <string name="running_memory_backend">Memory Management Backend</string>
+    <string name="running_long_term_memory">Long-term Memory</string>
+    <string name="running_summarize_when_compact">Summarize When Compressing</string>
+    <string name="running_auto_memory_search">Auto Memory Search</string>
+    <string name="running_auto_search_max_results">Auto Search Max Results</string>
+    <string name="running_auto_search_min_score">Auto Search Min Relevance Score</string>
+    <string name="running_rebuild_index">Rebuild Index on Startup</string>
+    <!-- 心跳配置 -->
+
+    <string name="heartbeat_config_saved">Heartbeat config saved</string>
+    <string name="heartbeat_enable_section">Enable Heartbeat</string>
+    <string name="heartbeat_enable_label">Enable</string>
+    <string name="heartbeat_interval">Execution Interval</string>
+    <string name="heartbeat_interval_zero_error">Interval cannot be 0</string>
+    <string name="heartbeat_reply_target">Reply Target</string>
+    <string name="heartbeat_target_main">Main Session</string>
+    <string name="heartbeat_target_last">Recent Session</string>
+    <string name="heartbeat_active_hours">Active Hours</string>
+    <string name="heartbeat_enable_active_hours">Enable Active Hours</string>
+    <string name="heartbeat_active_hours_desc">Only execute within specified time range</string>
+    <string name="heartbeat_start_time">Start Time</string>
+    <string name="heartbeat_end_time">End Time</string>
+    <!-- 定时任务 -->
+
+    <string name="cron_no_jobs">No cron jobs</string>
+    <string name="cron_add_first">Tap + to create your first cron job</string>
+    <string name="cron_edit_title">Edit Cron Job</string>
+    <string name="cron_new_title">New Cron Job</string>
+    <string name="cron_job_name">Job Name</string>
+    <string name="cron_job_query">Execution Content</string>
+    <string name="cron_select_session">Select Session</string>
+    <string name="cron_new_session">New Session</string>
+    <string name="cron_silent_mode">Silent Background Execution</string>
+    <string name="cron_frequency">Frequency</string>
+    <string name="cron_field_minute">Minute</string>
+    <string name="cron_field_hour">Hour</string>
+    <string name="cron_field_day">Day</string>
+    <string name="cron_field_month">Month</string>
+    <string name="cron_field_weekday">Weekday</string>
+    <string name="cron_silent_label">Silent Execution</string>
+    <string name="cron_add_task">Add Cron Job</string>
+    <string name="cron_every_minute">Every minute</string>
+    <string name="cron_every_5min">Every 5 minutes</string>
+    <string name="cron_every_10min">Every 10 minutes</string>
+    <string name="cron_every_15min">Every 15 minutes</string>
+    <string name="cron_every_30min">Every 30 minutes</string>
+    <string name="cron_on_the_hour">On the hour</string>
+    <string name="cron_every_hour">Every hour</string>
+    <string name="cron_every_2h">Every 2 hours</string>
+    <string name="cron_every_4h">Every 4 hours</string>
+    <string name="cron_every_6h">Every 6 hours</string>
+    <string name="cron_every_12h">Every 12 hours</string>
+    <string name="cron_midnight">Midnight (0:00)</string>
+    <string name="cron_8am">8:00 AM</string>
+    <string name="cron_9am">9:00 AM</string>
+    <string name="cron_3pm">3:00 PM</string>
+    <string name="cron_9pm">9:00 PM</string>
+    <string name="cron_every_day">Every day</string>
+    <string name="cron_day_1">1st</string>
+    <string name="cron_day_15">15th</string>
+    <string name="cron_last_day">Last day</string>
+    <string name="cron_every_month">Every month</string>
+    <string name="cron_jan">January</string>
+    <string name="cron_mar">March</string>
+    <string name="cron_jun">June</string>
+    <string name="cron_sep">September</string>
+    <string name="cron_dec">December</string>
+    <string name="cron_weekday">Weekdays</string>
+    <string name="cron_weekend">Weekends</string>
+    <string name="cron_mon">Monday</string>
+    <string name="cron_wed">Wednesday</string>
+    <string name="cron_fri">Friday</string>
+    <string name="cron_sat">Saturday</string>
+    <string name="cron_sun">Sun</string>
+    <!-- 技能池 -->
+    <string name="skill_pool_no_skills">No skills</string>
+    <string name="skill_pool_add_hint">Tap + in the top right to add skill</string>
+    <string name="skill_pool_add_title">Add Skill</string>
+    <string name="skill_pool_from_file">Install from File</string>
+    <string name="skill_pool_from_file_desc">Select a local ZIP file</string>
+    <string name="skill_pool_from_url">Add from URL</string>
+    <string name="skill_pool_from_url_desc">Enter skill package download URL</string>
+    <string name="skill_pool_add_from_url_title">Add Skill from URL</string>
+    <string name="skill_pool_url_label">Skill URL</string>
+    <string name="skill_pool_delete_confirm">Are you sure you want to delete %1$s?</string>
+    <!-- 端侧模型 -->
+
+    <string name="on_device_title">On-Device Models</string>
+    <string name="on_device_management">Model Management</string>
+    <string name="on_device_search_hf">Search Huggingface models...</string>
+    <string name="on_device_search_hint">Enter keywords to search models</string>
+    <string name="on_device_download">Download</string>
+    <string name="on_device_search_model_desc">Search model name or description...</string>
+    <string name="on_device_settings">Settings</string>
+    <string name="on_device_auto_unload">Auto-unload engine (5 min in background)</string>
+    <string name="on_device_cap_text">Text</string>
+    <string name="on_device_cap_vision">Vision</string>
+    <string name="on_device_cap_audio">Audio</string>
+    <string name="on_device_cap_thinking">Reasoning</string>
+    <string name="on_device_cap_tool_call">Tool Calling</string>
+    <string name="on_device_ram_requirement">Min %1$dGB RAM / Recommended %2$dGB</string>
+    <string name="on_device_download_model">Download Model</string>
+    <string name="on_device_pause">Pause</string>
+    <string name="on_device_resume_download">Resume Download</string>
+    <string name="on_device_engine_loading">Engine loading...</string>
+    <string name="on_device_engine_loaded">Engine loaded (%1$s)</string>
+    <string name="on_device_unload_engine">Unload Engine</string>
+    <string name="on_device_delete_model">Delete Model</string>
+    <string name="on_device_engine_load_failed">Engine load failed</string>
+    <string name="on_device_engine_unloading">Engine unloading...</string>
+    <string name="on_device_download_failed">Download failed</string>
+    <string name="on_device_redownload">Re-download</string>
+    <string name="on_device_backend_label">Backend: %1$s</string>
+    <string name="on_device_backend_auto">Auto</string>
+    <string name="on_device_backend_auto_desc">Auto (GPU→CPU)</string>
+    <string name="on_device_load_engine">Load Engine</string>
+    <string name="on_device_download_management">Download Management</string>
+    <string name="on_device_no_downloads">No downloads</string>
+    <string name="on_device_resume">Resume</string>
+    <string name="on_device_download_manage">Download Management</string>
+    <!-- ACP 设置 -->
+
+    <string name="acp_settings">ACP Settings</string>
+    <string name="acp_client_management">Client Management</string>
+    <string name="acp_start">Start</string>
+    <string name="acp_protocol_desc">ACP allows exposing agents as ACP endpoints, communicating with other systems via JSON-RPC. Supports interaction with other ACP-compatible systems (e.g. QwenPaw, Claude Code).</string>
+    <string name="acp_server_status">Server Status</string>
+    <string name="acp_running">Running</string>
+    <string name="acp_stopped">Stopped</string>
+    <string name="acp_port_label">Port: %1$s</string>
+    <string name="acp_config">ACP Config</string>
+    <string name="acp_enable">Enable ACP</string>
+    <string name="acp_enable_desc">Allow external systems to access this agent via ACP protocol</string>
+    <string name="acp_supported_methods">Supported ACP Methods:</string>
+    <string name="acp_method_chat">Send message to agent</string>
+    <string name="acp_method_list">List all available agents</string>
+    <string name="acp_method_status">Get agent status</string>
+    <string name="acp_usage_guide">Usage Guide</string>
+    <!-- ACP 客户端 -->
+    <string name="acp_client_title">ACP Client</string>
+    <string name="acp_add_server">Add Server</string>
+    <string name="acp_no_remote_servers">No remote servers</string>
+    <string name="acp_add_server_hint">Tap + in the bottom right to add ACP server</string>
+    <string name="acp_last_discovery">Last discovery: %1$s</string>
+    <string name="acp_no_agents_discovered">No agents discovered</string>
+    <string name="acp_discovering">Discovering...</string>
+    <string name="acp_discover_agents">Discover Agents</string>
+    <string name="acp_discovered_count">Discovered %1$d agents</string>
+    <string name="acp_edit_server">Edit Server</string>
+    <string name="acp_server_name">Name</string>
+    <string name="acp_server_host">Host Address</string>
+    <string name="acp_server_port">Port</string>
+    <!-- 事件监听 -->
+
+    <string name="hooks_system_title">System Event Hooks</string>
+    <string name="hooks_desc">Agents can proactively respond to system events (SMS, calls, battery changes, etc.) for active perception. Corresponding permissions need to be granted after enabling.</string>
+    <string name="hooks_missing_permission">Missing Permission</string>
+    <string name="hooks_enabled">Enabled</string>
+    <string name="hooks_not_enabled">Not Enabled</string>
+    <string name="hooks_silent_hours">Quiet Hours</string>
+    <string name="hooks_silent_hours_desc">Events won\'t trigger during quiet hours (except incoming calls)</string>
+    <string name="hooks_silent_start">Start</string>
+    <string name="hooks_silent_end">End</string>
+    <!-- 相机预览 -->
+
+    <string name="camera_preview">Camera Preview</string>
+    <!-- Core: Tool display names -->
+
+    <string name="tool_display_read_file">Read File</string>
+    <string name="tool_display_write_file">Write File</string>
+    <string name="tool_display_edit_file">Edit File</string>
+    <string name="tool_display_append_file">Append File</string>
+    <string name="tool_display_delete_file">Delete File</string>
+    <string name="tool_display_glob_search">File Name Search</string>
+    <string name="tool_display_grep_search">Content Search</string>
+    <string name="tool_display_list_directory">List Directory</string>
+    <string name="tool_display_get_current_time">Get Current Time</string>
+    <string name="tool_display_load_skill">Load Skill</string>
+    <string name="tool_display_tool_search">Tool Search</string>
+    <string name="tool_display_execute_bash">exec</string>
+    <string name="tool_display_get_working_directory">Get Working Directory</string>
+    <string name="tool_display_get_environment">Get Environment</string>
+    <string name="tool_display_set_environment">Set Environment</string>
+    <string name="tool_display_delete_environment">Delete Environment</string>
+    <string name="tool_display_get_system_info">Get System Info</string>
+    <string name="tool_display_read_logcat">Read Logcat</string>
+    <string name="tool_display_vibrate">Vibrate</string>
+    <string name="tool_display_get_volume">Get Volume</string>
+    <string name="tool_display_set_volume">Set Volume</string>
+    <string name="tool_display_launch_app">Launch App</string>
+    <string name="tool_display_list_apps">List Apps</string>
+    <string name="tool_display_read_clipboard">Read Clipboard</string>
+    <string name="tool_display_write_clipboard">Write Clipboard</string>
+    <string name="tool_display_get_screen_info">Get Screen Info</string>
+    <string name="tool_display_set_timezone">Set Timezone</string>
+    <string name="tool_display_set_user_timezone">Set User Timezone</string>
+    <string name="tool_display_send_file">Send File</string>
+    <string name="tool_display_send_file_to_user">Send File</string>
+    <string name="tool_display_send_image">Send Image</string>
+    <string name="tool_display_send_image_to_user">Send Image</string>
+    <string name="tool_display_image_generate">Generate Image</string>
+    <string name="tool_display_send_notification">System Notification</string>
+    <string name="tool_display_view_image">View Image</string>
+    <string name="tool_display_view_video">View Video</string>
+    <string name="tool_display_get_wifi_info">Get WiFi Info</string>
+    <string name="tool_display_bluetooth_control">Bluetooth Control</string>
+    <string name="tool_display_get_paired_devices">Paired Devices</string>
+    <string name="tool_display_take_photo">Take Photo</string>
+    <string name="tool_display_record_video">Record Video</string>
+    <string name="tool_display_take_screenshot">Screenshot</string>
+    <string name="tool_display_start_recording">Start Recording</string>
+    <string name="tool_display_read_sensor">Read Sensor</string>
+    <string name="tool_display_notification_read">Read Notifications</string>
+    <string name="tool_display_notification_reply">Reply to Notification</string>
+    <string name="tool_display_contact_list">Contact List</string>
+    <string name="tool_display_contact_search">Search Contacts</string>
+    <string name="tool_display_sms_list">SMS List</string>
+    <string name="tool_display_sms_send">Send SMS</string>
+    <string name="tool_display_media_control">Media Control</string>
+    <string name="tool_display_search_media">Search Media</string>
+    <string name="tool_display_get_location">Get Location</string>
+    <string name="tool_display_get_current_location">Get Current Location</string>
+    <string name="tool_display_set_alarm">Set Alarm</string>
+    <string name="tool_display_read_calendar">Read Calendar</string>
+    <string name="tool_display_write_calendar">Write Calendar</string>
+    <string name="tool_display_make_call">Make Call</string>
+    <string name="tool_display_read_call_log">Call Log</string>
+    <string name="tool_display_read_pdf">Read PDF</string>
+    <string name="tool_display_read_docx">Read Word</string>
+    <string name="tool_display_read_xlsx">Read Excel</string>
+    <string name="tool_display_read_pptx">Read PPT</string>
+    <string name="tool_display_skill_read_file">Document Reader</string>
+    <string name="tool_display_guidance">Guidance Assistant</string>
+    <string name="tool_display_qa_source_index">Q&amp;A Index</string>
+    <string name="tool_display_web_search">Web Search</string>
+    <string name="tool_display_web_fetch">Web Fetch</string>
+    <string name="tool_display_mention_in_group">Group @Mention</string>
+    <string name="tool_display_get_group_history">Group History</string>
+    <string name="tool_display_check_agent_task">Check Async Task</string>
+    <string name="tool_display_send_to_agent">Send to Agent</string>
+    <string name="tool_display_delegate_to_agent">Delegate Task</string>
+    <string name="tool_display_delegate_external_agent">Delegate External Agent</string>
+    <string name="tool_display_delegate_to_subagent">Delegate to Sub-agent</string>
+    <string name="tool_display_spawn_sub_agent">Spawn Sub-agent</string>
+    <string name="tool_display_spawn_subagent">Spawn Sub-agent</string>
+    <string name="tool_display_check_sub_agent_tasks">Check Sub-agent Tasks</string>
+    <string name="tool_display_check_subagent_tasks">Check Sub-agent Tasks</string>
+    <string name="tool_display_aggregate_sub_agent">Aggregate Sub-agent Results</string>
+    <string name="tool_display_aggregate_subagent_tasks">Aggregate Sub-agent Tasks</string>
+    <string name="tool_display_chat_with_agent">Chat with Agent</string>
+    <string name="tool_display_list_agents">List Agents</string>
+    <string name="tool_display_get_token_usage">Token Usage</string>
+    <string name="tool_display_export_log">Export Log</string>
+    <string name="tool_display_cron">Cron Job</string>
+    <string name="tool_display_screen_observe">Observe Screen</string>
+    <string name="tool_display_screen_interact">Screen Interact</string>
+    <string name="tool_display_phone_automate">Phone Automate</string>
+    <string name="tool_display_ask">Ask</string>
+    <string name="tool_display_list_plugins">List Plugins</string>
+    <string name="tool_display_connect_sms_bridge">SMS Bridge</string>
+    <string name="tool_display_install_package">Install</string>
+    <string name="tool_display_execute_python">py</string>
+    <string name="tool_display_file_transfer">transfer</string>
+    <string name="tool_display_clipboard_sync">Clipboard Sync</string>
+    <string name="tool_display_device_access">Request Permission</string>
+    <string name="tool_display_ssh_server">ssh</string>
+    <string name="tool_display_get_file_size">Get File Size</string>
+    <string name="tool_display_get_text_lines_count">Get Text Lines Count</string>
+    <string name="tool_display_get_group_members">Get Group Members</string>
+    <string name="tool_display_create_plan">Create Plan</string>
+    <string name="tool_display_update_subtask_state">Update Subtask State</string>
+    <string name="tool_display_revise_current_plan">Revise Current Plan</string>
+    <string name="tool_display_finish_plan">Finish Plan</string>
+    <string name="tool_display_create_agent">Create Agent</string>
+    <string name="tool_display_delete_agent">Delete Agent</string>
+    <string name="tool_display_update_agent">Update Agent</string>
+    <string name="tool_display_agent_info">Agent Info</string>
+    <string name="tool_display_send_message">Send Message</string>
+    <string name="tool_display_create_subagent_task">Create Subtask</string>
+    <string name="tool_display_get_subagent_status">Get Subtask Status</string>
+    <string name="tool_display_list_subagent_tasks">List Subtasks</string>
+    <string name="tool_display_cancel_subagent_task">Cancel Subtask</string>
+    <string name="tool_display_qa_index_sources">Index Knowledge Sources</string>
+    <string name="tool_display_qa_search">Knowledge Search</string>
+    <string name="tool_display_memory_save">Save Memory</string>
+    <string name="tool_display_memory_search">Search Memory</string>
+    <string name="tool_display_memory_delete">Delete Memory</string>
+    <string name="tool_display_approve_tool">Approve Tool</string>
+    <string name="tool_display_deny_tool">Deny Tool</string>
+    <string name="tool_display_send_group_message">Send Group Message</string>
+    <string name="tool_display_mention_agent">@Mention Agent</string>
+    <string name="tool_display_broadcast_message">Broadcast Message</string>
+    <string name="tool_display_execute_command">Execute Command</string>
+    <!-- Core: Agent error messages -->
+
+    <string name="agent_error_network_unavailable">📡 Network unavailable, message cached</string>
+    <string name="agent_error_network_unavailable_stream">📡 Network unavailable, message cached. Will auto-send when network recovers</string>
+    <string name="agent_error_timeout">⚠️ Request timed out, please try again later</string>
+    <string name="agent_error_api_key_invalid">⚠️ Invalid API key, please check model provider config</string>
+    <string name="agent_error_rate_limited">⚠️ Rate limited, please try again later</string>
+    <string name="agent_error_network">⚠️ Network error: %1$s</string>
+    <string name="agent_error_unknown">Unknown error</string>
+    <string name="agent_error_oom">⚠️ Out of memory (OOM): Context too long. Please shorten the conversation or restart the app</string>
+    <string name="agent_error_iteration_exhausted">⚠️ Iterations exhausted (%1$d rounds). Task not fully completed. Current progress:\n%2$s</string>
+    <string name="agent_error_iteration_no_summary">(Agent was still calling tools in the last round, failed to generate text summary)</string>
+    <string name="agent_error_loop_detected">⚠️ Loop detected (repeated similar operations). Task auto-stopped. Please check task description or adjust agent config.</string>
+    <string name="agent_error_security_blocked">Security check failed: %1$s</string>
+    <string name="agent_error_user_denied">User denied this operation: %1$s</string>
+    <string name="agent_error_tool_exception">Tool execution error: %1$s</string>
+    <string name="agent_error_max_retries">Max retries reached</string>
+    <!-- Core: Notification -->
+
+    <string name="notif_channel_heartbeat_name">Heartbeat Reminder</string>
+    <string name="notif_channel_heartbeat_desc">Periodic heartbeat status notification</string>
+    <string name="notif_channel_task_complete_name">Task Complete</string>
+    <string name="notif_channel_task_complete_desc">Agent task completion notification</string>
+    <string name="notif_channel_error_name">Error Alert</string>
+    <string name="notif_channel_error_desc">Agent runtime error notification</string>
+    <string name="notif_channel_agent_message_name">Agent Message</string>
+    <string name="notif_channel_agent_message_desc">New agent message notification</string>
+    <string name="notif_channel_permission_name">Permission Request</string>
+    <string name="notif_channel_permission_desc">Background accessibility permission request notification</string>
+    <string name="notif_mission_complete">Mission Complete</string>
+    <string name="notif_mission_result_success">Success</string>
+    <string name="notif_mission_result_failed">Failed</string>
+    <string name="notif_user_label">Me</string>
+    <string name="notif_tool_approval_title">%1$s Tool Approval: %2$s</string>
+    <string name="notif_tool_approval_default">Agent %1$s requests to execute %2$s</string>
+    <string name="notif_tool_approval_allow_once">Allow Once</string>
+    <string name="notif_tool_approval_allow_always">Allow Always</string>
+    <string name="notif_tool_approval_deny">Deny</string>
+    <string name="notif_tool_approval_deny_always">Don\'t Allow Again</string>
+    <string name="notif_permission_request_title">Permission Request</string>
+    <string name="notif_permission_request_content">Agent requests to execute operation: %1$s</string>
+    <string name="notif_permission_allow_once">Allow Once</string>
+    <string name="notif_permission_always_allow">Always Allow</string>
+    <string name="notif_permission_deny">Deny</string>
+    <!-- Core: Guardian -->
+
+    <string name="guardian_tool_shell_execute_title">Shell Execution</string>
+    <string name="guardian_tool_shell_execute_desc">Shell execution requires confirmation</string>
+    <string name="guardian_tool_delete_op_title">Delete Operation</string>
+    <string name="guardian_tool_delete_op_desc">Delete operation requires confirmation</string>
+    <string name="guardian_tool_write_op_title">Write Operation</string>
+    <string name="guardian_tool_write_op_desc">Write operation requires confirmation</string>
+    <string name="guardian_shell_evasion_title">Shell Evasion/Obfuscation Detection</string>
+    <string name="guardian_shell_evasion_desc">Tool %1$s parameter \'%2$s\' contains suspected evasion/obfuscation pattern: %3$s</string>
+    <string name="guardian_shell_obfuscation_title">Shell Obfuscation Detection</string>
+    <string name="guardian_shell_obfuscation_desc">Tool %1$s parameter \'%2$s\' contains suspected obfuscation indicator: %3$s</string>
+    <string name="guardian_file_path_critical_title">Access System Critical Path</string>
+    <string name="guardian_file_path_critical_desc">Tool %1$s attempts to access system critical path %2$s</string>
+    <string name="guardian_file_path_traversal_title">Path Traversal Attack</string>
+    <string name="guardian_file_path_traversal_desc">Tool %1$s parameter \'%2$s\' contains path traversal sequence: %3$s</string>
+    <string name="guardian_file_path_sensitive_ext_title">Access Sensitive File Type</string>
+    <string name="guardian_file_path_sensitive_ext_desc">Tool %1$s attempts to access sensitive file type %2$s: %3$s</string>
+    <string name="guardian_file_path_symlink_title">Bypass Path Restriction via Symlink</string>
+    <string name="guardian_file_path_symlink_desc">Tool %1$s parameter contains symlink path: %2$s</string>
+    <string name="guardian_android_permission_missing_title">Missing Android Runtime Permission</string>
+    <string name="guardian_android_permission_missing_desc">Tool %1$s requires permission %2$s but not granted</string>
+    <string name="guardian_storage_access_restricted_title">Access Restricted Storage Area</string>
+    <string name="guardian_storage_access_restricted_desc">Tool %1$s attempts to access restricted directory %2$s</string>
+    <string name="guardian_network_localhost_title">Access Local Network</string>
+    <string name="guardian_network_localhost_desc">Tool %1$s attempts to access local address %2$s</string>
+    <string name="guardian_network_credential_title">Network Request May Leak Credentials</string>
+    <string name="guardian_network_credential_desc">Tool %1$s parameter \'%2$s\' contains suspected key</string>
+    <string name="guardian_a11y_blocked_package_title">Block Control of System Security Apps</string>
+    <string name="guardian_a11y_blocked_package_desc">Target package %1$s is blacklisted, control blocked</string>
+    <string name="guardian_a11y_sensitive_input_title">Input Contains Sensitive Info</string>
+    <string name="guardian_a11y_sensitive_input_desc">Input text may contain sensitive content like passwords/payments/deletion, requires user confirmation</string>
+    <string name="guardian_a11y_input_action_title">Text Input Action</string>
+    <string name="guardian_a11y_input_action_desc">Agent is typing into an input field, first use requires user confirmation</string>
+    <string name="guardian_a11y_launch_app_title">Launch App Action</string>
+    <string name="guardian_a11y_launch_app_desc">Agent is launching a third-party app</string>
+    <string name="guardian_dangerous_pattern_title">Dangerous Command Pattern Detected</string>
+    <string name="guardian_dangerous_pattern_desc">Dangerous command pattern detected: %1$s</string>
+    <string name="guardian_dangerous_path_title">Dangerous Path Detected</string>
+    <string name="guardian_dangerous_path_desc">Dangerous path detected: %1$s</string>
+    <string name="guardian_path_traversal_attempt_title">Path Traversal Attempt Detected</string>
+    <string name="guardian_path_traversal_attempt_desc">Path traversal attempt detected</string>
+    <string name="guardian_input_too_long_title">Input Too Long</string>
+    <string name="guardian_input_too_long_desc">Input too long (%1$d characters)</string>
+    <string name="guardian_dangerous_command_title">Dangerous Command Detected</string>
+    <string name="guardian_dangerous_command_desc">Dangerous command detected: %1$s</string>
+    <!-- Core: System Commands -->
+
+    <string name="cmd_unknown">Unknown command: /%1$s</string>
+    <string name="cmd_execution_failed">Command execution failed: %1$s</string>
+    <string name="cmd_compact_desc">Compact context to reduce token usage</string>
+    <string name="cmd_compact_result">Context compacted. Current messages: %1$d, total characters: %2$d</string>
+    <string name="cmd_new_desc">Create new session</string>
+    <string name="cmd_new_failed">Failed to create new session</string>
+    <string name="cmd_new_success">New session created</string>
+    <string name="cmd_clear_desc">Clear context, keep chat history</string>
+    <string name="cmd_clear_result">Context cleared, chat history preserved</string>
+    <string name="cmd_history_desc">View message history</string>
+    <string name="cmd_history_result">Recent %1$d messages:\n%2$s</string>
+    <string name="cmd_mission_desc">Start mission mode, let Agent autonomously complete complex tasks</string>
+    <string name="cmd_mission_usage">Usage: /mission &lt;task description&gt; [--verify command] [--max-iterations N]</string>
+    <string name="cmd_mission_empty_desc">Task description cannot be empty</string>
+    <string name="cmd_mission_started">Mission started:\nTask: %1$s\nMax iterations: %2$d\nTask ID: %3$s</string>
+    <string name="cmd_mission_start_failed">Mission start failed: %1$s</string>
+    <string name="cmd_proactive_desc">Toggle proactive memory</string>
+    <string name="cmd_proactive_on">Proactive memory enabled, suggestions pushed after 30 min idle</string>
+    <string name="cmd_proactive_off">Proactive memory disabled</string>
+    <string name="cmd_proactive_usage">Usage: /proactive [on/off/status]</string>
+    <string name="cmd_plan_desc">Generate task plan</string>
+    <string name="cmd_plan_no_messages">No user messages in current session, cannot generate plan</string>
+    <string name="cmd_summarize_status_desc">Summarize current status</string>
+    <string name="cmd_summarize_no_topic">None</string>
+    <string name="cmd_backup_desc">Backup management (create/list/restore/delete)</string>
+    <string name="cmd_backup_auto_name">Auto_backup_%1$d</string>
+    <string name="cmd_backup_created">Backup created: %1$s\nSize: %2$dKB\nID: %3$s</string>
+    <string name="cmd_backup_create_failed">Backup creation failed: %1$s</string>
+    <string name="cmd_backup_list_empty">No backups yet</string>
+    <string name="cmd_backup_list_header">Backup list:\n%1$s</string>
+    <string name="cmd_backup_restore_usage">Usage: /backup restore &lt;backup ID&gt;</string>
+    <string name="cmd_backup_restored">Backup restored: %1$s</string>
+    <string name="cmd_backup_restore_failed">Restore failed: %1$s</string>
+    <string name="cmd_backup_delete_usage">Usage: /backup delete &lt;backup ID&gt;</string>
+    <string name="cmd_backup_deleted">Backup deleted: %1$s</string>
+    <string name="cmd_backup_delete_failed">Delete failed: %1$s</string>
+    <string name="cmd_backup_help">Backup management commands:\n- /backup create [name]: Create backup\n- /backup list: List all backups\n- /backup restore &lt;ID&gt;: Restore backup\n- /backup delete &lt;ID&gt;: Delete backup</string>
+    <string name="cmd_stats_desc">View agent statistics</string>
+    <!-- Core: Skill descriptions -->
+
+    <string name="skill_himalaya_desc">Email management, supports IMAP/SMTP send and receive</string>
+    <string name="skill_channel_message_desc">Channel message sending, proactively send one-way messages to sessions or channels</string>
+    <string name="skill_pdf_desc">Read PDF file content and extract text</string>
+    <string name="skill_docx_desc">Read Word (.docx) file content and extract plain text</string>
+    <string name="skill_xlsx_desc">Read Excel (.xlsx) file content and extract table data</string>
+    <string name="skill_pptx_desc">Read PowerPoint (.pptx) file content and extract slide text</string>
+    <string name="skill_guidance_desc">Guidance assistant, search local docs for installation and configuration guides</string>
+    <string name="skill_qa_source_index_desc">Knowledge base index, search source code and doc paths by keyword</string>
+    <string name="skill_image_generate_desc">Generate images from text descriptions, supports multiple image generation models</string>
+    <!-- Core: Tool permissions -->
+
+    <string name="tool_perm_device_access">Device Access</string>
+    <string name="tool_perm_clipboard_access">Clipboard Access</string>
+    <string name="tool_perm_ssh_server">SSH Service</string>
+    <string name="tool_perm_file_transfer">File Transfer</string>
+    <string name="tool_perm_shell_execute">Shell Execution</string>
+    <string name="tool_perm_not_configured">Permission not configured, default deny: %1$s. Please set permissionChecker.</string>
+    <string name="tool_perm_custom_missing_error">%1$s permission required. Please grant permission in the dialog and retry.</string>
+    <string name="tool_perm_custom_missing_for_user">%1$s permission required. Please grant in the dialog.</string>
+    <string name="tool_perm_android_camera">Camera</string>
+    <string name="tool_perm_android_microphone">Microphone</string>
+    <string name="tool_perm_android_location">Location</string>
+    <string name="tool_perm_android_contacts">Contacts</string>
+    <string name="tool_perm_android_sms">SMS</string>
+    <string name="tool_perm_android_phone">Phone</string>
+    <string name="tool_perm_android_call_log">Call Log</string>
+    <string name="tool_perm_android_calendar">Calendar</string>
+    <string name="tool_perm_android_bluetooth">Bluetooth</string>
+    <string name="tool_perm_android_media">Media Files</string>
+    <string name="tool_perm_android_missing_error">%1$s permission required. Please grant permission in the dialog and retry.</string>
+    <string name="tool_perm_android_missing_for_user">%1$s permission required. Please grant in Settings and retry.</string>
+    <!-- 数据存储扩展 -->
+
+    <string name="storage_total_capacity">Total Capacity</string>
+    <string name="storage_used_gb">Used %1$sGB</string>
+    <string name="storage_available_gb">Available %1$sGB</string>
+    <string name="storage_app_data">App Data</string>
+    <string name="storage_agent_data">Agent Data</string>
+    <string name="storage_session_records">Session Records</string>
+    <string name="storage_core_files_label">Core Files</string>
+    <string name="storage_database_label">Database</string>
+    <string name="storage_room_internal">Room (Internal Storage)</string>
+    <string name="storage_room_note">Note: Room database files must remain in internal storage (Android limitation). Configs, chat history, and memories can be stored in the external directory.</string>
+    <string name="storage_mount_complete">Mount complete: %1$d files synced</string>
+    <string name="storage_mount_failed">Mount failed: %1$s</string>
+    <string name="storage_remount">Re-mount</string>
+    <string name="storage_external_authorized">External storage authorized</string>
+    <string name="storage_internal_data">Data stored in internal storage</string>
+    <string name="storage_disable_external_desc">After disabling external storage, new data will be written to internal storage. Existing data in external storage will not be deleted.\n\nWarning: Data produced after disabling will still be lost on uninstall.</string>
+    <!-- 环境检查扩展 -->
+
+    <string name="env_item_nodejs_desc">JavaScript runtime + package executor, required by skill store and some tools (v22+)</string>
+    <string name="env_item_python_desc">Python runtime, required by code execution and script tools</string>
+    <string name="env_item_git_desc">Version control, required by repository operations and skill installation</string>
+    <string name="env_item_pip_desc">Python package manager</string>
+    <string name="env_item_ssh_desc">Remote connection and file transfer</string>
+    <string name="env_item_vim_desc">Terminal text editor</string>
+    <string name="env_item_jq_desc">JSON command-line processor</string>
+    <string name="env_item_ffmpeg_desc">Audio/video processing tool</string>
+    <string name="env_item_himalaya_desc">CLI email client, supports IMAP/SMTP</string>
+    <string name="env_item_web_access">Web Access (OkHttp + WebView)</string>
+    <string name="env_item_web_access_desc">Android native web access, OkHttp lightweight HTTP + WebView JS rendering auto-fallback</string>
+    <string name="env_item_curl_linux">cURL (Linux Environment)</string>
+    <string name="env_item_curl_desc">Linux terminal HTTP client, only available in Linux environment</string>
+    <string name="env_item_moonshine_desc">Offline speech-to-text, supports Chinese/English/Japanese/Korean, long-press mic for voice input</string>
+    <string name="env_item_system_tts">System TTS</string>
+    <string name="env_item_system_tts_desc">Text-to-speech, uses Android system TTS engine</string>
+    <string name="env_install_verify_failed_msg">Install command executed successfully, but verification failed.\nThis is usually because the proot environment\'s PATH/link cache hasn\'t refreshed.\n\nSuggested actions:\n1. Restart the app and check again (most effective)\n2. Run hash -r in terminal to refresh command cache\n\nVerification details: %1$s</string>
+    <string name="env_install_success_verify">Install successful\n%1$s</string>
+    <string name="env_install_success_verify_failed">Install successful (version verification failed)</string>
+    <string name="env_installed_with_version">Installed (%1$s) �?%2$s</string>
+    <string name="env_storage_available_format">%1$s available / %2$s total</string>
+    <string name="env_cores_format">%1$d cores</string>
+    <!-- 模型提供商扩展 -->
+
+    <string name="provider_protocol_label">Protocol: %1$s</string>
+    <string name="provider_api_key_configured">API Key: %1$s</string>
+    <string name="provider_api_key_status_configured">Configured</string>
+    <string name="provider_api_key_status_not_configured">Not Configured</string>
+    <!-- 第三方 i18n：其他界面 -->
+
+    <string name="conversation_agent_default_name">Agent</string>
+    <string name="conversation_create_agent">Create Agent</string>
+    <string name="conversation_drop_to_group">Drop to this group</string>
+    <string name="conversation_failed">Failed</string>
+    <string name="conversation_error">Error</string>
+    <string name="conversation_stopped">Stopped</string>
+    <string name="conversation_thinking">Thinking</string>
+    <string name="conversation_executing">Executing</string>
+    <string name="conversation_idle_status">Idle</string>
+    <string name="conversation_date_yesterday">Yesterday</string>
+    <string name="conversation_date_month_day">MMM d</string>
+    <string name="conversation_date_year_month_day">MMM d, yyyy</string>
+    <string name="group_name_label">Group Name</string>
+    <string name="group_clear">Clear</string>
+    <string name="group_people_format">%1$d people</string>
+    <string name="group_add">Add</string>
+    <string name="insights_failed">Failed</string>
+    <string name="store_retry">Retry</string>
+    <string name="store_install_skill">Install Skill</string>
+    <string name="nav_new">New</string>
+    <string name="app_data_kept">Current data kept</string>
+    <string name="app_data_merged">Historical data merged into current workspace</string>
+    <string name="app_data_overwritten">Current workspace overwritten with historical data</string>
+    <string name="group_created_success">Group \"%1$s\" created successfully</string>
+    <string name="chat_scroll_to_bottom">Scroll to bottom</string>
+    <string name="chat_stop_playback">Stop playback</string>
+    <string name="chat_privacy_warning_title">Privacy Notice</string>
+    <string name="chat_privacy_warning_text">You are using a free model. Free models may use your data for training or analysis, posing an information leakage risk. Recommended for non-sensitive content only.</string>
+    <string name="chat_never_remind">Never remind</string>
+    <string name="voice_pause">Pause</string>
+    <string name="voice_play">Play</string>
+    <!-- 第四方 i18n：设置和配置界面 -->
+
+    <string name="nav_back">Back</string>
+    <string name="settings_version_format">Version %1$s</string>
+    <string name="running_config_title">Running Config</string>
+    <string name="running_config_tab_react">ReAct</string>
+    <string name="running_config_tab_retry">LLM Retry</string>
+    <string name="running_config_tab_concurrent">Concurrency Limit</string>
+    <string name="running_config_tab_memory">Long-term Memory</string>
+    <string name="running_config_react_agent">ReAct Agent</string>
+    <string name="running_config_max_iters">Max Iterations</string>
+    <string name="running_config_auto_continue">Auto-continue on Text</string>
+    <string name="running_config_max_input_length">Max Input Length</string>
+    <string name="running_config_llm_auto_retry">LLM Auto Retry</string>
+    <string name="running_config_enable_retry">Enable Retry</string>
+    <string name="running_config_max_retries">Max Retries</string>
+    <string name="running_config_backoff_base">Backoff Base (s)</string>
+    <string name="running_config_backoff_cap">Backoff Cap (s)</string>
+    <string name="running_config_llm_concurrent">LLM Concurrency</string>
+    <string name="running_config_max_concurrent">Max Concurrent</string>
+    <string name="running_config_max_qpm">Max QPM</string>
+    <string name="running_config_rate_limit_pause">Rate Limit Pause (s)</string>
+    <string name="running_config_rate_limit_jitter">Rate Limit Jitter (s)</string>
+    <string name="running_config_acquire_timeout">Acquire Timeout (s)</string>
+    <string name="running_config_context_compression">Context Compression</string>
+    <string name="running_config_context_backend">Context Manager Backend</string>
+    <string name="running_config_memory_backend">Memory Manager Backend</string>
+    <string name="running_config_long_term_memory_label">Long-term Memory</string>
+    <string name="running_config_memory_on_compact">Memory on Compact</string>
+    <string name="running_config_auto_memory_search">Auto Memory Search</string>
+    <string name="running_config_auto_search_max_results">Auto Search Max Results</string>
+    <string name="running_config_auto_search_min_score">Auto Search Min Score</string>
+    <string name="running_config_rebuild_index">Rebuild Index on Start</string>
+    <string name="language_title">Language</string>
+    <string name="storage_title">Data Storage</string>
+    <string name="storage_external_protection">External Storage (Uninstall Protection)</string>
+    <string name="storage_data_migrated_desc">Data has been migrated to external directory. Uninstalling the app will not lose data.</string>
+    <string name="storage_data_internal_desc">Current data is stored in the app\'s internal directory. Uninstalling the app will lose all data (config, chat history, memory). It is recommended to authorize an external storage directory.</string>
+    <string name="storage_select_external_dir">Select External Directory</string>
+    <string name="storage_disable_external">Disable External Storage</string>
+    <string name="storage_confirm_disable">Confirm Disable</string>
+    <string name="storage_workspace">Workspace</string>
+    <string name="storage_sensitive_data">Sensitive Data</string>
+    <string name="storage_backup">Backup</string>
+    <string name="perm_center_title">Permission Center</string>
+    <string name="perm_category_communication">Communication</string>
+    <string name="perm_category_hardware">Hardware</string>
+    <string name="perm_category_data">Data</string>
+    <string name="perm_category_system">System</string>
+    <string name="cron_create">Create</string>
+    <string name="env_item_web_access_name">Web Access (OkHttp + WebView)</string>
+    <string name="env_item_curl_linux_name">cURL (Linux Environment)</string>
+    <string name="env_item_system_tts_name">System TTS</string>
+    <string name="skill_pool_store">Store</string>
+    <string name="skill_pool_install_result">Install Result</string>
+    <string name="skill_pool_install_success">Skill %1$s installed successfully</string>
+    <string name="skill_pool_install_failed">Install failed: %1$s</string>
+    <string name="skill_pool_delete_title">Delete Skill</string>
+    <string name="chat_tts_failed">TTS failed: %1$s</string>
+    <string name="store_source_all">All</string>
+    <!-- DialogHost -->
+    <string name="dialog_merge_mode_label">Processing mode</string>
+    <string name="dialog_keep_current_data">Keep current data only</string>
+    <string name="dialog_confirm">Confirm</string>
+    <!-- Heartbeat -->
+    <string name="heartbeat_config_saved_toast">Heartbeat config saved</string>
+    <string name="heartbeat_reset">Reset</string>
+    <string name="heartbeat_target_main_label">Main session</string>
+    <string name="heartbeat_target_last_label">Recent session</string>
+    <!-- QrAuth -->
+    <string name="channel_bind_success_toast">Bind successful</string>
+    <string name="channel_retry">Retry</string>
+    <string name="channel_scanned_confirm_toast">Scanned, please confirm on your phone</string>
+    <!-- Inbox -->
+    <string name="inbox_mark_all_read_desc">Mark all read</string>
+    <string name="inbox_refresh">Refresh</string>
+    <string name="inbox_approve_btn">Approve</string>
+    <string name="inbox_deny_btn">Deny</string>
+    <string name="inbox_delete_desc">Delete</string>
+    <!-- 工具详情 -->
+    <string name="tools_basic_info">Basic info</string>
+    <string name="tools_name_label_fmt">Name: %1$s</string>
+    <string name="tools_desc_label_fmt">Description: %1$s</string>
+    <string name="tools_params">Parameters</string>
+    <string name="tools_type_label_fmt">Type: %1$s</string>
+    <string name="tools_required_label_fmt">Required: %1$s</string>
+    <!-- ToolApprovals -->
+    <string name="tool_approval_title">Tool approval</string>
+    <string name="tool_approval_timeout_seconds_label">Approval timeout (s)</string>
+    <string name="tool_approval_pending_label">Pending approval</string>
+    <string name="tool_approval_approve">Approve</string>
+    <!-- ACP usage guide -->
+    <string name="acp_usage_guide_steps">1. Enable ACP
+2. Tap the button to start server
+3. External systems connect via JSON-RPC to localhost:%1$s
+4. Send requests to interact with the agent</string>
+    <!-- Placeholder hints -->
+    <string name="placeholder_max_tokens">4096</string>
+    <string name="placeholder_context_window">8192</string>
+    <string name="placeholder_base_url">https://api.openai.com/v1</string>
+    <!-- ViewModel 错误/状态消息 -->
+    <string name="agent_not_found_with_id">Agent not found: %1$s</string>
+    <string name="agent_load_failed_with_msg">Load failed: %1$s</string>
+    <string name="agent_save_avatar_failed">Save avatar failed: %1$s</string>
+    <string name="agent_core_file_save_failed">Save failed: %1$s</string>
+    <string name="agent_core_file_delete_failed">Delete failed: %1$s</string>
+    <!-- 权限请求 -->
+    <string name="perm_tool_request">Tool permission request</string>
+    <string name="perm_shell_request">Shell execution request</string>
+    <!-- ACP -->
+    <string name="acp_discover_failed">Discovery failed: %1$s</string>
+    <!-- 配置加载/保存 -->
+    <string name="config_load_failed">Failed to load config: %1$s</string>
+    <string name="config_save_failed">Save failed: %1$s</string>
+    <!-- 核心文件 -->
+    <string name="core_files_load_failed">Failed to load file list: %1$s</string>
+    <string name="core_file_save_failed">Save failed: %1$s</string>
+    <!-- 技能商店 -->
+    <string name="store_auto_installing_nodejs">Automatically installing Node.js environment...</string>
+    <string name="store_nodejs_install_failed_hint">Node.js installation failed. Go to Settings → Environment Check to install manually</string>
+    <string name="store_linux_not_ready">Linux environment not initialized. The skill store needs Linux to execute search commands. Please complete initialization in Settings first</string>
+    <string name="store_load_failed">Load failed: %1$s</string>
+    <string name="store_install_failed">Installation failed: %1$s</string>
+    <!-- 排序类型 -->
+    <string name="sort_hot">Most popular</string>
+    <string name="sort_new">Newest</string>
+    <string name="sort_rating">Top rated</string>
+    <string name="sort_installs">Most installed</string>
+    <!-- 审批覆盖 -->
+    <string name="approval_overlay_channel">Approval overlay</string>
+    <string name="approval_overlay_service_running">Agent approval service running</string>
+    <string name="approval_overlay_title">Waiting for approval...</string>
+    <string name="approval_agent_request">Agent requests operation</string>
+    <string name="approval_content_label">Content:</string>
+    <string name="approval_allow_5_minutes">Allow 5 min</string>
+    <!-- 通知弹窗 -->
+    <string name="notification_overlay_channel">Notification overlay</string>
+    <string name="notification_overlay_service">Notification overlay service</string>
+    <!-- 屏内替身 -->
+    <string name="companion_status_ready">Companion · Ready</string>
+    <string name="companion_status_listening">Companion · Listening...</string>
+    <string name="companion_status_processing">Companion · Processing...</string>
+    <string name="companion_status_executing">Companion · Executing...</string>
+    <!-- 环境变量页面 -->
+    <string name="env_vars_title">Environment variables</string>
+    <string name="env_var_name">Variable name</string>
+    <string name="env_var_value">Variable value</string>
+    <string name="env_vars_add">Add environment variable</string>
+    <string name="env_vars_empty">No environment variables</string>
+    <string name="env_vars_empty_hint">Tap + to add</string>
+    <!-- 端侧模型 -->
+    <string name="ondevice_no_gguf">No GGUF file available for this model</string>
+    <string name="ondevice_download_failed_msg">Download failed: %1$s</string>
+    <!-- ACP 客户端 -->
+    <string name="acp_discovered_agents">Discovered %1$d agents</string>
+    <!-- 智能体配置 -->
+    <string name="agent_switch">Switch agent</string>
+    <!-- Core 层国际化 -->
+    <string name="stt_recognizing">Recognizing...</string>
+    <string name="tool_approval_request">Tool approval request: %1$s</string>
+    <string name="tool_approval_approved">Tool approved: %1$s</string>
+    <string name="tool_approval_denied">Tool denied: %1$s</string>
+    <string name="tool_blocked_by_security">Tool blocked by security rules: %1$s</string>
+    <string name="cron_job_session_title">Cron job: %1$s</string>
+    <string name="system_event_session_title">System event: %1$s</string>
+    <string name="biometric_reject">Reject</string>
+    <!-- 引导步骤 -->
+    <string name="onboarding_step_welcome_title">Welcome to Hippy</string>
+    <string name="onboarding_step_welcome_desc">Your on-device agent assistant, data fully local, privacy secure</string>
+    <string name="onboarding_step_language_title">Choose language</string>
+    <string name="onboarding_step_language_desc">Select your preferred language</string>
+    <string name="onboarding_step_expertise_title">Expertise area</string>
+    <string name="onboarding_step_expertise_desc">Tell me your primary use case</string>
+    <string name="onboarding_step_model_title">Select model</string>
+    <string name="onboarding_step_model_desc">Select an on-device AI model (can be changed later)</string>
+    <string name="onboarding_step_privacy_title">Privacy notice</string>
+    <string name="onboarding_step_privacy_desc">All data is stored locally by default and will not be uploaded to the cloud</string>
+    <string name="onboarding_step_complete_title">Ready</string>
+    <string name="onboarding_step_complete_desc">Start your agent journey</string>
 </resources>
 

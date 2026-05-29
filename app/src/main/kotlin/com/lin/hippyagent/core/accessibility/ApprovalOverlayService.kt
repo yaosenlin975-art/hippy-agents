@@ -89,7 +89,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "审批覆盖层",
+                getString(R.string.approval_overlay_channel),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Agent 操作审批悬浮窗服务"
@@ -105,8 +105,8 @@ class ApprovalOverlayService : Service(), KoinComponent {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Agent 审批服务运行中")
-            .setContentText("等待操作审批...")
+            .setContentTitle(getString(R.string.approval_overlay_service_running))
+            .setContentText(getString(R.string.approval_overlay_title))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -134,7 +134,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
         }
 
         val titleView = TextView(ctx).apply {
-            text = "$riskEmoji Agent 请求操作: ${request.action}${request.target?.let { " → $it" } ?: ""}"
+            text = "$riskEmoji ${getString(R.string.approval_agent_request)}: ${request.action}${request.target?.let { " → $it" } ?: ""}"
             setTextColor(0xFFFFFFFF.toInt())
             textSize = 14f
         }
@@ -142,7 +142,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
 
         if (request.value != null) {
             val detailView = TextView(ctx).apply {
-                text = "内容: ${request.value.take(50)}"
+                text = "${getString(R.string.approval_content_label)} ${request.value.take(50)}"
                 setTextColor(0xFFCCCCCC.toInt())
                 textSize = 12f
                 setPadding(0, 4, 0, 0)
@@ -157,7 +157,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
         }
 
         val denyBtn = Button(ctx).apply {
-            text = "拒绝"
+            text = getString(R.string.chat_deny)
             setTextColor(0xFFFF6666.toInt())
             setBackgroundColor(0x00000000)
             setOnClickListener {
@@ -167,7 +167,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
         buttonBar.addView(denyBtn)
 
         val allowOnceBtn = Button(ctx).apply {
-            text = "允许本次"
+            text = getString(R.string.chat_allow_this_time)
             setTextColor(0xFF66FF66.toInt())
             setBackgroundColor(0x00000000)
             setOnClickListener {
@@ -178,7 +178,7 @@ class ApprovalOverlayService : Service(), KoinComponent {
 
         if (request.riskLevel == RiskLevel.MEDIUM) {
             val allowTempBtn = Button(ctx).apply {
-                text = "允许5分钟"
+                text = getString(R.string.approval_allow_5_minutes)
                 setTextColor(0xFF66CCFF.toInt())
                 setBackgroundColor(0x00000000)
                 setOnClickListener {

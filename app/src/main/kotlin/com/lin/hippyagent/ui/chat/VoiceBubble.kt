@@ -30,8 +30,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import kotlinx.coroutines.delay
 import java.io.File
 
@@ -139,7 +141,7 @@ fun VoiceBubble(
     ) {
         Icon(
             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-            contentDescription = if (isPlaying) "暂停" else "播放",
+            contentDescription = if (isPlaying) stringResource(R.string.voice_pause) else stringResource(R.string.voice_play),
             modifier = Modifier.size(28.dp),
             tint = if (isUser) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant

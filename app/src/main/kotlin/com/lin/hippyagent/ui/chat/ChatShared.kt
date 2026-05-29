@@ -38,14 +38,17 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.TurnElement
 import com.lin.hippyagent.core.chat.TurnStatus
 import com.lin.hippyagent.core.notification.ForegroundSessionTracker
+import com.lin.hippyagent.core.notification.HippyAgentNotificationService
 import com.lin.hippyagent.core.voice.TTSService
 import com.lin.hippyagent.core.voice.TtsCallback
 import com.lin.hippyagent.core.voice.TtsRequest
@@ -63,12 +66,22 @@ private data class AgentTurnGroup(
     val groupKey: String
 )
 
-private fun computeAgentTurnGroups(turns: List<ChatTurn>): List<AgentTurnGroup> {
+private fun computeAgentTurnGroups(turns: List<ChatTurn>, isGroupChat: Boolean = false): List<AgentTurnGroup> {
     val groups = mutableListOf<AgentTurnGroup>()
     var currentAgentIndices = mutableListOf<Int>()
+    var lastSenderId: String? = null
     for (i in turns.indices) {
         if (turns[i] is ChatTurn.AgentTurn) {
+            val senderId = (turns[i] as ChatTurn.AgentTurn).senderAgentId
+            if (isGroupChat && currentAgentIndices.isNotEmpty() && senderId != lastSenderId) {
+                groups.add(AgentTurnGroup(
+                    agentIndices = currentAgentIndices.toList(),
+                    groupKey = turns[currentAgentIndices.first()].id
+                ))
+                currentAgentIndices = mutableListOf()
+            }
             currentAgentIndices.add(i)
+            lastSenderId = senderId
         } else {
             if (currentAgentIndices.isNotEmpty()) {
                 groups.add(AgentTurnGroup(
@@ -77,6 +90,7 @@ private fun computeAgentTurnGroups(turns: List<ChatTurn>): List<AgentTurnGroup> 
                 ))
             }
             currentAgentIndices = mutableListOf()
+            lastSenderId = null
         }
     }
     if (currentAgentIndices.isNotEmpty()) {
@@ -111,7 +125,8 @@ fun rememberChatTtsState(context: android.content.Context): ChatTtsState {
 class ChatSessionState(
     val viewModel: ChatViewModel,
     val inputViewModel: ChatInputViewModel,
-    private val ttsService: TTSService
+    private val ttsService: TTSService,
+    private val notificationService: HippyAgentNotificationService
 ) {
     fun initialize(effectiveSessionId: String, agentId: String) {
         viewModel.initSession(effectiveSessionId, agentId)
@@ -122,6 +137,7 @@ class ChatSessionState(
 
     fun setupForeground(sessionId: String) {
         ForegroundSessionTracker.setForeground(sessionId)
+        notificationService.cancelSessionNotifications(sessionId)
     }
 
     fun cleanup() {
@@ -137,8 +153,9 @@ fun rememberChatSessionState(
     inputViewModel: ChatInputViewModel,
     ttsService: TTSService
 ): ChatSessionState {
+    val notificationService: HippyAgentNotificationService = org.koin.compose.koinInject()
     return remember(viewModel, inputViewModel, ttsService) {
-        ChatSessionState(viewModel, inputViewModel, ttsService)
+        ChatSessionState(viewModel, inputViewModel, ttsService, notificationService)
     }
 }
 
@@ -289,7 +306,7 @@ fun ChatTurnList(
         derivedStateOf { turns.filterIsInstance<ChatTurn.AgentTurn>().lastOrNull()?.id }
     }
 
-    val turnGroups = remember(turns) { computeAgentTurnGroups(turns) }
+    val turnGroups = remember(turns, isGroupChat) { computeAgentTurnGroups(turns, isGroupChat) }
     val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
     val indexToGroup by remember(turnGroups) {
         derivedStateOf {
@@ -359,10 +376,10 @@ fun ChatTurnList(
                         }
                     }
                     val statusMap = mutableMapOf<String, String>()
-                    replied.forEach { aid -> if (aid in targetIds) statusMap[aid] = "已回复" }
+                    replied.forEach { aid -> if (aid in targetIds) statusMap[aid] = context.getString(R.string.chat_replied) }
                     targetIds.forEach { aid ->
                         if (aid !in statusMap) {
-                            statusMap[aid] = if (aid in workingAgentIds) "工作中" else "已读"
+                            statusMap[aid] = if (aid in workingAgentIds) context.getString(R.string.chat_working) else context.getString(R.string.chat_read)
                         }
                     }
                     map[turn.id] = statusMap
@@ -471,7 +488,7 @@ fun ChatTurnList(
                                             override fun onComplete() {}
                                             override fun onError(error: Throwable) {
                                                 android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                                    Toast.makeText(context, "语音播报失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, context.getString(R.string.chat_tts_failed, error.message), Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         }
@@ -559,7 +576,7 @@ fun ChatTurnList(
                                                 override fun onComplete() {}
                                                 override fun onError(error: Throwable) {
                                                     android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                                        Toast.makeText(context, "语音播报失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, context.getString(R.string.chat_tts_failed, error.message), Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }
@@ -637,7 +654,7 @@ fun BoxScope.ChatOverlays(
         ) {
             Icon(
                 Icons.Default.KeyboardArrowDown,
-                "回到底部"
+                stringResource(R.string.chat_scroll_to_bottom)
             )
         }
     }
@@ -653,7 +670,7 @@ fun BoxScope.ChatOverlays(
         ) {
             Icon(
                 Icons.Default.Stop,
-                "停止播放"
+                stringResource(R.string.chat_stop_playback)
             )
         }
     }
@@ -661,18 +678,18 @@ fun BoxScope.ChatOverlays(
     if (showFreeModelWarning) {
         AlertDialog(
             onDismissRequest = { onDismissFreeModelWarning() },
-            title = { Text("隐私提醒", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.chat_privacy_warning_title), fontWeight = FontWeight.Bold) },
             text = {
-                Text("你正在使用免费模型。免费模型可能将你的数据用于训练或分析，存在信息泄露风险。建议仅用于非敏感内容。")
+                Text(stringResource(R.string.chat_privacy_warning_text))
             },
             confirmButton = {
                 Button(onClick = { onDismissFreeModelWarning() }) {
-                    Text("确认")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { onSuppressFreeModelWarning() }) {
-                    Text("永不提醒")
+                    Text(stringResource(R.string.chat_never_remind))
                 }
             }
         )

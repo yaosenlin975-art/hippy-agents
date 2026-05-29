@@ -3,6 +3,7 @@ package com.lin.hippyagent.ui.settings
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.ondevice.BackendPreference
 import com.lin.hippyagent.core.ondevice.DownloadProgress
 import com.lin.hippyagent.core.ondevice.DownloadState
@@ -43,6 +44,7 @@ data class OnDeviceModelUiState(
 class OnDeviceModelViewModel(
     private val manager: OnDeviceModelManager,
     private val store: OnDeviceModelStore,
+    private val context: android.app.Application,
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -107,7 +109,7 @@ class OnDeviceModelViewModel(
     fun downloadHuggingFaceModel(model: HuggingFaceModel) {
         val ggufFile = model.siblings.firstOrNull { it.rfilename.endsWith(".gguf") }?.rfilename
         if (ggufFile == null) {
-            _errorMessage.value = "该模型没有可用的 GGUF 文件"
+            _errorMessage.value = context.getString(R.string.ondevice_no_gguf)
             return
         }
         val modelId = "hf_${model.displayName.replace("/", "_").replace(" ", "_")}"
@@ -126,7 +128,7 @@ class OnDeviceModelViewModel(
                 manager.startDownloadWithConfig(config)
             }.onFailure {
                 Timber.e(it, "HF model download failed")
-                _errorMessage.value = "下载失败: ${it.message}"
+                _errorMessage.value = context.getString(R.string.ondevice_download_failed_msg, it.message ?: "")
             }
         }
     }

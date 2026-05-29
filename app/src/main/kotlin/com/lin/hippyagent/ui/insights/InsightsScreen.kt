@@ -43,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.insights.AgentSessionCount
 import com.lin.hippyagent.core.insights.InsightsReport
 import com.lin.hippyagent.core.insights.ToolUsage
@@ -77,11 +79,11 @@ fun InsightsScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "使用分析",
+                title = stringResource(R.string.insights_usage_analysis),
                 onBackClick = onBackClick,
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }, enabled = !loading) {
-                        Icon(Icons.Default.Refresh, contentDescription = "刷新")
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.insights_refresh))
                     }
                 }
             )
@@ -112,7 +114,7 @@ fun InsightsScreen(
                         FilterChip(
                             selected = selectedDays == days,
                             onClick = { viewModel.setDays(days) },
-                            label = { Text("${days}天") }
+                            label = { Text(stringResource(R.string.insights_days, days)) }
                         )
                     }
                 }
@@ -136,10 +138,10 @@ fun InsightsScreen(
 private fun AgentSessionCountCard(counts: List<AgentSessionCount>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("智能体对话次数", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.insights_agent_chat_count), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             if (counts.isEmpty()) {
-                Text("暂无数据", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.insights_no_data), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val maxCount = counts.maxOf { it.sessionCount }.coerceAtLeast(1)
                 counts.forEach { item ->
@@ -149,7 +151,7 @@ private fun AgentSessionCountCard(counts: List<AgentSessionCount>) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(item.agentName, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text("${item.sessionCount}次", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.insights_times, item.sessionCount), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -162,17 +164,17 @@ private fun OverviewCard(report: InsightsReport) {
     val o = report.overview
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("概览", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.insights_overview), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                StatItem("会话数", "${o.totalSessions}")
-                StatItem("输入Token", formatTokens(o.totalInputTokens))
-                StatItem("输出Token", formatTokens(o.totalOutputTokens))
+                StatItem(stringResource(R.string.insights_session_count), "${o.totalSessions}")
+                StatItem(stringResource(R.string.insights_input_token), formatTokens(o.totalInputTokens))
+                StatItem(stringResource(R.string.insights_output_token), formatTokens(o.totalOutputTokens))
             }
             Spacer(Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                StatItem("完成", "${o.completedSessions}")
-                StatItem("失败", "${o.failedSessions}")
+                StatItem(stringResource(R.string.insights_completed), "${o.completedSessions}")
+                StatItem(stringResource(R.string.insights_failed), "${o.failedSessions}")
             }
         }
     }
@@ -190,14 +192,14 @@ private fun StatItem(label: String, value: String) {
 private fun SkillsBreakdownCard(skills: List<ToolUsage>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("技能排行", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.insights_skill_ranking), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             if (skills.isEmpty()) {
-                Text("暂无数据", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.insights_no_data), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else skills.take(10).forEach { s ->
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(s.toolName, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    Text("${s.callCount}次", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.insights_times, s.callCount), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -208,7 +210,7 @@ private fun SkillsBreakdownCard(skills: List<ToolUsage>) {
 private fun ToolBreakdownCard(tools: List<ToolUsage>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("工具排行", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.insights_tool_ranking), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             tools.take(10).forEach { t ->
                 Row(
@@ -216,7 +218,7 @@ private fun ToolBreakdownCard(tools: List<ToolUsage>) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(t.toolName, modifier = Modifier.weight(1f), fontSize = 13.sp)
-                    Text("${t.callCount}次", fontSize = 13.sp)
+                    Text(stringResource(R.string.insights_call_times, t.callCount), fontSize = 13.sp)
                 }
             }
         }
@@ -228,14 +230,14 @@ private fun ActivityCard(report: InsightsReport) {
     val a = report.activityPatterns
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("活动模式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.insights_activity_pattern), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("活跃高峰时段", fontSize = 13.sp)
+                Text(stringResource(R.string.insights_peak_hours), fontSize = 13.sp)
                 Text("${a.peakHour}:00", fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("活跃高峰日", fontSize = 13.sp)
+                Text(stringResource(R.string.insights_peak_day), fontSize = 13.sp)
                 Text(weekdayName(a.peakWeekday), fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
@@ -250,7 +252,7 @@ private fun TokenTrendChart(dailyTokens: List<com.lin.hippyagent.core.insights.D
     val inputColor = MaterialTheme.colorScheme.primary
     val outputColor = MaterialTheme.colorScheme.secondary
 
-    Text("Token 使用趋势", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+    Text(stringResource(R.string.insights_token_trend), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(4.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -258,14 +260,14 @@ private fun TokenTrendChart(dailyTokens: List<com.lin.hippyagent.core.insights.D
                 drawRect(inputColor)
             }
             Spacer(Modifier.width(4.dp))
-            Text("输入", fontSize = 11.sp)
+            Text(stringResource(R.string.insights_input), fontSize = 11.sp)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Canvas(modifier = Modifier.size(10.dp)) {
                 drawRect(outputColor)
             }
             Spacer(Modifier.width(4.dp))
-            Text("输出", fontSize = 11.sp)
+            Text(stringResource(R.string.insights_output), fontSize = 11.sp)
         }
     }
     Spacer(Modifier.height(8.dp))
@@ -370,7 +372,7 @@ private fun TokenUsageDetailCard(
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Token 消耗统计",
+                text = stringResource(R.string.insights_token_consumption),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -386,7 +388,7 @@ private fun TokenUsageDetailCard(
                 ) {
                     Text(startDate.format(formatter), fontSize = 12.sp, maxLines = 1)
                 }
-                Text("至", modifier = Modifier.align(Alignment.CenterVertically))
+                Text(stringResource(R.string.insights_to), modifier = Modifier.align(Alignment.CenterVertically))
                 OutlinedButton(
                     onClick = { showEndDatePicker = true },
                     modifier = Modifier.weight(1f)
@@ -408,7 +410,7 @@ private fun TokenUsageDetailCard(
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = "按模型统计",
+                    text = stringResource(R.string.insights_by_model),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -421,7 +423,7 @@ private fun TokenUsageDetailCard(
                     Spacer(Modifier.height(4.dp))
                 }
             } ?: Text(
-                text = "暂无统计数据",
+                text = stringResource(R.string.insights_no_stats),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -444,10 +446,10 @@ private fun TokenUsageDetailCard(
                         }
                         showStartDatePicker = false
                     }
-                ) { Text("确定") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) { Text("取消") }
+                ) { Text(stringResource(R.string.ok)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showStartDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -470,10 +472,10 @@ private fun TokenUsageDetailCard(
                         }
                         showEndDatePicker = false
                     }
-                ) { Text("确定") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndDatePicker = false }) { Text("取消") }
+                ) { Text(stringResource(R.string.ok)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEndDatePicker = false }) { Text(stringResource(R.string.cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -497,7 +499,7 @@ private fun TokenUsageSummaryCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "总计",
+                text = stringResource(R.string.insights_total),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
@@ -508,15 +510,15 @@ private fun TokenUsageSummaryCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TokenStatItem(
-                    label = "输入 Token",
+                    label = stringResource(R.string.insights_input_token),
                     value = tokenFormatNumber(summary.totalInputTokens)
                 )
                 TokenStatItem(
-                    label = "输出 Token",
+                    label = stringResource(R.string.insights_output_token),
                     value = tokenFormatNumber(summary.totalOutputTokens)
                 )
                 TokenStatItem(
-                    label = "总调用",
+                    label = stringResource(R.string.insights_total_calls),
                     value = tokenFormatNumber(summary.totalCalls)
                 )
             }
@@ -527,11 +529,11 @@ private fun TokenUsageSummaryCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TokenStatItem(
-                        label = "缓存读取",
+                        label = stringResource(R.string.insights_cache_read),
                         value = tokenFormatNumber(summary.totalCacheReadTokens)
                     )
                     TokenStatItem(
-                        label = "缓存写入",
+                        label = stringResource(R.string.insights_cache_write),
                         value = tokenFormatNumber(summary.totalCacheWriteTokens)
                     )
                     TokenStatItem(label = "", value = "")
@@ -566,7 +568,7 @@ private fun TokenUsageModelCard(
                     )
                 }
                 Text(
-                    text = "${tokenFormatNumber(model.calls)} 次",
+                    text = stringResource(R.string.insights_call_times, model.calls),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -577,11 +579,11 @@ private fun TokenUsageModelCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 TokenStatItem(
-                    label = "输入",
+                    label = stringResource(R.string.insights_input),
                     value = tokenFormatNumber(model.inputTokens)
                 )
                 TokenStatItem(
-                    label = "输出",
+                    label = stringResource(R.string.insights_output),
                     value = tokenFormatNumber(model.outputTokens)
                 )
             }
@@ -626,9 +628,10 @@ private fun formatTokens(tokens: Long): String = when {
     else -> "$tokens"
 }
 
+@Composable
 private fun weekdayName(day: Int): String = when (day) {
-    1 -> "周一"; 2 -> "周二"; 3 -> "周三"; 4 -> "周四"
-    5 -> "周五"; 6 -> "周六"; 7 -> "周日"; else -> "-"
+    1 -> stringResource(R.string.insights_mon); 2 -> stringResource(R.string.insights_tue); 3 -> stringResource(R.string.insights_wed); 4 -> stringResource(R.string.insights_thu)
+    5 -> stringResource(R.string.insights_fri); 6 -> stringResource(R.string.insights_sat); 7 -> stringResource(R.string.insights_sun); else -> "-"
 }
 
 

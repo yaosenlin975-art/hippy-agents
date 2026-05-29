@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
 
 @Immutable
 data class CronJobUiItem(
@@ -149,55 +151,55 @@ class CronJobsViewModel(
 // Cron 表达式构建器选项
 // ─────────────────────────────────────────────
 
-private data class CronOption(val label: String, val value: String)
+private data class CronOption(val labelRes: Int, val value: String)
 
 private val MINUTE_OPTIONS = listOf(
-    CronOption("每分钟", "*"),
-    CronOption("每5分钟", "*/5"),
-    CronOption("每10分钟", "*/10"),
-    CronOption("每15分钟", "*/15"),
-    CronOption("每30分钟", "*/30"),
-    CronOption("整点(0分)", "0")
+    CronOption(R.string.cron_every_minute, "*"),
+    CronOption(R.string.cron_every_5min, "*/5"),
+    CronOption(R.string.cron_every_10min, "*/10"),
+    CronOption(R.string.cron_every_15min, "*/15"),
+    CronOption(R.string.cron_every_30min, "*/30"),
+    CronOption(R.string.cron_on_the_hour, "0")
 )
 
 private val HOUR_OPTIONS = listOf(
-    CronOption("每小时", "*"),
-    CronOption("每2小时", "*/2"),
-    CronOption("每4小时", "*/4"),
-    CronOption("每6小时", "*/6"),
-    CronOption("每12小时", "*/12"),
-    CronOption("凌晨0点", "0"),
-    CronOption("早上8点", "8"),
-    CronOption("上午9点", "9"),
-    CronOption("下午3点", "15"),
-    CronOption("晚上9点", "21")
+    CronOption(R.string.cron_every_hour, "*"),
+    CronOption(R.string.cron_every_2h, "*/2"),
+    CronOption(R.string.cron_every_4h, "*/4"),
+    CronOption(R.string.cron_every_6h, "*/6"),
+    CronOption(R.string.cron_every_12h, "*/12"),
+    CronOption(R.string.cron_midnight, "0"),
+    CronOption(R.string.cron_8am, "8"),
+    CronOption(R.string.cron_9am, "9"),
+    CronOption(R.string.cron_3pm, "15"),
+    CronOption(R.string.cron_9pm, "21")
 )
 
 private val DOM_OPTIONS = listOf(
-    CronOption("每天", "*"),
-    CronOption("1号", "1"),
-    CronOption("15号", "15"),
-    CronOption("最后一天", "L")
+    CronOption(R.string.cron_every_day, "*"),
+    CronOption(R.string.cron_day_1, "1"),
+    CronOption(R.string.cron_day_15, "15"),
+    CronOption(R.string.cron_last_day, "L")
 )
 
 private val MONTH_OPTIONS = listOf(
-    CronOption("每月", "*"),
-    CronOption("1月", "1"),
-    CronOption("3月", "3"),
-    CronOption("6月", "6"),
-    CronOption("9月", "9"),
-    CronOption("12月", "12")
+    CronOption(R.string.cron_every_month, "*"),
+    CronOption(R.string.cron_jan, "1"),
+    CronOption(R.string.cron_mar, "3"),
+    CronOption(R.string.cron_jun, "6"),
+    CronOption(R.string.cron_sep, "9"),
+    CronOption(R.string.cron_dec, "12")
 )
 
 private val DOW_OPTIONS = listOf(
-    CronOption("每天", "*"),
-    CronOption("工作日", "1-5"),
-    CronOption("周末", "6,0"),
-    CronOption("周一", "1"),
-    CronOption("周三", "3"),
-    CronOption("周五", "5"),
-    CronOption("周六", "6"),
-    CronOption("周日", "0")
+    CronOption(R.string.cron_every_day, "*"),
+    CronOption(R.string.cron_weekday, "1-5"),
+    CronOption(R.string.cron_weekend, "6,0"),
+    CronOption(R.string.cron_mon, "1"),
+    CronOption(R.string.cron_wed, "3"),
+    CronOption(R.string.cron_fri, "5"),
+    CronOption(R.string.cron_sat, "6"),
+    CronOption(R.string.cron_sun, "0")
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -216,7 +218,7 @@ private fun CronDropdown(
         modifier = modifier
     ) {
         OutlinedTextField(
-            value = selected.label,
+            value = stringResource(selected.labelRes),
             onValueChange = {},
             readOnly = true,
             label = { Text(label, fontSize = 12.sp) },
@@ -237,7 +239,7 @@ private fun CronDropdown(
                 DropdownMenuItem(
                     text = {
                         Column {
-                            Text(opt.label, fontSize = 13.sp)
+                            Text(stringResource(opt.labelRes), fontSize = 13.sp)
                             Text(opt.value, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     },
@@ -299,17 +301,17 @@ fun CronJobsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("定时任务") },
+                title = { Text(stringResource(R.string.agent_cron_jobs)) },
                 navigationIcon = {
                     TextButton(onClick = onBackClick) {
-                        Text("返回")
+                        Text(stringResource(R.string.nav_back))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { viewModel.showAddDialog() }) {
-                Icon(Icons.Default.Add, contentDescription = "添加定时任务")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cron_add_task))
             }
         }
     ) { padding ->
@@ -320,9 +322,9 @@ fun CronJobsScreen(
         } else if (state.jobs.isEmpty()) {
             Box(Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("暂无定时任务", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.cron_no_jobs), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text("点击 + 创建第一个定时任务", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    Text(stringResource(R.string.cron_add_first), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
         } else {
@@ -359,21 +361,21 @@ fun CronJobsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = if (isEditing) "编辑定时任务" else "新建定时任务",
+                    text = if (isEditing) stringResource(R.string.cron_edit_title) else stringResource(R.string.cron_new_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                     OutlinedTextField(
                         value = newName,
                         onValueChange = { newName = it },
-                        label = { Text("任务名称") },
+                        label = { Text(stringResource(R.string.cron_job_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = newQuery,
                         onValueChange = { newQuery = it },
-                        label = { Text("执行内容") },
+                        label = { Text(stringResource(R.string.cron_job_query)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
@@ -388,10 +390,10 @@ fun CronJobsScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             OutlinedTextField(
-                                value = selectedSession?.title ?: "新建会话",
+                                value = selectedSession?.title ?: stringResource(R.string.cron_new_session),
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("选择会话", fontSize = 12.sp) },
+                                label = { Text(stringResource(R.string.cron_select_session), fontSize = 12.sp) },
                                 trailingIcon = {
                                     Icon(Icons.Default.KeyboardArrowDown, null,
                                         modifier = Modifier.menuAnchor())
@@ -407,7 +409,7 @@ fun CronJobsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("新建会话", fontSize = 13.sp) },
+                                    text = { Text(stringResource(R.string.cron_new_session), fontSize = 13.sp) },
                                     onClick = {
                                         selectedSessionId = ""
                                         sessionExpanded = false
@@ -439,7 +441,7 @@ fun CronJobsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("后台静默执行", fontSize = 14.sp)
+                        Text(stringResource(R.string.cron_silent_mode), fontSize = 14.sp)
                         Switch(
                             checked = silentMode,
                             onCheckedChange = { silentMode = it },
@@ -448,17 +450,17 @@ fun CronJobsScreen(
                     }
 
                     // Cron 表达式多项选择
-                    Text("执行频率", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text(stringResource(R.string.cron_frequency), fontWeight = FontWeight.Medium, fontSize = 14.sp)
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CronDropdown("分钟", MINUTE_OPTIONS, selMinute, { selMinute = it }, Modifier.weight(1f))
-                        CronDropdown("小时", HOUR_OPTIONS, selHour, { selHour = it }, Modifier.weight(1f))
+                        CronDropdown(stringResource(R.string.cron_field_minute), MINUTE_OPTIONS, selMinute, { selMinute = it }, Modifier.weight(1f))
+                        CronDropdown(stringResource(R.string.cron_field_hour), HOUR_OPTIONS, selHour, { selHour = it }, Modifier.weight(1f))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CronDropdown("日期", DOM_OPTIONS, selDom, { selDom = it }, Modifier.weight(1f))
-                        CronDropdown("月份", MONTH_OPTIONS, selMonth, { selMonth = it }, Modifier.weight(1f))
+                        CronDropdown(stringResource(R.string.cron_field_day), DOM_OPTIONS, selDom, { selDom = it }, Modifier.weight(1f))
+                        CronDropdown(stringResource(R.string.cron_field_month), MONTH_OPTIONS, selMonth, { selMonth = it }, Modifier.weight(1f))
                     }
-                    CronDropdown("星期", DOW_OPTIONS, selDow, { selDow = it })
+                    CronDropdown(stringResource(R.string.cron_field_weekday), DOW_OPTIONS, selDow, { selDow = it })
 
                     // 预览生成的 cron 表达式
                     Surface(
@@ -482,7 +484,7 @@ fun CronJobsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = { viewModel.dismissAddDialog() }) {
-                        Text("取消")
+                        Text(stringResource(R.string.cancel))
                     }
                     Spacer(Modifier.width(8.dp))
                     TextButton(
@@ -509,7 +511,7 @@ fun CronJobsScreen(
                         },
                         enabled = newName.isNotBlank() && newQuery.isNotBlank()
                     ) {
-                        Text(if (isEditing) "保存" else "创建")
+                        Text(if (isEditing) stringResource(R.string.save) else stringResource(R.string.cron_create))
                     }
                 }
             }
@@ -557,7 +559,7 @@ private fun CronJobCard(
                     IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "删除",
+                            contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                             modifier = Modifier.size(18.dp)
                         )
@@ -573,7 +575,7 @@ private fun CronJobCard(
             )
             if (job.silentMode) {
                 Text(
-                    text = "静默执行",
+                    text = stringResource(R.string.cron_silent_label),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     modifier = Modifier.padding(top = 2.dp)

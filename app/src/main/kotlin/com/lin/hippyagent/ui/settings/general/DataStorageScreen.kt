@@ -22,7 +22,9 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.lin.hippyagent.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.storage.StorageManager
@@ -68,27 +70,27 @@ fun DataStorageScreen(
                     isMigrating.value = false
                     info.value = getStorageInfo(ctx, storageManager)
                     result.onSuccess { count ->
-                        Toast.makeText(ctx, "挂载完成：$count 个文件已同步", Toast.LENGTH_LONG).show()
+                        Toast.makeText(ctx, ctx.getString(R.string.storage_mount_complete, count), Toast.LENGTH_LONG).show()
                     }.onFailure { e ->
                         Timber.e(e, "Auto mount failed")
-                        Toast.makeText(ctx, "挂载失败：${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(ctx, ctx.getString(R.string.storage_mount_failed, e.message), Toast.LENGTH_LONG).show()
                     }
                 }
             }
         }
     }
 
-    Scaffold(topBar = { HippyTopBar(title = "数据存储", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.storage_title), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
             item { Spacer(Modifier.height(8.dp)) }
 
             // 存储概览
-            item { SectionHeader("存储概览") }
+            item { SectionHeader(stringResource(R.string.storage_overview)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("总容量", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.storage_total_capacity), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("${info.value.totalGB}GB", fontSize = 14.sp)
                         }
                         Spacer(Modifier.height(8.dp))
@@ -100,15 +102,15 @@ fun DataStorageScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("已用 ${info.value.usedGB}GB", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("可用 ${info.value.availGB}GB", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.storage_used_gb, info.value.usedGB), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.storage_available_gb, info.value.availGB), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
             }
 
             // 外部存储设置
-            item { SectionHeader("外部存储（卸载保护）") }
+            item { SectionHeader(stringResource(R.string.storage_external_protection)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
@@ -122,7 +124,7 @@ fun DataStorageScreen(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = if (isSafEnabled.value) "外部存储已授权" else "数据存储在内部存储",
+                                text = if (isSafEnabled.value) stringResource(R.string.storage_external_authorized) else stringResource(R.string.storage_internal_data),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = if (isSafEnabled.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -131,9 +133,9 @@ fun DataStorageScreen(
                         Spacer(Modifier.height(6.dp))
                         Text(
                             text = if (isSafEnabled.value)
-                                "数据已迁移到外部目录，卸载应用不会丢失数据。"
+                                stringResource(R.string.storage_data_migrated_desc)
                             else
-                                "当前数据存储在应用内部目录，卸载应用将丢失所有数据（配置、聊天记录、记忆）。建议授权外部存储目录。",
+                                stringResource(R.string.storage_data_internal_desc),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 18.sp
@@ -146,7 +148,7 @@ fun DataStorageScreen(
                                 onClick = { safLauncher.launch(null) },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("选择外部存储目录")
+                                Text(stringResource(R.string.storage_select_external_dir))
                             }
                         } else {
                             // 已授权：显示操作按钮
@@ -167,9 +169,9 @@ fun DataStorageScreen(
                                                 isMigrating.value = false
                                                 info.value = getStorageInfo(ctx, storageManager)
                                                 result.onSuccess { count ->
-                                                    Toast.makeText(ctx, "挂载完成：$count 个文件已同步", Toast.LENGTH_LONG).show()
+                                                    Toast.makeText(ctx, ctx.getString(R.string.storage_mount_complete, count), Toast.LENGTH_LONG).show()
                                                 }.onFailure { e ->
-                                                    Toast.makeText(ctx, "挂载失败：${e.message}", Toast.LENGTH_LONG).show()
+                                                    Toast.makeText(ctx, ctx.getString(R.string.storage_mount_failed, e.message), Toast.LENGTH_LONG).show()
                                                 }
                                             }
                                         }
@@ -181,14 +183,14 @@ fun DataStorageScreen(
                                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                                         Spacer(Modifier.width(6.dp))
                                     }
-                                    Text("重新挂载")
+                                    Text(stringResource(R.string.storage_remount))
                                 }
                                 OutlinedButton(
                                     onClick = { showDisableDialog = true },
                                     modifier = Modifier.weight(1f),
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                                 ) {
-                                    Text("关闭外部存储")
+                                    Text(stringResource(R.string.storage_disable_external))
                                 }
                             }
                         }
@@ -197,15 +199,15 @@ fun DataStorageScreen(
             }
 
             // 应用数据
-            item { SectionHeader("应用数据") }
+            item { SectionHeader(stringResource(R.string.storage_app_data)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         listOf(
-                            "智能体数据" to info.value.agents,
-                            "会话记录" to info.value.sessions,
-                            "核心文件" to info.value.coreFiles,
-                            "数据库" to info.value.db
+                            stringResource(R.string.storage_agent_data) to info.value.agents,
+                            stringResource(R.string.storage_session_records) to info.value.sessions,
+                            stringResource(R.string.storage_core_files_label) to info.value.coreFiles,
+                            stringResource(R.string.storage_database_label) to info.value.db
                         ).forEach { (k, v) ->
                             Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(k, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -217,15 +219,15 @@ fun DataStorageScreen(
             }
 
             // 数据位置说明
-            item { SectionHeader("存储位置说明") }
+            item { SectionHeader(stringResource(R.string.storage_location_info)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         val items = listOf(
-                            "工作区" to "",
-                            "敏感数据" to "secret/",
-                            "备份" to ".backups/",
-                            "数据库" to "Room（内部存储）"
+                            stringResource(R.string.storage_workspace) to "",
+                            stringResource(R.string.storage_sensitive_data) to "secret/",
+                            stringResource(R.string.storage_backup) to ".backups/",
+                            stringResource(R.string.storage_database_label) to stringResource(R.string.storage_room_internal)
                         )
                         items.forEach { (name, path) ->
                             Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
@@ -235,7 +237,7 @@ fun DataStorageScreen(
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "注意：Room 数据库文件必须保留在内部存储（Android 限制）。配置、聊天记录、记忆等文件可存储在外部目录。",
+                            stringResource(R.string.storage_room_note),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             lineHeight = 16.sp
@@ -252,9 +254,9 @@ fun DataStorageScreen(
     if (showDisableDialog) {
         AlertDialog(
             onDismissRequest = { showDisableDialog = false },
-            title = { Text("关闭外部存储") },
+            title = { Text(stringResource(R.string.storage_disable_external)) },
             text = {
-                Text("关闭外部存储后，新数据将写入内部存储。外部存储中的已有数据不会被删除。\n\n警告：关闭后卸载应用仍会丢失新产生的数据。")
+                Text(stringResource(R.string.storage_disable_external_desc))
             },
             confirmButton = {
                 Button(
@@ -265,10 +267,10 @@ fun DataStorageScreen(
                         info.value = getStorageInfo(ctx, storageManager)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("确认关闭") }
+                ) { Text(stringResource(R.string.storage_confirm_disable)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDisableDialog = false }) { Text("取消") }
+                TextButton(onClick = { showDisableDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }

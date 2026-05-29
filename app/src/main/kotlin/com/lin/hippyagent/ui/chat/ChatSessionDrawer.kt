@@ -33,9 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.agent.session.BadgeLevel
 import com.lin.hippyagent.core.agent.session.Session
@@ -73,16 +75,16 @@ fun ChatSessionDrawer(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "会话列表",
+                    text = stringResource(R.string.session_list),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = onNewSession) {
-                    Icon(Icons.Default.Add, "新建会话", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Add, stringResource(R.string.new_session), tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, "关闭")
+                    Icon(Icons.Default.Close, stringResource(R.string.common_close))
                 }
             }
 
@@ -134,7 +136,7 @@ private fun DrawerSessionItem(
                 if (session.isPinned) {
                     Icon(
                         Icons.Default.PushPin,
-                        contentDescription = "已置顶",
+                        contentDescription = stringResource(R.string.chat_pinned),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(12.dp)
                     )
@@ -151,10 +153,10 @@ private fun DrawerSessionItem(
                 if (agentStatus != null) {
                     Spacer(modifier = Modifier.width(6.dp))
                     when (agentStatus) {
-                        AgentStatus.THINKING -> PulsingStatusDot(isThinking = true, label = "思考中")
-                        AgentStatus.EXECUTING_TOOL -> PulsingStatusDot(isThinking = false, label = "执行中")
-                        AgentStatus.ERROR -> Text("错误", fontSize = 10.sp, color = MaterialTheme.colorScheme.error)
-                        AgentStatus.STOPPED -> Text("已停止", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        AgentStatus.THINKING -> PulsingStatusDot(isThinking = true, label = stringResource(R.string.thinking))
+                        AgentStatus.EXECUTING_TOOL -> PulsingStatusDot(isThinking = false, label = stringResource(R.string.chat_executing))
+                        AgentStatus.ERROR -> Text(stringResource(R.string.error), fontSize = 10.sp, color = MaterialTheme.colorScheme.error)
+                        AgentStatus.STOPPED -> Text(stringResource(R.string.chat_stopped), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         AgentStatus.IDLE -> {}
                     }
                 }
@@ -165,7 +167,7 @@ private fun DrawerSessionItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = session.lastMessage ?: "暂无消息",
+                    text = session.lastMessage ?: stringResource(R.string.chat_no_messages),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

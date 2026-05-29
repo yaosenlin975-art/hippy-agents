@@ -45,7 +45,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Scaffold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -74,10 +76,10 @@ internal object EnvInstallState {
  */
 data class EnvItem(
     val name: String,
-    val description: String,
-    val checkCommands: List<String>,  // 检测命令列表，任一成功即视为已安装
-    val installHint: String = "",     // 安装提示
-    val category: String = "必备"     // 分类
+    val descriptionRes: Int,
+    val checkCommands: List<String>,
+    val installHint: String = "",
+    val categoryRes: Int = R.string.env_cat_essential
 )
 
 /**
@@ -98,99 +100,96 @@ data class EnvCheckState(
  * 预定义的常用/必备环境列表
  */
 val BUILTIN_ENV_ITEMS = listOf(
-    // 必备环境
     EnvItem(
         name = "Node.js + npx",
-        description = "JavaScript 运行时 + 包执行器，技能商店和部分工具依赖（需 v22+）",
+        descriptionRes = R.string.env_item_nodejs_desc,
         checkCommands = listOf("node --version", "node -v"),
         installHint = "nodesource",
-        category = "必备"
+        categoryRes = R.string.env_cat_essential
     ),
     EnvItem(
         name = "Python",
-        description = "Python 运行时，代码执行和脚本工具依赖",
+        descriptionRes = R.string.env_item_python_desc,
         checkCommands = listOf("python3 --version", "python --version"),
         installHint = "apt-get update && apt-get install -y python3 python3-pip",
-        category = "必备"
+        categoryRes = R.string.env_cat_essential
     ),
     EnvItem(
         name = "Git",
-        description = "版本控制，代码仓库操作和技能安装依赖",
+        descriptionRes = R.string.env_item_git_desc,
         checkCommands = listOf("git --version"),
         installHint = "apt-get update && apt-get install -y git",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "pip",
-        description = "Python 包管理器",
+        descriptionRes = R.string.env_item_pip_desc,
         checkCommands = listOf("pip3 --version", "pip --version"),
         installHint = "apt-get update && apt-get install -y python3-pip",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "SSH",
-        description = "远程连接和文件传输",
+        descriptionRes = R.string.env_item_ssh_desc,
         checkCommands = listOf("ssh -V 2>&1"),
         installHint = "apt-get update && apt-get install -y openssh-client",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "vim",
-        description = "终端文本编辑器",
+        descriptionRes = R.string.env_item_vim_desc,
         checkCommands = listOf("vim --version | head -1"),
         installHint = "apt-get update && apt-get install -y vim",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "jq",
-        description = "JSON 命令行处理器",
+        descriptionRes = R.string.env_item_jq_desc,
         checkCommands = listOf("jq --version"),
         installHint = "apt-get update && apt-get install -y jq",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "ffmpeg",
-        description = "音视频处理工具",
+        descriptionRes = R.string.env_item_ffmpeg_desc,
         checkCommands = listOf("ffmpeg -version | head -1"),
         installHint = "apt-get update && apt-get install -y ffmpeg",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
     EnvItem(
         name = "himalaya",
-        description = "CLI 邮件客户端，支持 IMAP/SMTP 收发邮件",
+        descriptionRes = R.string.env_item_himalaya_desc,
         checkCommands = listOf("himalaya --version"),
         installHint = "curl -L https://github.com/pimalaya/himalaya/releases/latest/download/himalaya-linux-arm64 -o /usr/local/bin/himalaya && chmod +x /usr/local/bin/himalaya",
-        category = "常用"
+        categoryRes = R.string.env_cat_common
     ),
-    // 网络（Android 原生实现，无需 Linux 环境）
     EnvItem(
         name = "网页访问（OkHttp + WebView）",
-        description = "Android 原生网页访问，OkHttp 轻量 HTTP + WebView JS 渲染自动降级",
+        descriptionRes = R.string.env_item_web_access_desc,
         checkCommands = listOf(""),
         installHint = "",
-        category = "网络"
+        categoryRes = R.string.env_cat_network
     ),
     EnvItem(
         name = "cURL（Linux 环境）",
-        description = "Linux 终端 HTTP 客户端，仅 Linux 环境中使用",
+        descriptionRes = R.string.env_item_curl_desc,
         checkCommands = listOf("curl --version"),
         installHint = "apt-get update && apt-get install -y curl",
-        category = "网络"
+        categoryRes = R.string.env_cat_network
     ),
-    // 语音扩展
     EnvItem(
         name = "Moonshine STT",
-        description = "离线语音转文字，支持中/英/日/韩等多语言，长按麦克风即可语音输入",
+        descriptionRes = R.string.env_item_moonshine_desc,
         checkCommands = listOf(""),
         installHint = "",
-        category = "语音扩展"
+        categoryRes = R.string.env_cat_voice
     ),
     EnvItem(
         name = "系统 TTS",
-        description = "文字转语音播报，使用 Android 系统 TTS 引擎",
+        descriptionRes = R.string.env_item_system_tts_desc,
         checkCommands = listOf(""),
         installHint = "",
-        category = "语音扩展"
+        categoryRes = R.string.env_cat_voice
     )
 )
 
@@ -205,14 +204,14 @@ enum class DiagnosticStatus { OK, WARN, FAIL }
 suspend fun collectSystemDiagnostics(context: android.content.Context): List<SystemDiagnostic> = withContext(Dispatchers.IO) {
     val list = mutableListOf<SystemDiagnostic>()
 
-    list.add(SystemDiagnostic("Android 版本", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"))
-    list.add(SystemDiagnostic("设备型号", "${Build.MANUFACTURER} ${Build.MODEL}"))
-    list.add(SystemDiagnostic("CPU 架构", Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"))
+    list.add(SystemDiagnostic(context.getString(R.string.env_android_version), "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"))
+    list.add(SystemDiagnostic(context.getString(R.string.env_device_model), "${Build.MANUFACTURER} ${Build.MODEL}"))
+    list.add(SystemDiagnostic(context.getString(R.string.env_cpu_arch), Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"))
 
     val runtime = Runtime.getRuntime()
     val usedMem = runtime.totalMemory() - runtime.freeMemory()
     val maxMem = runtime.maxMemory()
-    list.add(SystemDiagnostic("JVM 内存", "${formatBytes(usedMem)} / ${formatBytes(maxMem)}"))
+    list.add(SystemDiagnostic(context.getString(R.string.env_jvm_memory), "${formatBytes(usedMem)} / ${formatBytes(maxMem)}"))
 
     try {
         val stat = StatFs(Environment.getDataDirectory().absolutePath)
@@ -220,25 +219,24 @@ suspend fun collectSystemDiagnostics(context: android.content.Context): List<Sys
         val total = stat.blockCountLong * stat.blockSizeLong
         val usedPercent = ((total - available).toFloat() / total * 100).toInt()
         list.add(SystemDiagnostic(
-            "存储空间",
-            "${formatBytes(available)} 可用 / ${formatBytes(total)} 总计",
+            context.getString(R.string.env_storage_space),
+            context.getString(R.string.env_storage_available_format, formatBytes(available), formatBytes(total)),
             if (usedPercent > 90) DiagnosticStatus.WARN else DiagnosticStatus.OK
         ))
     } catch (_: Exception) {
-        list.add(SystemDiagnostic("存储空间", "无法获取", DiagnosticStatus.WARN))
+        list.add(SystemDiagnostic(context.getString(R.string.env_storage_space), context.getString(R.string.env_cannot_get), DiagnosticStatus.WARN))
     }
 
-    // 只统计 files/ 子目录大小，避免递归遍历整个 app 目录（含 cache/databases）导致卡死
     val filesDir = context.filesDir
     try {
         val appUsed = estimateFolderSize(filesDir, maxDepth = 3)
-        list.add(SystemDiagnostic("应用占用", formatBytes(appUsed)))
+        list.add(SystemDiagnostic(context.getString(R.string.env_app_usage), formatBytes(appUsed)))
     } catch (_: Exception) {
-        list.add(SystemDiagnostic("应用占用", "获取失败"))
+        list.add(SystemDiagnostic(context.getString(R.string.env_app_usage), context.getString(R.string.env_get_failed)))
     }
 
     try {
-        list.add(SystemDiagnostic("可用处理器", "${Runtime.getRuntime().availableProcessors()} 核"))
+        list.add(SystemDiagnostic(context.getString(R.string.env_available_processors), context.getString(R.string.env_cores, Runtime.getRuntime().availableProcessors())))
     } catch (_: Exception) {
     }
 
@@ -277,7 +275,7 @@ private fun SystemDiagnosticsCard(diagnostics: List<SystemDiagnostic>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "系统诊断",
+                text = stringResource(R.string.env_system_diagnostics),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             )
@@ -286,7 +284,7 @@ private fun SystemDiagnosticsCard(diagnostics: List<SystemDiagnostic>) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
-                    Text("正在收集系统信息...", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.env_collecting_info), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             diagnostics.forEach { d ->
@@ -355,8 +353,8 @@ fun EnvCheckScreen(
     LaunchedEffect(Unit) {
         envStates = envStates.toMutableList().apply {
             BUILTIN_ENV_ITEMS.forEachIndexed { i, item ->
-                if (item.category == "网络" && item.name != "cURL（Linux 环境）") {
-                    this[i] = this[i].copy(isInstalled = true, version = "Android 原生组件，始终可用")
+                if (item.categoryRes == R.string.env_cat_network && item.name != "cURL（Linux 环境）") {
+                    this[i] = this[i].copy(isInstalled = true, version = context.getString(R.string.env_native_always_available))
                 }
             }
         }
@@ -388,11 +386,10 @@ fun EnvCheckScreen(
     LaunchedEffect(isLinuxReady) {
         if (isLinuxReady) {
             isCheckingAll = true
-            checkAllEnvs(linuxManager, BUILTIN_ENV_ITEMS) { newStates ->
-                // 保留原生网络项的状态和正在安装的项的状态不被覆盖
+            checkAllEnvs(linuxManager, BUILTIN_ENV_ITEMS, context) { newStates ->
                 val merged = envStates.toMutableList()
                 newStates.forEachIndexed { i, s ->
-                    val isNativeNetwork = BUILTIN_ENV_ITEMS[i].category == "网络" && BUILTIN_ENV_ITEMS[i].name != "cURL（Linux 环境）"
+                    val isNativeNetwork = BUILTIN_ENV_ITEMS[i].categoryRes == R.string.env_cat_network && BUILTIN_ENV_ITEMS[i].name != "cURL（Linux 环境）"
                     val isCurrentlyInstalling = EnvInstallState.installingItemName.value == BUILTIN_ENV_ITEMS[i].name
                     if (!isNativeNetwork && !isCurrentlyInstalling) {
                         merged[i] = s
@@ -408,7 +405,7 @@ fun EnvCheckScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "环境检测",
+                title = stringResource(R.string.env_check),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -431,11 +428,11 @@ fun EnvCheckScreen(
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "Linux 环境初始化中",
+                        stringResource(R.string.env_linux_initializing),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        "正在自动初始化 Linux 环境，请稍候...",
+                        stringResource(R.string.env_linux_auto_init),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -474,7 +471,7 @@ fun EnvCheckScreen(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "正在检测环境...",
+                                    text = stringResource(R.string.env_checking),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
                                 )
@@ -491,13 +488,13 @@ fun EnvCheckScreen(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "环境概览",
+                                    text = stringResource(R.string.env_overview),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text = "$installed / $total 已就绪",
+                                    text = stringResource(R.string.env_ready_count, installed, total),
                                     fontSize = 15.sp,
                                     color = if (installed == total) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
                                 )
@@ -506,14 +503,14 @@ fun EnvCheckScreen(
                                     OutlinedButton(onClick = {
                                         isCheckingAll = true
                                         coroutineScope.launch {
-                                            checkAllEnvs(linuxManager, BUILTIN_ENV_ITEMS) { newStates ->
+                                            checkAllEnvs(linuxManager, BUILTIN_ENV_ITEMS, context) { newStates ->
                                                 envStates = newStates
                                                 isCheckingAll = false
                                                 saveCachedEnvStates(context, newStates)
                                             }
                                         }
                                     }) {
-                                        Text("重新检测")
+                                        Text(stringResource(R.string.env_recheck))
                                     }
                                 }
                             }
@@ -522,12 +519,12 @@ fun EnvCheckScreen(
                 }
 
                 // 按分类分组显示
-                val categories = BUILTIN_ENV_ITEMS.map { it.category }.distinct()
-                categories.forEach { category ->
-                    val categoryItems = BUILTIN_ENV_ITEMS.filter { it.category == category }
+                val categories = BUILTIN_ENV_ITEMS.map { it.categoryRes }.distinct()
+                categories.forEach { categoryRes ->
+                    val categoryItems = BUILTIN_ENV_ITEMS.filter { it.categoryRes == categoryRes }
                     item {
                         Text(
-                            text = category,
+                            text = stringResource(categoryRes),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
@@ -539,12 +536,12 @@ fun EnvCheckScreen(
                         val anyInstalling = installingIndex >= 0
 
                         // 语音扩展分类使用专用卡片
-                        if (category == "语音扩展") {
+                        if (categoryRes == R.string.env_cat_voice) {
                             VoiceExtensionCard(
                                 envItem = envItem,
                                 state = state
                             )
-                        } else if (category == "网络" && envItem.name != "cURL（Linux 环境）") {
+                        } else if (categoryRes == R.string.env_cat_network && envItem.name != "cURL（Linux 环境）") {
                             NativeNetworkCard(
                                 envItem = envItem,
                                 state = state
@@ -560,7 +557,7 @@ fun EnvCheckScreen(
                                 installingIndex = stateIndex
                                 EnvInstallState.installingItemName.value = envItem.name
                                 EnvInstallState.scope.launch {
-                                    val result = installEnv(linuxManager, envItem) { progress ->
+                                    val result = installEnv(linuxManager, envItem, context) { progress ->
                                         EnvInstallState.installProgress.value = progress
                                         android.os.Handler(android.os.Looper.getMainLooper()).post {
                                             envStates = envStates.toMutableList().apply {
@@ -570,7 +567,7 @@ fun EnvCheckScreen(
                                     }
                                     // 安装后等一下让文件系统同步 — proot 环境需要更长时间
                                     kotlinx.coroutines.delay(1500)
-                                    var checkState = checkSingleEnv(linuxManager, envItem)
+                                    var checkState = checkSingleEnv(linuxManager, envItem, context)
                                     // 如果首次验证失败，再尝试一次宽松检测（直接执行版本命令）
                                     if (checkState.isInstalled != true) {
                                         kotlinx.coroutines.delay(1000)
@@ -602,7 +599,7 @@ fun EnvCheckScreen(
                                                         if (tCode == 0 || tOutput.isNotBlank()) {
                                                             checkState = checkState.copy(
                                                                 isInstalled = true,
-                                                                version = "已安装 ($path) — ${tOutput.lines().firstOrNull()?.take(40) ?: ""}"
+                                                                version = context.getString(R.string.env_installed_with_version, path, tOutput.lines().firstOrNull()?.take(40) ?: "")
                                                             )
                                                             break
                                                         }
@@ -611,17 +608,11 @@ fun EnvCheckScreen(
                                             }
                                         } catch (_: Exception) {}
                                     }
-                                    val installSucceeded = result == "安装成功"
+                                    val installSucceeded = result == context.getString(R.string.env_install_success)
                                     val newState = if (installSucceeded && checkState.isInstalled != true) {
-                                        // apt 返回成功但验证不通过 — 可能是 proot 环境缓存问题
                                         checkState.copy(
                                             isInstalled = null,
-                                            installOutput = "安装命令已执行成功，但验证未通过。\n" +
-                                                "这通常是因为 proot 环境的 PATH/链接缓存未刷新。\n\n" +
-                                                "建议操作：\n" +
-                                                "1. 重启应用后再次检测（最有效）\n" +
-                                                "2. 在终端手动执行 hash -r 刷新命令缓存\n\n" +
-                                                "验证详情: ${checkState.version.ifBlank { "无法获取版本信息"}}",
+                                            installOutput = context.getString(R.string.env_install_verify_failed_msg, checkState.version.ifBlank { context.getString(R.string.env_version_unavailable) }),
                                             installProgress = ""
                                         )
                                     } else {
@@ -683,19 +674,19 @@ private fun EnvCheckCard(
                 state.isChecking -> CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 state.isInstalled == true -> Icon(
                     Icons.Default.CheckCircle,
-                    contentDescription = "已安装",
+                    contentDescription = stringResource(R.string.env_installed),
                     tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(24.dp)
                 )
                 state.isInstalled == false -> Icon(
                     Icons.Default.Cancel,
-                    contentDescription = "未安装",
+                    contentDescription = stringResource(R.string.env_not_installed),
                     tint = Color(0xFFF44336),
                     modifier = Modifier.size(24.dp)
                 )
                 else -> Icon(
                     Icons.Default.Terminal,
-                    contentDescription = "待检测",
+                    contentDescription = stringResource(R.string.env_pending_check),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp)
                 )
@@ -711,7 +702,7 @@ private fun EnvCheckCard(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = envItem.description,
+                    text = stringResource(envItem.descriptionRes),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -744,7 +735,7 @@ private fun EnvCheckCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(6.dp))
-                        Text("安装中", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.env_installing), fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                     }
                 } else if (isOtherInstalling) {
                     Button(
@@ -752,7 +743,7 @@ private fun EnvCheckCard(
                         enabled = false,
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                     ) {
-                        Text("等待中", fontSize = 13.sp)
+                        Text(stringResource(R.string.env_waiting), fontSize = 13.sp)
                     }
                 } else {
                     Button(
@@ -760,7 +751,7 @@ private fun EnvCheckCard(
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("安装", fontSize = 13.sp)
+                        Text(stringResource(R.string.env_install_btn), fontSize = 13.sp)
                     }
                 }
             }
@@ -771,7 +762,7 @@ private fun EnvCheckCard(
 /**
  * 检测单个环境 — 先试 version 命令，再试 command -v，最后试 which + 文件存在性验证
  */
-private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.LinuxManager, envItem: EnvItem): EnvCheckState {
+private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.LinuxManager, envItem: EnvItem, context: android.content.Context): EnvCheckState {
     // 第一轮：尝试 version 命令（最可靠 — 确认二进制实际可执行）
     for (cmd in envItem.checkCommands) {
         try {
@@ -800,7 +791,7 @@ private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.L
                     return EnvCheckState(
                         name = envItem.name,
                         isInstalled = true,
-                        version = "已安装 ($binPath) — 版本信息获取失败"
+                        version = context.getString(R.string.env_installed_with_path, binPath) + " — " + context.getString(R.string.env_version_unavailable)
                     )
                 }
             } catch (_: Exception) {}
@@ -808,7 +799,7 @@ private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.L
             return EnvCheckState(
                 name = envItem.name,
                 isInstalled = false,
-                version = "路径存在但不可执行 ($binPath)"
+                version = context.getString(R.string.env_path_not_executable, binPath)
             )
         }
     } catch (_: Exception) {}
@@ -821,10 +812,11 @@ private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.L
 private suspend fun checkAllEnvs(
     linuxManager: com.lin.hippyagent.core.linux.LinuxManager,
     items: List<EnvItem>,
+    context: android.content.Context,
     onResult: (List<EnvCheckState>) -> Unit
 ) {
     val states = items.map { item ->
-        checkSingleEnv(linuxManager, item)
+        checkSingleEnv(linuxManager, item, context)
     }
     onResult(states)
 }
@@ -835,44 +827,40 @@ private suspend fun checkAllEnvs(
 private suspend fun installEnv(
     linuxManager: com.lin.hippyagent.core.linux.LinuxManager,
     envItem: EnvItem,
+    context: android.content.Context,
     onProgress: (String) -> Unit = {}
 ): String {
-    if (envItem.installHint.isBlank()) return "无安装命令"
+    if (envItem.installHint.isBlank()) return context.getString(R.string.env_no_install_command)
     return try {
-        // 先清理可能残留的 dpkg 锁
-        onProgress("清理锁文件...")
+        onProgress(context.getString(R.string.env_clearing_locks))
         try {
             linuxManager.exec("rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock 2>/dev/null", timeout = 5_000)
         } catch (_: Exception) {}
 
-        // NodeSource 特殊安装路径 — 安装 Node.js 22 + npm/npx
         if (envItem.installHint == "nodesource") {
-            return installNodeSource(linuxManager, onProgress)
+            return installNodeSource(linuxManager, context, onProgress)
         }
 
-        onProgress("正在更新包列表...")
-        // apt-get update — 捕获完整输出以便诊断
+        onProgress(context.getString(R.string.env_updating_packages))
         val (updateCode, updateOutput) = linuxManager.exec("apt-get update 2>&1", timeout = 120_000)
         if (updateCode != 0 && !updateOutput.contains("Reading package lists")) {
-            // update 失败但可能有部分成功，继续尝试安装
             Timber.w("apt-get update failed (code=$updateCode): ${updateOutput.take(200)}")
         }
 
-        onProgress("正在安装 ${envItem.name}...")
+        onProgress(context.getString(R.string.env_installing_name, envItem.name))
         val (code, output) = linuxManager.exec(
             "DEBIAN_FRONTEND=noninteractive " + envItem.installHint + " -y 2>&1 | tail -10",
             timeout = 300_000
         )
         onProgress("")
         if (code == 0) {
-            // 安装后刷新命令缓存
             try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (_: Exception) {}
-            "安装成功"
+            context.getString(R.string.env_install_success)
         } else {
-            "安装失败 (exit=$code): ${output.take(300)}"
+            context.getString(R.string.env_install_failed) + " (exit=$code): ${output.take(300)}"
         }
     } catch (e: Exception) {
-        "安装失败: ${e.message}"
+        context.getString(R.string.env_install_failed) + ": ${e.message}"
     }
 }
 
@@ -882,16 +870,17 @@ private suspend fun installEnv(
  */
 private suspend fun installNodeSource(
     linuxManager: com.lin.hippyagent.core.linux.LinuxManager,
+    context: android.content.Context,
     onProgress: (String) -> Unit = {}
 ): String {
     return try {
-        onProgress("正在更新包列表...")
+        onProgress(context.getString(R.string.env_updating_packages))
         linuxManager.exec("apt-get update 2>&1", timeout = 120_000)
 
-        onProgress("正在安装依赖...")
+        onProgress(context.getString(R.string.env_installing_deps))
         linuxManager.exec("DEBIAN_FRONTEND=noninteractive apt-get install -y curl ca-certificates 2>&1 | tail -5", timeout = 120_000)
 
-        onProgress("正在添加 NodeSource 仓库 (Node.js 22)...")
+        onProgress(context.getString(R.string.env_adding_nodesource))
         val (setupCode, setupOutput) = linuxManager.exec(
             "curl -fsSL https://deb.nodesource.com/setup_22.x | bash - 2>&1 | tail -20",
             timeout = 120_000
@@ -900,26 +889,25 @@ private suspend fun installNodeSource(
             Timber.w("NodeSource setup failed (code=$setupCode): ${setupOutput.take(200)}")
         }
 
-        onProgress("正在安装 Node.js 22...")
+        onProgress(context.getString(R.string.env_installing_nodejs))
         val (installCode, installOutput) = linuxManager.exec(
             "DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs 2>&1 | tail -10",
             timeout = 300_000
         )
 
         if (installCode == 0) {
-            // 验证版本
             try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (_: Exception) {}
             val (verCode, verOutput) = linuxManager.exec("node --version && npm --version && npx --version", timeout = 10_000)
             if (verCode == 0) {
-                "安装成功\n$verOutput"
+                context.getString(R.string.env_install_success_verify, verOutput)
             } else {
-                "安装成功（版本验证失败）"
+                context.getString(R.string.env_install_success_verify_failed)
             }
         } else {
-            "安装失败 (exit=$installCode): ${installOutput.take(300)}"
+            context.getString(R.string.env_install_failed) + " (exit=$installCode): ${installOutput.take(300)}"
         }
     } catch (e: Exception) {
-        "安装失败: ${e.message}"
+        context.getString(R.string.env_install_failed) + ": ${e.message}"
     }
 }
 
@@ -1004,21 +992,21 @@ private fun VoiceExtensionCard(
                 if (voiceState.deviceUnsupported) {
                     Icon(
                         Icons.Default.Cancel,
-                        contentDescription = "不支持",
+                        contentDescription = stringResource(R.string.env_unsupported),
                         tint = Color(0xFFF44336),
                         modifier = Modifier.size(24.dp)
                     )
                 } else if (voiceState.sttModel != null) {
                     Icon(
                         Icons.Default.CheckCircle,
-                        contentDescription = "已安装",
+                        contentDescription = stringResource(R.string.env_installed),
                         tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
                     Icon(
                         Icons.Default.Terminal,
-                        contentDescription = "待下载",
+                        contentDescription = stringResource(R.string.env_pending_download),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(24.dp)
                     )
@@ -1027,7 +1015,7 @@ private fun VoiceExtensionCard(
                 // TTS 始终可用
                 Icon(
                     Icons.Default.CheckCircle,
-                    contentDescription = "已就绪",
+                    contentDescription = stringResource(R.string.env_ready),
                     tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(24.dp)
                 )
@@ -1043,7 +1031,7 @@ private fun VoiceExtensionCard(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = envItem.description,
+                    text = stringResource(envItem.descriptionRes),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1051,7 +1039,7 @@ private fun VoiceExtensionCard(
                     when {
                         voiceState.deviceUnsupported -> {
                             Text(
-                                text = "需要 Android 15+ (API 35) 设备",
+                                text = stringResource(R.string.env_needs_api_35),
                                 fontSize = 11.sp,
                                 color = Color(0xFFF44336)
                             )
@@ -1074,7 +1062,7 @@ private fun VoiceExtensionCard(
                     }
                 } else {
                     Text(
-                        text = "使用 Android 系统 TTS 引擎，无需下载",
+                        text = stringResource(R.string.env_tts_no_download),
                         fontSize = 11.sp,
                         color = Color(0xFF4CAF50)
                     )
@@ -1106,7 +1094,7 @@ private fun NativeNetworkCard(
         ) {
             Icon(
                 Icons.Default.CheckCircle,
-                contentDescription = "已就绪",
+                contentDescription = stringResource(R.string.env_ready),
                 tint = Color(0xFF4CAF50),
                 modifier = Modifier.size(24.dp)
             )
@@ -1120,12 +1108,12 @@ private fun NativeNetworkCard(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = envItem.description,
+                    text = stringResource(envItem.descriptionRes),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Android 原生组件，始终可用",
+                    text = stringResource(R.string.env_native_always_available),
                     fontSize = 11.sp,
                     color = Color(0xFF4CAF50)
                 )

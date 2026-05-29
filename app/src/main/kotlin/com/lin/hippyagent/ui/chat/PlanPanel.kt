@@ -37,10 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.plan.PlanState
 import com.lin.hippyagent.core.agent.plan.PlanStateEnum
 import com.lin.hippyagent.core.agent.plan.SubTask
@@ -82,13 +85,13 @@ fun PlanPanel(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "执行计划",
+                        text = stringResource(R.string.chat_execute_plan),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, "关闭")
+                    Icon(Icons.Default.Close, stringResource(R.string.common_close))
                 }
             }
 
@@ -108,7 +111,7 @@ fun PlanPanel(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "暂无活动计划",
+                            text = stringResource(R.string.chat_no_active_plan),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -122,6 +125,7 @@ fun PlanPanel(
 
 @Composable
 private fun PlanContent(plan: PlanState) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +152,7 @@ private fun PlanContent(plan: PlanState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "进度 ${plan.doneCount}/${plan.totalCount}",
+                text = context.getString(R.string.chat_progress) + " ${plan.doneCount}/${plan.totalCount}",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -192,7 +196,7 @@ private fun PlanContent(plan: PlanState) {
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text = "完成总结",
+                        text = stringResource(R.string.chat_completion_summary),
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp
                     )

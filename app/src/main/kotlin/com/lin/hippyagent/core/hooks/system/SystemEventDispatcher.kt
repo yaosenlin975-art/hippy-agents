@@ -1,5 +1,7 @@
 package com.lin.hippyagent.core.hooks.system
 
+import android.content.Context
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.AgentRegistry
 import com.lin.hippyagent.core.agent.session.SessionStore
@@ -10,6 +12,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class SystemEventDispatcher(
+    private val context: Context,
     private val agentRegistry: AgentRegistry,
     private val agentFactory: AgentFactory,
     private val sessionStore: SessionStore
@@ -33,7 +36,7 @@ class SystemEventDispatcher(
 
                 val sessionResult = sessionStore.createSession(
                     agentId = defaultProfile.agentId,
-                    title = "系统事件: ${event.type.description}"
+                    title = context.getString(R.string.system_event_session_title, event.type.description)
                 )
                 val sessionId = sessionResult.getOrNull()?.id
                     ?: "system_hook:${event.timestamp}"

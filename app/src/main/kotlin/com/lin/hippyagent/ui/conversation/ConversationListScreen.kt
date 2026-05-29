@@ -79,6 +79,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.agent.session.BadgeLevel
 import com.lin.hippyagent.core.agent.session.Session
@@ -100,6 +101,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lin.hippyagent.core.agent.collaboration.GroupInfo
@@ -160,7 +162,7 @@ fun ConversationListScreen(
                                     .data(avatarUrl)
                                     .crossfade(true)
                                     .build(),
-                                contentDescription = "头像",
+                                contentDescription = stringResource(R.string.conversation_avatar),
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(RoundedCornerShape(6.dp)),
@@ -169,14 +171,14 @@ fun ConversationListScreen(
                         } else {
                             Icon(
                                 imageVector = getAvatarIcon(uiState.currentAgent?.agentId ?: ""),
-                                contentDescription = "头像",
+                                contentDescription = stringResource(R.string.conversation_avatar),
                                 modifier = Modifier.size(28.dp),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = uiState.currentAgent?.name ?: "智能体",
+                            text = uiState.currentAgent?.name ?: stringResource(R.string.conversation_agent_default_name),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
@@ -197,7 +199,7 @@ fun ConversationListScreen(
                     ) {
                         Icon(
                             Icons.Default.Search,
-                            contentDescription = "搜索",
+                            contentDescription = stringResource(R.string.search),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(22.dp)
                         )
@@ -234,7 +236,7 @@ fun ConversationListScreen(
                             searchQuery = query
                             viewModel.searchSessions(query)
                         },
-                        placeholder = { Text("搜索会话...", fontSize = 14.sp) },
+                        placeholder = { Text(stringResource(R.string.conversation_search_hint), fontSize = 14.sp) },
                         modifier = Modifier.weight(1f),
                         colors = androidx.compose.material3.TextFieldDefaults.textFieldColors(
                             containerColor = Color.Transparent,
@@ -251,7 +253,7 @@ fun ConversationListScreen(
                             },
                             modifier = Modifier.size(24.dp)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "清除", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.conversation_clear), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -345,7 +347,7 @@ fun ConversationListScreen(
                             ) {
                                 Icon(
                                     if (isDropTarget) Icons.Default.FolderOpen else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (isDropTarget) "放入此分组" else if (isCollapsed) "展开" else "收起",
+                                    contentDescription = if (isDropTarget) stringResource(R.string.conversation_drop_to_group) else if (isCollapsed) stringResource(R.string.common_expand) else stringResource(R.string.common_collapse),
                                     tint = if (isDropTarget) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier
                                         .size(18.dp)
@@ -353,7 +355,7 @@ fun ConversationListScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = if (isDropTarget) "放入「${group.name}」" else group.name,
+                                    text = if (isDropTarget) stringResource(R.string.conversation_move_to, group.name) else group.name,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = if (isDropTarget) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -408,7 +410,7 @@ fun ConversationListScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "不活跃对话",
+                                    text = stringResource(R.string.conversation_inactive),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f)
@@ -421,7 +423,7 @@ fun ConversationListScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(
                                     Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (inactiveExpanded) "收起" else "展开",
+                                    contentDescription = if (inactiveExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier
                                         .size(18.dp)
@@ -478,7 +480,7 @@ fun ConversationListScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "群组",
+                                    text = stringResource(R.string.conversation_group),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f)
@@ -491,7 +493,7 @@ fun ConversationListScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(
                                     Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (groupsExpanded) "收起" else "展开",
+                                    contentDescription = if (groupsExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier
                                         .size(18.dp)
@@ -530,13 +532,13 @@ fun ConversationListScreen(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = if (searchQuery.isNotEmpty()) "未找到匹配的会话" else "暂无会话",
+                                        text = if (searchQuery.isNotEmpty()) stringResource(R.string.conversation_no_match) else stringResource(R.string.no_sessions),
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 15.sp
                                     )
                                     if (searchQuery.isEmpty()) {
                                         Text(
-                                            text = if (allAgentsDisabled) "所有智能体已禁用，请先启用一个智能体" else "从底栏创建新对话",
+                                            text = if (allAgentsDisabled) stringResource(R.string.conversation_all_disabled) else stringResource(R.string.conversation_create_from_bar),
                                             fontSize = 13.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.padding(top = 4.dp)
@@ -578,8 +580,8 @@ fun ConversationListScreen(
         sessionToDelete?.let { session ->
             AlertDialog(
                 onDismissRequest = { sessionToDelete = null },
-                title = { Text("删除会话") },
-                text = { Text("确定删除「${session.title}」？此操作不可恢复。") },
+                title = { Text(stringResource(R.string.delete_session)) },
+                text = { Text(stringResource(R.string.conversation_delete_confirm, session.title)) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -587,10 +589,10 @@ fun ConversationListScreen(
                             sessionToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) { Text("删除") }
+                    ) { Text(stringResource(R.string.delete)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { sessionToDelete = null }) { Text("取消") }
+                    TextButton(onClick = { sessionToDelete = null }) { Text(stringResource(R.string.cancel)) }
                 }
             )
         }
@@ -601,12 +603,12 @@ fun ConversationListScreen(
                     showCreateGroupDialog = false
                     newGroupName = ""
                 },
-                title = { Text("新建分组") },
+                title = { Text(stringResource(R.string.conversation_new_group)) },
                 text = {
                     TextField(
                         value = newGroupName,
                         onValueChange = { newGroupName = it },
-                        placeholder = { Text("分组名称") },
+                        placeholder = { Text(stringResource(R.string.conversation_group_name)) },
                         singleLine = true
                     )
                 },
@@ -620,13 +622,13 @@ fun ConversationListScreen(
                             showCreateGroupDialog = false
                         },
                         enabled = newGroupName.isNotBlank()
-                    ) { Text("创建") }
+                    ) { Text(stringResource(R.string.common_create)) }
                 },
                 dismissButton = {
                     TextButton(onClick = {
                         showCreateGroupDialog = false
                         newGroupName = ""
-                    }) { Text("取消") }
+                    }) { Text(stringResource(R.string.cancel)) }
                 }
             )
         }
@@ -658,7 +660,7 @@ private fun AgentSwitcherDrawer(
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
-                    text = "选择智能体",
+                    text = stringResource(R.string.conversation_select_agent),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -690,7 +692,7 @@ private fun AgentSwitcherDrawer(
                                     .data(agentAvatar)
                                     .crossfade(true)
                                     .build(),
-                                contentDescription = "头像",
+                                contentDescription = stringResource(R.string.conversation_avatar),
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(RoundedCornerShape(6.dp)),
@@ -699,7 +701,7 @@ private fun AgentSwitcherDrawer(
                         } else {
                             Icon(
                                 imageVector = getAvatarIcon(agent.agentId),
-                                contentDescription = "头像",
+                                contentDescription = stringResource(R.string.conversation_avatar),
                                 modifier = Modifier.size(28.dp),
                                 tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -714,7 +716,7 @@ private fun AgentSwitcherDrawer(
                             )
                             if (isSelected) {
                                 Text(
-                                    text = "当前使用",
+                                    text = stringResource(R.string.conversation_current_use),
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -748,7 +750,7 @@ private fun AgentSwitcherDrawer(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "创建智能体",
+                        text = stringResource(R.string.conversation_create_agent),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Medium
@@ -798,7 +800,7 @@ private fun SettingsDrawer(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "${agentName}设置",
+                        text = stringResource(R.string.conversation_agent_settings, agentName),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -819,7 +821,7 @@ private fun SettingsDrawer(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "系统设置",
+                        text = stringResource(R.string.conversation_system_settings),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -879,7 +881,7 @@ private fun SessionCard(
             ) {
                 Icon(
                     if (session.isPinned) Icons.Outlined.PushPin else Icons.Default.PushPin,
-                    contentDescription = if (session.isPinned) "取消置顶" else "置顶",
+                    contentDescription = if (session.isPinned) stringResource(R.string.conversation_unpin) else stringResource(R.string.conversation_pin),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
                     modifier = Modifier.size(20.dp)
                 )
@@ -896,7 +898,7 @@ private fun SessionCard(
             ) {
                 Icon(
                     Icons.Default.NotificationsOff,
-                    contentDescription = if (session.isMuted) "取消静音" else "静音",
+                    contentDescription = if (session.isMuted) stringResource(R.string.conversation_unmute) else stringResource(R.string.conversation_mute),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(20.dp)
                 )
@@ -913,7 +915,7 @@ private fun SessionCard(
             ) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "删除",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(20.dp)
                 )
@@ -977,11 +979,11 @@ private fun SessionCard(
                         if (agentStatus != null) {
                             Spacer(modifier = Modifier.width(6.dp))
                             when (agentStatus) {
-                                AgentStatus.THINKING -> PulsingStatusDot(isThinking = true, label = "思考中")
-                                AgentStatus.EXECUTING_TOOL -> PulsingStatusDot(isThinking = false, label = "执行中")
-                                AgentStatus.IDLE -> StaticStatusDot(color = Color(0xFF4CAF50), label = "空闲")
-                                AgentStatus.ERROR -> StaticStatusDot(color = Color(0xFFF44336), label = "错误")
-                                AgentStatus.STOPPED -> StaticStatusDot(color = Color(0xFF9E9E9E), label = "已停止")
+                                AgentStatus.THINKING -> PulsingStatusDot(isThinking = true, label = stringResource(R.string.conversation_thinking))
+                                AgentStatus.EXECUTING_TOOL -> PulsingStatusDot(isThinking = false, label = stringResource(R.string.conversation_executing))
+                                AgentStatus.IDLE -> StaticStatusDot(color = Color(0xFF4CAF50), label = stringResource(R.string.conversation_idle_status))
+                                AgentStatus.ERROR -> StaticStatusDot(color = Color(0xFFF44336), label = stringResource(R.string.conversation_error))
+                                AgentStatus.STOPPED -> StaticStatusDot(color = Color(0xFF9E9E9E), label = stringResource(R.string.conversation_stopped))
                             }
                         }
                     }
@@ -989,14 +991,14 @@ private fun SessionCard(
                         if (session.isMuted) {
                             Icon(
                                 Icons.Default.NotificationsOff,
-                                contentDescription = "已静音",
+                                contentDescription = stringResource(R.string.conversation_muted),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(12.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                         }
                         Text(
-                            text = formatInstantTime(session.lastUpdatedAt),
+                            text = formatInstantTime(session.lastUpdatedAt, LocalContext.current),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1007,7 +1009,7 @@ private fun SessionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = session.lastMessage ?: "暂无消息",
+                        text = session.lastMessage ?: stringResource(R.string.chat_no_messages),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -1045,7 +1047,7 @@ private fun SessionCard(
             if (session.isPinned) {
                 Icon(
                     Icons.Default.PushPin,
-                    contentDescription = "已置顶",
+                    contentDescription = stringResource(R.string.chat_pinned),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
@@ -1102,7 +1104,7 @@ private fun GroupCard(
                 )
                 if (lastUpdatedAt != null) {
                     Text(
-                        text = formatInstantTime(lastUpdatedAt),
+                        text = formatInstantTime(lastUpdatedAt, LocalContext.current),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -1166,7 +1168,7 @@ private fun GroupAvatarGrid(
         ) {
             Icon(
                 Icons.Default.Groups,
-                contentDescription = "群组",
+                contentDescription = stringResource(R.string.conversation_group),
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = modifier.size(24.dp)
             )
@@ -1288,7 +1290,7 @@ private fun StaticStatusDot(
     }
 }
 
-private fun formatInstantTime(timestamp: Instant): String {
+private fun formatInstantTime(timestamp: Instant, context: Context): String {
     val zoned = timestamp.atZone(ZoneId.systemDefault())
     val localDate = zoned.toLocalDate()
     val now = java.time.LocalDate.now()
@@ -1296,9 +1298,9 @@ private fun formatInstantTime(timestamp: Instant): String {
 
     return when {
         localDate == now -> DateTimeFormatter.ofPattern("HH:mm").format(zoned)
-        localDate == now.minusDays(1) -> "昨天"
+        localDate == now.minusDays(1) -> context.getString(R.string.conversation_date_yesterday)
         localDate.year == now.year && localDate in weekAgo..now -> DateTimeFormatter.ofPattern("EEEE").format(localDate)
-        localDate.year == now.year -> DateTimeFormatter.ofPattern("M月d日").format(localDate)
-        else -> DateTimeFormatter.ofPattern("yyyy年M月d日").format(localDate)
+        localDate.year == now.year -> DateTimeFormatter.ofPattern(context.getString(R.string.conversation_date_month_day)).format(localDate)
+        else -> DateTimeFormatter.ofPattern(context.getString(R.string.conversation_date_year_month_day)).format(localDate)
     }
 }

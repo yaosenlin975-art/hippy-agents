@@ -1,6 +1,7 @@
 package com.lin.hippyagent.core.companion
 
 import android.app.Application
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.accessibility.ScreenFrameSampler
 import com.lin.hippyagent.core.accessibility.VisionFrameBuffer
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +19,7 @@ object CompanionController {
         val isListening: Boolean = false,
         val isProcessing: Boolean = false,
         val isAgentRunning: Boolean = false,
-        val statusText: String = "屏内替身 · 就绪"
+        val statusText: String = ""
     )
 
     private val _uiState = MutableStateFlow(CompanionUiState())
@@ -42,7 +43,7 @@ object CompanionController {
             this.sessionId = sessionId
             _uiState.value = CompanionUiState(
                 isActive = true,
-                statusText = "屏内替身 · 就绪"
+                statusText = application.getString(R.string.companion_status_ready)
             )
             Timber.i("CompanionController: entered companion mode")
             return true
@@ -53,32 +54,32 @@ object CompanionController {
         }
     }
 
-    fun startVoiceCapture() {
+    fun startVoiceCapture(application: Application) {
         _uiState.value = _uiState.value.copy(
             isListening = true,
-            statusText = "屏内替身 · 听写中..."
+            statusText = application.getString(R.string.companion_status_listening)
         )
     }
 
-    fun stopVoiceCapture() {
+    fun stopVoiceCapture(application: Application) {
         _uiState.value = _uiState.value.copy(
             isListening = false,
-            statusText = "屏内替身 · 处理中..."
+            statusText = application.getString(R.string.companion_status_processing)
         )
     }
 
-    fun onAgentStarted() {
+    fun onAgentStarted(application: Application) {
         _uiState.value = _uiState.value.copy(
             isAgentRunning = true,
-            statusText = "屏内替身 · 执行中..."
+            statusText = application.getString(R.string.companion_status_executing)
         )
     }
 
-    fun onAgentFinished(reply: String?) {
+    fun onAgentFinished(application: Application, reply: String?) {
         _uiState.value = _uiState.value.copy(
             isProcessing = false,
             isAgentRunning = false,
-            statusText = "屏内替身 · 就绪"
+            statusText = application.getString(R.string.companion_status_ready)
         )
         if (!reply.isNullOrBlank()) {
             ttsManager?.speak(reply)

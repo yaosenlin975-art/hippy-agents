@@ -37,9 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,10 +64,10 @@ fun ACPScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back))
                 }
                 Text(
-                    text = "ACP 设置",
+                    text = stringResource(R.string.acp_settings),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp)
@@ -78,7 +80,7 @@ fun ACPScreen(
                     onClick = onNavigateToAcpClient,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 ) {
-                    Icon(Icons.Default.SwapHoriz, "客户端管理")
+                    Icon(Icons.Default.SwapHoriz, stringResource(R.string.acp_client_management))
                 }
                 Spacer(Modifier.height(12.dp))
                 FloatingActionButton(
@@ -91,7 +93,7 @@ fun ACPScreen(
                     Icon(
                         imageVector = if (isServerRunning) Icons.Default.Stop
                         else Icons.Default.PlayArrow,
-                        contentDescription = if (isServerRunning) "停止" else "启动",
+                        contentDescription = if (isServerRunning) stringResource(R.string.acp_stopped) else stringResource(R.string.acp_start),
                         tint = MaterialTheme.colorScheme.surface
                     )
                 }
@@ -105,7 +107,6 @@ fun ACPScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // ACP 功能说明
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -125,7 +126,7 @@ fun ACPScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "ACP 允许将智能体暴露为 ACP 端点，通过 JSON-RPC 与其他系统通信。支持与其他 ACP 兼容系统（如 QwenPaw、Claude Code 等）进行交互。",
+                            text = stringResource(R.string.acp_protocol_desc),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -133,7 +134,6 @@ fun ACPScreen(
                 }
             }
 
-            // 服务器状态
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -152,7 +152,7 @@ fun ACPScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "服务器状态",
+                                text = stringResource(R.string.acp_server_status),
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 15.sp
                             )
@@ -166,7 +166,7 @@ fun ACPScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = if (isServerRunning) "运行中" else "已停止",
+                                    text = if (isServerRunning) stringResource(R.string.acp_running) else stringResource(R.string.acp_stopped),
                                     fontSize = 13.sp,
                                     color = if (isServerRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                 )
@@ -174,7 +174,7 @@ fun ACPScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "端口: $serverPort",
+                            text = stringResource(R.string.acp_port_label, serverPort),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -182,7 +182,6 @@ fun ACPScreen(
                 }
             }
 
-            // ACP 配置
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -196,13 +195,12 @@ fun ACPScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "ACP 配置",
+                            text = stringResource(R.string.acp_config),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // 启用 ACP
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -210,11 +208,11 @@ fun ACPScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "启用 ACP",
+                                    text = stringResource(R.string.acp_enable),
                                     fontSize = 14.sp
                                 )
                                 Text(
-                                    text = "允许外部系统通过 ACP 协议访问此智能体",
+                                    text = stringResource(R.string.acp_enable_desc),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -227,17 +225,16 @@ fun ACPScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // 支持的方法
                         Text(
-                            text = "支持的 ACP 方法:",
+                            text = stringResource(R.string.acp_supported_methods),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         listOf(
-                            "agent/chat" to "发送消息给智能体",
-                            "agent/list" to "列出所有可用智能体",
-                            "agent/status" to "获取智能体状态"
+                            "agent/chat" to stringResource(R.string.acp_method_chat),
+                            "agent/list" to stringResource(R.string.acp_method_list),
+                            "agent/status" to stringResource(R.string.acp_method_status)
                         ).forEach { (method, desc) ->
                             Row(
                                 modifier = Modifier
@@ -261,7 +258,6 @@ fun ACPScreen(
                 }
             }
 
-            // 使用说明
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -275,13 +271,13 @@ fun ACPScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "使用说明",
+                            text = stringResource(R.string.acp_usage_guide),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "1. 启用 ACP 功能\n2. 点击右下角按钮启动服务器\n3. 外部系统可通过 JSON-RPC 连接到 localhost:$serverPort\n4. 发送请求与智能体交互",
+                            text = stringResource(R.string.acp_usage_guide_steps, serverPort),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 20.sp
@@ -292,4 +288,3 @@ fun ACPScreen(
         }
     }
 }
-

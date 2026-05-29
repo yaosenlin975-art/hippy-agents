@@ -36,9 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import androidx.navigation.NavController
 import com.lin.hippyagent.ui.conversation.ConversationListScreen
 import com.lin.hippyagent.ui.conversation.ConversationListViewModel
@@ -83,7 +85,7 @@ fun MainScreen(
                     selected = pagerState.currentPage == 0,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                     icon = { Icon(Icons.Default.Chat, contentDescription = null) },
-                    label = { Text("会话", fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.nav_sessions), fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -108,7 +110,7 @@ fun MainScreen(
                             }
                         }
                     },
-                    label = { Text("收件箱", fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.nav_inbox), fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -127,7 +129,7 @@ fun MainScreen(
                     ) {
                         Icon(
                             Icons.Default.Add,
-                            contentDescription = "新建",
+                            contentDescription = stringResource(R.string.nav_new),
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -161,7 +163,7 @@ fun MainScreen(
                     selected = pagerState.currentPage == 2,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     icon = { Icon(Icons.Default.Analytics, contentDescription = null) },
-                    label = { Text("洞察", fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.nav_insights), fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -171,7 +173,7 @@ fun MainScreen(
                     selected = pagerState.currentPage == 3,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text("设置", fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.nav_settings), fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -270,12 +272,12 @@ fun MainScreen(
                     showCreateSessionGroupDialog = false
                     newSessionGroupName = ""
                 },
-                title = { Text("新建分组") },
+                title = { Text(stringResource(R.string.conversation_new_group)) },
                 text = {
                     TextField(
                         value = newSessionGroupName,
                         onValueChange = { newSessionGroupName = it },
-                        placeholder = { Text("分组名称") },
+                        placeholder = { Text(stringResource(R.string.conversation_group_name)) },
                         singleLine = true
                     )
                 },
@@ -289,13 +291,13 @@ fun MainScreen(
                             showCreateSessionGroupDialog = false
                         },
                         enabled = newSessionGroupName.isNotBlank()
-                    ) { Text("创建") }
+                    ) { Text(stringResource(R.string.common_create)) }
                 },
                 dismissButton = {
                     TextButton(onClick = {
                         showCreateSessionGroupDialog = false
                         newSessionGroupName = ""
-                    }) { Text("取消") }
+                    }) { Text(stringResource(R.string.cancel)) }
                 }
             )
         }

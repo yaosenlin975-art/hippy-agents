@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.debug.DebugInfoCollector
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,7 +21,7 @@ import com.lin.hippyagent.ui.components.HippyTopBar
 fun DebugInfoScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val info = remember { getDebugInfo(context) }
-    Scaffold(topBar = { HippyTopBar(title = "调试信息", showBackButton = true, onBackClick = onBackClick) }) { padding ->
+    Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.debug_info), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
             item { Spacer(Modifier.height(8.dp)) }
             info.forEach { (section, items) ->
@@ -45,13 +47,13 @@ fun DebugInfoScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
 private fun getDebugInfo(ctx: android.content.Context): List<Pair<String, List<Pair<String, String>>>> {
     val info = DebugInfoCollector(ctx).collect()
     return buildList {
-        add("应用信息" to info.appInfo.toList())
-        add("设备" to info.deviceInfo.toList())
-        add("运行" to info.runtimeInfo.toList())
-        add("存储" to info.storageInfo.toList())
-        add("数据" to info.dataInfo.toList())
+        add(ctx.getString(R.string.debug_app_info) to info.appInfo.toList())
+        add(ctx.getString(R.string.debug_device) to info.deviceInfo.toList())
+        add(ctx.getString(R.string.debug_runtime) to info.runtimeInfo.toList())
+        add(ctx.getString(R.string.debug_storage) to info.storageInfo.toList())
+        add(ctx.getString(R.string.debug_data) to info.dataInfo.toList())
         if (info.recentErrors.isNotEmpty()) {
-            add("最近错误" to info.recentErrors.map { "错误" to it })
+            add(ctx.getString(R.string.debug_recent_errors) to info.recentErrors.map { ctx.getString(R.string.debug_error_label) to it })
         }
     }
 }

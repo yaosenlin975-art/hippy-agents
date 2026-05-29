@@ -51,21 +51,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.core.memory.commonmemory.BrainMemoryType
 import com.lin.hippyagent.core.memory.commonmemory.CommonMemoryEntry
 import com.lin.hippyagent.ui.components.HippyTopBar
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val TYPE_LABELS = mapOf(
-    BrainMemoryType.IDENTITY to "身份",
-    BrainMemoryType.PREFERENCE to "偏好",
-    BrainMemoryType.GOAL to "目标",
-    BrainMemoryType.PROJECT to "项目",
-    BrainMemoryType.HABIT to "习惯",
-    BrainMemoryType.DECISION to "决策",
-    BrainMemoryType.CONSTRAINT to "约束",
-    BrainMemoryType.RELATIONSHIP to "关系",
-    BrainMemoryType.EPISODE to "事件",
-    BrainMemoryType.REFLECTION to "反思"
+private val TYPE_LABEL_RES = mapOf(
+    BrainMemoryType.IDENTITY to R.string.memory_type_identity,
+    BrainMemoryType.PREFERENCE to R.string.memory_type_preference,
+    BrainMemoryType.GOAL to R.string.memory_type_goal,
+    BrainMemoryType.PROJECT to R.string.memory_type_project,
+    BrainMemoryType.HABIT to R.string.memory_type_habit,
+    BrainMemoryType.DECISION to R.string.memory_type_decision,
+    BrainMemoryType.CONSTRAINT to R.string.memory_type_constraint,
+    BrainMemoryType.RELATIONSHIP to R.string.memory_type_relationship,
+    BrainMemoryType.EPISODE to R.string.memory_type_episode,
+    BrainMemoryType.REFLECTION to R.string.memory_type_reflection
 )
 
 private val TYPE_COLORS = mapOf(
@@ -97,7 +99,7 @@ fun CommonMemoryScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "公共记忆",
+                title = stringResource(R.string.memory_common),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -115,7 +117,7 @@ fun CommonMemoryScreen(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.search(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("搜索记忆…", fontSize = 14.sp) },
+                placeholder = { Text(stringResource(R.string.memory_search_hint), fontSize = 14.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.outline) },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -135,15 +137,15 @@ fun CommonMemoryScreen(
                     FilterChip(
                         selected = uiState.filterType == null,
                         onClick = { viewModel.filterByType(null) },
-                        label = { Text("全部", fontSize = 12.sp) }
+                        label = { Text(stringResource(R.string.memory_all), fontSize = 12.sp) }
                     )
                 }
-                TYPE_LABELS.forEach { (type, label) ->
+                TYPE_LABEL_RES.forEach { (type, resId) ->
                     item(key = type.value) {
                         FilterChip(
                             selected = uiState.filterType == type,
                             onClick = { viewModel.filterByType(type) },
-                            label = { Text(label, fontSize = 12.sp) }
+                            label = { Text(stringResource(resId), fontSize = 12.sp) }
                         )
                     }
                 }
@@ -152,7 +154,7 @@ fun CommonMemoryScreen(
             if (uiState.stats != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "共 ${uiState.entries.size} 条记忆，活跃 ${uiState.stats!!.total} 条",
+                    stringResource(R.string.memory_count, uiState.entries.size, uiState.stats!!.total),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -167,7 +169,7 @@ fun CommonMemoryScreen(
             } else if (uiState.entries.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        "暂无记忆数据。\n与智能体对话后，它会自动从对话中提取关键信息。",
+                        stringResource(R.string.memory_no_data),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -201,7 +203,7 @@ private fun MemoryCard(
     modifier: Modifier = Modifier
 ) {
     val typeColor = TYPE_COLORS[entry.type] ?: Color.Gray
-    val typeLabel = TYPE_LABELS[entry.type] ?: entry.type.value
+    val typeLabel = TYPE_LABEL_RES[entry.type]?.let { stringResource(it) } ?: entry.type.value
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -249,16 +251,16 @@ private fun MemoryCard(
                 if (showDeleteDialog) {
                     AlertDialog(
                         onDismissRequest = { showDeleteDialog = false },
-                        title = { Text("删除记忆") },
-                        text = { Text("确定要删除这条记忆吗？此操作不可撤销。") },
+                        title = { Text(stringResource(R.string.memory_delete)) },
+                        text = { Text(stringResource(R.string.memory_delete_confirm)) },
                         confirmButton = {
                             TextButton(onClick = {
                                 showDeleteDialog = false
                                 onDelete()
-                            }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+                            }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
                         },
                         dismissButton = {
-                            TextButton(onClick = { showDeleteDialog = false }) { Text("取消") }
+                            TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) }
                         }
                     )
                 }
@@ -289,8 +291,8 @@ private fun MemoryCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ConfidenceBar("置信度", entry.confidence, Modifier.weight(1f))
-                ConfidenceBar("重要性", entry.importance, Modifier.weight(1f))
+                ConfidenceBar(stringResource(R.string.memory_confidence), entry.confidence, Modifier.weight(1f))
+                ConfidenceBar(stringResource(R.string.memory_importance), entry.importance, Modifier.weight(1f))
             }
         }
     }

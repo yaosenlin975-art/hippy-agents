@@ -9,8 +9,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.SkillInfo
 import com.lin.hippyagent.core.skill.SkillManager
 import com.lin.hippyagent.data.repository.AgentRepository
@@ -84,7 +86,7 @@ fun AgentSkillScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "智能体技能",
+                title = stringResource(R.string.agent_skills_title),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -93,9 +95,9 @@ fun AgentSkillScreen(
         if (allSkills.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("暂无可用技能", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.chat_no_agent_skills_available), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text("请先在技能池中安装技能", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.agent_install_skills_first), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {

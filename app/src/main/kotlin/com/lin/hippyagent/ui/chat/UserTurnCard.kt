@@ -45,7 +45,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.ChatTurnConverter
 import java.time.Instant
@@ -54,14 +56,14 @@ import java.time.format.DateTimeFormatter
 
 private val ATTACHMENT_TAG_REGEX = Regex("""\[附件:\s*\S+\]""")
 
-private fun formatMessageTime(timestamp: Instant): String {
+private fun formatMessageTime(context: Context, timestamp: Instant): String {
     val zoned = timestamp.atZone(ZoneId.systemDefault())
     val localDate = zoned.toLocalDate()
     val now = java.time.LocalDate.now()
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     return when {
         localDate == now -> timeFormatter.format(zoned)
-        localDate == now.minusDays(1) -> "昨天 ${timeFormatter.format(zoned)}"
+        localDate == now.minusDays(1) -> "${context.getString(R.string.common_yesterday)} ${timeFormatter.format(zoned)}"
         localDate.year == now.year -> DateTimeFormatter.ofPattern("M月d日 HH:mm").format(zoned)
         else -> DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm").format(zoned)
     }
@@ -105,7 +107,7 @@ fun UserTurnCard(
         horizontalAlignment = Alignment.End
     ) {
         Text(
-            text = remember(turn.message.timestamp) { formatMessageTime(turn.message.timestamp) },
+            text = remember(turn.message.timestamp, context) { formatMessageTime(context, turn.message.timestamp) },
             fontSize = 10.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             modifier = Modifier
@@ -134,7 +136,7 @@ fun UserTurnCard(
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = turn.quotedSenderName ?: "引用消息",
+                            text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
@@ -180,7 +182,7 @@ fun UserTurnCard(
                         }
                         AsyncImage(
                             model = imageModel,
-                            contentDescription = "发送的图片",
+                            contentDescription = stringResource(R.string.chat_sent_image),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
@@ -217,9 +219,9 @@ fun UserTurnCard(
                 agentReadStates.forEach { (agentId, state) ->
                     val displayName = agentProfiles[agentId] ?: agentId
                     val (stateText, stateColor) = when (state) {
-                        "已回复" -> "已回复" to MaterialTheme.colorScheme.primary
-                        "工作中" -> "工作中" to MaterialTheme.colorScheme.tertiary
-                        else -> "已读" to MaterialTheme.colorScheme.onSurfaceVariant
+                        "已回复" -> stringResource(R.string.chat_replied) to MaterialTheme.colorScheme.primary
+                        "工作中" -> stringResource(R.string.chat_working) to MaterialTheme.colorScheme.tertiary
+                        else -> stringResource(R.string.chat_read) to MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(
                         text = "$displayName $stateText",
@@ -244,7 +246,7 @@ fun UserTurnCard(
             onEdit = { showEditDialog = true },
             onQuote = onQuote?.let { cb ->
                 {
-                    cb(turn.message.id, displayContent.take(200), "你")
+                    cb(turn.message.id, displayContent.take(200), context.getString(R.string.chat_you))
                 }
             },
             onDelete = onDelete,
@@ -257,7 +259,7 @@ fun UserTurnCard(
         var editText by remember { mutableStateOf(displayContent) }
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
-            title = { Text("编辑消息") },
+            title = { Text(stringResource(R.string.chat_edit_message)) },
             text = {
                 TextField(
                     value = editText,
@@ -273,10 +275,10 @@ fun UserTurnCard(
                         }
                         showEditDialog = false
                     }
-                ) { Text("保存") }
+                ) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) { Text("取消") }
+                TextButton(onClick = { showEditDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }

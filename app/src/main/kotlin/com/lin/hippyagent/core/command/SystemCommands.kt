@@ -1,5 +1,7 @@
 package com.lin.hippyagent.core.command
 
+import android.content.Context
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.session.SessionStore
 import com.lin.hippyagent.core.agent.session.MessageRole
 import com.lin.hippyagent.core.backup.BackupManager
@@ -80,13 +82,14 @@ class CompactCommandHandler(
 }
 
 class NewSessionCommandHandler(
+    private val appContext: Context,
     private val sessionStore: SessionStore
 ) : SystemCommandHandler {
     override val commandName = "new"
     override val description = "创建新会话"
 
     override suspend fun execute(args: String, context: CommandContext): CommandResult {
-        val newSession = sessionStore.createSession(context.agentId).getOrNull()
+        val newSession = sessionStore.createSession(context.agentId, appContext.getString(R.string.chat_new_session)).getOrNull()
             ?: return CommandResult.failure("创建新会话失败")
         return CommandResult.success("新会话已创建", mapOf("sessionId" to newSession.id))
     }

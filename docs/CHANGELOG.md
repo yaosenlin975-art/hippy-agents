@@ -1,5 +1,98 @@
 # HippyAgent 修改记录
 
+## 2026-05-28
+
+### 界面
+
+- **附件 Chip 可视化**：ChatInputBar 新增 FlowRow 渲染 FILE/IMAGE 类型 chip，显示类型图标 + label + 关闭按钮，删除时同步清理输入框 `[附件:]` 文本；SKILL/MENTION 类型不渲染
+- **通知服务增强**：HippyAgentNotificationService 删除旧渠道 `agent_message`；新增 `activeSessionNotifications` 追踪每个会话的通知 ID；ChatShared.setupForeground 进入前台时自动取消该会话所有通知
+
+### 系统
+
+- **视觉能力检测与图片消息处理**：Agent.buildPrompt 新增 `effectiveModelName` 参数 + `MODEL_VISION_REGEX` 视觉能力检测；有视觉模型编码 base64 ContentBlock.ImageUrl，无视觉模型降级为文本引导 + 提示切换模型；ChatViewModel.sendMessage 新增 `isCurrentModelVisionCapable()` 发送前 Toast 警告
+- **Anthropic 协议多模态支持**：ModelClient.toAnthropicJsonRequestBody 修复 contentBlocks 序列化，将 OpenAI 格式 image_url 转为 Anthropic 原生 base64 image source 格式
+- **语言切换 P0 修复**：LanguageManager SharedPreferences key 统一为 `hippy_settings`/`language`（与 MainActivity 一致），修复语言切换后重启无法生效的 bug
+- **公共记忆导航修复**：AppNavigation.kt 补注册 Screen.CommonMemory 路由 composable，修复点击"公共记忆"闪退
+
+### 文档
+
+- **README 更新**：README.md + README_EN.md 删除"端侧离线推理"章节 + 核心亮点表条目 + 目录条目，章节重编号 6→5...10→9
+
+### 子智能体系统
+
+- **子智能体系统**：新增 SubAgentOrchestrator（子智能体编排器）、SubAgentAggregator（结果聚合器）、SubAgentLoopHandler（循环处理器）、SubAgentTools（子智能体工具集），支持 Agent 派生子 Agent 并行执行任务
+- **计划系统**：新增 AgentPlanManager + PlanTools（create_plan/update_plan/get_plan），支持复杂任务分解为可管理子任务并追踪执行状态
+- **工具调用修复管道**：新增 ToolCallRepairPipeline（三阶段修复：ScavengeRepair 残留修复 → TruncationRepair 截断修复 → StormBreaker 风暴拆解），自动修复 LLM 输出的异常工具调用
+- **持久化任务队列**：新增 HippyJobQueue/HippyJobWorker/HippyJobEntity/HippyJobDao，Room 持久化任务队列，支持优先级排序、幂等提交、子任务级联、超时检测（StallDetector）、速率限制（RateLimiter）
+- **Mission 系统**：新增 MissionManager/MissionRunner/MissionModels，任务生命周期管理
+- **统计系统**：新增 StatsManager + AgentStatsManager，按 Agent/渠道/日期维度统计使用量
+- **引导系统**：新增 OnboardingManager（DataStore 持久化），首次使用引导状态管理
+- **版本迁移系统**：新增 MigrationManager，支持注册版本迁移脚本并按版本号顺序执行
+- **网络监控**：新增 NetworkMonitor + OfflineMessageQueue，网络断开时缓存用户消息，恢复后自动按序发送
+- **智能模型路由**：新增 ModelRouter + BudgetManager + MessageComplexity + RuleClassifier + TurnFailureTracker + EscalationContract + ForceSummary，基于消息复杂度、预算、失败追踪的智能模型选择
+- **端侧模型管理**：新增 OnDeviceModelManager/OnDeviceModelStore/OnDeviceModelCatalog/LiteRTLMEngine/LiteRTLMModelClient/HuggingFaceSearchApi/HuggingFaceMirror，端侧模型下载、配置、推理一体化
+- **技能策展引擎**：新增 CuratorEngine（三阶段 Pipeline 与 DreamWorker 对齐：LIGHT 清理 → DEEP 提取合并优化 → REM 偏好分析归档），CuratorMiddleware 注入 Agent 中间件链，SkillExtractor/SkillMerger/SkillOptimizer 自动技能管理
+- **提示词系统**：新增 PromptBuilder + StandingOrdersManager，结构化提示词构建与常驻指令管理
+- **对象池**：新增 ObjectPool + FastId，减少 GC 压力
+- **插件系统**：新增 PluginManager + SkillValidator + UrlDownloader，插件安装校验与下载
+
+### 中间件
+
+- **ClarificationMiddleware**：拦截 ask 澄清工具调用，提取结构化澄清请求并转为直接回复
+- **DanglingToolCallMiddleware**：检测并修复悬空工具调用（assistant 发出 tool_call 但后续无对应 tool result），防止死循环
+- **DeferredToolFilterMiddleware**：过滤延迟加载工具的提前调用
+- **SubagentLimitMiddleware**：子智能体并发数限制（AtomicInteger 计数器）
+- **ThreadDataMiddleware**：注入工作目录等线程级数据到中间件上下文
+
+### 工具
+
+- **WebSearchTool**：联网搜索工具（搜狗免费搜索，无需 API Key）
+- **WebFetchTool**：网页抓取工具（支持轻量 HTTP 和 WebView JS 渲染两种模式）
+- **BrowserAutomationTool**：浏览器自动化工具（单入口多 action 设计，支持点击/输入/截图等）
+- **ToolSearchTool**：延迟工具搜索工具（select:精确选择 / +关键词必含 / 正则搜索）
+- **AskClarificationTool**：澄清请求工具
+
+### 工具基础设施
+
+- **DeferredToolRegistry**：延迟工具注册表，按需加载工具定义
+- **ToolTTLManager**：工具生命周期管理，支持 TTL 倒计时自动过期隐藏
+- **ToolAccessController**：工具访问控制器，支持 Agent 级别白名单/黑名单和所有权策略
+- **FileLockManager**：文件锁管理器（Mutex + 超时），防止并发文件操作冲突
+
+### 记忆系统
+
+- **混合搜索引擎**：新增 HybridSearchEngine（FTS4 + RRF + LightweightReranker），Phase 1 实现，预留语义向量扩展
+- **RRF 融合器**：新增 RRFFuser，多源搜索结果 Reciprocal Rank Fusion
+- **迭代式摘要合并**：新增 IterativeSummaryMerger，上下文压缩时迭代合并已有摘要与新消息而非简单拼接
+- **相册记忆**：新增 GalleryMemoryScanner + GalleryMemoryStore，扫描相册提取记忆
+- **用户画像**：新增 UserProfileManager，用户偏好画像管理
+- **查询意图分类**：新增 QueryIntentClassifier，识别搜索/回忆/事实核查等查询意图
+- **主动记忆管理**：新增 ProactiveMemoryManager + ProactiveWorker，主动整理和更新记忆
+- **记忆数据库**：从 secondbrain.db 迁移到 commonmemory.db，版本升级到 v4（FTS4 重建为 memory_id 外部内容表）
+
+### 通知系统
+
+- **HippyAgentNotificationService**：通知服务
+- **BadgeManager**：会话未读角标管理
+- **ForegroundSessionTracker**：前台会话追踪
+- **NotificationOverlayService**：通知覆盖层服务
+- **NotificationSettingsManager**：通知设置管理
+
+### 数据库
+
+- **主数据库**：从 androidpaw.db 更名为 hippy.db，版本从 v15 升级到 v20
+  - v15→v16：新增 agent_groups 表（群组持久化到 Room）
+  - v16→v17：sessions 新增 hidden 字段
+  - v17→v18：agent_groups 新增 llmSelectorProviderId/llmSelectorModelName；sessions agentId 'default' → 'default-agent'
+  - v18→v19：paw_jobs/paw_inbox 重命名为 hippy_jobs/hippy_inbox
+  - v19→v20：Session 统计和压缩拆分为独立表（session_stats, session_compression），sessions 表精简移除冗余字段
+- **Room 版本**：从 2.6.1 升级到 2.7.2
+
+### 依赖
+
+- 新增 LiteRT-LM（com.google.ai.edge.litertlm:litertlm-android:0.12.0）端侧模型推理
+- 新增 jieba-analysis（com.huaban:jieba-analysis:1.0.2）中文分词
+
 ## 2026-05-20
 
 ### 界面

@@ -5,9 +5,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,7 +25,7 @@ fun MemoryCompactionScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "记忆压缩",
+                title = stringResource(R.string.memory_compaction),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -36,10 +38,10 @@ fun MemoryCompactionScreen(
             // 说明
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("记忆压缩", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.memory_compaction), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "自动压缩过长的记忆，保留重要信息，删除冗余内容，提高记忆检索效率。",
+                        stringResource(R.string.memory_compaction_desc),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -53,8 +55,8 @@ fun MemoryCompactionScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("自动压缩", fontSize = 14.sp)
-                        Text("当记忆超过阈值时自动压缩", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.memory_auto_compact), fontSize = 14.sp)
+                        Text(stringResource(R.string.memory_auto_compact_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = autoCompact, onCheckedChange = { autoCompact = it })
                 }
@@ -63,7 +65,7 @@ fun MemoryCompactionScreen(
             // 压缩阈值
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("压缩阈值（字符数）", fontSize = 14.sp)
+                    Text(stringResource(R.string.memory_compact_threshold), fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = compactThreshold,
@@ -78,7 +80,7 @@ fun MemoryCompactionScreen(
             // 保留最近记忆
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("保留最近记忆（条数）", fontSize = 14.sp)
+                    Text(stringResource(R.string.memory_keep_recent), fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = keepRecent,

@@ -25,12 +25,11 @@ HippyAgent is more than a chatbot. It can **see your screen, understand your int
 - [2. Agent Group Collaboration — Multi-AI Teamwork](#2-agent-group-collaboration--multi-ai-teamwork)
 - [3. Agent Private Chat — Agent-to-Agent Backchannel](#3-agent-private-chat--agent-to-agent-backchannel)
 - [4. On-Screen Companion Mode — Cross-App Real-Time Presence](#4-on-screen-companion-mode--cross-app-real-time-presence)
-- [5. On-Device Offline Inference — Works Without Internet](#5-on-device-offline-inference--works-without-internet)
-- [6. Skills & Plugin System](#6-skills--plugin-system)
-- [7. Security Audit & Approval](#7-security-audit--approval)
-- [8. Scheduled Tasks & Memory System](#8-scheduled-tasks--memory-system)
-- [9. Multi-Channel Integration](#9-multi-channel-integration)
-- [10. Linux Subsystem](#10-linux-subsystem)
+- [5. Skills & Plugin System](#5-skills--plugin-system)
+- [6. Security Audit & Approval](#6-security-audit--approval)
+- [7. Scheduled Tasks & Memory System](#7-scheduled-tasks--memory-system)
+- [8. Multi-Channel Integration](#8-multi-channel-integration)
+- [9. Linux Subsystem](#9-linux-subsystem)
 - [Technical Architecture](#technical-architecture)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
@@ -47,7 +46,6 @@ HippyAgent is more than a chatbot. It can **see your screen, understand your int
 | 👥 **Group Collaboration** | Multi-agent parallel response, LLM speaker selection, mention-chain routing, parallel arbitrator for conflict prevention |
 | 🤫 **Private Chat** | Agent-to-agent private negotiation (`chat_with_agent` / `delegate_external_agent`), transparent to user only |
 | 🪟 **On-Screen Companion** | Floating overlay across apps, real-time screen perception + voice interaction + TTS playback |
-| 📱 **On-Device Models** | Based on Google LiteRT-LM, 8 sub-2B models for offline inference, always available |
 | 🛡️ **Security Approval** | Tiered approval for dangerous operations, full audit logging, ad guard |
 | 🔌 **Skill Store** | Installable/uninstallable skill plugin ecosystem, Curator auto-optimization |
 | ⏰ **Scheduled Tasks** | Cron expression scheduling, silent background execution |
@@ -231,34 +229,7 @@ The agent exists as a floating overlay across apps, with real-time screen percep
 
 ---
 
-## 5. On-Device Offline Inference — Works Without Internet
-
-Based on Google **LiteRT-LM** engine, runs 8 sub-2B parameter models locally on device, with zero network dependency.
-
-### Pre-installed Model Catalog
-
-| Model | Parameters | Use Case |
-|-------|-----------|----------|
-| Gemma3-1B | 1B | General conversation |
-| Qwen2.5-1.5B | 1.5B | Chinese conversation |
-| DeepSeek-R1-Distill-Qwen-1.5B | 1.5B | Reasoning tasks |
-| Phi-4-mini | ~2B | Code/Math |
-| Qwen3-0.6B | 0.6B | Lightweight tasks |
-| TinyLlama-1.1B | 1.1B | General |
-| Gemma3-270M | 270M | Ultra-lightweight |
-| SmolLM-135M | 135M | Minimum spec |
-
-### Features
-
-- **Backend selection**: Auto / CPU / GPU / NPU
-- **HuggingFace mirror acceleration**: Auto-detects fastest mirror in China, resume download
-- **Virtual Provider**: Auto-registers as model provider after download, switch and use
-- **Memory protection**: Warns when device RAM is low, auto-unloads after 5 min in background
-- **Only one engine loaded at a time**, auto-unloads old engine on switch
-
----
-
-## 6. Skills & Plugin System
+## 5. Skills & Plugin System
 
 ### Built-in System Commands
 
@@ -278,7 +249,7 @@ Based on Google **LiteRT-LM** engine, runs 8 sub-2B parameter models locally on 
 
 ---
 
-## 7. Security Audit & Approval
+## 6. Security Audit & Approval
 
 Security is not an afterthought — it's built into every layer.
 
@@ -305,7 +276,7 @@ Security is not an afterthought — it's built into every layer.
 
 ---
 
-## 8. Scheduled Tasks & Memory System
+## 7. Scheduled Tasks & Memory System
 
 ### Cron Scheduled Tasks
 
@@ -340,7 +311,7 @@ Second Brain (Long-term Knowledge Base)
 
 ---
 
-## 9. Multi-Channel Integration
+## 8. Multi-Channel Integration
 
 One agent, multiple entry points. External messages are uniformly routed to the agent for processing.
 
@@ -365,7 +336,7 @@ Supported channels: Telegram / WeChat / DingTalk / Discord / Feishu / WhatsApp
 
 ---
 
-## 10. Linux Subsystem
+## 9. Linux Subsystem
 
 Built-in **PRoot**-based Linux environment, no root required.
 

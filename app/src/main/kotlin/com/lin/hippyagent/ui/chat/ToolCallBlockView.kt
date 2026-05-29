@@ -86,6 +86,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 
 /** 共享的 JSON 格式化实例，避免重复创建 */
 private val prettyJson = Json { prettyPrint = true; ignoreUnknownKeys = true }
@@ -139,14 +141,14 @@ private fun shortenWorkspacePaths(text: String): String {
 /**
  * 工具类型分类 — 根据名称前缀推断类型和显示样式
  */
-private enum class ToolCategory(val icon: ImageVector, val label: String) {
-    FILE(Icons.Default.Folder, "文件"),
-    SHELL(Icons.Default.Computer, "终端"),
-    SEARCH(Icons.Default.Search, "搜索"),
-    WEB(Icons.Default.Language, "网络"),
-    CODE(Icons.Default.Code, "代码"),
-    MEMORY(Icons.Default.Storage, "记忆"),
-    UNKNOWN(Icons.Default.Build, "工具");
+private enum class ToolCategory(val icon: ImageVector, val labelResId: Int) {
+    FILE(Icons.Default.Folder, R.string.tool_cat_file),
+    SHELL(Icons.Default.Computer, R.string.tool_cat_terminal),
+    SEARCH(Icons.Default.Search, R.string.tool_cat_search),
+    WEB(Icons.Default.Language, R.string.tool_cat_network),
+    CODE(Icons.Default.Code, R.string.tool_cat_code),
+    MEMORY(Icons.Default.Storage, R.string.tool_cat_memory),
+    UNKNOWN(Icons.Default.Build, R.string.tool_cat_tool);
 
     companion object {
         const val AUTO_COLLAPSE_DELAY_MS = 800L
@@ -320,12 +322,12 @@ fun ToolCallBlockView(
         ) {
             if (hasActualArguments(block.toolCall.arguments)) {
                 DropdownMenuItem(
-                    text = { Text("复制参数", fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_params), fontSize = 14.sp) },
                     onClick = {
                         try {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_args", "【${block.toolCall.name}】\n${block.toolCall.arguments}"))
-                            Toast.makeText(context, "已复制参数", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.chat_params_copied), Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {}
                         showCopyMenu = false
                     },
@@ -334,25 +336,25 @@ fun ToolCallBlockView(
             }
             if (!resultText.isNullOrBlank()) {
                 DropdownMenuItem(
-                    text = { Text("复制结果", fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_result), fontSize = 14.sp) },
                     onClick = {
                         try {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
-                            Toast.makeText(context, "已复制结果", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {}
                         showCopyMenu = false
                     },
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
                 )
                 DropdownMenuItem(
-                    text = { Text("复制参数和结果", fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_params_and_result), fontSize = 14.sp) },
                     onClick = {
                         try {
                             val all = "【${block.toolCall.name}】\n参数:\n${block.toolCall.arguments}\n\n结果:\n$resultText"
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_all", all))
-                            Toast.makeText(context, "已复制参数和结果", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.chat_params_and_result_copied), Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {}
                         showCopyMenu = false
                     },
@@ -444,7 +446,7 @@ private fun ToolCallContent(
                     Spacer(Modifier.height(4.dp))
                     if (resultText != null && resultText.isNotBlank()) {
                         val lines = resultText.lines()
-                        val displayLines = if (lines.size > 50) lines.take(50) + listOf("\n... (${lines.size - 50} 行已省略)") else lines
+                        val displayLines = if (lines.size > 50) lines.take(50) + listOf("\n" + context.getString(R.string.chat_lines_omitted, lines.size - 50)) else lines
                         Text(
                             text = displayLines.joinToString("\n"),
                             fontSize = 11.sp,
@@ -589,7 +591,7 @@ private fun ToolCallContent(
                             )
                         }
                     } else {
-                        val effectiveDiff = resultText?.let { buildPseudoDiffForResult(block.toolCall.name, it) }
+                        val effectiveDiff = resultText?.let { buildPseudoDiffForResult(block.toolCall.name, it, context) }
                         if (effectiveDiff != null) {
                             DiffView(diffText = remember(effectiveDiff) { shortenWorkspacePaths(effectiveDiff) })
                         }
@@ -671,7 +673,7 @@ private fun ToolCallContent(
         ) {
             Icon(
                 imageVector = category.icon,
-                contentDescription = category.label,
+                contentDescription = stringResource(category.labelResId),
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -689,7 +691,7 @@ private fun ToolCallContent(
                 val formattedArgs = remember(block.toolCall.arguments) { tryFormatJson(block.toolCall.arguments) }
                 val shortArgs = if (formattedArgs.length > 60) formattedArgs.take(60) + "..." else formattedArgs
                 Text(
-                    text = if (isRunning || isPending) "$shortArgs  ⏳等待结果" else "($shortArgs)",
+                    text = if (isRunning || isPending) "$shortArgs  ${stringResource(R.string.chat_waiting_result_inline)}" else "($shortArgs)",
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace,
                     color = if (isRunning || isPending)
@@ -703,7 +705,7 @@ private fun ToolCallContent(
             }
             if (isPending) {
                 Text(
-                    text = "调用中",
+                    text = stringResource(R.string.chat_calling),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -721,7 +723,7 @@ private fun ToolCallContent(
                     label = "tool-dots-count"
                 )
                 Text(
-                    text = "执行中" + ".".repeat(dotCount.toInt().coerceIn(0, 3)),
+                    text = stringResource(R.string.chat_executing_with_dots) + ".".repeat(dotCount.toInt().coerceIn(0, 3)),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
@@ -737,7 +739,7 @@ private fun ToolCallContent(
             }
             if (isFailed) {
                 Text(
-                    text = "失败",
+                    text = stringResource(R.string.chat_failed),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Medium
@@ -756,13 +758,13 @@ private fun ToolCallContent(
                 Spacer(modifier = Modifier.height(2.dp))
                 if (isFileToolSuccess) {
                     // 文件工具：统一显示 diff 摘要
-                    val effectiveDiff = buildPseudoDiffForResult(block.toolCall.name, resultText)
+                    val effectiveDiff = buildPseudoDiffForResult(block.toolCall.name, resultText, context)
                     if (effectiveDiff != null) {
                         val (_, diffLines) = parseDiffOutput(effectiveDiff)
                         val removed = diffLines.count { it.type == DiffLineType.REMOVED }
                         val added = diffLines.count { it.type == DiffLineType.ADDED }
                         Text(
-                            text = "📝 ${if (removed > 0) "-${removed}行 " else ""}${if (added > 0) "+${added}行" else ""}",
+                            text = stringResource(R.string.chat_diff_file_summary, if (removed > 0) "-${removed}行 " else "", if (added > 0) "+${added}行" else ""),
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -775,7 +777,7 @@ private fun ToolCallContent(
                     val removed = diffLines.count { it.type == DiffLineType.REMOVED }
                     val added = diffLines.count { it.type == DiffLineType.ADDED }
                     Text(
-                        text = "📝 变更: ${if (removed > 0) "-${removed}行 " else ""}${if (added > 0) "+${added}行" else ""}",
+                            text = stringResource(R.string.chat_diff_summary, if (removed > 0) "-${removed}行 " else "", if (added > 0) "+${added}行" else ""),
                         fontSize = 11.sp,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -798,7 +800,7 @@ private fun ToolCallContent(
                                 try {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
-                                    Toast.makeText(context, "已复制结果", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                                 } catch (_: Exception) {}
                             }
                         )
@@ -838,7 +840,7 @@ private fun ToolCallContent(
                 if (isFileToolSuccess) {
                     // 文件工具成功：只显示 diff 视图
                     Spacer(modifier = Modifier.height(4.dp))
-                    val effectiveDiff = resultText?.let { buildPseudoDiffForResult(block.toolCall.name, it) }
+                    val effectiveDiff = resultText?.let { buildPseudoDiffForResult(block.toolCall.name, it, context) }
                     if (effectiveDiff != null) {
                         DiffView(diffText = remember(effectiveDiff) { shortenWorkspacePaths(effectiveDiff) })
                     }
@@ -847,7 +849,7 @@ private fun ToolCallContent(
                     if (hasActualArguments(block.toolCall.arguments)) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "参数:",
+                            text = stringResource(R.string.chat_params_label),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
@@ -874,7 +876,7 @@ private fun ToolCallContent(
                     if (resultText != null) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "结果:",
+                            text = stringResource(R.string.chat_result_label),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
@@ -906,7 +908,7 @@ private fun ToolCallContent(
                         // 工具运行中但结果尚未返回
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "⏳ 等待结果...",
+                            text = stringResource(R.string.chat_waiting_result),
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
@@ -924,20 +926,20 @@ private fun ToolCallContent(
                                 try {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
-                                    Toast.makeText(context, "已复制结果", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                                 } catch (_: Exception) {}
                             },
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(
                                 Icons.Default.ContentCopy,
-                                contentDescription = "复制结果",
+                                contentDescription = stringResource(R.string.chat_copy_result),
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Text(
-                            text = "收起",
+                            text = stringResource(R.string.common_collapse),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
@@ -977,7 +979,7 @@ private fun ToolCallStatusIcon(
             )
             Icon(
                 imageVector = Icons.Default.Refresh,
-                contentDescription = "运行中",
+                contentDescription = stringResource(R.string.chat_running),
                 modifier = modifier
                     .size(12.dp)
                     .graphicsLayer { rotationZ = rotation },
@@ -1092,16 +1094,16 @@ private fun extractFilePath(arguments: String): String? {
  * 为 write_file / append_file 的非 diff 结果构造伪 diff 文本
  * 使其可以复用 DiffView 渲染
  */
-private fun buildPseudoDiffForResult(toolName: String, resultText: String): String? {
+private fun buildPseudoDiffForResult(toolName: String, resultText: String, context: Context): String? {
     // 已经是 diff 格式则直接返回
     if (isDiffOutput(resultText)) return resultText
     // write_file / append_file 成功时，从结果中提取行数构造摘要
     val lineCount = resultText.lines().filter { it.isNotBlank() }.size
     if (lineCount == 0) return null
     val label = when {
-        toolName.equals("write_file", ignoreCase = true) -> "新文件"
-        toolName.equals("append_file", ignoreCase = true) -> "追加内容"
-        else -> "变更"
+        toolName.equals("write_file", ignoreCase = true) -> context.getString(R.string.chat_new_file_label)
+        toolName.equals("append_file", ignoreCase = true) -> context.getString(R.string.chat_append_content_label)
+        else -> context.getString(R.string.chat_changes_label)
     }
     // 构造简单的伪 diff：全部作为新增行
     val pseudoLines = resultText.lines()

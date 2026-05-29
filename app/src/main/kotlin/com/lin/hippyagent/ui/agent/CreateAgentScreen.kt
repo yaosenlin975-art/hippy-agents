@@ -51,9 +51,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.chat.ModelSwitchSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,10 +95,10 @@ fun CreateAgentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("创建智能体", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.agent_create), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, "返回")
+                        Icon(Icons.Default.ArrowBack, stringResource(R.string.common_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -129,7 +131,7 @@ fun CreateAgentScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(Modifier.width(12.dp))
-                            Text("基本信息", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_basic_info), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                         }
 
                         Spacer(Modifier.height(16.dp))
@@ -137,8 +139,8 @@ fun CreateAgentScreen(
                         OutlinedTextField(
                             value = name,
                             onValueChange = { name = it },
-                            label = { Text("智能体名称") },
-                            placeholder = { Text("给智能体起个名字（可选）") },
+                            label = { Text(stringResource(R.string.agent_name)) },
+                            placeholder = { Text(stringResource(R.string.agent_name_hint)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
@@ -150,7 +152,7 @@ fun CreateAgentScreen(
 
                         Spacer(Modifier.height(16.dp))
 
-                        Text("默认模型", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_default_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(
                             modifier = Modifier
@@ -167,7 +169,7 @@ fun CreateAgentScreen(
                                     text = if (agent?.modelName?.isNotEmpty() == true) {
                                         val pName = uiState.providerNames[agent.modelProvider] ?: agent.modelProvider
                                         "$pName/${agent.modelName}"
-                                    } else "点击选择模型",
+                                    } else stringResource(R.string.agent_select_model_hint),
                                     fontSize = 14.sp,
                                     color = if (agent?.modelName?.isNotEmpty() == true) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f),
@@ -178,20 +180,20 @@ fun CreateAgentScreen(
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("备用模型", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_fallback_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showFallbackModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = (uiState.agent?.fallbackModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.fallbackModelProvider] ?: uiState.agent!!.fallbackModelProvider; "$p/$it" }) ?: "未设置（主模型失败时使用）", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(text = (uiState.agent?.fallbackModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.fallbackModelProvider] ?: uiState.agent!!.fallbackModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_fallback_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("复杂模型", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_complex_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showComplexModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = (uiState.agent?.complexModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.complexModelProvider] ?: uiState.agent!!.complexModelProvider; "$p/$it" }) ?: "未设置（复杂任务自动路由）", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(text = (uiState.agent?.complexModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.complexModelProvider] ?: uiState.agent!!.complexModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_complex_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Tune, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
@@ -209,10 +211,10 @@ fun CreateAgentScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("初始技能", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_initial_skills), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                "选择智能体启动时启用的技能",
+                                stringResource(R.string.agent_initial_skills_hint),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -255,10 +257,10 @@ fun CreateAgentScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("工具开关", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_tool_switch), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                "选择智能体可使用的工具",
+                                stringResource(R.string.agent_tool_switch_hint),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -322,7 +324,7 @@ fun CreateAgentScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("创建智能体", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.agent_create), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     }
                 }
                 Spacer(Modifier.height(40.dp))

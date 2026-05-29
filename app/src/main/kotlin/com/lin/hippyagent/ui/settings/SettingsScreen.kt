@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
@@ -74,16 +75,16 @@ import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.ui.components.HippyTopBar
 
 private data class SettingsGroup(
-    val name: String,
+    val nameRes: Int,
     val icon: ImageVector,
     val items: List<SettingsItem>
 )
 
 private data class SettingsItem(
     val icon: ImageVector,
-    val title: String,
+    val titleRes: Int,
     val subtitle: String? = null,
-    val onClickLabel: String = ""
+    val onClickKey: Int = 0
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -148,59 +149,59 @@ fun SettingsScreen(
 
     val groups = remember {
         listOf(
-            SettingsGroup("通用", Icons.Default.Language, listOf(
-                SettingsItem(Icons.Default.Language, "语言", uiState.language, "语言"),
-                SettingsItem(Icons.Default.Notifications, "通知", if (uiState.notificationsEnabled) "已开启" else "已关闭", "通知"),
-                SettingsItem(Icons.Default.Palette, "界面设置", "不活跃对话时长等界面偏好", "界面设置"),
-                SettingsItem(Icons.Default.Storage, "数据存储", uiState.storagePath, "数据存储"),
+            SettingsGroup(R.string.settings_general, Icons.Default.Language, listOf(
+                SettingsItem(Icons.Default.Language, R.string.language, uiState.language, R.string.language),
+                SettingsItem(Icons.Default.Notifications, R.string.notifications, if (uiState.notificationsEnabled) context.getString(R.string.enabled) else context.getString(R.string.settings_closed), R.string.notifications),
+                SettingsItem(Icons.Default.Palette, R.string.settings_ui_settings, context.getString(R.string.settings_ui_settings_desc), R.string.settings_ui_settings),
+                SettingsItem(Icons.Default.Storage, R.string.data_storage, uiState.storagePath, R.string.data_storage),
             )),
-            SettingsGroup("模型与 AI", Icons.Default.SmartToy, listOf(
-                SettingsItem(Icons.Default.Dns, "模型供应商", "管理 API Key 和模型", "模型供应商"),
-                SettingsItem(Icons.Default.Description, "全局规则", "对所有智能体生效的通用规则", "全局规则"),
-                SettingsItem(Icons.Default.SmartToy, "公共技能池", "管理智能体技能", "公共技能池"),
-                SettingsItem(Icons.Default.Lightbulb, "公共记忆", "所有智能体的共享记忆", "公共记忆"),
+            SettingsGroup(R.string.settings_model_and_ai, Icons.Default.SmartToy, listOf(
+                SettingsItem(Icons.Default.Dns, R.string.model_provider, context.getString(R.string.settings_model_provider_desc_new), R.string.model_provider),
+                SettingsItem(Icons.Default.Description, R.string.settings_global_rules, context.getString(R.string.settings_global_rules_desc), R.string.settings_global_rules),
+                SettingsItem(Icons.Default.SmartToy, R.string.skill_pool_management, context.getString(R.string.settings_skill_pool_desc_new), R.string.skill_pool_management),
+                SettingsItem(Icons.Default.Lightbulb, R.string.settings_common_memory, context.getString(R.string.settings_common_memory_desc), R.string.settings_common_memory),
             )),
-            SettingsGroup("系统与权限", Icons.Default.Lock, listOf(
-                SettingsItem(Icons.Default.Shield, "权限中心", "统一管理所有系统权限", "权限中心"),
-                SettingsItem(Icons.Default.Dns, "无障碍设置", "配置手机自动化权限", "无障碍设置"),
-                SettingsItem(Icons.Default.Terminal, "环境检测", "检测常用环境安装状态", "环境检测"),
-                SettingsItem(Icons.Default.Storage, "环境变量", "管理全局环境变量", "环境变量"),
-                SettingsItem(Icons.Default.Check, "工具审批", "审批工具执行请求", "工具审批"),
-                SettingsItem(Icons.Default.Shield, "安全规则", "管理工具审批的「不再询问」规则", "安全规则"),
-                SettingsItem(Icons.Default.Extension, "工具列表", "查看所有可用工具", "工具列表"),
-                SettingsItem(Icons.Default.Extension, "插件管理", "管理已安装插件", "插件管理"),
-                SettingsItem(Icons.Default.Timer, "事件监听", "管理系统事件 Hook 和静默时间", "事件监听"),
-                SettingsItem(Icons.Default.Description, "日志", "", "日志"),
+            SettingsGroup(R.string.settings_system_and_permissions, Icons.Default.Lock, listOf(
+                SettingsItem(Icons.Default.Shield, R.string.settings_permission_center, context.getString(R.string.settings_permission_center_desc), R.string.settings_permission_center),
+                SettingsItem(Icons.Default.Dns, R.string.settings_accessibility_setup, context.getString(R.string.settings_accessibility_setup_desc), R.string.settings_accessibility_setup),
+                SettingsItem(Icons.Default.Terminal, R.string.settings_env_check, context.getString(R.string.settings_env_check_desc), R.string.settings_env_check),
+                SettingsItem(Icons.Default.Storage, R.string.settings_env_vars, context.getString(R.string.settings_env_vars_desc), R.string.settings_env_vars),
+                SettingsItem(Icons.Default.Check, R.string.settings_tool_approvals, context.getString(R.string.settings_tool_approvals_desc), R.string.settings_tool_approvals),
+                SettingsItem(Icons.Default.Shield, R.string.settings_security_rules, context.getString(R.string.settings_security_rules_desc), R.string.settings_security_rules),
+                SettingsItem(Icons.Default.Extension, R.string.settings_tools_list, context.getString(R.string.settings_tools_list_desc), R.string.settings_tools_list),
+                SettingsItem(Icons.Default.Extension, R.string.settings_plugins, context.getString(R.string.settings_plugins_desc), R.string.settings_plugins),
+                SettingsItem(Icons.Default.Timer, R.string.settings_event_hooks, context.getString(R.string.settings_event_hooks_desc), R.string.settings_event_hooks),
+                SettingsItem(Icons.Default.Description, R.string.settings_logs, "", R.string.settings_logs),
             )),
-            SettingsGroup("关于", Icons.Default.Info, listOf(
-                SettingsItem(Icons.Default.Info, "关于", "版本 ${uiState.appVersion}", "关于"),
-                SettingsItem(Icons.Default.BugReport, "调试信息", "收集诊断数据", "调试信息"),
+            SettingsGroup(R.string.about_section, Icons.Default.Info, listOf(
+                SettingsItem(Icons.Default.Info, R.string.about, context.getString(R.string.settings_version_format, uiState.appVersion), R.string.about),
+                SettingsItem(Icons.Default.BugReport, R.string.debug_info, context.getString(R.string.settings_debug_info_desc_new), R.string.debug_info),
             )),
         )
     }
 
-    fun onClick(label: String) {
-        when (label) {
-            "语言" -> onNavigateToLanguage()
-            "通知" -> onNavigateToNotification()
-            "界面设置" -> onNavigateToUiSettings()
-            "全局规则" -> onNavigateToGlobalRules()
-            "数据存储" -> onNavigateToDataStorage()
-            "模型供应商" -> onNavigateToModelProvider()
-            "公共技能池" -> onNavigateToSkillPool()
-            "公共记忆" -> onNavigateToCommonMemory(null)
-            "权限中心" -> onNavigateToPermissionCenter()
-            "无障碍设置" -> onNavigateToAccessibilitySetup()
-            "环境检测" -> onNavigateToEnvCheck()
-            "环境变量" -> onNavigateToEnvVars()
-            "日志" -> onNavigateToExportLog()
-            "关于" -> onNavigateToAbout()
-            "调试信息" -> onNavigateToDebugInfo()
-            "工具审批" -> onNavigateToToolApprovals()
-            "安全规则" -> onNavigateToSecurityRules()
-            "工具列表" -> onNavigateToToolsList()
-            "插件管理" -> onNavigateToPlugins()
-            "事件监听" -> onNavigateToSystemHooks()
+    fun onClick(key: Int) {
+        when (key) {
+            R.string.language -> onNavigateToLanguage()
+            R.string.notifications -> onNavigateToNotification()
+            R.string.settings_ui_settings -> onNavigateToUiSettings()
+            R.string.settings_global_rules -> onNavigateToGlobalRules()
+            R.string.data_storage -> onNavigateToDataStorage()
+            R.string.model_provider -> onNavigateToModelProvider()
+            R.string.skill_pool_management -> onNavigateToSkillPool()
+            R.string.settings_common_memory -> onNavigateToCommonMemory(null)
+            R.string.settings_permission_center -> onNavigateToPermissionCenter()
+            R.string.settings_accessibility_setup -> onNavigateToAccessibilitySetup()
+            R.string.settings_env_check -> onNavigateToEnvCheck()
+            R.string.settings_env_vars -> onNavigateToEnvVars()
+            R.string.settings_logs -> onNavigateToExportLog()
+            R.string.about -> onNavigateToAbout()
+            R.string.debug_info -> onNavigateToDebugInfo()
+            R.string.settings_tool_approvals -> onNavigateToToolApprovals()
+            R.string.settings_security_rules -> onNavigateToSecurityRules()
+            R.string.settings_tools_list -> onNavigateToToolsList()
+            R.string.settings_plugins -> onNavigateToPlugins()
+            R.string.settings_event_hooks -> onNavigateToSystemHooks()
         }
     }
 
@@ -211,7 +212,7 @@ fun SettingsScreen(
             } else {
                 groups.mapNotNull { group ->
                     val matched = group.items.filter {
-                        it.title.contains(searchText, ignoreCase = true) ||
+                        context.getString(it.titleRes).contains(searchText, ignoreCase = true) ||
                         (it.subtitle?.contains(searchText, ignoreCase = true) ?: false)
                     }
                     if (matched.isNotEmpty()) group.copy(items = matched) else null
@@ -223,7 +224,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "设置",
+                title = stringResource(R.string.settings),
                 actions = {
                     Text(
                         text = uiState.appVersion,
@@ -249,7 +250,7 @@ fun SettingsScreen(
                     value = searchText,
                     onValueChange = { searchText = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("搜索设置…", fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.settings_search_hint), fontSize = 14.sp) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.outline) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -302,7 +303,7 @@ fun SettingsScreen(
         }
 
         filteredGroups.forEach { group ->
-                val isExpanded = expandedGroups[group.name] ?: true
+                val isExpanded = expandedGroups[group.nameRes.toString()] ?: true
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -313,7 +314,7 @@ fun SettingsScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { expandedGroups[group.name] = !isExpanded }
+                                    .clickable { expandedGroups[group.nameRes.toString()] = !isExpanded }
                                     .padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -325,7 +326,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(Modifier.width(10.dp))
                                 Text(
-                                    group.name,
+                                    stringResource(group.nameRes),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 14.sp,
                                     modifier = Modifier.weight(1f)
@@ -343,14 +344,14 @@ fun SettingsScreen(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { onClick(item.onClickLabel) }
+                                            .clickable { onClick(item.onClickKey) }
                                             .padding(horizontal = 16.dp, vertical = 11.dp)
                                             .padding(start = 30.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                item.title,
+                                                stringResource(item.titleRes),
                                                 fontSize = 14.sp,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )

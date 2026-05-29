@@ -46,6 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.core.agent.config.MCPClientConfig
 import com.lin.hippyagent.ui.components.HippyTopBar
 import com.lin.hippyagent.ui.components.SettingCard
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,11 +59,12 @@ fun MCPScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
             snackbarHostState.showSnackbar(
-                message = "MCP 配置已保存",
+                message = context.getString(R.string.mcp_config_saved),
                 duration = SnackbarDuration.Short
             )
             viewModel.clearSaveSuccess()
@@ -70,12 +74,12 @@ fun MCPScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "MCP 客户端",
+                title = stringResource(R.string.mcp_client_title),
                 showBackButton = true,
                 onBackClick = onBackClick,
                 actions = {
                     IconButton(onClick = { viewModel.saveConfig() }) {
-                        Icon(Icons.Default.Save, "保存", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Default.Save, stringResource(R.string.save), tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
@@ -86,7 +90,7 @@ fun MCPScreen(
                 onClick = { viewModel.showCreateDialog() },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "添加", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Default.Add, stringResource(R.string.add), tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     ) { padding ->
@@ -133,11 +137,11 @@ fun MCPScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "暂无 MCP 客户端",
+                                    text = stringResource(R.string.mcp_no_clients),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    text = "点击右上角 + 添加",
+                                    text = stringResource(R.string.mcp_add_hint),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 4.dp)
@@ -204,13 +208,13 @@ private fun MCPClientCard(
                         fontSize = 16.sp
                     )
                     Text(
-                        text = "传输: ${client.transport}",
+                        text = stringResource(R.string.mcp_transport_label, client.transport),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                     Text(
-                        text = "超时: ${client.readTimeoutSeconds.toLong()}s",
+                        text = stringResource(R.string.mcp_timeout_label, client.readTimeoutSeconds.toLong()),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 2.dp)
@@ -237,17 +241,17 @@ private fun MCPClientCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, "编辑", modifier = Modifier.padding(end = 4.dp))
-                    Text("编辑")
+                    Icon(Icons.Default.Edit, stringResource(R.string.edit), modifier = Modifier.padding(end = 4.dp))
+                    Text(stringResource(R.string.edit))
                 }
                 TextButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.Delete,
-                        "删除",
+                        stringResource(R.string.delete),
                         modifier = Modifier.padding(end = 4.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
-                    Text("删除", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -269,7 +273,7 @@ private fun MCPCreateDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("添加 MCP 客户端") },
+        title = { Text(stringResource(R.string.mcp_add_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -278,13 +282,13 @@ private fun MCPCreateDialog(
                 TextField(
                     value = key,
                     onValueChange = { key = it },
-                    label = { Text("客户端标识 (key)") },
+                    label = { Text(stringResource(R.string.mcp_client_key)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 TextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("客户端名称") },
+                    label = { Text(stringResource(R.string.mcp_client_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(
@@ -304,7 +308,7 @@ private fun MCPCreateDialog(
                     TextField(
                         value = command,
                         onValueChange = { command = it },
-                        label = { Text("命令 (command)") },
+                        label = { Text(stringResource(R.string.mcp_command_label)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
@@ -318,7 +322,7 @@ private fun MCPCreateDialog(
                 TextField(
                     value = timeoutStr,
                     onValueChange = { timeoutStr = it },
-                    label = { Text("执行超时（秒）") },
+                    label = { Text(stringResource(R.string.mcp_timeout_seconds)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -341,12 +345,12 @@ private fun MCPCreateDialog(
                 },
                 enabled = key.isNotEmpty() && name.isNotEmpty()
             ) {
-                Text("添加")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -369,7 +373,7 @@ private fun MCPEditDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("编辑 MCP 客户端") },
+        title = { Text(stringResource(R.string.mcp_edit_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -378,13 +382,13 @@ private fun MCPEditDialog(
                 TextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("客户端名称") },
+                    label = { Text(stringResource(R.string.mcp_client_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 TextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("描述（可选）") },
+                    label = { Text(stringResource(R.string.mcp_description_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(
@@ -404,7 +408,7 @@ private fun MCPEditDialog(
                     TextField(
                         value = command,
                         onValueChange = { command = it },
-                        label = { Text("命令 (command)") },
+                        label = { Text(stringResource(R.string.mcp_command_label)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
@@ -418,13 +422,13 @@ private fun MCPEditDialog(
                 TextField(
                     value = cwd,
                     onValueChange = { cwd = it },
-                    label = { Text("工作目录（可选）") },
+                    label = { Text(stringResource(R.string.mcp_cwd_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 TextField(
                     value = timeoutStr,
                     onValueChange = { timeoutStr = it },
-                    label = { Text("执行超时（秒）") },
+                    label = { Text(stringResource(R.string.mcp_timeout_seconds)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -448,12 +452,12 @@ private fun MCPEditDialog(
                 },
                 enabled = name.isNotEmpty()
             ) {
-                Text("保存")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

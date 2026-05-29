@@ -37,12 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,15 +109,15 @@ fun EnvVarsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("环境变量", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.env_vars_title), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, "返回")
+                        Icon(Icons.Default.ArrowBack, stringResource(R.string.common_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showAdd = true }) {
-                        Icon(Icons.Default.Add, "添加")
+                        Icon(Icons.Default.Add, stringResource(R.string.add))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -138,12 +140,12 @@ fun EnvVarsScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("添加环境变量", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text(stringResource(R.string.env_vars_add), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         Spacer(Modifier.height(8.dp))
                         OutlinedTextField(
                             value = newKey,
                             onValueChange = { newKey = it },
-                            label = { Text("变量名") },
+                            label = { Text(stringResource(R.string.env_var_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(8.dp)
@@ -152,7 +154,7 @@ fun EnvVarsScreen(
                         OutlinedTextField(
                             value = newValue,
                             onValueChange = { newValue = it },
-                            label = { Text("变量值") },
+                            label = { Text(stringResource(R.string.env_var_value)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(8.dp)
@@ -160,7 +162,7 @@ fun EnvVarsScreen(
                         Spacer(Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                "取消",
+                                stringResource(R.string.cancel),
                                 modifier = Modifier
                                     .clickable {
                                         showAdd = false
@@ -172,7 +174,7 @@ fun EnvVarsScreen(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                "添加",
+                                stringResource(R.string.add),
                                 modifier = Modifier
                                     .clickable {
                                         viewModel.add(newKey.trim(), newValue)
@@ -192,13 +194,13 @@ fun EnvVarsScreen(
             if (vars.isEmpty() && !showAdd) {
                 Spacer(Modifier.height(48.dp))
                 Text(
-                    "暂无环境变量",
+                    stringResource(R.string.env_vars_empty),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "点击右上角 + 添加",
+                    stringResource(R.string.env_vars_empty_hint),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -221,7 +223,7 @@ fun EnvVarsScreen(
                                 OutlinedTextField(
                                     value = editingValue,
                                     onValueChange = { editingValue = it },
-                                    label = { Text("变量值") },
+                                    label = { Text(stringResource(R.string.env_var_value)) },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true,
                                     shape = RoundedCornerShape(8.dp)
@@ -229,7 +231,7 @@ fun EnvVarsScreen(
                                 Spacer(Modifier.height(8.dp))
                                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        "取消",
+                                        stringResource(R.string.cancel),
                                         modifier = Modifier
                                             .clickable { editingKey = null }
                                             .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -237,7 +239,7 @@ fun EnvVarsScreen(
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        "保存",
+                                        stringResource(R.string.save),
                                         modifier = Modifier
                                             .clickable {
                                                 viewModel.update(item.key, editingValue)
@@ -274,7 +276,7 @@ fun EnvVarsScreen(
                                     onClick = { viewModel.delete(item.key) },
                                     modifier = Modifier.size(32.dp)
                                 ) {
-                                    Icon(Icons.Default.Delete, "删除", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Delete, stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                                 }
                             }
                         }

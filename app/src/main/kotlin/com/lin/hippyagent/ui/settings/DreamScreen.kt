@@ -31,11 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.session.AppDatabase
 import com.lin.hippyagent.core.agent.session.DreamHistoryEntity
 import com.lin.hippyagent.core.memory.DreamMemoryManager
@@ -132,7 +134,7 @@ fun DreamScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = "Dream 模式",
+                title = stringResource(R.string.dream_title),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -145,10 +147,10 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Dream 模式", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.dream_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Dream 模式允许 Agent 在空闲时自动执行记忆整理、知识巩固等后台任务，类似于人类的睡眠过程。",
+                            stringResource(R.string.dream_desc),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -163,8 +165,8 @@ fun DreamScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("启用 Dream 模式", fontSize = 14.sp)
-                            Text("允许 Agent 在后台执行整理任务", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.dream_enable), fontSize = 14.sp)
+                            Text(stringResource(R.string.dream_enable_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
                             checked = dreamEnabled,
@@ -179,7 +181,7 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("执行间隔（小时）", fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_interval_hours), fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = dreamIntervalHours,
@@ -197,19 +199,19 @@ fun DreamScreen(
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("仅充电时执行", fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_charge_only), fontSize = 14.sp)
                             }
                             Switch(checked = dreamOnCharge, onCheckedChange = { dreamOnCharge = it }, enabled = dreamEnabled)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("需要 WiFi", fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_wifi_required), fontSize = 14.sp)
                             }
                             Switch(checked = dreamOnWifi, onCheckedChange = { dreamOnWifi = it }, enabled = dreamEnabled)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("设备空闲时执行", fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_idle_only), fontSize = 14.sp)
                             }
                             Switch(checked = dreamOnIdle, onCheckedChange = { dreamOnIdle = it }, enabled = dreamEnabled)
                         }
@@ -220,7 +222,7 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("记忆保留天数", fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_retention_days), fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = retentionDays,
@@ -242,13 +244,13 @@ fun DreamScreen(
                     if (triggering) {
                         CircularProgressIndicator(modifier = Modifier.padding(end = 8.dp))
                     }
-                    Text(if (triggering) "执行中..." else "立即执行一次 Dream")
+                    Text(if (triggering) stringResource(R.string.dream_executing) else stringResource(R.string.dream_trigger_now))
                 }
             }
 
             if (history.isNotEmpty()) {
                 item {
-                    Text("执行历史", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.dream_history), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
                 items(history, key = { it.triggeredAt }) { entry ->
                     Card(modifier = Modifier.fillMaxWidth()) {
@@ -270,7 +272,7 @@ fun DreamScreen(
                                 Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             entry.elapsedMs?.let { ms ->
-                                Text("耗时: ${ms}ms", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.dream_elapsed_ms, ms), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -279,17 +281,17 @@ fun DreamScreen(
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("技能策展 (Curator)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.dream_curator_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("自动技能管理", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_auto_skill_mgmt), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Curator 在 Dream 期间自动从执行历史中提取、合并、优化技能，让 Agent 越用越聪明。",
+                            stringResource(R.string.dream_curator_desc),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -298,9 +300,9 @@ fun DreamScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            StatItem("已提取", curatorStats.first.toString())
-                            StatItem("活跃", curatorStats.second.toString())
-                            StatItem("已归档", curatorStats.third.toString())
+                            StatItem(stringResource(R.string.dream_stat_extracted), curatorStats.first.toString())
+                            StatItem(stringResource(R.string.dream_stat_active), curatorStats.second.toString())
+                            StatItem(stringResource(R.string.dream_stat_archived), curatorStats.third.toString())
                         }
                     }
                 }
@@ -321,7 +323,7 @@ fun DreamScreen(
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    "使用 ${skill.usageCount} 次",
+                                    stringResource(R.string.dream_skill_usage_count, skill.usageCount),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -340,7 +342,7 @@ fun DreamScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("置信度", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.memory_confidence), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                                     LinearProgressIndicator(
                                         progress = { skill.confidence },
@@ -361,7 +363,7 @@ fun DreamScreen(
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            "暂无自动提取的技能，Dream 执行后将自动生成",
+                            stringResource(R.string.dream_no_auto_skills),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)

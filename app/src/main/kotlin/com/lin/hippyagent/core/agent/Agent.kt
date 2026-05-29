@@ -460,7 +460,8 @@ class Agent(
         userMessage: String,
         overrideProviderId: String?,
         skipUserMessage: Boolean = false,
-        systemPromptSuffix: String? = null
+        systemPromptSuffix: String? = null,
+        overrideModel: String? = null
     ): PreparedContext? {
         if (!networkMonitor.isOnline()) {
             val queued = com.lin.hippyagent.core.network.QueuedMessage(
@@ -491,7 +492,8 @@ class Agent(
             Timber.i("/pro command: forcing HEAVY model for this turn")
         }
 
-        val promptResult = buildPrompt(sessionId, systemPromptSuffix = systemPromptSuffix, isEscalated = escalatedThisTurn)
+        val effectiveModel = overrideModel ?: profile.modelName
+        val promptResult = buildPrompt(sessionId, systemPromptSuffix = systemPromptSuffix, isEscalated = escalatedThisTurn, effectiveModelName = effectiveModel)
         val messages = promptResult.messages
 
         val toolDefinitions = toolRegistry.getDefinitionsForAgent(
@@ -722,7 +724,7 @@ class Agent(
         return runCatching {
             Timber.d("Agent ${profile.agentId} processing message: $content")
 
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix)
+            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel)
                 ?: return Result.failure(NetworkUnavailableException("网络连接不可用，消息已缓存"))
 
             val effectiveClient = ctx.effectiveClient
@@ -950,7 +952,7 @@ class Agent(
         var afterAgentCalled = false
         try {
             getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage)
+            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, overrideModel = overrideModel)
             if (ctx == null) {
                 emit(StreamChunk.Content("📡 网络不可用，消息已缓存，网络恢复后自动发送"))
                 return@flow
@@ -1255,7 +1257,7 @@ class Agent(
             updateSessionState(sessionId) { it.copy(status = AgentStatus.ERROR, lastError = errorMsg) }
             sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, errorMsg, senderId = profile.agentId)
             channelManager.broadcast(ChannelMessage(content = errorMsg, senderId = profile.agentId, sessionId = sessionId), excludeChannel = channelId)
-            emit(StreamChunk.Content(errorMsg))
+            runCatching { emit(StreamChunk.Content(errorMsg)) }
             return@flow
         } catch (e: Exception) {
             streamFailed = true
@@ -1265,7 +1267,7 @@ class Agent(
                 updateSessionState(sessionId) { it.copy(status = AgentStatus.ERROR, lastError = errorMsg) }
                 sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, errorMsg, senderId = profile.agentId)
                 channelManager.broadcast(ChannelMessage(content = errorMsg, senderId = profile.agentId, sessionId = sessionId), excludeChannel = channelId)
-                emit(StreamChunk.Content(errorMsg))
+                runCatching { emit(StreamChunk.Content(errorMsg)) }
                 return@flow
             }
             if (e !is kotlinx.coroutines.CancellationException) {
@@ -1274,7 +1276,7 @@ class Agent(
                 updateSessionState(sessionId) { it.copy(status = AgentStatus.ERROR, lastError = errorMsg) }
                 sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, errorMsg, senderId = profile.agentId)
                 channelManager.broadcast(ChannelMessage(content = errorMsg, senderId = profile.agentId, sessionId = sessionId), excludeChannel = channelId)
-                emit(StreamChunk.Content(errorMsg))
+                runCatching { emit(StreamChunk.Content(errorMsg)) }
                 return@flow
             }
         } finally {
@@ -1283,16 +1285,24 @@ class Agent(
             sessionContexts[sessionId]?.job = null
             _currentProcessingSessionId = null
             val currentSessionState = _state.value.getSessionState(sessionId)
-            if (currentSessionState.status != AgentStatus.STOPPED) {
-                updateSessionState(sessionId) {
-                    it.copy(
-                        status = AgentStatus.IDLE,
-                        isThinking = false,
-                        messageCount = it.messageCount + 1
-                    )
+            when (currentSessionState.status) {
+                AgentStatus.STOPPED -> {
+                    updateSessionState(sessionId) { it.copy(isThinking = false) }
                 }
-            } else {
-                updateSessionState(sessionId) { it.copy(isThinking = false) }
+                AgentStatus.ERROR -> {
+                    updateSessionState(sessionId) {
+                        it.copy(isThinking = false, messageCount = it.messageCount + 1)
+                    }
+                }
+                else -> {
+                    updateSessionState(sessionId) {
+                        it.copy(
+                            status = AgentStatus.IDLE,
+                            isThinking = false,
+                            messageCount = it.messageCount + 1
+                        )
+                    }
+                }
             }
             sessionContexts.remove(sessionId)
             if (!afterAgentCalled) {
@@ -1364,7 +1374,7 @@ class Agent(
         val compactionCompletedInfo: StreamChunk.CompactionCompleted? = null
     )
 
-    private suspend fun buildPrompt(sessionId: String, planContext: String? = null, systemPromptSuffix: String? = null, isEscalated: Boolean = false): BuildPromptResult {
+    private suspend fun buildPrompt(sessionId: String, planContext: String? = null, systemPromptSuffix: String? = null, isEscalated: Boolean = false, effectiveModelName: String? = null): BuildPromptResult {
         val messages = mutableListOf<ModelMessage>()
         var compactionInfo: StreamChunk.Compaction? = null
         var compactionStartedInfo: StreamChunk.CompactionStarted? = null
@@ -1601,7 +1611,8 @@ _你刚醒来。该搞清楚自己是谁了。_
                 }
 
                 if (imageFiles.isNotEmpty() && role == "user") {
-                    if (isLatestUserMsg) {
+                    val modelSupportsVision = effectiveModelName != null && MODEL_VISION_REGEX.containsMatchIn(effectiveModelName)
+                    if (isLatestUserMsg && modelSupportsVision) {
                         val blocks = mutableListOf<com.lin.hippyagent.core.model.ContentBlock>()
                         if (textWithoutAttachments.isNotBlank()) {
                             blocks.add(com.lin.hippyagent.core.model.ContentBlock.Text(textWithoutAttachments))
@@ -1641,6 +1652,9 @@ _你刚醒来。该搞清楚自己是谁了。_
                         val guidance = buildString {
                             append(textWithoutAttachments)
                             if (isNotEmpty() && textWithoutAttachments.isNotBlank()) append("\n")
+                            if (isLatestUserMsg && effectiveModelName != null && !MODEL_VISION_REGEX.containsMatchIn(effectiveModelName)) {
+                                append("[当前模型($effectiveModelName)不支持图片理解，图片已忽略。如需分析图片，请切换到支持视觉的模型]\n")
+                            }
                             imageFiles.forEach { path ->
                                 append("[用户发送了图片: $path，如需查看请使用 view_image 工具]\n")
                             }
@@ -2153,6 +2167,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
     companion object {
         private val imageExtensions = setOf("png", "jpg", "jpeg", "gif", "webp", "bmp")
         private val attachmentRegex = Regex("""\[附件:\s*(\S+)\]""")
+        private val MODEL_VISION_REGEX = Regex("(?i)(vision|vl|gemini|gpt-4o|gpt-5|claude-3|claude-4|qwen-vl|llava|deepseek-vl|flash-image)")
 
         private fun buildToolParameterSchema(params: Map<String, ToolParameter>): Map<String, Any> {
             if (params.isEmpty()) {

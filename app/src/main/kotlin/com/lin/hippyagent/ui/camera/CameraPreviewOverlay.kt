@@ -11,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import android.view.TextureView
+import com.lin.hippyagent.R
 
 @Composable
 fun CameraPreviewOverlay(
@@ -38,6 +40,6 @@ fun CameraPreviewOverlay(
             factory = { textureView },
             modifier = Modifier.fillMaxSize()
         )
-        Text("相机预览", modifier = Modifier.align(Alignment.BottomCenter))
+        Text(stringResource(R.string.camera_preview), modifier = Modifier.align(Alignment.BottomCenter))
     }
 }

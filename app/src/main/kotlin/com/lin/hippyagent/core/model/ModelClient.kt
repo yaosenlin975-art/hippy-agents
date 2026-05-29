@@ -854,7 +854,40 @@ class AnthropicModelClient(
                 chatMessages.forEachIndexed { i, msg ->
                     if (i > 0) sink.writeUtf8(",")
                     sink.writeUtf8("{\"role\":"); writeJsonEscape(msg.role, sink)
-                    sink.writeUtf8(",\"content\":"); writeJsonEscape(msg.content, sink)
+                    val blocks = msg.contentBlocks
+                    if (blocks != null && blocks.isNotEmpty()) {
+                        sink.writeUtf8(",\"content\":[")
+                        blocks.forEachIndexed { j, block ->
+                            if (j > 0) sink.writeUtf8(",")
+                            when (block) {
+                                is ContentBlock.Text -> {
+                                    sink.writeUtf8("{\"type\":\"text\",\"text\":")
+                                    writeJsonEscape(block.text, sink)
+                                    sink.writeUtf8("}")
+                                }
+                                is ContentBlock.ImageUrl -> {
+                                    val url = block.imageUrl.url
+                                    if (url.startsWith("data:")) {
+                                        val base64Data = url.substringAfter("base64,")
+                                        val mimeType = url.substringAfter("data:").substringBefore(";")
+                                        sink.writeUtf8("{\"type\":\"image\",\"source\":{\"type\":\"base64\",\"media_type\":")
+                                        writeJsonEscape(mimeType, sink)
+                                        sink.writeUtf8(",\"data\":")
+                                        writeJsonEscape(base64Data, sink)
+                                        sink.writeUtf8("}}")
+                                    } else {
+                                        sink.writeUtf8("{\"type\":\"image\",\"source\":{\"type\":\"url\",\"url\":")
+                                        writeJsonEscape(url, sink)
+                                        sink.writeUtf8("}}")
+                                    }
+                                }
+                            }
+                        }
+                        sink.writeUtf8("]")
+                    } else {
+                        sink.writeUtf8(",\"content\":")
+                        writeJsonEscape(msg.content, sink)
+                    }
                     sink.writeUtf8("}")
                 }
                 sink.writeUtf8("]")

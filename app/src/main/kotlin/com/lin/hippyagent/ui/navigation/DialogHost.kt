@@ -30,9 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.storage.PreviousDataLocation
 import timber.log.Timber
 import java.io.File
@@ -49,7 +51,7 @@ fun PreviousDataDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("发现历史数据")
+            Text(stringResource(R.string.dialog_previous_data_found))
         },
         text = {
             Column(
@@ -59,7 +61,7 @@ fun PreviousDataDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    "检测到设备上存在之前的 HippyAgent 数据，请选择如何处理：",
+                    stringResource(R.string.dialog_previous_data_desc),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -85,7 +87,7 @@ fun PreviousDataDialog(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                "${location.readableSize} · ${location.fileCount} 个文件",
+                                stringResource(R.string.dialog_file_count, location.readableSize, location.fileCount),
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Text(
@@ -98,7 +100,7 @@ fun PreviousDataDialog(
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("处理方式：", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.dialog_merge_mode), style = MaterialTheme.typography.titleSmall)
                 Spacer(modifier = Modifier.height(8.dp))
                 DataMergeMode.entries.forEach { mode ->
                     Card(
@@ -120,8 +122,8 @@ fun PreviousDataDialog(
                             Icon(mode.icon, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text(mode.label, fontWeight = FontWeight.Medium, fontSize = 13.sp)
-                                Text(mode.description, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(mode.labelResId), fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                Text(stringResource(mode.descriptionResId), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -132,21 +134,21 @@ fun PreviousDataDialog(
             TextButton(onClick = {
                 if (selectedLocation != null) onUseData(selectedLocation!!, selectedMode)
             }) {
-                Text("确认")
+                Text(stringResource(R.string.dialog_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("从头开始")
+                Text(stringResource(R.string.dialog_start_fresh))
             }
         }
     )
 }
 
-enum class DataMergeMode(val label: String, val description: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    KEEP_CURRENT("只保留现有资料", "丢弃历史数据，保留当前工作区内容", Icons.Default.Edit),
-    MERGE("合并数据", "将历史数据合并到当前工作区，以较新文件为准", Icons.Default.SwapHoriz),
-    KEEP_HISTORY("只保留历史数据", "用历史数据覆盖当前工作区内容", Icons.Default.Folder)
+enum class DataMergeMode(val labelResId: Int, val descriptionResId: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    KEEP_CURRENT(R.string.dialog_keep_current, R.string.dialog_keep_current_desc, Icons.Default.Edit),
+    MERGE(R.string.dialog_merge_data, R.string.dialog_merge_data_desc, Icons.Default.SwapHoriz),
+    KEEP_HISTORY(R.string.dialog_keep_history, R.string.dialog_keep_history_desc, Icons.Default.Folder)
 }
 
 internal fun mergeDataDir(source: File, target: File) {

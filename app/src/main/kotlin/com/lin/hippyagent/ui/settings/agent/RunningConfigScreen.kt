@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.core.agent.config.RunningConfig
+import com.lin.hippyagent.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
@@ -24,18 +27,19 @@ fun RunningConfigScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     // 去除「上下文压缩」Tab，保留四个页面
-    val tabs = listOf("ReAct", "LLM重试", "并发限流", "长期记忆")
+    val tabs = listOf(stringResource(R.string.running_config_tab_react), stringResource(R.string.running_config_tab_retry), stringResource(R.string.running_config_tab_concurrent), stringResource(R.string.running_config_tab_memory))
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("运行配置") },
+                title = { Text(stringResource(R.string.running_config_title)) },
                 navigationIcon = {
-                    TextButton(onClick = onBack) { Text("返回") }
+                    TextButton(onClick = onBack) { Text(stringResource(R.string.nav_back)) }
                 }
             )
         },
@@ -88,7 +92,7 @@ fun RunningConfigScreen(
                         OutlinedButton(
                             onClick = { viewModel.resetConfig() },
                             modifier = Modifier.weight(1f)
-                        ) { Text("重置默认") }
+                        ) { Text(stringResource(R.string.running_config_reset_default)) }
 
                         Button(
                             onClick = { viewModel.saveConfig() },
@@ -98,7 +102,7 @@ fun RunningConfigScreen(
                             if (uiState.isSaving) {
                                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                             } else {
-                                Text("保存")
+                                Text(stringResource(R.string.save))
                             }
                         }
                     }
@@ -107,7 +111,7 @@ fun RunningConfigScreen(
 
             if (uiState.saveSuccess == true) {
                 LaunchedEffect(uiState.saveSuccess) {
-                    snackbarHostState.showSnackbar("配置已保存")
+                    snackbarHostState.showSnackbar(context.getString(R.string.running_config_saved))
                 }
             }
         }
@@ -118,10 +122,10 @@ fun RunningConfigScreen(
 private fun ReactConfigSection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("ReAct 智能体", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            NumberField("最大迭代次数", config.maxIters) { onUpdate(config.copy(maxIters = it)) }
-            SwitchField("文本响应自动继续", config.autoContinueOnTextOnly) { onUpdate(config.copy(autoContinueOnTextOnly = it)) }
-            NumberField("最大输入长度", config.maxInputLength) { onUpdate(config.copy(maxInputLength = it)) }
+            Text(stringResource(R.string.running_config_react_agent), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            NumberField(stringResource(R.string.running_config_max_iters), config.maxIters) { onUpdate(config.copy(maxIters = it)) }
+            SwitchField(stringResource(R.string.running_config_auto_continue), config.autoContinueOnTextOnly) { onUpdate(config.copy(autoContinueOnTextOnly = it)) }
+            NumberField(stringResource(R.string.running_config_max_input_length), config.maxInputLength) { onUpdate(config.copy(maxInputLength = it)) }
         }
     }
 }
@@ -130,12 +134,12 @@ private fun ReactConfigSection(config: RunningConfig, onUpdate: (RunningConfig) 
 private fun LlmRetrySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("LLM 自动重试", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            SwitchField("启用重试", config.llmRetryEnabled) { onUpdate(config.copy(llmRetryEnabled = it)) }
+            Text(stringResource(R.string.running_config_llm_auto_retry), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            SwitchField(stringResource(R.string.running_config_enable_retry), config.llmRetryEnabled) { onUpdate(config.copy(llmRetryEnabled = it)) }
             if (config.llmRetryEnabled) {
-                NumberField("最大重试次数", config.llmRetryMaxRetries) { onUpdate(config.copy(llmRetryMaxRetries = it)) }
-                FloatField("退避基数(秒)", config.llmRetryBackoffBase) { onUpdate(config.copy(llmRetryBackoffBase = it)) }
-                FloatField("退避上限(秒)", config.llmRetryBackoffCap) { onUpdate(config.copy(llmRetryBackoffCap = it)) }
+                NumberField(stringResource(R.string.running_config_max_retries), config.llmRetryMaxRetries) { onUpdate(config.copy(llmRetryMaxRetries = it)) }
+                FloatField(stringResource(R.string.running_config_backoff_base), config.llmRetryBackoffBase) { onUpdate(config.copy(llmRetryBackoffBase = it)) }
+                FloatField(stringResource(R.string.running_config_backoff_cap), config.llmRetryBackoffCap) { onUpdate(config.copy(llmRetryBackoffCap = it)) }
             }
         }
     }
@@ -145,12 +149,12 @@ private fun LlmRetrySection(config: RunningConfig, onUpdate: (RunningConfig) -> 
 private fun LlmConcurrencySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("LLM 并发限流", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            NumberField("最大并发数", config.llmMaxConcurrent) { onUpdate(config.copy(llmMaxConcurrent = it)) }
-            NumberField("最大QPM", config.llmMaxQpm) { onUpdate(config.copy(llmMaxQpm = it)) }
-            FloatField("限流暂停(秒)", config.llmRateLimitPause) { onUpdate(config.copy(llmRateLimitPause = it)) }
-            FloatField("限流抖动(秒)", config.llmRateLimitJitter) { onUpdate(config.copy(llmRateLimitJitter = it)) }
-            FloatField("获取超时(秒)", config.llmAcquireTimeout) { onUpdate(config.copy(llmAcquireTimeout = it)) }
+            Text(stringResource(R.string.running_config_llm_concurrent), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            NumberField(stringResource(R.string.running_config_max_concurrent), config.llmMaxConcurrent) { onUpdate(config.copy(llmMaxConcurrent = it)) }
+            NumberField(stringResource(R.string.running_config_max_qpm), config.llmMaxQpm) { onUpdate(config.copy(llmMaxQpm = it)) }
+            FloatField(stringResource(R.string.running_config_rate_limit_pause), config.llmRateLimitPause) { onUpdate(config.copy(llmRateLimitPause = it)) }
+            FloatField(stringResource(R.string.running_config_rate_limit_jitter), config.llmRateLimitJitter) { onUpdate(config.copy(llmRateLimitJitter = it)) }
+            FloatField(stringResource(R.string.running_config_acquire_timeout), config.llmAcquireTimeout) { onUpdate(config.copy(llmAcquireTimeout = it)) }
         }
     }
 }
@@ -159,17 +163,17 @@ private fun LlmConcurrencySection(config: RunningConfig, onUpdate: (RunningConfi
 private fun ContextCompressionSection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("上下文压缩", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_context_compression), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             OutlinedTextField(
                 value = config.contextManagerBackend,
                 onValueChange = { onUpdate(config.copy(contextManagerBackend = it)) },
-                label = { Text("上下文管理后端") },
+                label = { Text(stringResource(R.string.running_config_context_backend)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = config.memoryManagerBackend,
                 onValueChange = { onUpdate(config.copy(memoryManagerBackend = it)) },
-                label = { Text("记忆管理后端") },
+                label = { Text(stringResource(R.string.running_config_memory_backend)) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -180,23 +184,23 @@ private fun ContextCompressionSection(config: RunningConfig, onUpdate: (RunningC
 private fun LongTermMemorySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("长期记忆", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            SwitchField("压缩时记忆", config.remeLightMemoryConfig.summarizeWhenCompact) { v ->
+            Text(stringResource(R.string.running_config_long_term_memory_label), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            SwitchField(stringResource(R.string.running_config_memory_on_compact), config.remeLightMemoryConfig.summarizeWhenCompact) { v ->
                 onUpdate(config.copy(remeLightMemoryConfig = config.remeLightMemoryConfig.copy(summarizeWhenCompact = v)))
             }
-            SwitchField("自动记忆搜索", config.remeLightMemoryConfig.autoMemorySearchConfig.enabled) { v ->
+            SwitchField(stringResource(R.string.running_config_auto_memory_search), config.remeLightMemoryConfig.autoMemorySearchConfig.enabled) { v ->
                 onUpdate(config.copy(remeLightMemoryConfig = config.remeLightMemoryConfig.copy(
                     autoMemorySearchConfig = config.remeLightMemoryConfig.autoMemorySearchConfig.copy(enabled = v)
                 )))
             }
             if (config.remeLightMemoryConfig.autoMemorySearchConfig.enabled) {
-                NumberField("自动搜索最大结果数", config.remeLightMemoryConfig.autoMemorySearchConfig.maxResults) { v ->
+                NumberField(stringResource(R.string.running_config_auto_search_max_results), config.remeLightMemoryConfig.autoMemorySearchConfig.maxResults) { v ->
                     onUpdate(config.copy(remeLightMemoryConfig = config.remeLightMemoryConfig.copy(
                         autoMemorySearchConfig = config.remeLightMemoryConfig.autoMemorySearchConfig.copy(maxResults = v)
                     )))
                 }
                 SliderField(
-                    label = "自动搜索最低相关性分数",
+                    label = stringResource(R.string.running_config_auto_search_min_score),
                     value = config.remeLightMemoryConfig.autoMemorySearchConfig.minScore,
                     valueRange = 0f..1f
                 ) { v ->
@@ -205,7 +209,7 @@ private fun LongTermMemorySection(config: RunningConfig, onUpdate: (RunningConfi
                     )))
                 }
             }
-            SwitchField("启动时重建索引", config.remeLightMemoryConfig.rebuildMemoryIndexOnStart) { v ->
+            SwitchField(stringResource(R.string.running_config_rebuild_index), config.remeLightMemoryConfig.rebuildMemoryIndexOnStart) { v ->
                 onUpdate(config.copy(remeLightMemoryConfig = config.remeLightMemoryConfig.copy(rebuildMemoryIndexOnStart = v)))
             }
         }

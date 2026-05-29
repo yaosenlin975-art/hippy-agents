@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.chat.ChatTurn
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -48,7 +50,7 @@ fun PrivateTurnCard(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val targetName = turn.senderId?.let { agentProfiles[it] } ?: "智能体"
+    val targetName = turn.senderId?.let { agentProfiles[it] } ?: stringResource(R.string.chat_agent_fallback_name)
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
@@ -77,7 +79,7 @@ fun PrivateTurnCard(
                     try {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("discussion", turn.content))
-                        Toast.makeText(context, "已复制讨论内容", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.chat_discussion_copied), Toast.LENGTH_SHORT).show()
                     } catch (_: Exception) {}
                 }
             ),
@@ -91,13 +93,7 @@ fun PrivateTurnCard(
                 Text(text = if (expanded) "▼" else "▶", fontSize = 10.sp)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = buildAnnotatedString {
-                        append("📋 与 ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(targetName)
-                        }
-                        append(" 的讨论")
-                    },
+                    text = context.getString(R.string.chat_discussion_with, targetName),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontStyle = FontStyle.Italic

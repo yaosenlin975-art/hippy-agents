@@ -40,11 +40,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.model.ModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +65,7 @@ fun ModelProviderScreen(
     Scaffold(
         topBar = {
             com.lin.hippyagent.ui.components.HippyTopBar(
-                title = "模型提供商",
+                title = stringResource(R.string.model_provider),
                 showBackButton = true,
                 onBackClick = onBackClick
             )
@@ -73,7 +75,7 @@ fun ModelProviderScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "添加", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(Icons.Default.Add, stringResource(R.string.add), tint = MaterialTheme.colorScheme.onPrimary)
             }
         }
     ) { padding ->
@@ -104,7 +106,7 @@ fun ModelProviderScreen(
                         )
                     ) {
                         Text(
-                            text = "暂无模型提供商，点击 + 添加",
+                            text = stringResource(R.string.provider_no_providers),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -159,7 +161,7 @@ private fun ProviderCard(
                     )
                     if (provider.isDefault) {
                         Text(
-                            text = " (默认)",
+                            text = stringResource(R.string.provider_default_suffix),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = 4.dp)
@@ -167,7 +169,7 @@ private fun ProviderCard(
                     }
                 }
                 Text(
-                    text = provider.baseUrl.ifEmpty { "未配置 URL" },
+                    text = provider.baseUrl.ifEmpty { stringResource(R.string.provider_no_url) },
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
@@ -191,7 +193,7 @@ private fun ProviderCard(
                     )
                 }
                 Text(
-                    text = "模型: ${provider.models.size}",
+                    text = stringResource(R.string.provider_model_count, provider.models.size),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
@@ -221,32 +223,31 @@ private fun AddProviderDialog(
     var showKey by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
-    val protocols = listOf("openai" to "OpenAI 兼容", "anthropic" to "Anthropic", "ollama" to "Ollama")
+    val protocols = listOf("openai" to stringResource(R.string.provider_protocol_openai_compat), "anthropic" to "Anthropic", "ollama" to "Ollama")
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("添加模型提供商") },
+        title = { Text(stringResource(R.string.provider_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = id,
                     onValueChange = { id = it },
-                    label = { Text("提供商 ID") },
-                    placeholder = { Text("如 openai, deepseek, ollama") },
+                    label = { Text(stringResource(R.string.provider_id_label)) },
+                    placeholder = { Text(stringResource(R.string.provider_id_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("显示名称") },
+                    label = { Text(stringResource(R.string.provider_display_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                // 协议选择
                 Box {
                     OutlinedTextField(
                         value = protocols.firstOrNull { it.first == protocol }?.second ?: protocol,
                         onValueChange = {},
-                        label = { Text("协议类型") },
+                        label = { Text(stringResource(R.string.provider_protocol_type)) },
                         readOnly = true,
                         enabled = false,
                         trailingIcon = {
@@ -283,7 +284,7 @@ private fun AddProviderDialog(
                     value = baseUrl,
                     onValueChange = { baseUrl = it },
                     label = { Text("Base URL") },
-                    placeholder = { Text("如 https://api.openai.com/v1") },
+                    placeholder = { Text(stringResource(R.string.placeholder_base_url)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
@@ -320,14 +321,13 @@ private fun AddProviderDialog(
                 },
                 enabled = id.isNotBlank()
             ) {
-                Text("添加")
+                Text(stringResource(R.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
 }
-

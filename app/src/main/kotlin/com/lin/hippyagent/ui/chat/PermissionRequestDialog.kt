@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
+import com.lin.hippyagent.R
 
 /**
  * Shell 命令授权对话框
@@ -52,7 +54,7 @@ fun PermissionRequestDialog(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = if (isCustomPerm) "工具权限授权" else "命令授权请求",
+                        text = if (isCustomPerm) stringResource(R.string.chat_tool_permission_title) else stringResource(R.string.chat_command_auth_request),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -63,17 +65,17 @@ fun PermissionRequestDialog(
                     val permKeys = command.removePrefix("CUSTOM_TOOL_PERM:").split(",")
                     val permLabels = permKeys.map { perm ->
                         when (perm.trim()) {
-                            "DEVICE_ACCESS" -> "设备访问（电池、传感器、位置等）"
-                            "CLIPBOARD_ACCESS" -> "剪贴板访问（读取/写入剪贴板）"
-                            "SSH_SERVER" -> "SSH 服务管理（启动/停止/用户管理）"
-                            "FILE_TRANSFER" -> "文件传输（Android 与容器间传输文件）"
-                            "SHELL_EXECUTE" -> "Shell 命令执行"
+                            "DEVICE_ACCESS" -> stringResource(R.string.chat_perm_device_access)
+                            "CLIPBOARD_ACCESS" -> stringResource(R.string.chat_perm_clipboard)
+                            "SSH_SERVER" -> stringResource(R.string.chat_perm_ssh)
+                            "FILE_TRANSFER" -> stringResource(R.string.chat_perm_file_transfer)
+                            "SHELL_EXECUTE" -> stringResource(R.string.chat_perm_shell)
                             else -> perm.trim()
                         }
                     }
 
                     Text(
-                        text = "智能体请求使用以下功能，请确认是否允许：",
+                        text = stringResource(R.string.chat_agent_request_permission),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -100,7 +102,7 @@ fun PermissionRequestDialog(
                     }
                 } else {
                     Text(
-                        text = "Agent 请求执行以下命令：",
+                        text = stringResource(R.string.chat_agent_request_command),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -137,7 +139,7 @@ fun PermissionRequestDialog(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("拒绝")
+                        Text(stringResource(R.string.chat_deny))
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -148,19 +150,19 @@ fun PermissionRequestDialog(
                             contentColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("不再允许")
+                        Text(stringResource(R.string.chat_deny_always))
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     FilledTonalButton(onClick = onApproveAlways) {
-                        Text("始终允许")
+                        Text(stringResource(R.string.chat_approve_always))
                     }
 
                     Spacer(modifier = Modifier.width(4.dp))
 
                     Button(onClick = onApproveOnce) {
-                        Text("允许一次")
+                        Text(stringResource(R.string.chat_approve_once))
                     }
                 }
             }

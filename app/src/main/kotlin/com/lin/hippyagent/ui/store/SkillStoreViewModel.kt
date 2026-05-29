@@ -55,7 +55,7 @@ class SkillStoreViewModel(
                 loadHotSkills()
                 return@launch
             }
-            _uiState.update { it.copy(nodeStatus = "正在自动安装 Node.js 环境...") }
+            _uiState.update { it.copy(nodeStatus = "installing") }
             val (installCode, _) = linuxManager.exec(
                 "apt-get update -qq && apt-get install -y --no-install-recommends nodejs npm",
                 timeout = 120_000
@@ -65,7 +65,7 @@ class SkillStoreViewModel(
                 _uiState.update { it.copy(nodeStatus = null) }
                 loadHotSkills()
             } else {
-                _uiState.update { it.copy(nodeStatus = "Node.js 环境安装失败，请前往设置→环境检测手动安装") }
+                _uiState.update { it.copy(nodeStatus = "failed") }
             }
         }
     }
