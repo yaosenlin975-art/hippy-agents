@@ -1,4 +1,6 @@
-﻿package com.lin.hippyagent.core.skill.store
+package com.lin.hippyagent.core.skill.store
+
+import androidx.compose.runtime.Immutable
 
 enum class SkillSource(val displayName: String, val color: Long) {
     LOBEHUB("LobeHub", 0xFF8B5CF6),
@@ -6,6 +8,7 @@ enum class SkillSource(val displayName: String, val color: Long) {
     CLAWHUB("ClawHub", 0xFFF97316)
 }
 
+@Immutable
 data class StoreSkillItem(
     val identifier: String,
     val name: String,
@@ -14,6 +17,7 @@ data class StoreSkillItem(
     val source: SkillSource,
     val category: String,
     val installCount: Long = 0,
+    val confidence: Float = 0f,
     val starsCount: Long = 0,
     val rating: Float = -1f,
     val version: String = "",

@@ -1817,6 +1817,19 @@
     <string name="store_linux_not_ready">Linux environment not initialized. The skill store needs Linux to execute search commands. Please complete initialization in Settings first</string>
     <string name="store_load_failed">Load failed: %1$s</string>
     <string name="store_install_failed">Installation failed: %1$s</string>
+    <string name="store_sort_hot">Hot</string>
+    <string name="store_sort_new">New</string>
+    <string name="store_sort_rating">Top Rated</string>
+    <string name="store_sort_installs">Most Installed</string>
+    <string name="install_target_workspace">Workspace</string>
+    <string name="install_target_pool">Skill Pool</string>
+    <string name="install_queue_title">Install Queue</string>
+    <string name="install_queue_clear_completed">Clear Completed</string>
+    <string name="install_queue_cancel">Cancel Install</string>
+    <string name="install_queue_retry">Retry Install</string>
+    <string name="store_load_more">Load More</string>
+    <string name="store_by_author">by %1$s</string>
+    <string name="store_stars_label">%1$s stars</string>
     <!-- 排序类型 -->
     <string name="sort_hot">Most popular</string>
     <string name="sort_new">Newest</string>

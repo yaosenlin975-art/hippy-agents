@@ -401,7 +401,7 @@
     <string name="settings_closed">已关闭</string>
     <string name="settings_ui_settings">界面设置</string>
     <string name="settings_ui_settings_desc">不活跃对话时长等界面偏好</string>
-    <string name="settings_model_and_ai">模型 & AI</string>
+    <string name="settings_model_and_ai">模型 &amp; AI</string>
     <string name="settings_model_provider_desc_new">管理 API Key 和模型</string>
     <string name="settings_global_rules">全局规则</string>
     <string name="settings_global_rules_desc">对所有智能体生效的通用规则</string>
@@ -686,6 +686,9 @@
     <string name="notification_channel_agent_message_desc">智能体新消息提醒</string>
     <string name="notification_channel_permission_request">权限请求</string>
     <string name="notification_channel_permission_request_desc">后台无障碍权限请求通知</string>
+    <string name="notification_severity_critical">严重</string>
+    <string name="notification_severity_high">高</string>
+    <string name="notification_severity_medium">中</string>
     <!-- 通知内容 -->
     <string name="notification_mission_complete">Mission 完成</string>
     <string name="notification_mission_success">成功</string>
@@ -1497,13 +1500,13 @@
     <string name="guardian_tool_write_op_title">写入操作</string>
     <string name="guardian_tool_write_op_desc">写入操作需要确认</string>
     <string name="guardian_shell_evasion_title">Shell 逃逸混淆</string>
-    <string name="guardian_shell_evasion_desc">工具 %1$s 的参数 '%2$s' 包含疑似逃逸混淆模式: %3$s</string>
+    <string name="guardian_shell_evasion_desc">工具 %1$s 的参数 %2$s 包含疑似逃逸混淆模式: %3$s</string>
     <string name="guardian_shell_obfuscation_title">Shell 混淆检测</string>
-    <string name="guardian_shell_obfuscation_desc">工具 %1$s 的参数 '%2$s' 包含疑似混淆指示: %3$s</string>
+    <string name="guardian_shell_obfuscation_desc">工具 %1$s 的参数 %2$s 包含疑似混淆指示: %3$s</string>
     <string name="guardian_file_path_critical_title">访问系统关键路径</string>
     <string name="guardian_file_path_critical_desc">工具 %1$s 尝试访问系统关键路径 %2$s</string>
     <string name="guardian_file_path_traversal_title">路径穿越攻击</string>
-    <string name="guardian_file_path_traversal_desc">工具 %1$s 的参数 '%2$s' 包含路径穿越序列: %3$s</string>
+    <string name="guardian_file_path_traversal_desc">工具 %1$s 的参数 %2$s 包含路径穿越序列: %3$s</string>
     <string name="guardian_file_path_sensitive_ext_title">访问敏感文件类型</string>
     <string name="guardian_file_path_sensitive_ext_desc">工具 %1$s 尝试访问敏感文件类型 %2$s: %3$s</string>
     <string name="guardian_file_path_symlink_title">通过符号链接绕过路径限制</string>
@@ -1515,7 +1518,7 @@
     <string name="guardian_network_localhost_title">访问本地网络</string>
     <string name="guardian_network_localhost_desc">工具 %1$s 尝试访问本地地址 %2$s</string>
     <string name="guardian_network_credential_title">网络请求密钥泄露</string>
-    <string name="guardian_network_credential_desc">工具 %1$s 的参数 '%2$s' 包含疑似密钥</string>
+    <string name="guardian_network_credential_desc">工具 %1$s 的参数 %2$s 包含疑似密钥</string>
     <string name="guardian_a11y_blocked_package_title">禁止操控系统安全应用</string>
     <string name="guardian_a11y_blocked_package_desc">应用包名 %1$s 在黑名单中禁止操控</string>
     <string name="guardian_a11y_sensitive_input_title">输入内容包含敏感信息</string>
@@ -1808,6 +1811,19 @@
     <string name="store_linux_not_ready">Linux 环境未初始化，技能商店需要 Linux 环境来执行搜索命令。请先在设置中完成初始化</string>
     <string name="store_load_failed">加载失败: %1$s</string>
     <string name="store_install_failed">安装失败: %1$s</string>
+    <string name="store_sort_hot">最热</string>
+    <string name="store_sort_new">最新</string>
+    <string name="store_sort_rating">评分最高</string>
+    <string name="store_sort_installs">安装最多</string>
+    <string name="install_target_workspace">工作区</string>
+    <string name="install_target_pool">技能池</string>
+    <string name="install_queue_title">安装队列</string>
+    <string name="install_queue_clear_completed">清除已完成</string>
+    <string name="install_queue_cancel">取消安装</string>
+    <string name="install_queue_retry">重试安装</string>
+    <string name="store_load_more">加载更多</string>
+    <string name="store_by_author">by %1$s</string>
+    <string name="store_stars_label">%1$s stars</string>
     <!-- 排序类型 -->
     <string name="sort_hot">最热</string>
     <string name="sort_new">最新</string>

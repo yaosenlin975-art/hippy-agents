@@ -1,6 +1,8 @@
 package com.lin.hippyagent.ui.store
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.store.SkillSource
 import com.lin.hippyagent.core.skill.store.StoreSkillItem
 
@@ -12,20 +14,33 @@ data class SkillStoreUiState(
     val searchQuery: String = "",
     val activeSource: SkillSource? = null,
     val sortType: SortType = SortType.HOT,
-    val installingIds: Set<String> = emptySet(),
     val installedIds: Set<String> = emptySet(),
     val error: String? = null,
     val showInstallDialog: StoreSkillItem? = null,
-    /** Node.js 环境状态提示，null 表示正常 */
-    val nodeStatus: String? = null,
-    /** 当前查看详情的技能 */
-    val selectedSkill: StoreSkillItem? = null
+    val nodeStatus: NodeStatus = NodeStatus.Unknown,
+    val selectedSkill: StoreSkillItem? = null,
+    val installTarget: InstallTarget = InstallTarget.Workspace,
+    val providerErrors: List<com.lin.hippyagent.core.skill.store.provider.MarketSearchError> = emptyList(),
+    val hasMore: Boolean = false,
+    val isLoadingMore: Boolean = false
 )
 
-enum class SortType(val displayName: String) {
-    HOT("最热"),
-    NEW("最新"),
-    RATING("评分最高"),
-    INSTALLS("最多安装")
+sealed class NodeStatus {
+    data object Unknown : NodeStatus()
+    data object Checking : NodeStatus()
+    data object Installing : NodeStatus()
+    data object Ready : NodeStatus()
+    data object Failed : NodeStatus()
 }
 
+enum class InstallTarget(@StringRes val displayNameRes: Int) {
+    Workspace(R.string.install_target_workspace),
+    Pool(R.string.install_target_pool)
+}
+
+enum class SortType(@StringRes val displayNameRes: Int) {
+    HOT(R.string.store_sort_hot),
+    NEW(R.string.store_sort_new),
+    RATING(R.string.store_sort_rating),
+    INSTALLS(R.string.store_sort_installs)
+}
