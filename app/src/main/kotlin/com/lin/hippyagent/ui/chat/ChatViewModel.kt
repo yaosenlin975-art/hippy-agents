@@ -181,6 +181,7 @@ class ChatViewModel(
     }
 
     private val messageQueue = MessageQueueManager()
+    val messageQueueItems: StateFlow<List<QueuedMessage>> = messageQueue.queueItems
     private val turnConverter = ChatTurnConverter()
     private var hasDerivedTitle = false
     private var deliveryJob: Job? = null
@@ -393,6 +394,7 @@ class ChatViewModel(
                     currentSessionState.status == AgentStatus.EXECUTING_TOOL) {
                     Timber.w("Agent $agentId session $sid stuck in ${currentSessionState.status}, force resetting")
                     agent.stopSession(sid)
+                    agent.cleanupSessionState(sid)
                 }
                 val agentDisplayName = agent.profileConfig.name.ifBlank { agentId }
                 val agentModel = agent.profileConfig.modelName
@@ -936,9 +938,13 @@ class ChatViewModel(
                             }
                         }
                         AgentStatus.THINKING, AgentStatus.EXECUTING_TOOL -> {
-                            // 同一会话内排队，不打断其他会
-                            messageQueue.enqueue(QueuedMessage(finalContent, sessionId, "console"))
-                            _uiState.update { it.copy(messageQueueSize = messageQueue.size()) }
+                            messageQueue.enqueue(QueuedMessage(content = finalContent, sessionId = sessionId, channelId = "console"))
+                            _uiState.update {
+                                it.copy(
+                                    messageQueueSize = messageQueue.size(),
+                                    turns = it.turns.filter { turn -> turn.id != optimisticTurn.id }
+                                )
+                            }
                         }
                     }
                 } else {
@@ -1088,6 +1094,9 @@ class ChatViewModel(
         var contentDirty = false
         var thinkingDirty = false
 
+        var thinkingChunkCount = 0
+        var messageCountBeforeCompaction = 0
+
         try {
             agent.processMessageStream(sessionId, "console", content, overrideModel, overrideProviderId = selectedProviderId, planContext = planContext, skipUserMessage = skipUserMessage)
                 .collect { chunk ->
@@ -1102,6 +1111,7 @@ class ChatViewModel(
                         is com.lin.hippyagent.core.agent.StreamChunk.Thinking -> {
                             thinkingBuilder.append(chunk.text)
                             thinkingDirty = true
+                            thinkingChunkCount++
                         }
                         is com.lin.hippyagent.core.agent.StreamChunk.Compaction -> {
                         }
@@ -1129,6 +1139,7 @@ class ChatViewModel(
                             _streamingState.update { StreamingState(streamingTurnId = newStreamingTurnId) }
                         }
                         is com.lin.hippyagent.core.agent.StreamChunk.CompactionStarted -> {
+                            messageCountBeforeCompaction = chunk.messagesToCompress + chunk.messagesToKeep
                             flushStreamingState(contentBuilder, thinkingBuilder, streamingTurnId, contentDirty, thinkingDirty)
                             contentDirty = false
                             thinkingDirty = false
@@ -1159,7 +1170,7 @@ class ChatViewModel(
                             val beforeK = if (chunk.beforeTokens >= 1000) "${"%.1f".format(chunk.beforeTokens / 1000.0)}k" else "${chunk.beforeTokens}"
                             val savedK = if ((chunk.beforeTokens - chunk.newTokenEstimate) >= 1000) "${"%.1f".format((chunk.beforeTokens - chunk.newTokenEstimate) / 1000.0)}k" else "${(chunk.beforeTokens - chunk.newTokenEstimate).coerceAtLeast(0)}"
                             val newPct = if (chunk.maxTokens > 0) (chunk.newTokenEstimate * 100 / chunk.maxTokens) else 0
-                            val content = context.getString(R.string.chat_compaction_completed, beforeK, newK, maxK, newPct, savedK, chunk.compressedCount)
+                            val content = context.getString(R.string.chat_compaction_completed, beforeK, newK, maxK, newPct, savedK, chunk.compressedCount, thinkingChunkCount, freshAgent.state.value.getSessionState(sessionId).toolCallCount, messageCountBeforeCompaction)
                             _uiState.update { state ->
                                 val turns = state.turns.map { turn ->
                                     if (turn is ChatTurn.SystemTurn && turn.id.startsWith("compaction_")) {
@@ -1225,16 +1236,17 @@ class ChatViewModel(
             }
         } catch (e: CancellationException) {
             _streamingState.update { StreamingState() }
+            _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
             throw e
         } catch (e: Exception) {
             Timber.e(e, "Agent failed to process stream message")
 
-            // 清除 streaming 状
             _streamingState.update { StreamingState() }
+            _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
 
             // 同一会话正在处理 排队等待（多会话并行后此情况已少见，但保留兼容）
             if (e.message?.contains("Session") == true && e.message?.contains("busy") == true) {
-                messageQueue.enqueue(QueuedMessage(content, sessionId, "console"))
+                messageQueue.enqueue(QueuedMessage(content = content, sessionId = sessionId, channelId = "console"))
                 _uiState.update { it.copy(messageQueueSize = messageQueue.size()) }
                 _uiState.update { state ->
                     state.copy(turns = state.turns.filter { it.id != streamingTurnId })
@@ -1332,7 +1344,7 @@ class ChatViewModel(
         val groupId = sessionId
         val group = agentGroupManager?.getOrCreateAgentGroup(groupId)
         if (group == null) {
-            _uiState.update { it.copy(agentStatus = AgentStatus.ERROR) }
+            _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
             return
         }
 
@@ -1400,7 +1412,7 @@ class ChatViewModel(
             } else {
                 val error = result.exceptionOrNull()?.message ?: context.getString(R.string.chat_group_message_failed)
                 Timber.w("deliverGroupMessage: failed: $error")
-                _uiState.update { it.copy(agentStatus = AgentStatus.ERROR) }
+                _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
                 sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, context.getString(R.string.chat_group_message_failed_with_error, error))
                     .onSuccess { errorMsg ->
                         _uiState.update {
@@ -1416,7 +1428,7 @@ class ChatViewModel(
             // 智能体可能通过文件工具修改Profile，刷新以保持 UI 同步
             agentRepository?.refreshProfiles()
         } catch (e: Exception) {
-            _uiState.update { it.copy(agentStatus = AgentStatus.ERROR) }
+            _uiState.update { it.copy(agentStatus = AgentStatus.IDLE) }
             Timber.e(e, "Group message delivery failed")
             sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, context.getString(R.string.chat_group_message_exception, e.message))
                 .onSuccess { errorMsg ->
@@ -1633,6 +1645,19 @@ class ChatViewModel(
         _uiState.update { it.copy(availableModels = models) }
     }
 
+    fun removeQueuedMessage(index: Int) {
+        viewModelScope.launch {
+            messageQueue.removeAt(index)
+            _uiState.update { it.copy(messageQueueSize = messageQueue.size()) }
+        }
+    }
+
+    fun moveQueuedMessage(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            messageQueue.move(fromIndex, toIndex)
+        }
+    }
+
     fun flushQueuedMessages() {
         viewModelScope.launch {
             if (messageQueue.isEmpty()) return@launch
@@ -1650,7 +1675,7 @@ class ChatViewModel(
             val firstSessionId = queuedMessages.first().sessionId
             val combinedContent = messageQueue.combineMessages(queuedMessages)
 
-            sessionStore.addMessage(firstSessionId, MessageRole.USER, "[Queue: ${queuedMessages.size} messages]\n$combinedContent")
+            sessionStore.addMessage(firstSessionId, MessageRole.USER, combinedContent)
                 .onSuccess { userMessage ->
                     _uiState.update {
                         it.copy(turns = it.turns + ChatTurn.UserTurn(
@@ -1714,6 +1739,7 @@ class ChatViewModel(
             val sessionId = _uiState.value.sessionId
             if (agent != null && sessionId.isNotEmpty()) {
                 agent.stopSession(sessionId)
+                agent.cleanupSessionState(sessionId)
             } else {
                 agent?.stop()
             }
@@ -1748,6 +1774,7 @@ class ChatViewModel(
             val agent = agentFactory.getAgent(agentId)
             if (agent != null && sessionId.isNotEmpty()) {
                 agent.stopSession(sessionId)
+                agent.cleanupSessionState(sessionId)
             } else {
                 agent?.stop()
             }

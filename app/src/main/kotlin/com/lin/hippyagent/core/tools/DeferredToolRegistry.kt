@@ -3,7 +3,7 @@ package com.lin.hippyagent.core.tools
 import com.lin.hippyagent.core.model.ModelToolDefinition
 import timber.log.Timber
 
-data class DeferredToolEntry(
+internal data class DeferredToolEntry(
     val name: String,
     val description: String,
     val definition: ModelToolDefinition
@@ -35,7 +35,16 @@ class DeferredToolRegistry {
             val required = parts.getOrNull(0)?.lowercase() ?: return emptyList()
             val candidates = entries.filter { required in it.name.lowercase() }
             if (parts.size > 1) {
-                val ranked = candidates.sortedByDescending { regexScore(parts[1], it) }
+                val secondaryRegex = regexCache.getOrPut("score:${parts[1]}") {
+                    try {
+                        Regex(parts[1], RegexOption.IGNORE_CASE)
+                    } catch (_: Exception) {
+                        Regex(Regex.escape(parts[1]), RegexOption.IGNORE_CASE)
+                    }
+                }
+                val ranked = candidates.sortedByDescending { entry ->
+                    secondaryRegex.findAll("${entry.name} ${entry.description}").count()
+                }
                 return ranked.take(MAX_RESULTS).map { it.definition }
             }
             return candidates.take(MAX_RESULTS).map { it.definition }
@@ -66,18 +75,7 @@ class DeferredToolRegistry {
         entries.clear()
     }
 
-    val size: Int get() = entries.size
-
     companion object {
         const val MAX_RESULTS = 5
-
-        private fun regexScore(pattern: String, entry: DeferredToolEntry): Int {
-            val regex = try {
-                Regex(pattern, RegexOption.IGNORE_CASE)
-            } catch (_: Exception) {
-                Regex(Regex.escape(pattern), RegexOption.IGNORE_CASE)
-            }
-            return regex.findAll("${entry.name} ${entry.description}").count()
-        }
     }
 }

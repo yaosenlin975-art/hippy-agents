@@ -1,6 +1,5 @@
 package com.lin.hippyagent.core.skill.config
 
-import android.util.Base64
 import com.lin.hippyagent.core.skill.SkillConfig
 import com.lin.hippyagent.core.util.FileUtils
 import timber.log.Timber
@@ -56,11 +55,11 @@ class SkillConfigManager(
         val iv = ByteArray(16).also { SecureRandom().nextBytes(it) }
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, IvParameterSpec(iv))
         val encrypted = cipher.doFinal(plain.toByteArray(Charsets.UTF_8))
-        return Base64.encodeToString(iv + encrypted, Base64.NO_WRAP)
+        return java.util.Base64.getEncoder().encodeToString(iv + encrypted)
     }
 
     private fun decrypt(encoded: String): String {
-        val data = Base64.decode(encoded, Base64.NO_WRAP)
+        val data = java.util.Base64.getDecoder().decode(encoded)
         val iv = data.copyOfRange(0, 16)
         val encrypted = data.copyOfRange(16, data.size)
         val cipher = Cipher.getInstance(TRANSFORMATION)

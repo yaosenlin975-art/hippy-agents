@@ -1,7 +1,10 @@
 package com.lin.hippyagent.core.agent.collaboration
 
+import com.lin.hippyagent.core.pool.StringBuilderPool
+
 object GroupChatPrompts {
     private val mentionPattern = Regex("@([a-zA-Z0-9_-]+)")
+    private val sbPool = StringBuilderPool()
 
     data class AgentInfo(
         val id: String,
@@ -13,8 +16,7 @@ object GroupChatPrompts {
         history: List<GroupChatMessage>,
         currentSpeakerId: String? = null,
         excludeAgentId: String? = null
-    ): String {
-        val sb = StringBuilder()
+    ): String = sbPool.use { sb ->
         sb.appendLine("你是一个群聊协调者，负责选择下一个发言的智能体。")
         sb.appendLine()
         sb.appendLine("## 可用的智能体：")
@@ -37,15 +39,14 @@ object GroupChatPrompts {
         sb.appendLine("1. 根据对话内容，选择最应该发言的智能体")
         sb.appendLine("2. 如果认为对话已经完整，可以结束，请返回 FINISH")
         sb.appendLine("3. 只返回智能体 ID 或 FINISH，不要有其他内容")
-        return sb.toString()
+        sb.toString()
     }
 
     fun buildTerminationPrompt(
         history: List<GroupChatMessage>,
         maxRounds: Int,
         currentRound: Int
-    ): String {
-        val sb = StringBuilder()
+    ): String = sbPool.use { sb ->
         sb.appendLine("你是一个群聊协调者，负责判断对话是否应该结束。")
         sb.appendLine()
         sb.appendLine("## 当前状态：")
@@ -65,7 +66,7 @@ object GroupChatPrompts {
         sb.appendLine("如果认为对话已经完成目标或继续下去没有意义，请返回 YES。")
         sb.appendLine("如果认为还需要更多讨论，请返回 NO。")
         sb.appendLine("只返回 YES 或 NO，不要有其他内容。")
-        return sb.toString()
+        sb.toString()
     }
 
     fun buildAgentSystemPrompt(
@@ -73,8 +74,7 @@ object GroupChatPrompts {
         groupContext: GroupContext,
         mentionPath: MentionPath? = null,
         isCycleTarget: Boolean = false
-    ): String {
-        val sb = StringBuilder()
+    ): String = sbPool.use { sb ->
         val myDescription = groupContext.agentDescriptions[agentId]
         sb.appendLine("你正在参与群聊。你的 ID 是: $agentId")
         if (!myDescription.isNullOrBlank()) {
@@ -125,7 +125,7 @@ object GroupChatPrompts {
         sb.appendLine("---")
         sb.appendLine("你的回复内容")
         sb.appendLine("每条消息都有唯一编号（round），你可以在历史消息中看到。引用时系统会自动识别。")
-        return sb.toString()
+        sb.toString()
     }
 
     fun parseLLMResponse(response: String, validAgentIds: List<String>): ParseResult {

@@ -1,6 +1,7 @@
 package com.lin.hippyagent.core.prompt
 
 import com.lin.hippyagent.core.memory.commonmemory.CommonMemoryEntry
+import com.lin.hippyagent.core.pool.StringBuilderPool
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
@@ -34,11 +35,11 @@ data class SkillInfo(
     val skillFilePath: String = ""
 )
 
-class PromptBuilder {
+class PromptBuilder(
+    private val sbPool: StringBuilderPool = StringBuilderPool()
+) {
 
-    fun buildSystemPrompt(context: PromptContext): String {
-        val builder = StringBuilder()
-
+    fun buildSystemPrompt(context: PromptContext): String = sbPool.use { builder ->
         buildRoleSection(context, builder)
         buildCoreFilesSection(context, builder)
         buildGlobalRulesSection(context, builder)
@@ -58,7 +59,7 @@ class PromptBuilder {
         buildBootstrapSection(context, builder)
         buildCriticalRemindersSection(context, builder)
 
-        return builder.toString()
+        builder.toString()
     }
 
     private fun buildRoleSection(context: PromptContext, builder: StringBuilder) {

@@ -1,5 +1,6 @@
 package com.lin.hippyagent.core.skill
 
+import com.lin.hippyagent.core.pool.StringBuilderPool
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
@@ -12,13 +13,13 @@ data class SkillCatalogEntry(
 )
 
 class SkillCatalog(
-    private val skillManager: SkillManager
+    private val skillManager: SkillManager,
+    private val sbPool: StringBuilderPool = StringBuilderPool()
 ) {
     private val toolToSkillMap = ConcurrentHashMap<String, String>()
 
     @Synchronized
-    fun buildCatalogText(enabledSkillIds: List<String>): String {
-        val sb = StringBuilder()
+    fun buildCatalogText(enabledSkillIds: List<String>): String = sbPool.use { sb ->
         sb.appendLine("你可以使用以下技能, 当用户说出技能的触发词或语义相近的词时请使用对应的技能:")
         sb.appendLine()
 
@@ -42,12 +43,11 @@ class SkillCatalog(
         }
 
         sb.appendLine()
-        return sb.toString()
+        sb.toString()
     }
 
     @Synchronized
-    fun buildProgressiveCatalogText(enabledSkillIds: List<String>): String {
-        val sb = StringBuilder()
+    fun buildProgressiveCatalogText(enabledSkillIds: List<String>): String = sbPool.use { sb ->
         val index = skillManager.loadIndex()
         toolToSkillMap.clear()
 
@@ -70,7 +70,7 @@ class SkillCatalog(
             }
         }
 
-        return sb.toString()
+        sb.toString()
     }
 
     fun getSkillForTool(toolName: String): String? = toolToSkillMap[toolName]

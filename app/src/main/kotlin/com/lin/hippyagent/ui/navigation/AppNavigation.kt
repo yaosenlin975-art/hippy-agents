@@ -428,13 +428,15 @@ fun AppNavigation(
                     com.lin.hippyagent.core.storage.StorageManager(context)
                 )
                 val viewModel = remember(sourceAgentId) {
+                    val clawHubProvider = com.lin.hippyagent.core.skill.store.provider.ClawHubProvider(linuxManager)
                     val providers = mapOf(
                         "lobehub" to com.lin.hippyagent.core.skill.store.provider.LobeHubProvider(linuxManager),
                         "skills_sh" to com.lin.hippyagent.core.skill.store.provider.SkillsShProvider(linuxManager),
-                        "clawhub" to com.lin.hippyagent.core.skill.store.provider.ClawHubProvider(linuxManager)
+                        "clawhub" to clawHubProvider,
+                        "skillhub" to com.lin.hippyagent.core.skill.store.provider.SkillHubProvider(linuxManager, clawHubProvider)
                     )
                     val storeService = com.lin.hippyagent.core.skill.store.SkillStoreService(linuxManager, providers)
-                    com.lin.hippyagent.ui.store.SkillStoreViewModel(storeService, skillManager, sourceAgentId, workspaceManager)
+                    com.lin.hippyagent.ui.store.SkillStoreViewModel(context.applicationContext as android.app.Application, storeService, skillManager, sourceAgentId, workspaceManager)
                 }
                 com.lin.hippyagent.ui.store.SkillStoreScreen(
                     viewModel = viewModel,

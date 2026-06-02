@@ -19,7 +19,7 @@ enum class GroupLifecycleState {
     DISSOLVED
 }
 
-enum class GroupMemberStatus {
+internal enum class GroupMemberStatus {
     ONLINE,
     INACTIVE,
     OFFLINE
@@ -185,7 +185,7 @@ class AgentGroupManager(
     fun getGroupLifecycleState(groupId: String): GroupLifecycleState =
         groupLifecycleStates[groupId] ?: GroupLifecycleState.DISSOLVED
 
-    fun updateMemberStatus(groupId: String, agentId: String, status: GroupMemberStatus) {
+    internal fun updateMemberStatus(groupId: String, agentId: String, status: GroupMemberStatus) {
         groupMemberStatuses[groupId]?.put(agentId, status)
         groupLastActivity[groupId] = Instant.now()
     }

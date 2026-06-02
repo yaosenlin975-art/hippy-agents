@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit
 class HeartbeatScheduler(
     private val agentFactory: AgentFactory,
     private val sessionStore: SessionStore,
-    private val storageManager: StorageManager
+    private val storageManager: StorageManager,
+    private val agentGroupManager: com.lin.hippyagent.core.agent.collaboration.AgentGroupManager? = null
 ) {
     private val schedulerScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val heartbeatJobs = ConcurrentHashMap<String, Job>()
@@ -110,11 +111,29 @@ class HeartbeatScheduler(
                     return
                 }
                 agent.processMessage(
-                    sessionId = heartbeatSessionId,
-                    channelId = "heartbeat",
-                    content = message
-                )
-                return
+                sessionId = heartbeatSessionId,
+                channelId = "heartbeat",
+                content = message
+            )
+
+            agentGroupManager?.let { agm ->
+                val reports = agm.checkGroupHealth()
+                for (report in reports) {
+                    when (report.recommendedStatus) {
+                        com.lin.hippyagent.core.agent.collaboration.GroupLifecycleState.SUSPENDED -> {
+                            agm.suspendGroup(report.groupId)
+                            Timber.i("Group ${report.groupId} auto-suspended by health check")
+                        }
+                        com.lin.hippyagent.core.agent.collaboration.GroupLifecycleState.DISSOLVED -> {
+                            agm.dissolveGroup(report.groupId)
+                            Timber.i("Group ${report.groupId} auto-dissolved by health check")
+                        }
+                        else -> {}
+                    }
+                }
+            }
+
+            return
             }
 
             agent.processMessage(
@@ -122,6 +141,23 @@ class HeartbeatScheduler(
                 channelId = "heartbeat",
                 content = message
             )
+
+            agentGroupManager?.let { agm ->
+                val reports = agm.checkGroupHealth()
+                for (report in reports) {
+                    when (report.recommendedStatus) {
+                        com.lin.hippyagent.core.agent.collaboration.GroupLifecycleState.SUSPENDED -> {
+                            agm.suspendGroup(report.groupId)
+                            Timber.i("Group ${report.groupId} auto-suspended by health check")
+                        }
+                        com.lin.hippyagent.core.agent.collaboration.GroupLifecycleState.DISSOLVED -> {
+                            agm.dissolveGroup(report.groupId)
+                            Timber.i("Group ${report.groupId} auto-dissolved by health check")
+                        }
+                        else -> {}
+                    }
+                }
+            }
 
             Timber.i("Heartbeat executed for agent: $agentId")
         } catch (e: Exception) {

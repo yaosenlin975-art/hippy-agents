@@ -29,7 +29,7 @@ class ToolSearchTool(
         val callId = arguments["callId"] as? String ?: ""
         val query = getRequiredArgument(arguments, "query")
 
-        if (deferredRegistry.size == 0) {
+        if (deferredRegistry.getDeferredNames().isEmpty()) {
             return ToolResult(callId, true, output = "No deferred tools available.")
         }
 

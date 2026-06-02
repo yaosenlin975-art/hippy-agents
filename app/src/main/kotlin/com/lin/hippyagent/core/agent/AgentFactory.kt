@@ -162,13 +162,16 @@ class AgentFactory(
 
     /**
      * 获取 Agent 实例，如果不存在则从 Repository 自动创建
+     *
+     * 当 cached agent 的关键配置字段（enabled / skills）发生变化时，强制 reload
+     * 以保证新配置（特别是用户刚在 AgentSkillScreen 勾选启用/禁用的技能）立即生效
      */
     suspend fun getAgent(agentId: String): Agent? {
         agentInstances[agentId]?.let { cached ->
             try {
                 val freshProfiles = repository.loadAgentProfiles().first()
                 val freshProfile = freshProfiles[agentId]
-                if (freshProfile != null && freshProfile.enabled != cached.profileConfig.enabled) {
+                if (freshProfile != null && needsReload(cached.profileConfig, freshProfile)) {
                     if (!freshProfile.enabled) {
                         removeAgent(agentId)
                         return null
@@ -190,6 +193,19 @@ class AgentFactory(
             Timber.e(e, "Failed to auto-create agent: $agentId")
             null
         }
+    }
+
+    /**
+     * 判断 cached agent 是否需要 reload：
+     * - enabled 变化（被禁用 → 整体重建）
+     * - skills 变化（用户从 AgentSkillScreen 勾选启用/禁用技能）
+     * 其它字段（modelName / identity / responsibilities 等）的变化暂不触发 reload
+     * 以避免每次 send message 时不必要的实例重建，必要时可扩展
+     */
+    private fun needsReload(cached: AgentProfile, fresh: AgentProfile): Boolean {
+        if (cached.enabled != fresh.enabled) return true
+        if (cached.skills != fresh.skills) return true
+        return false
     }
 
     fun removeAgent(agentId: String) {

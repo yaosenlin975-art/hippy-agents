@@ -236,6 +236,7 @@
     <string name="chat_voice_input">语音输入</string>
     <string name="chat_stop_generation">停止生成</string>
     <string name="chat_queue">队列</string>
+    <string name="chat_queue_empty">队列中没有等待的消息</string>
     <string name="chat_iterations_exhausted">轮次已耗尽</string>
     <string name="chat_forward_to">转发到</string>
     <string name="chat_auth_request">授权请求</string>
@@ -293,7 +294,7 @@
     <string name="chat_forwarded_message">📋 **转发的消息**:</string>
     <string name="chat_compressed_summary">📋 之前的对话已压缩：\n%1$s</string>
     <string name="chat_compaction_started">🆔 上下文压缩中...\n📑 当前 Token: %1$s / %2$s (%3$d%%)\n💰 总消息 %4$d 压缩 %5$d + 保留 %6$d</string>
-    <string name="chat_compaction_completed">🆔 上下文压缩完成\n📑 Token: %1$s -> %2$s / %3$s (%4$d%%)  节省 %5$s\n💰 %6$d 条消息已压缩</string>
+    <string name="chat_compaction_completed">🆔 上下文压缩完成\n📑 Token: %1$s -> %2$s / %3$s (%4$d%%)  节省 %5$s\n💰 %6$d 条消息已压缩\n🧠 %7$d次思考 🔧 %8$d次工具 📨 %9$d条消息</string>
     <string name="chat_save">保存</string>
     <string name="chat_share">分享</string>
     <string name="chat_executing_with_dots">执行中</string>
@@ -307,6 +308,7 @@
     <string name="chat_agent_workflow">%1$s 的工作流</string>
     <string name="chat_no_process_info">暂无过程信息</string>
     <string name="chat_step_process">%1$d步过程</string>
+    <string name="chat_step_process_stats">%1$d步过程 · 🧠%2$d次思考 · 🔧%3$d次工具 · 📨%4$d条消息 · ⏱%5$d秒</string>
     <string name="chat_collapse_process">收起过程</string>
     <string name="chat_error_label">❌ 错误</string>
     <string name="chat_api_calls">%1$d次请求</string>
@@ -513,8 +515,12 @@
     <string name="store_try_other_keywords">试试其他关键词</string>
     <string name="store_hot_picks">热门推荐</string>
     <string name="store_all_skills">全部技能</string>
-    <string name="store_installing">安装中...</string>
+    <string name="store_installing">安装中</string>
+    <string name="store_queued">排队中</string>
     <string name="store_installed">已安装</string>
+    <string name="store_install_success">%1$s 安装成功</string>
+    <string name="store_install_failed">%1$s 安装失败: %2$s</string>
+    <string name="store_install_failed_unknown">%1$s 安装失败: 未知错误</string>
     <string name="store_reinstall">重新安装</string>
     <string name="store_install_confirm">确定要安装以下技能吗</string>
     <string name="store_security_warning">此技能未通过安全审核，安装前请确认来源可信</string>
@@ -1810,7 +1816,6 @@
     <string name="store_nodejs_install_failed_hint">Node.js 环境安装失败，请前往设置→环境检查手动安装</string>
     <string name="store_linux_not_ready">Linux 环境未初始化，技能商店需要 Linux 环境来执行搜索命令。请先在设置中完成初始化</string>
     <string name="store_load_failed">加载失败: %1$s</string>
-    <string name="store_install_failed">安装失败: %1$s</string>
     <string name="store_sort_hot">最热</string>
     <string name="store_sort_new">最新</string>
     <string name="store_sort_rating">评分最高</string>

@@ -1,13 +1,16 @@
 package com.lin.hippyagent.ui.store
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.SkillManager
 import com.lin.hippyagent.core.skill.store.InstallQueue
 import com.lin.hippyagent.core.skill.store.SkillSource
 import com.lin.hippyagent.core.skill.store.SkillStoreService
 import com.lin.hippyagent.core.skill.store.StoreSkillItem
+import com.lin.hippyagent.core.skill.store.SkillIdNormalizer
 import com.lin.hippyagent.core.skill.store.provider.MarketProviderInfo
 import com.lin.hippyagent.core.skill.store.provider.MarketSearchError
 import kotlinx.coroutines.Dispatchers
@@ -21,14 +24,12 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class SkillStoreViewModel(
+    application: Application,
     private val storeService: SkillStoreService,
     private val skillManager: SkillManager,
     private val sourceAgentId: String? = null,
     private val workspaceManager: com.lin.hippyagent.core.storage.WorkspaceManager? = null
-) : ViewModel() {
-    companion object {
-        private val skillIdCleanupRegex = Regex("[^a-z0-9_-]")
-    }
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(SkillStoreUiState())
     val uiState: StateFlow<SkillStoreUiState> = _uiState.asStateFlow()
@@ -37,12 +38,33 @@ class SkillStoreViewModel(
 
     private val cursors = mutableMapOf<String, Int>()
 
+    private val descriptionCache = mutableMapOf<String, String>()
+
     private val _installQueue = InstallQueue(
         scope = viewModelScope,
         storeService = storeService,
+        context = application,
+        skillManager = skillManager,
         sourceAgentId = sourceAgentId,
         workspaceManager = workspaceManager
-    )
+    ).also { queue ->
+        queue.listener = object : InstallQueue.Listener {
+            override fun onInstallCompleted(skill: StoreSkillItem) {
+                refreshInstalledStatus()
+                val msg = getApplication<Application>().getString(R.string.store_install_success, skill.name)
+                _uiState.update { it.copy(installMessage = msg) }
+            }
+            override fun onInstallFailed(skill: StoreSkillItem, error: String?) {
+                val app = getApplication<Application>()
+                val msg = if (error != null) {
+                    app.getString(R.string.store_install_failed, skill.name, error)
+                } else {
+                    app.getString(R.string.store_install_failed_unknown, skill.name)
+                }
+                _uiState.update { it.copy(installMessage = msg) }
+            }
+        }
+    }
     val installQueue: StateFlow<List<InstallQueue.QueueItem>> = _installQueue.items
 
     private val _npxReady = MutableStateFlow(false)
@@ -86,6 +108,13 @@ class SkillStoreViewModel(
     init {
         refreshInstalledStatus()
         loadProviders()
+        viewModelScope.launch {
+            _installQueue.items.collect { items ->
+                val installing = items.filter { it.status == InstallQueue.QueueItem.Status.INSTALLING }.map { it.skill.identifier }.toSet()
+                val queued = items.filter { it.status == InstallQueue.QueueItem.Status.QUEUED }.map { it.skill.identifier }.toSet()
+                _uiState.update { it.copy(installingIds = installing, queuedIds = queued) }
+            }
+        }
     }
 
     fun onSearchQueryChange(query: String) {
@@ -120,6 +149,10 @@ class SkillStoreViewModel(
     }
 
     fun showInstallDialog(skill: StoreSkillItem) {
+        val isAlreadyInQueue = _installQueue.items.value.any {
+            it.skill.identifier == skill.identifier && (it.status == InstallQueue.QueueItem.Status.QUEUED || it.status == InstallQueue.QueueItem.Status.INSTALLING)
+        }
+        if (isAlreadyInQueue) return
         _uiState.update { it.copy(showInstallDialog = skill) }
     }
 
@@ -128,10 +161,51 @@ class SkillStoreViewModel(
     }
 
     fun selectSkill(skill: StoreSkillItem?) {
-        _uiState.update { it.copy(selectedSkill = skill) }
+        _uiState.update { it.copy(selectedSkill = skill, isLoadingDetail = skill != null && skill.description.isBlank()) }
+        if (skill != null && skill.description.isBlank()) {
+            fetchSkillDetail(skill)
+        }
+    }
+
+    private fun fetchSkillDetail(skill: StoreSkillItem) {
+        val cached = descriptionCache[skill.identifier]
+        if (cached != null) {
+            _uiState.update { it.copy(selectedSkill = skill.copy(description = cached), isLoadingDetail = false) }
+            return
+        }
+        viewModelScope.launch {
+            val providerKey = when (skill.source) {
+                SkillSource.LOBEHUB -> "lobehub"
+                SkillSource.SKILLS_SH -> "skills_sh"
+                SkillSource.CLAWHUB -> "clawhub"
+                SkillSource.SKILLHUB -> "skillhub"
+            }
+            storeService.getDetail(providerKey, skill.identifier).onSuccess { detail ->
+                if (detail != null && _uiState.value.selectedSkill?.identifier == skill.identifier) {
+                    val merged = skill.copy(
+                        description = detail.description.ifBlank { skill.description },
+                        author = detail.author.ifBlank { skill.author },
+                        name = detail.name.ifBlank { skill.name }
+                    )
+                    descriptionCache[skill.identifier] = detail.description
+                    _uiState.update { it.copy(selectedSkill = merged, isLoadingDetail = false) }
+                } else {
+                    _uiState.update { it.copy(isLoadingDetail = false) }
+                }
+            }.onFailure {
+                _uiState.update { it.copy(isLoadingDetail = false) }
+            }
+        }
     }
 
     fun installSkill(skill: StoreSkillItem) {
+        val isAlreadyInQueue = _installQueue.items.value.any {
+            it.skill.identifier == skill.identifier && (it.status == InstallQueue.QueueItem.Status.QUEUED || it.status == InstallQueue.QueueItem.Status.INSTALLING)
+        }
+        if (isAlreadyInQueue) {
+            _uiState.update { it.copy(showInstallDialog = null) }
+            return
+        }
         _uiState.update { it.copy(showInstallDialog = null) }
         _installQueue.enqueue(listOf(skill), _uiState.value.installTarget)
         refreshInstalledStatus()
@@ -153,6 +227,10 @@ class SkillStoreViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun clearInstallMessage() {
+        _uiState.update { it.copy(installMessage = null) }
     }
 
     fun setInstallTarget(target: InstallTarget) {
@@ -197,6 +275,7 @@ class SkillStoreViewModel(
                     SkillSource.LOBEHUB -> keys intersect setOf("lobehub")
                     SkillSource.SKILLS_SH -> keys intersect setOf("skills_sh")
                     SkillSource.CLAWHUB -> keys intersect setOf("clawhub")
+                    SkillSource.SKILLHUB -> keys intersect setOf("skillhub")
                     null -> keys
                 }
                 val result = storeService.searchAll("popular", filteredKeys)
@@ -211,6 +290,7 @@ class SkillStoreViewModel(
                         hasMore = false
                     )
                 }
+                prefetchDescriptions(all)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load hot skills")
                 _uiState.update { it.copy(isLoading = false, error = "加载失败: ${e.message}") }
@@ -253,6 +333,8 @@ class SkillStoreViewModel(
                     isLoading = false
                 )
             }
+            refreshSkillListInstallStatus()
+            prefetchDescriptions(_uiState.value.skills)
         }
     }
 
@@ -269,9 +351,49 @@ class SkillStoreViewModel(
         viewModelScope.launch {
             try {
                 val installed = skillManager.listSkills().map { it.id }.toSet()
-                _uiState.update { it.copy(installedIds = installed) }
+                _uiState.update { it.copy(installedIds = installed, installedNormalizedIds = SkillIdNormalizer.normalizeAll(installed)) }
+                refreshSkillListInstallStatus()
             } catch (e: Exception) {
                 Timber.w(e, "Failed to list installed skills")
+            }
+        }
+    }
+
+    private fun refreshSkillListInstallStatus() {
+        _uiState.update { state ->
+            val installedExact = state.installedIds
+            val installedNormalized = state.installedNormalizedIds.ifEmpty { SkillIdNormalizer.normalizeAll(installedExact) }
+            state.copy(
+                installedNormalizedIds = installedNormalized,
+                hotSkills = state.hotSkills.map { item -> item.copy(isInstalled = installedExact.contains(item.identifier) || installedNormalized.contains(SkillIdNormalizer.normalize(item.identifier))) },
+                skills = state.skills.map { item -> item.copy(isInstalled = installedExact.contains(item.identifier) || installedNormalized.contains(SkillIdNormalizer.normalize(item.identifier))) }
+            )
+        }
+    }
+
+    private fun prefetchDescriptions(skills: List<StoreSkillItem>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            skills.filter { it.description.isBlank() }.forEach { skill ->
+                if (descriptionCache.containsKey(skill.identifier)) return@forEach
+                val providerKey = when (skill.source) {
+                    SkillSource.LOBEHUB -> "lobehub"
+                    SkillSource.SKILLS_SH -> "skills_sh"
+                    SkillSource.CLAWHUB -> "clawhub"
+                    SkillSource.SKILLHUB -> "skillhub"
+                }
+                runCatching {
+                    storeService.getDetail(providerKey, skill.identifier).onSuccess { detail ->
+                        if (detail != null) {
+                            descriptionCache[skill.identifier] = detail.description
+                            _uiState.update { state ->
+                                state.copy(
+                                    skills = state.skills.map { if (it.identifier == skill.identifier) it.copy(description = detail.description) else it },
+                                    hotSkills = state.hotSkills.map { if (it.identifier == skill.identifier) it.copy(description = detail.description) else it }
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -296,3 +418,4 @@ class SkillStoreViewModel(
         }
     }
 }
+

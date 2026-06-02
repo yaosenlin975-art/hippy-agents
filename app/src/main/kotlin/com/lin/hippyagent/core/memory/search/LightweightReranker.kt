@@ -29,13 +29,13 @@ class LightweightReranker {
         if (candidates.isEmpty() || entries.isEmpty()) return emptyList()
 
         val maxScore = candidates.maxOf { it.score }.coerceAtLeast(0.001f)
+        val queryTerms = ChineseTokenizer.segment(query.lowercase()).filter { it.length > 1 }
 
-        // 对每个候选计算增强分数
         val enhanced = candidates.mapIndexed { index, item ->
             val entry = entries.getOrNull(index) ?: return@mapIndexed null as?
                     Pair<CommonMemoryEntry, Float>
             val normalizedBase = item.score / maxScore
-            val boost = calculateBoost(query, entry)
+            val boost = calculateBoost(queryTerms, entry)
             val finalScore = normalizedBase * 0.6f + boost * 0.4f
             entry to finalScore
         }.filterNotNull()
@@ -49,13 +49,11 @@ class LightweightReranker {
      * 计算增强分数
      * @return 0.0 ~ 1.0 的增强分值
      */
-    private fun calculateBoost(query: String, entry: CommonMemoryEntry): Float {
-        if (query.isBlank()) return 0f
+    private fun calculateBoost(queryTerms: List<String>, entry: CommonMemoryEntry): Float {
+        if (queryTerms.isEmpty()) return 0f
 
         var boost = 0f
 
-        // 1. 查询词在摘要中的覆盖率 (权重 0.4)
-        val queryTerms = ChineseTokenizer.segment(query.lowercase()).filter { it.length > 1 }
         val summaryLower = entry.summary.lowercase()
         if (queryTerms.isNotEmpty()) {
             val matchCount = queryTerms.count { term -> summaryLower.contains(term) }

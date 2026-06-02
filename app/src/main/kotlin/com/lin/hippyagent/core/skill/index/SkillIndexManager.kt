@@ -56,9 +56,12 @@ class SkillIndexManager(
         }.onFailure { Timber.e(it, "Failed to save skill index") }
     }
 
+    private fun listSkillDirs(): List<File> =
+        skillsDir.listFiles()?.filter { it.isDirectory && !it.name.startsWith(".") && it.name !in EXCLUDED_DIRS } ?: emptyList()
+
     fun rebuildIndex(): SkillIndex {
         val entries = mutableMapOf<String, SkillIndexEntry>()
-        skillsDir.listFiles()?.filter { it.isDirectory && !it.name.startsWith(".") && it.name != "_config" }?.forEach { dir ->
+        listSkillDirs().forEach { dir ->
             val manifestFile = dir.resolve("manifest.json")
             val skillMd = dir.resolve("SKILL.md")
             val manifest = parseManifest(dir)
@@ -102,6 +105,7 @@ class SkillIndexManager(
     }
 
     fun getManifest(skillId: String): SkillManifest? {
+        if (skillId in EXCLUDED_DIRS) return null
         val skillDir = skillsDir.resolve(skillId)
         if (!skillDir.exists()) return null
         val index = loadIndex()
@@ -118,6 +122,7 @@ class SkillIndexManager(
     }
 
     fun getSkillDir(skillId: String): File? {
+        if (skillId in EXCLUDED_DIRS) return null
         val skillDir = skillsDir.resolve(skillId)
         return if (skillDir.exists()) skillDir else null
     }
@@ -219,18 +224,18 @@ class SkillIndexManager(
     }
 
     fun listSkills(): List<SkillInfo> {
-        return skillsDir.listFiles()?.filter { it.isDirectory && !it.name.startsWith(".") }?.mapNotNull { dir ->
+        return listSkillDirs().mapNotNull { dir ->
             val disabled = dir.resolve(".disabled").exists()
             val displayName = BuiltinSkillNames.getDisplayName(dir.name)
             runCatching {
                 parseSkillInfo(dir).copy(isEnabled = !disabled, displayName = displayName)
             }.getOrNull() ?: brokenSkillInfo(dir)
-        } ?: emptyList()
+        }
     }
 
     fun listSkillsFromIndex(): List<SkillInfo> {
         val index = loadIndex()
-        return index.skills.mapNotNull { entry ->
+        return index.skills.filter { it.key !in EXCLUDED_DIRS }.mapNotNull { entry ->
             val skillDir = getSkillDir(entry.key) ?: return@mapNotNull null
             val disabled = skillDir.resolve(".disabled").exists()
             val displayName = BuiltinSkillNames.getDisplayName(entry.key)
@@ -241,6 +246,7 @@ class SkillIndexManager(
     }
 
     fun getSkill(skillId: String): SkillInfo? {
+        if (skillId in EXCLUDED_DIRS) return null
         val skillDir = skillsDir.resolve(skillId)
         if (!skillDir.exists()) return null
         val displayName = BuiltinSkillNames.getDisplayName(skillId)
@@ -284,5 +290,9 @@ class SkillIndexManager(
             Regex("""${Regex.escape(field)}:\s*(.+)""")
         }
         return pattern.find(content)?.groupValues?.get(1)?.trim()
+    }
+
+    companion object {
+        val EXCLUDED_DIRS = setOf("_config")
     }
 }

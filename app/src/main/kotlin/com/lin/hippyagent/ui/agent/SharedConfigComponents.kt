@@ -473,10 +473,12 @@ fun SkillDetailDialog(
     var skillMdContent by remember(skill.id) { mutableStateOf(skill.description) }
     LaunchedEffect(skill.id) {
         withContext(Dispatchers.IO) {
-            skillMdContent = skillManager.getSkillDir(skill.id)
-                ?.resolve("SKILL.md")
-                ?.readText()
-                ?: skill.description
+            skillMdContent = runCatching {
+                skillManager.getSkillDir(skill.id)
+                    ?.resolve("SKILL.md")
+                    ?.takeIf { it.exists() }
+                    ?.readText()
+            }.getOrNull() ?: skill.description
         }
     }
     AlertDialog(

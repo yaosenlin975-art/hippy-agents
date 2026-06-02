@@ -652,17 +652,18 @@ class LinuxManager(
         return try {
             val assetPath = "bundled/node-v22-arm64.tar.xz"
             val inputStream = context.assets.open(assetPath)
-            val tempFile = File(context.cacheDir, "node-bundled.tar.xz")
+            val sharedDir = context.sharedDir
+            sharedDir.mkdirs()
+            val tempFile = File(sharedDir, "node-bundled.tar.xz")
             tempFile.outputStream().use { output -> inputStream.copyTo(output) }
 
             Timber.i("Linux: 找到内置 Node.js 预置包，正在解压...")
             engine?.exec(
                 rootfsDir,
-                "tar -xJf /shared/node-bundled.tar.xz -C / --strip-components=1",
+                "tar -xJf /mnt/shared/node-bundled.tar.xz -C / --strip-components=1",
                 timeout = 120_000
             )
 
-            // 清理临时文件
             tempFile.delete()
 
             // 验证安装

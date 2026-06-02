@@ -1,9 +1,10 @@
-﻿package com.lin.hippyagent.core.debug
+package com.lin.hippyagent.core.debug
 
 import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
+import com.lin.hippyagent.core.skill.index.SkillIndexManager
 import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
@@ -135,7 +136,7 @@ class DebugInfoCollector(private val context: Context) {
         if (ws.exists()) ws.listFiles()?.forEach { d ->
             sessions += File(d, "sessions").listFiles()?.filter { it.extension == "json" }?.size ?: 0
         }
-        val skills = File(copaw, "skills").listFiles()?.size ?: 0
+        val skills = File(copaw, "skills").listFiles()?.count { it.isDirectory && it.name !in SkillIndexManager.EXCLUDED_DIRS && !it.name.startsWith(".") } ?: 0
         return mapOf(
             "智能体" to "${agents}个",
             "会话" to "${sessions}个",

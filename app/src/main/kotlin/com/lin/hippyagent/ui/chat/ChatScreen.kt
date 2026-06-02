@@ -108,6 +108,7 @@ import com.lin.hippyagent.ui.chat.PlanPanel
 import com.lin.hippyagent.ui.settings.general.readChatFontSize
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
+import com.lin.hippyagent.ui.chat.components.QueueBottomSheet
 
 private enum class ActivePanel { NONE, DRAWER, SEARCH }
 
@@ -158,6 +159,8 @@ fun ChatScreen(
     var showPlanPanel by remember { mutableStateOf(false) }
     var collapseTrigger by remember { mutableIntStateOf(0) }
     var expandTrigger by remember { mutableIntStateOf(0) }
+    var showQueueSheet by remember { mutableStateOf(false) }
+    val queueItems by viewModel.messageQueueItems.collectAsStateWithLifecycle()
 
     // ── STT 语音输入 ──
     val sttService: com.lin.hippyagent.core.voice.STTService = org.koin.compose.koinInject()
@@ -483,7 +486,8 @@ fun ChatScreen(
                 actions = {
                     if (inputState.offlineQueueSize > 0 || uiState.messageQueueSize > 0) {
                         Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { showQueueSheet = true }
                     ) {
                         Icon(
                             Icons.Default.Inventory,
@@ -666,6 +670,15 @@ fun ChatScreen(
             }
             }
         }
+    }
+
+    if (showQueueSheet) {
+        QueueBottomSheet(
+            queueItems = queueItems,
+            onRemove = { index -> viewModel.removeQueuedMessage(index) },
+            onMove = { from, to -> viewModel.moveQueuedMessage(from, to) },
+            onDismiss = { showQueueSheet = false }
+        )
     }
 
     if (showModelSwitch) {

@@ -25,6 +25,8 @@ class RetrievalPlanner(
     private val commonMemoryRepo: MemoryRepository? = null
 ) {
 
+    private val json = Json { ignoreUnknownKeys = true }
+
     suspend fun plan(query: String): RetrievalPlan = withContext(Dispatchers.Default) {
         val subQueries = generateSubQueries(query)
         val filters = extractFilters(query)
@@ -93,7 +95,6 @@ class RetrievalPlanner(
             val response = modelClient.chatCompletion(request)
             val content = response.choices.firstOrNull()?.message?.content ?: ""
             
-            val json = Json { ignoreUnknownKeys = true }
             val subQueries = json.decodeFromString<List<String>>(extractJson(content))
             
             if (subQueries.isNotEmpty()) subQueries.distinct().take(maxSubQueries)
@@ -111,7 +112,7 @@ class RetrievalPlanner(
     }
 
     private fun fallbackSubQueries(query: String): List<String> {
-        val keywords = query.split(Regex("\\s+"))
+        val keywords = query.split(WHITESPACE_REGEX)
             .filter { it.length > 2 }
             .distinct()
         
@@ -135,19 +136,23 @@ class RetrievalPlanner(
     private fun extractFilters(query: String): Map<String, String> {
         val filters = mutableMapOf<String, String>()
         
-        val datePattern = Regex("\\b(\\d{4}-\\d{2}-\\d{2})\\b")
-        val dateMatch = datePattern.find(query)
+        val dateMatch = DATE_PATTERN.find(query)
         dateMatch?.let {
             filters["date"] = it.groupValues[1]
         }
         
-        val typePattern = Regex("\\b(type:|记忆类型:)(\\w+)\\b")
-        val typeMatch = typePattern.find(query)
+        val typeMatch = TYPE_PATTERN.find(query)
         typeMatch?.let {
             filters["type"] = it.groupValues[2]
         }
         
         return filters
+    }
+
+    companion object {
+        private val WHITESPACE_REGEX = Regex("\\s+")
+        private val DATE_PATTERN = Regex("\\b(\\d{4}-\\d{2}-\\d{2})\\b")
+        private val TYPE_PATTERN = Regex("\\b(type:|记忆类型:)(\\w+)\\b")
     }
 }
 

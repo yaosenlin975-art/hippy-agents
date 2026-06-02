@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.lin.hippyagent.core.pool.ByteArrayOutputStreamPool
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -20,7 +21,8 @@ class VoiceRecorder(
     private val scope: CoroutineScope
 ) {
     private var audioRecord: AudioRecord? = null
-    private var recordingBuffer = ByteArrayOutputStream()
+    private val baosPool = ByteArrayOutputStreamPool(initialBufferSize = 64 * 1024, maxSize = 2)
+    private var recordingBuffer: ByteArrayOutputStream? = null
     private var recordingJob: Job? = null
     private var timeoutJob: Job? = null
     private var startTimeMs: Long = 0
@@ -47,7 +49,7 @@ class VoiceRecorder(
         }
 
         outputFile = File(outputDir, "voice_${System.currentTimeMillis()}.wav")
-        recordingBuffer.reset()
+        recordingBuffer = baosPool.acquire()
         startTimeMs = System.currentTimeMillis()
         isRecording = true
 
@@ -55,11 +57,12 @@ class VoiceRecorder(
 
         recordingJob = scope.launch(Dispatchers.IO) {
             val data = ByteArray(bufferSize)
+            val buffer = recordingBuffer ?: return@launch
             while (coroutineContext.isActive && isRecording) {
                 val read = audioRecord?.read(data, 0, data.size) ?: break
                 if (read > 0) {
-                    if (recordingBuffer.size() + read * 2 <= MAX_RECORDING_BYTES) {
-                        recordingBuffer.write(data, 0, read)
+                    if (buffer.size() + read * 2 <= MAX_RECORDING_BYTES) {
+                        buffer.write(data, 0, read)
                     } else {
                         break
                     }
@@ -93,8 +96,15 @@ class VoiceRecorder(
         audioRecord = null
 
         val durationMs = System.currentTimeMillis() - startTimeMs
-        val pcmBytes = recordingBuffer.toByteArray()
-        recordingBuffer.reset()
+        val buffer = recordingBuffer
+        recordingBuffer = null
+        val pcmBytes = if (buffer != null) {
+            val bytes = buffer.toByteArray()
+            baosPool.release(buffer)
+            bytes
+        } else {
+            ByteArray(0)
+        }
 
         if (pcmBytes.isEmpty() || durationMs < 500) {
             outputFile?.delete()
@@ -162,6 +172,8 @@ class VoiceRecorder(
             }
         }
         audioRecord = null
+        recordingBuffer?.let { baosPool.release(it) }
+        recordingBuffer = null
     }
 
     companion object {

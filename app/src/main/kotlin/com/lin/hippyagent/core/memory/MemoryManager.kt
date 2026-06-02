@@ -129,17 +129,6 @@ class MemoryManager(
     private val store: MemoryStore,
     private val retriever: Retriever
 ) {
-    suspend fun store(content: String, type: MemoryType = MemoryType.LONG_TERM, metadata: Map<String, String> = emptyMap()): Result<String> {
-        val entry = MemoryEntry(
-            id = com.lin.hippyagent.core.pool.FastId.next(),
-            content = content,
-            timestamp = System.currentTimeMillis(),
-            type = type,
-            metadata = metadata
-        )
-        return store.addEntry(entry)
-    }
-
     suspend fun recall(query: String, maxResults: Int = 10, minScore: Float = 0.0f): Result<List<SearchResult>> {
         val memoryQuery = MemoryQuery(
             query = query,
@@ -148,27 +137,5 @@ class MemoryManager(
         )
         return retriever.retrieve(memoryQuery)
     }
-
-    suspend fun recallForInjection(query: String, maxTokens: Int = 2000): String {
-        val results = recall(query, maxResults = 20, minScore = 0.3f).getOrDefault(emptyList())
-        if (results.isEmpty()) return ""
-
-        val sb = StringBuilder()
-        var tokenCount = 0
-        for (result in results.sortedByDescending { it.score }) {
-            val entry = result.entry
-            val estimatedTokens = entry.content.length / 4
-            if (tokenCount + estimatedTokens > maxTokens) break
-            sb.appendLine("- [${entry.type.name}] ${entry.content}")
-            tokenCount += estimatedTokens
-        }
-        return sb.toString().trimEnd()
-    }
-
-    suspend fun delete(id: String): Result<Unit> = store.deleteEntry(id)
-
-    suspend fun getAll(): Result<List<MemoryEntry>> = store.getAll()
-
-    suspend fun clear(): Result<Unit> = store.clear()
 }
 

@@ -22,14 +22,35 @@ class LobeHubProvider(
         withContext(Dispatchers.IO) {
             runCatching {
                 val cmd = "npx -y @lobehub/market-cli skills search --q ${shellEscape(query)} --output json --page $page --page-size $pageSize"
+                Timber.tag("LobeHub").i("search start: query='%s' page=%d pageSize=%d", query, page, pageSize)
+                Timber.tag("LobeHub").d("cmd: %s", cmd)
                 val (code, output) = linuxManager.exec(cmd, timeout = 30_000)
-                if (code == -1) throw LinuxNotReadyException()
-                if (code != 0) {
-                    Timber.w("LobeHub CLI failed: code=$code, output=${output.take(200)}")
-                    return@runCatching SearchResult(emptyList(), false)
+                Timber.tag("LobeHub").i("search done: exitCode=%d outputLen=%d", code, output.length)
+                when {
+                    code == -1 -> {
+                        Timber.tag("LobeHub").w("search aborted: linux not ready")
+                        throw LinuxNotReadyException()
+                    }
+                    code == -2 -> {
+                        Timber.tag("LobeHub").w("search timed out (>30s)")
+                        return@runCatching SearchResult(emptyList(), false)
+                    }
+                    code == -3 -> {
+                        Timber.tag("LobeHub").w("search exec failed: %s", output)
+                        return@runCatching SearchResult(emptyList(), false)
+                    }
+                    code != 0 -> {
+                        Timber.tag("LobeHub").w("search non-zero exit: code=%d output=%s", code, output.take(500))
+                        return@runCatching SearchResult(emptyList(), false)
+                    }
                 }
                 val items = parseJson(output)
+                Timber.tag("LobeHub").i("search parsed: %d items", items.size)
                 SearchResult(items = items, hasMore = items.size >= pageSize)
+            }.onFailure { e ->
+                if (e !is LinuxNotReadyException) {
+                    Timber.tag("LobeHub").e(e, "search failed")
+                }
             }
         }
 
@@ -37,16 +58,26 @@ class LobeHubProvider(
         withContext(Dispatchers.IO) {
             runCatching {
                 val cmd = "npx -y @lobehub/market-cli skills install ${shellEscape(identifier)}"
+                Timber.tag("LobeHub").i("install start: identifier='%s'", identifier)
                 val (code, output) = linuxManager.exec(cmd, timeout = 180_000)
-                if (code != 0) throw RuntimeException("安装失败: ${output.take(200)}")
+                Timber.tag("LobeHub").i("install done: exitCode=%d outputLen=%d", code, output.length)
+                if (code != 0) {
+                    Timber.tag("LobeHub").w("install failed: code=%d output=%s", code, output.take(500))
+                    throw RuntimeException("安装失败: ${output.take(200)}")
+                }
                 output
+            }.onFailure { e ->
+                Timber.tag("LobeHub").e(e, "install exception")
             }
         }
 
     internal fun parseJson(json: String): List<StoreSkillItem> {
         return try {
             val root = JSONObject(json)
-            val arr = root.optJSONArray("items") ?: return emptyList()
+            val arr = root.optJSONArray("items") ?: run {
+                Timber.tag("LobeHub").w("parseJson: missing 'items' key. head=%s", json.take(300))
+                return emptyList()
+            }
             (0 until arr.length()).map { i ->
                 val obj = arr.getJSONObject(i)
                 val ratingAvg = obj.optDouble("ratingAverage", -1.0)
@@ -54,7 +85,7 @@ class LobeHubProvider(
                     identifier = obj.optString("identifier", ""),
                     name = obj.optString("name", ""),
                     description = obj.optString("description", ""),
-                    author = obj.optString("author", obj.optJSONObject("author")?.optString("name", "") ?: ""),
+                    author = obj.optJSONObject("author")?.optString("name", "") ?: obj.optString("author", ""),
                     source = SkillSource.LOBEHUB,
                     category = obj.optString("category", ""),
                     installCount = obj.optLong("installCount", 0),
@@ -71,7 +102,7 @@ class LobeHubProvider(
                 )
             }
         } catch (e: Exception) {
-            Timber.w(e, "Failed to parse LobeHub JSON")
+            Timber.tag("LobeHub").e(e, "parseJson failed. raw=%s", json.take(500))
             emptyList()
         }
     }

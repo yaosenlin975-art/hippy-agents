@@ -14,7 +14,8 @@ data class SkillStoreUiState(
     val searchQuery: String = "",
     val activeSource: SkillSource? = null,
     val sortType: SortType = SortType.HOT,
-    val installedIds: Set<String> = emptySet(),
+     val installedIds: Set<String> = emptySet(),
+     val installedNormalizedIds: Set<String> = emptySet(),
     val error: String? = null,
     val showInstallDialog: StoreSkillItem? = null,
     val nodeStatus: NodeStatus = NodeStatus.Unknown,
@@ -22,7 +23,11 @@ data class SkillStoreUiState(
     val installTarget: InstallTarget = InstallTarget.Workspace,
     val providerErrors: List<com.lin.hippyagent.core.skill.store.provider.MarketSearchError> = emptyList(),
     val hasMore: Boolean = false,
-    val isLoadingMore: Boolean = false
+    val isLoadingMore: Boolean = false,
+    val isLoadingDetail: Boolean = false,
+    val installMessage: String? = null,
+    val installingIds: Set<String> = emptySet(),
+    val queuedIds: Set<String> = emptySet()
 )
 
 sealed class NodeStatus {

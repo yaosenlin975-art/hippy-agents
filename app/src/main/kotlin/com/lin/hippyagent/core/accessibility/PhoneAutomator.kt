@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import com.lin.hippyagent.core.model.ModelClient
 import com.lin.hippyagent.core.model.ModelCallRequest
 import com.lin.hippyagent.core.model.ModelMessage
+import com.lin.hippyagent.core.pool.StringBuilderPool
 import timber.log.Timber
 
 @Serializable
@@ -66,6 +67,8 @@ class PhoneAutomator(
     private val incrementalSensor = IncrementalSensor()
     private val adUiGuard = AdUiGuard()
     private val dualTrackEngine = DualTrackDecisionEngine(vlmProvider, screenshotCapturer)
+    private val sbPool = StringBuilderPool()
+    private val flattenedNodes = mutableListOf<SerializedNode>()
     var modelClient: ModelClient = modelClient
         private set
     var modelName: String = modelName
@@ -389,13 +392,16 @@ What is your next action?"""
         return result
     }
 
+    private val paramRegexCache = mutableMapOf<String, Regex>()
+
     private fun extractParamValue(raw: String, key: String): String? {
-        val regex = Regex("""${key}=(.+?)(?:,|$)""", RegexOption.IGNORE_CASE)
+        val regex = paramRegexCache.getOrPut(key) {
+            Regex("""${key}=(.+?)(?:,|$)""", RegexOption.IGNORE_CASE)
+        }
         return regex.find(raw)?.groupValues?.getOrNull(1)?.trim()
     }
 
-    private fun buildObservationSummary(result: ObserveResult): String {
-        val sb = StringBuilder()
+    private fun buildObservationSummary(result: ObserveResult): String = sbPool.use { sb ->
         sb.append("Window: ${result.window ?: "unknown"}\n")
         sb.append("Screen: ${result.screenSize?.width}x${result.screenSize?.height}\n")
         sb.append("Nodes: ${result.nodeCount}, Interactive: ${result.interactiveCount}\n")
@@ -403,15 +409,15 @@ What is your next action?"""
             sb.append("VLM: app=${analysis.currentApp}, page=${analysis.currentPage}\n")
             sb.append("Summary: ${analysis.screenSummary}\n")
         }
-        return sb.toString()
+        sb.toString()
     }
 
     private fun flattenSerializedNodes(nodes: List<SerializedNode>): List<SerializedNode> {
-        val result = mutableListOf<SerializedNode>()
+        flattenedNodes.clear()
         for (node in nodes) {
-            flattenRecursive(node, result)
+            flattenRecursive(node, flattenedNodes)
         }
-        return result
+        return flattenedNodes
     }
 
     private fun flattenRecursive(node: SerializedNode, acc: MutableList<SerializedNode>) {

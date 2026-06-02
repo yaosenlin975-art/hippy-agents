@@ -60,4 +60,10 @@ class SkillStoreService(
             ?: return Result.failure(IllegalArgumentException("Unknown provider: $providerKey"))
         return provider.install(identifier)
     }
+
+    suspend fun getDetail(providerKey: String, identifier: String): Result<StoreSkillItem?> {
+        val provider = providers[providerKey]
+            ?: return Result.failure(IllegalArgumentException("Unknown provider: $providerKey"))
+        return provider.getDetail(identifier)
+    }
 }

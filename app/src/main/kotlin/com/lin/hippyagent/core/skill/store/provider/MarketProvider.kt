@@ -15,6 +15,8 @@ interface MarketProvider {
     suspend fun search(query: String, page: Int, pageSize: Int): Result<SearchResult>
 
     suspend fun install(identifier: String): Result<String>
+
+    suspend fun getDetail(identifier: String): Result<StoreSkillItem?> = Result.success(null)
 }
 
 data class SearchResult(

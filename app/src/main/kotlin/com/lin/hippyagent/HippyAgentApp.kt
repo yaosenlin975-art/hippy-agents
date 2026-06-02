@@ -122,6 +122,7 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
                 isAppInForeground = false
             }
         })
+        com.lin.hippyagent.core.notification.ForegroundSessionTracker.init()
 
         // ══════ 阶段 1：同步 — DI 容器必须先就绪 ══════
         startKoin {

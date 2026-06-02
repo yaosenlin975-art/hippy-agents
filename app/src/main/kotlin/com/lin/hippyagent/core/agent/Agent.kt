@@ -130,7 +130,7 @@ data class AgentState(
         sessionStates[sessionId] ?: SessionState()
 
     /** 获取当前所有活跃（非 IDLE）会话的 sessionId 列表 */
-    fun activeSessionIds(): List<String> =
+    internal fun activeSessionIds(): List<String> =
         sessionStates.filter { it.value.status != AgentStatus.IDLE }.keys.toList()
 }
 
@@ -154,7 +154,7 @@ enum class AgentStatus {
 /**
  * 网络不可用异常
  */
-class NetworkUnavailableException(message: String) : Exception(message)
+internal class NetworkUnavailableException(message: String) : Exception(message)
 
 class Agent(
     private val context: Context,
@@ -325,7 +325,7 @@ class Agent(
         getOrCreateSessionContext(sessionId).mutex
 
     /** 获取指定会话是否正在处理中 */
-    fun isSessionProcessing(sessionId: String): Boolean {
+    internal fun isSessionProcessing(sessionId: String): Boolean {
         return sessionContexts[sessionId]?.mutex?.isLocked == true
     }
 
@@ -341,7 +341,7 @@ class Agent(
         val sid = sessionId ?: currentSessionId()
         if (sid != null) {
             val ctx = getOrCreateSessionContext(sid)
-            ctx.systemPrompt = ctx.systemPrompt + "\n[STEER] $direction"
+            ctx.systemPrompt = buildString { append(ctx.systemPrompt); append("\n[STEER] "); append(direction) }
             Timber.i("Steered agent ${profile.agentId} session $sid: $direction")
         }
     }
@@ -351,13 +351,6 @@ class Agent(
         ctx.messageQueue.add(message)
         Timber.i("Queued message for agent ${profile.agentId} session $sessionId, queue size: ${ctx.messageQueue.size}")
         return ctx.messageQueue.size
-    }
-
-    fun getQueuedMessages(sessionId: String): List<String> {
-        val ctx = sessionContexts[sessionId] ?: return emptyList()
-        val messages = ctx.messageQueue.toList()
-        ctx.messageQueue.clear()
-        return messages
     }
 
     private val contextManager = ContextManager(
@@ -375,6 +368,27 @@ class Agent(
     private val sbPool = StringBuilderPool(maxSize = 8)
     private val toolCallListPool = ToolCallInfoListPool(maxSize = 4)
     private val reusableToolCallList = mutableListOf<ToolCallInfo>()
+    private val repairPipeline = com.lin.hippyagent.core.agent.repair.ToolCallRepairPipeline()
+
+    private fun buildMetaJson(existingMeta: Map<String, String>?, thinkingDurationMs: Long): String {
+        if (thinkingDurationMs <= 0L) return ""
+        if (existingMeta.isNullOrEmpty()) {
+            return "{\"thinkingDurationMs\":$thinkingDurationMs}"
+        }
+        val sb = sbPool.acquire()
+        try {
+            sb.append('{')
+            existingMeta.entries.forEachIndexed { i, (k, v) ->
+                if (i > 0) sb.append(',')
+                sb.append('"').append(k).append("\":\"").append(v).append('"')
+            }
+            sb.append(",\"thinkingDurationMs\":").append(thinkingDurationMs)
+            sb.append('}')
+            return sb.toString()
+        } finally {
+            sbPool.release(sb)
+        }
+    }
 
     private class AccumulatedToolCall(
         var id: String = "",
@@ -534,7 +548,6 @@ class Agent(
         turnFailureTracker: com.lin.hippyagent.core.model.routing.TurnFailureTracker,
         thinkingDurationMs: Long = 0L
     ): ToolCallResult {
-        val repairPipeline = com.lin.hippyagent.core.agent.repair.ToolCallRepairPipeline()
         val allowedToolNames = toolRegistry.getDefinitionsForAgent(
             agentId = profile.agentId
         ).map { it.name }.toSet()
@@ -582,19 +595,15 @@ class Agent(
         val assistantMsg = sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, assistantContent, senderId = profile.agentId).getOrNull()
         if (assistantMsg != null && thinkingDurationMs > 0L) {
             val existingMeta = assistantMsg.metadataJson?.let {
-                try { kotlinx.serialization.json.Json.parseToJsonElement(it) as? kotlinx.serialization.json.JsonObject } catch (_: Exception) { null }
+                try {
+                    val obj = kotlinx.serialization.json.Json.parseToJsonElement(it) as? kotlinx.serialization.json.JsonObject
+                    obj?.mapValues { (_, v) -> v.jsonPrimitive.content }
+                } catch (_: Exception) { null }
             }
-            val metaJson = if (existingMeta != null) {
-                buildJsonObject {
-                    existingMeta.forEach { (k, v) -> put(k, v) }
-                    put("thinkingDurationMs", thinkingDurationMs)
-                }.toString()
-            } else {
-                buildJsonObject {
-                    put("thinkingDurationMs", thinkingDurationMs)
-                }.toString()
+            val metaJson = buildMetaJson(existingMeta, thinkingDurationMs)
+            if (metaJson.isNotEmpty()) {
+                sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
             }
-            sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
         }
         if (assistantMsg != null) {
             for (toolCall in effectiveToolCalls) {
@@ -682,19 +691,15 @@ class Agent(
             val assistantMsg = sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, fullReply, senderId = profile.agentId).getOrNull()
             if (assistantMsg != null && thinkingDurationMs > 0L) {
                 val existingMeta = assistantMsg.metadataJson?.let {
-                    try { kotlinx.serialization.json.Json.parseToJsonElement(it) as? kotlinx.serialization.json.JsonObject } catch (_: Exception) { null }
+                    try {
+                        val obj = kotlinx.serialization.json.Json.parseToJsonElement(it) as? kotlinx.serialization.json.JsonObject
+                        obj?.mapValues { (_, v) -> v.jsonPrimitive.content }
+                    } catch (_: Exception) { null }
                 }
-                val metaJson = if (existingMeta != null) {
-                    buildJsonObject {
-                        existingMeta.forEach { (k, v) -> put(k, v) }
-                        put("thinkingDurationMs", thinkingDurationMs)
-                    }.toString()
-                } else {
-                    buildJsonObject {
-                        put("thinkingDurationMs", thinkingDurationMs)
-                    }.toString()
+                val metaJson = buildMetaJson(existingMeta, thinkingDurationMs)
+                if (metaJson.isNotEmpty()) {
+                    sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
                 }
-                sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
             }
             val replyMessage = ChannelMessage(
                 content = reply,
@@ -745,17 +750,13 @@ class Agent(
                 }
 
                 val isLastIteration = iteration >= profile.running.maxIters - 1
-                var effectiveMessages = if (isLastIteration) {
-                    messages.toMutableList().apply {
-                        add(ModelMessage(
-                            role = "system",
-                            content = "⚠️ 注意：这是你本次任务的最后一次迭代机会。请立即总结你目前的工作成果和进度，包括已完成的部分和尚未完成的部分。不要继续调用工具，直接给出总结。"
-                        ))
-                    }
-                } else {
-                    messages.toMutableList()
+                if (isLastIteration) {
+                    messages.add(ModelMessage(
+                        role = "system",
+                        content = "⚠️ 注意：这是你本次任务的最后一次迭代机会。请立即总结你目前的工作成果和进度，包括已完成的部分和尚未完成的部分。不要继续调用工具，直接给出总结。"
+                    ))
                 }
-                effectiveMessages = runBeforeModel(sessionId, effectiveMessages, iteration)
+                var effectiveMessages = runBeforeModel(sessionId, messages, iteration)
 
                 val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient)
                 val routedModel = routed.modelName
@@ -1000,17 +1001,13 @@ class Agent(
                 }
 
                 val isLastIteration = iteration >= profile.running.maxIters - 1
-                var effectiveMessages = if (isLastIteration) {
-                    messages.toMutableList().apply {
-                        add(ModelMessage(
-                            role = "system",
-                            content = "⚠️ 注意：这是你本次任务的最后一次迭代机会。请立即总结你目前的工作成果和进度，包括已完成的部分和尚未完成的部分。不要继续调用工具，直接给出总结。"
-                        ))
-                    }
-                } else {
-                    messages.toMutableList()
+                if (isLastIteration) {
+                    messages.add(ModelMessage(
+                        role = "system",
+                        content = "⚠️ 注意：这是你本次任务的最后一次迭代机会。请立即总结你目前的工作成果和进度，包括已完成的部分和尚未完成的部分。不要继续调用工具，直接给出总结。"
+                    ))
                 }
-                effectiveMessages = runBeforeModel(sessionId, effectiveMessages, iteration)
+                var effectiveMessages = runBeforeModel(sessionId, messages, iteration)
 
                 val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient, isStream = true)
                 val routedModel = routed.modelName
@@ -1190,10 +1187,10 @@ class Agent(
                     if (fullReply.isNotEmpty()) {
                         val assistantMsg = sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, fullReply, senderId = profile.agentId).getOrNull()
                         if (assistantMsg != null && thinkingDurationMs > 0L) {
-                            val metaJson = buildJsonObject {
-                                put("thinkingDurationMs", thinkingDurationMs)
-                            }.toString()
-                            sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
+                            val metaJson = buildMetaJson(null, thinkingDurationMs)
+                            if (metaJson.isNotEmpty()) {
+                                sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
+                            }
                         }
                         val replyMessage = ChannelMessage(
                             content = reply,
@@ -1475,7 +1472,14 @@ _你刚醒来。该搞清楚自己是谁了。_
                 isHeavyModel = isEscalated
             )
         } else ""
-        val effectiveSystemPrompt = if (!systemPromptSuffix.isNullOrBlank()) "$systemPrompt\n\n$systemPromptSuffix$escalationSuffix" else systemPrompt + escalationSuffix
+        val effectiveSystemPrompt = buildString {
+            append(systemPrompt)
+            if (!systemPromptSuffix.isNullOrBlank()) {
+                append("\n\n")
+                append(systemPromptSuffix)
+            }
+            append(escalationSuffix)
+        }
 
         Timber.d("buildPrompt[$sessionId]: bootstrap=${bootstrapHook.isBootstrapMode()}, sessionMsgCount=${sessionMessages.size}, " +
                 "msgRoles=${sessionMessages.map { it.role }.joinToString()}")
@@ -2135,7 +2139,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         textContent: String,
         isStream: Boolean = false
     ): LoopCheckResult {
-        val signature = buildIterationSignature(toolCallNames, textContent)
+        val signature = buildIterationSignature(toolCallNames)
         val tag = if (isStream) "(stream)" else ""
         when (loopDetector.checkAndRecord(signature)) {
             LoopDetector.LoopLevel.WARN -> {
@@ -2169,22 +2173,26 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         private val attachmentRegex = Regex("""\[附件:\s*(\S+)\]""")
         private val MODEL_VISION_REGEX = Regex("(?i)(vision|vl|gemini|gpt-4o|gpt-5|claude-3|claude-4|qwen-vl|llava|deepseek-vl|flash-image)")
 
+        private val toolSchemaCache = java.util.concurrent.ConcurrentHashMap<Map<String, ToolParameter>, Map<String, Any>>()
+
         private fun buildToolParameterSchema(params: Map<String, ToolParameter>): Map<String, Any> {
             if (params.isEmpty()) {
                 return mapOf("type" to "object")
             }
-            val properties = params.mapValues { (_, param) ->
-                val prop = mutableMapOf<String, Any>("type" to param.type, "description" to param.description)
-                param.defaultValue?.let { prop["default"] = it }
-                param.items?.let { prop["items"] = it }
-                prop.toMap()
+            return toolSchemaCache.getOrPut(params) {
+                val properties = params.mapValues { (_, param) ->
+                    val prop = mutableMapOf<String, Any>("type" to param.type, "description" to param.description)
+                    param.defaultValue?.let { prop["default"] = it }
+                    param.items?.let { prop["items"] = it }
+                    prop.toMap()
+                }
+                val required = params.filter { it.value.required }.keys.toList()
+                mapOf(
+                    "type" to "object",
+                    "properties" to properties,
+                    "required" to required
+                )
             }
-            val required = params.filter { it.value.required }.keys.toList()
-            return mapOf(
-                "type" to "object",
-                "properties" to properties,
-                "required" to required
-            )
         }
         /**
          * 压缩专用系统提示词 — 指导模型生成高质量摘要
@@ -2364,9 +2372,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
                 updated
             }
 
-            val newMap = HashMap(state.sessionStates)
-            newMap[sessionId] = finalState
-            state.copy(sessionStates = newMap)
+            state.copy(sessionStates = state.sessionStates + (sessionId to finalState))
         }
     }
 
@@ -2388,7 +2394,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         updateSessionState(sessionId) { it.copy(pendingPermissionCommand = null) }
     }
 
-    suspend fun reset() {
+    internal suspend fun reset() {
         stop()
         _state.update {
             AgentState(agentId = profile.agentId)
@@ -2402,7 +2408,6 @@ Do not stop with plans or code fences alone when tools are still needed.</system
      * 调用后 Agent 不应再被使用。
      */
     fun destroy() {
-        memoryExtractionScope.cancel()
         sessionContexts.values.forEach { it.job?.cancel() }
         sessionContexts.clear()
         _state.update { AgentState(agentId = profile.agentId) }
@@ -2410,8 +2415,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
     }
 
     private fun buildIterationSignature(
-        toolNames: List<String>?,
-        textContent: String
+        toolNames: List<String>?
     ): String {
         val toolPart = toolNames?.sorted()?.joinToString(",") ?: ""
         return toolPart

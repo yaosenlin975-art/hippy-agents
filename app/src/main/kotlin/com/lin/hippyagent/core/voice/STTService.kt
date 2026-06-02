@@ -1,4 +1,4 @@
-package com.lin.hippyagent.core.voice
+﻿package com.lin.hippyagent.core.voice
 
 import android.content.Context
 import kotlinx.coroutines.*
@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.lin.hippyagent.R
+import com.lin.hippyagent.core.ondevice.OnDeviceModelManager
 import timber.log.Timber
 import java.io.File
 
@@ -14,9 +15,18 @@ class STTService(
     private val voiceManager: VoiceExtensionManager,
     private val sttRouter: SttRouter,
     private val litertlmTranscriber: LiteRTLMTranscriber,
+    private val onDeviceModelManager: OnDeviceModelManager? = null,
 ) {
     private val androidBuiltinTranscriber: AndroidBuiltinTranscriber by lazy {
         AndroidBuiltinTranscriber(context)
+    }
+
+    /** AudioRecord fallback recorder for MIUI/HyperOS devices */
+    private val fallbackRecorder: VoiceRecorder by lazy {
+        VoiceRecorder(
+            outputDir = File(context.cacheDir, "stt_fallback_recordings"),
+            scope = serviceScope
+        )
     }
 
     private val _isListening = MutableStateFlow(false)
@@ -27,6 +37,8 @@ class STTService(
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var activeEngine: SttEngine? = null
+    /** true when SpeechRecognizer failed on MIUI and we fell back to AudioRecord */
+    private var isFallbackRecording = false
 
     val isAvailable: Boolean
         get() = sttRouter.isAnyAvailable
@@ -54,16 +66,67 @@ class STTService(
     }
 
     fun stopListening() {
-        when (activeEngine) {
-            SttEngine.MOONSHINE -> stopMoonshineListening()
-            SttEngine.LITERTLM -> litertlmTranscriber.stopListening()
-            SttEngine.ANDROID_BUILTIN -> androidBuiltinTranscriber.stopListening()
-            SttEngine.NONE -> { }
-            null -> { }
+        when {
+            isFallbackRecording -> {
+                // Stop the fallback AudioRecord and transcribe
+                isFallbackRecording = false
+                listeningJob = serviceScope.launch {
+                    try {
+                        val result = fallbackRecorder.stopRecording()
+                        if (result != null && result.pcmBytes.isNotEmpty()) {
+
+                            val text = onDeviceModelManager?.transcribeAudio(result.pcmBytes) ?: ""
+                            withContext(Dispatchers.Main) {
+                                if (text.isNotBlank()) {
+                                    // activeEngine is already null from the fallback path,
+                                    // but we need to keep _isListening until result is delivered
+                                    _isListening.value = false
+                                    activeEngine = null
+                                    // Deliver via a resumed SttCallback stored in the fallback path
+                                    pendingFallbackCallback?.onFinalResult(SttResult(text = text, isFinal = true))
+                                    pendingFallbackCallback = null
+                                } else {
+                                    _isListening.value = false
+                                    activeEngine = null
+                                    pendingFallbackCallback?.onFinalResult(SttResult(text = "", isFinal = true))
+                                    pendingFallbackCallback = null
+                                }
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                _isListening.value = false
+                                activeEngine = null
+                                pendingFallbackCallback?.onFinalResult(SttResult(text = "", isFinal = true))
+                                pendingFallbackCallback = null
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "STTService: Fallback transcription failed")
+                        withContext(Dispatchers.Main) {
+                            _isListening.value = false
+                            activeEngine = null
+                            pendingFallbackCallback?.onError(e)
+                            pendingFallbackCallback = null
+                        }
+                    }
+                }
+            }
+            else -> {
+                when (activeEngine) {
+                    SttEngine.MOONSHINE -> stopMoonshineListening()
+                    SttEngine.LITERTLM -> litertlmTranscriber.stopListening()
+                    SttEngine.ANDROID_BUILTIN -> androidBuiltinTranscriber.stopListening()
+                    SttEngine.NONE -> { }
+                    null -> { }
+                }
+                _isListening.value = false
+                activeEngine = null
+            }
         }
-        _isListening.value = false
-        activeEngine = null
     }
+
+    /** Stored callback for the fallback AudioRecord recording path */
+    private var pendingFallbackCallback: SttCallback? = null
 
     private fun startMoonshineListening(callback: SttCallback) {
         if (!voiceManager.isSttAvailable.value || !voiceManager.isDeviceSupported) {
@@ -137,12 +200,60 @@ class STTService(
                 callback.onFinalResult(result)
             }
             override fun onError(error: Throwable) {
-                _isListening.value = false
-                activeEngine = null
-                callback.onError(error)
+                // On MIUI/HyperOS, SpeechRecognizer may fail with ERROR_INSUFFICIENT_PERMISSIONS
+                // even though AudioRecord works fine. Fall back to AudioRecord + transcription.
+                val isPermissionError = error.message?.contains("语音服务权限受限") == true
+                        || error.message?.contains("权限") == true
+                if (isPermissionError && canFallbackToAudioRecord()) {
+                    Timber.w("STTService: SpeechRecognizer failed on MIUI, falling back to AudioRecord")
+                    startFallbackRecording(callback)
+                } else {
+                    _isListening.value = false
+                    activeEngine = null
+                    callback.onError(error)
+                }
             }
         }
         androidBuiltinTranscriber.startListening(wrappedCallback)
+    }
+
+    /**
+     * Check if we can fall back to AudioRecord + on-device transcription.
+     * Requires OnDeviceModelManager to be available.
+     */
+    private fun canFallbackToAudioRecord(): Boolean {
+        return onDeviceModelManager != null
+    }
+
+    /**
+     * Start fallback recording using AudioRecord (works on MIUI/HyperOS).
+     * The recording continues until stopListening() is called.
+     */
+    private fun startFallbackRecording(callback: SttCallback) {
+        isFallbackRecording = true
+        pendingFallbackCallback = callback
+        // Keep _isListening = true and activeEngine = ANDROID_BUILTIN
+        // so that the UI still shows the listening state
+
+        val outputFile = fallbackRecorder.startRecording()
+        if (outputFile == null) {
+            // AudioRecord also failed — give up
+            isFallbackRecording = false
+            _isListening.value = false
+            activeEngine = null
+            pendingFallbackCallback = null
+            callback.onError(IllegalStateException("无法启动录音，请检查麦克风权限"))
+            return
+        }
+
+        // Show "listening" state
+        serviceScope.launch {
+            withContext(Dispatchers.Main) {
+                callback.onPartialResult(SttResult(text = context.getString(R.string.chat_listening), isFinal = false))
+            }
+        }
+
+        Timber.d("STTService: Fallback AudioRecord recording started")
     }
 
     private suspend fun startMoonshineTranscription(modelPath: String, callback: SttCallback) {
@@ -242,7 +353,6 @@ class STTService(
                 freeMethod.invoke(t)
             }
         } catch (e: Exception) {
-            // ignore
         }
         transcriber = null
         litertlmTranscriber.release()

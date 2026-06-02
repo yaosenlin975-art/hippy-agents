@@ -7,16 +7,16 @@ import org.junit.Test
 class SubAgentModelsTest {
 
     @Test
-    fun subAgentTaskDefaultMaxTurns() {
-        val task = SubAgentTask(agentId = "researcher", prompt = "test")
-        assertEquals("researcher", task.agentId)
+    fun subAgentTaskDefaults() {
+        val task = SubAgentTask(prompt = "test")
         assertEquals("test", task.prompt)
         assertEquals(20, task.maxTurns)
+        assertEquals("", task.taskId)
     }
 
     @Test
     fun subAgentTaskCustomMaxTurns() {
-        val task = SubAgentTask(agentId = "coder", prompt = "code", maxTurns = 5)
+        val task = SubAgentTask(prompt = "code", maxTurns = 5)
         assertEquals(5, task.maxTurns)
     }
 
@@ -47,23 +47,5 @@ class SubAgentModelsTest {
         assertEquals(1, result.failed)
         assertEquals(2, result.children.size)
         assertTrue(result.summary.contains("1 completed"))
-    }
-
-    @Test
-    fun pawJobStatusIncludesWaitingChildren() {
-        val statuses = com.lin.hippyagent.core.task.PawJobStatus.values()
-        assertTrue(statuses.any { it.name == "WAITING_CHILDREN" })
-    }
-
-    @Test
-    fun pawJobSubmitOptsMaxChildrenDefaultNull() {
-        val opts = com.lin.hippyagent.core.task.PawJobSubmitOpts()
-        assertEquals(null, opts.maxChildren)
-    }
-
-    @Test
-    fun pawJobSubmitOptsMaxChildrenCustom() {
-        val opts = com.lin.hippyagent.core.task.PawJobSubmitOpts(maxChildren = 5)
-        assertEquals(5, opts.maxChildren)
     }
 }

@@ -20,19 +20,18 @@ class RRFFuser {
         lists: List<RankedList>,
         k: Int = 60
     ): List<ScoredItem> {
-        val scores = mutableMapOf<String, MutableList<Float>>()
+        val scores = mutableMapOf<String, Float>()
 
         for ((sourceLabel, items) in lists) {
             for ((index, item) in items.withIndex()) {
-                val rank = index + 1 // 1-based rank
+                val rank = index + 1
                 val rrfScore = 1f / (k + rank)
-                val list = scores.getOrPut(item.id) { mutableListOf() }
-                list.add(rrfScore)
+                scores[item.id] = (scores[item.id] ?: 0f) + rrfScore
             }
         }
 
-        return scores.map { (id, scoreList) ->
-            ScoredItem(id, scoreList.sum())
+        return scores.map { (id, score) ->
+            ScoredItem(id, score)
         }.sortedByDescending { it.score }
     }
 

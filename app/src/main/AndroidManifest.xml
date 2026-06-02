@@ -53,6 +53,7 @@
     <!-- 精确闹钟 -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:name=".HippyAgentApp"
@@ -118,6 +119,17 @@
             android:name=".core.notification.NotificationOverlayService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
+
+        <activity
+            android:name=".core.notification.LockScreenMessageActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.HippyAgent"
+            android:turnScreenOn="true" />
 
         <receiver
             android:name=".core.accessibility.PermissionActionReceiver"

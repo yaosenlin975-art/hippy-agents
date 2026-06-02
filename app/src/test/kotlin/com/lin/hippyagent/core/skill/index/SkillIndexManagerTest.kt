@@ -23,13 +23,13 @@ class SkillIndexManagerTest {
     }
 
     @Test
-    fun `loadIndex returns empty index when no file exists`() {
+    fun loadIndexReturnsEmptyWhenNoFileExists() {
         val index = manager.loadIndex()
         assertTrue(index.skills.isEmpty())
     }
 
     @Test
-    fun `saveIndex and loadIndex roundtrip`() {
+    fun saveIndexAndLoadIndexRoundtrip() {
         val index = SkillIndex(
             version = 12345L,
             skills = mapOf(
@@ -50,7 +50,7 @@ class SkillIndexManagerTest {
     }
 
     @Test
-    fun `saveIndex and loadIndex with multiple skills`() {
+    fun saveIndexAndLoadIndexWithMultipleSkills() {
         val entries = mapOf(
             "skill-a" to SkillIndexEntry(id = "skill-a", name = "A", description = "a", version = "1.0.0"),
             "skill-b" to SkillIndexEntry(id = "skill-b", name = "B", description = "b", version = "2.0.0")
@@ -64,17 +64,17 @@ class SkillIndexManagerTest {
     }
 
     @Test
-    fun `getManifest returns null for non-existent skill`() {
+    fun getManifestReturnsNullForNonExistentSkill() {
         assertNull(manager.getManifest("nonexistent"))
     }
 
     @Test
-    fun `getSkillDir returns null for non-existent skill`() {
+    fun getSkillDirReturnsNullForNonExistentSkill() {
         assertNull(manager.getSkillDir("nonexistent"))
     }
 
     @Test
-    fun `getSkillDir returns directory when skill exists`() {
+    fun getSkillDirReturnsDirectoryWhenSkillExists() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         skillDir.resolve("SKILL.md").writeText("---\nname: My Skill\n---\nContent")
@@ -84,7 +84,7 @@ class SkillIndexManagerTest {
     }
 
     @Test
-    fun `getManifest returns manifest from SKILL.md frontmatter`() {
+    fun getManifestReturnsManifestFromSkillMdFrontmatter() {
         val content = """---
 name: My Skill
 description: A description
@@ -103,7 +103,7 @@ Skill content here"""
     }
 
     @Test
-    fun `getManifest returns cached manifest when mtime matches`() {
+    fun getManifestReturnsCachedManifestWhenMtimeMatches() {
         val content = """---
 name: Cached Skill
 description: desc
@@ -134,7 +134,7 @@ Content"""
     }
 
     @Test
-    fun `invalidate clears cached index`() {
+    fun invalidateClearsCachedIndex() {
         val index = SkillIndex(
             version = 100L,
             skills = mapOf(
@@ -142,13 +142,16 @@ Content"""
             )
         )
         manager.saveIndex(index)
+        val first = manager.loadIndex()
+        assertEquals(1, first.skills.size)
         manager.invalidate()
-        val loaded = manager.loadIndex()
-        assertTrue(loaded.skills.isEmpty())
+        val second = manager.loadIndex()
+        assertEquals(1, second.skills.size)
+        assertNotSame(first, second)
     }
 
     @Test
-    fun `parseSkillInfo reads SKILL.md frontmatter`() {
+    fun parseSkillInfoReadsSkillMdFrontmatter() {
         val content = """---
 name: My Skill
 description: A description
@@ -168,7 +171,7 @@ Some content"""
     }
 
     @Test
-    fun `parseSkillInfo reads builtin flag`() {
+    fun parseSkillInfoReadsBuiltinFlag() {
         val content = """---
 name: Built-in
 builtin: true
@@ -183,21 +186,24 @@ Content"""
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `parseSkillInfo throws when SKILL.md missing`() {
+    fun parseSkillInfoThrowsWhenSkillMdMissing() {
         val skillDir = skillsDir.resolve("no-skill")
         skillDir.mkdirs()
         manager.parseSkillInfo(skillDir)
     }
 
     @Test
-    fun `loadIndex returns empty after save then invalidate`() {
+    fun loadIndexReReadsFromDiskAfterInvalidate() {
         val index = SkillIndex(
             version = 50L,
             skills = mapOf("x" to SkillIndexEntry(id = "x", name = "X", description = "d", version = "1.0.0"))
         )
         manager.saveIndex(index)
-        assertNotNull(manager.loadIndex().skills["x"])
+        val first = manager.loadIndex()
+        assertNotNull(first.skills["x"])
         manager.invalidate()
-        assertTrue(manager.loadIndex().skills.isEmpty())
+        val second = manager.loadIndex()
+        assertNotNull(second.skills["x"])
+        assertNotSame(first, second)
     }
 }

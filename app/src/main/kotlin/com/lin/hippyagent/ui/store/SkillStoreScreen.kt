@@ -1,4 +1,4 @@
-package com.lin.hippyagent.ui.store
+﻿package com.lin.hippyagent.ui.store
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -74,6 +74,13 @@ fun SkillStoreScreen(
         }
     }
 
+    LaunchedEffect(uiState.installMessage) {
+        uiState.installMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearInstallMessage()
+        }
+    }
+
     var nodeCheckState by remember { mutableStateOf<NodeStatus>(NodeStatus.Unknown) }
 
     LaunchedEffect(isLinuxReady) {
@@ -146,11 +153,6 @@ fun SkillStoreScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        NodeStatusBanner(
-            nodeCheckState = nodeCheckState,
-            onNavigateToEnvCheck = onNavigateToEnvCheck
-        )
-
         when {
             uiState.isLoading && uiState.skills.isEmpty() && uiState.hotSkills.isEmpty() -> {
                 LoadingState(padding)
@@ -180,12 +182,20 @@ fun SkillStoreScreen(
                         .navigationBarsPadding(),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
+                    item {
+                        NodeStatusBanner(
+                            nodeCheckState = nodeCheckState,
+                            onNavigateToEnvCheck = onNavigateToEnvCheck
+                        )
+                    }
                     if (uiState.searchQuery.isBlank() && uiState.hotSkills.isNotEmpty()) {
                         item {
                             SectionHeader(stringResource(R.string.store_hot_picks), Icons.Default.LocalFireDepartment)
                             HotSkillsRow(
                                 skills = uiState.hotSkills,
                                 installedIds = uiState.installedIds,
+                                installingIds = uiState.installingIds,
+                                queuedIds = uiState.queuedIds,
                                 onSkillClick = { viewModel.selectSkill(it) },
                                 onInstall = viewModel::showInstallDialog
                             )
@@ -198,10 +208,12 @@ fun SkillStoreScreen(
                         key = { uiState.skills[it].identifier }
                     ) { index ->
                         val skill = uiState.skills[index]
-                        val isInstalled = uiState.installedIds.contains(skill.identifier)
+                        val isInstalled = uiState.installedNormalizedIds.contains(com.lin.hippyagent.core.skill.store.SkillIdNormalizer.normalize(skill.identifier)) || uiState.installedIds.contains(skill.identifier)
                         StoreSkillCard(
                             skill = skill,
                             isInstalled = isInstalled,
+                            isInstalling = uiState.installingIds.contains(skill.identifier),
+                            isQueued = uiState.queuedIds.contains(skill.identifier),
                             onInstall = { viewModel.showInstallDialog(skill) },
                             onClick = { viewModel.selectSkill(skill) }
                         )
@@ -242,7 +254,7 @@ fun SkillStoreScreen(
     uiState.showInstallDialog?.let { skill ->
         InstallConfirmDialog(
             skill = skill,
-            isInstalled = uiState.installedIds.contains(skill.identifier),
+            isInstalled = uiState.installedNormalizedIds.contains(com.lin.hippyagent.core.skill.store.SkillIdNormalizer.normalize(skill.identifier)) || uiState.installedIds.contains(skill.identifier),
             installTarget = uiState.installTarget,
             onTargetChange = viewModel::setInstallTarget,
             onConfirm = { viewModel.installSkill(skill) },
@@ -253,7 +265,8 @@ fun SkillStoreScreen(
     uiState.selectedSkill?.let { skill ->
         SkillDetailSheet(
             skill = skill,
-            isInstalled = uiState.installedIds.contains(skill.identifier),
+            isInstalled = uiState.installedNormalizedIds.contains(com.lin.hippyagent.core.skill.store.SkillIdNormalizer.normalize(skill.identifier)) || uiState.installedIds.contains(skill.identifier),
+            isLoadingDetail = uiState.isLoadingDetail,
             onInstall = {
                 viewModel.selectSkill(null)
                 viewModel.showInstallDialog(skill)

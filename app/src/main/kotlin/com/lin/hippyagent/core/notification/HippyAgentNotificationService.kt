@@ -203,6 +203,10 @@ class HippyAgentNotificationService(
     /**
      * 发送智能体消息通知
      * 通知标题格式：智能体名-会话名
+     * 触发策略（用户已选 三合一）：
+     *  - 后台 / 锁屏   → 系统 Heads-up + FullScreenIntent(锁屏时拉起 LockScreenMessageActivity)
+     *  - App 前台但不在此会话 → InAppMessageBus 气泡(同时仍发送通知以便状态栏)
+     *  - App 在此会话   → 跳过
      */
     fun sendAgentMessageNotification(agentName: String, sessionName: String = "", message: String, sessionId: String, agentId: String? = null) {
         if (!settingsManager.shouldNotify(NotificationType.AGENT_MESSAGE)) {
@@ -221,19 +225,50 @@ class HippyAgentNotificationService(
             agentName
         }
 
+        if (ForegroundSessionTracker.isAppForegroundFlow.value) {
+            InAppMessageBus.emit(
+                InAppMessageBus.InAppMessage(
+                    agentName = agentName,
+                    sessionName = sessionName,
+                    message = message,
+                    sessionId = sessionId,
+                    agentId = agentId
+                )
+            )
+        }
+
         val notificationId = NOTIFICATION_AGENT_MESSAGE + sessionId.hashCode() + (agentId?.hashCode() ?: 0)
         val truncated = if (message.length > 100) message.take(100) + "..." else message
 
         try {
-            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+            val openIntent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra("deep_link_session_id", sessionId)
             }
             val pendingIntent = PendingIntent.getActivity(
                 context,
                 notificationId,
-                intent,
+                openIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+
+            val fullScreenIntent = Intent(context, LockScreenMessageActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                putExtra(LockScreenMessageActivity.EXTRA_AGENT_NAME, agentName)
+                putExtra(LockScreenMessageActivity.EXTRA_SESSION_NAME, sessionName)
+                putExtra(LockScreenMessageActivity.EXTRA_MESSAGE, message)
+                putExtra(LockScreenMessageActivity.EXTRA_SESSION_ID, sessionId)
+            }
+            val fullScreenPendingIntent = PendingIntent.getActivity(
+                context,
+                notificationId xor 0x1,
+                fullScreenIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val canUseFullScreen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                nm.canUseFullScreenIntent()
+            } else true
 
             val messagingStyle = NotificationCompat.MessagingStyle(
                     androidx.core.app.Person.Builder().setName("我").build()
@@ -245,7 +280,7 @@ class HippyAgentNotificationService(
                 ))
                 .setConversationTitle(notificationTitle)
 
-            val notification = NotificationCompat.Builder(context, CHANNEL_AGENT_MESSAGE)
+            val builder = NotificationCompat.Builder(context, CHANNEL_AGENT_MESSAGE)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setStyle(messagingStyle)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -253,11 +288,14 @@ class HippyAgentNotificationService(
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .build()
 
-            notificationManager.notify(notificationId, notification)
+            if (canUseFullScreen) {
+                builder.setFullScreenIntent(fullScreenPendingIntent, true)
+            }
+
+            notificationManager.notify(notificationId, builder.build())
             activeSessionNotifications.getOrPut(sessionId) { ConcurrentHashMap.newKeySet() }.add(notificationId)
-            Timber.i("Agent message notification sent: $agentName for session $sessionId")
+            Timber.i("Agent message notification sent: $agentName for session $sessionId (fullScreen=$canUseFullScreen)")
         } catch (e: Exception) {
             Timber.e(e, "Failed to send agent message notification")
         }

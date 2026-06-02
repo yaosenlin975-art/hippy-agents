@@ -34,30 +34,30 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `enableSkill returns failure for non-existent skill`() {
+    fun enableSkillReturnsFailureForNonExistentSkill() {
         val result = installer.enableSkill("nonexistent")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun `disableSkill returns failure for non-existent skill`() {
+    fun disableSkillReturnsFailureForNonExistentSkill() {
         val result = installer.disableSkill("nonexistent")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun `isEnabled returns false for non-existent skill`() {
+    fun isEnabledReturnsFalseForNonExistentSkill() {
         assertFalse(installer.isEnabled("nonexistent"))
     }
 
     @Test
-    fun `uninstallSkill returns failure for non-existent skill`() {
+    fun uninstallSkillReturnsFailureForNonExistentSkill() {
         val result = installer.uninstallSkill("nonexistent")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun `disableSkill creates disabled marker`() {
+    fun disableSkillCreatesDisabledMarker() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         val result = installer.disableSkill("my-skill")
@@ -66,14 +66,14 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `isEnabled returns true when skill has no disabled marker`() {
+    fun isEnabledReturnsTrueWhenSkillHasNoDisabledMarker() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         assertTrue(installer.isEnabled("my-skill"))
     }
 
     @Test
-    fun `isEnabled returns false when skill has disabled marker`() {
+    fun isEnabledReturnsFalseWhenSkillHasDisabledMarker() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         skillDir.resolve(".disabled").createNewFile()
@@ -81,7 +81,7 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `enableSkill removes disabled marker`() {
+    fun enableSkillRemovesDisabledMarker() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         skillDir.resolve(".disabled").createNewFile()
@@ -91,7 +91,7 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `enableSkill succeeds when no disabled marker`() {
+    fun enableSkillSucceedsWhenNoDisabledMarker() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         val result = installer.enableSkill("my-skill")
@@ -99,7 +99,7 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `setEnabled delegates correctly`() {
+    fun setEnabledDelegatesCorrectly() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         installer.setEnabled("my-skill", false)
@@ -109,7 +109,7 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `uninstallSkill deletes skill directory`() {
+    fun uninstallSkillDeletesSkillDirectory() {
         val skillDir = skillsDir.resolve("my-skill")
         skillDir.mkdirs()
         skillDir.resolve("test.txt").writeText("content")
@@ -119,13 +119,13 @@ class SkillInstallerTest {
     }
 
     @Test
-    fun `installFromZip fails when zip file does not exist`() = runBlocking {
+    fun installFromZipFailsWhenZipFileDoesNotExist() = runBlocking {
         val result = installer.installFromZip("/nonexistent/path.zip")
         assertTrue(result.isFailure)
     }
 
     @Test
-    fun `installFromZip fails when zip has no SKILL.md`() = runBlocking {
+    fun installFromZipFailsWhenZipHasNoSkillMd() = runBlocking {
         val tempZip = File.createTempFile("test", ".zip", tempFolder.root)
         try {
             ZipOutputStream(FileOutputStream(tempZip)).use { zos ->

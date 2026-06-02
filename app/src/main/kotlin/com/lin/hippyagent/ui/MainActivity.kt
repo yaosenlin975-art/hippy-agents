@@ -7,10 +7,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.lin.hippyagent.core.notification.InAppMessageBubbleHost
 import com.lin.hippyagent.ui.navigation.AppNavigation
 import com.lin.hippyagent.ui.theme.HippyTheme
 
@@ -92,7 +95,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             HippyTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppNavigation(deepLinkSessionId = deepLinkSessionId)
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AppNavigation(deepLinkSessionId = deepLinkSessionId)
+                        InAppMessageBubbleHost(context = LocalContext.current)
+                    }
                 }
             }
         }

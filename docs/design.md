@@ -24,7 +24,7 @@
      - delete_file：DEL 前缀 + 文件+ 斜体路径；失败时文件名后显示原因，展开显示参数
   5. 思考过程（Thinking Block）以可折叠区域展示，流式输出时自动展开，Turn 结束后强制折叠为摘要（不受用户手动展开影响）；折叠时显示首行内容预览（最多50字符）；标题栏显示思考耗时（如"思考过程 · 1.2s"）
   6. 流式输出效果（仅普通聊天，群聊不启用）：文本和思考内容末尾显光标字符，标识智能体正在生成；元数据栏（token/模型/延迟）使AnimatedVisibility fadeIn+expandVertically 平滑出现；元数据栏内容：↑输入Token ↓输出Token · 缓存读取/写入Token · API调用次数 · 模型名称（fallback时显示🔄前缀） · 延迟时间；上下文比例进度条：显示当前上下文Token数/最大上下文窗口，>50%时黄色，<=50%时绿色，进度条旁显示百分比文字；移animateContentSize 避免流式期间弹簧动画持续触发 GC
-   6. 过程折叠：轮次结束后（agent IDLE），整个轮次中所有 thinking + tool + 中间 message 合并为单个"N步过程"折叠卡片（ProcessDrawer），只保留最后一条 message 独立显示；agent 运行时正常展示各元素；用户可点击 ProcessDrawer 展开查看详情；群聊/chat_with_agent 仅显示 TextSegment；群聊折叠时不显示 ProcessDrawer（collapseProcess && !isGroupChat），展开时顶部显示 ProcessDrawer（showProcessHeader，仅组内第一个 AgentTurn）、底部唯一一个 ProcessCollapseButton（showProcessFooter，仅组内最后一个 AgentTurn），类似 thinking 的折叠效果；displayElements 和 processStepCount 使用 remember 缓存避免重组时重复计算；expandedGroups 在 agent IDLE 时仅清除流式输出组的展开状态，保留用户手动展开的组；每个 AgentTurn 中的 ProcessCollapseButton 仅渲染一次（移除元素列表末尾多余的重复按钮），确保按钮位置在轮次最后一条消息上方
+   6. 过程折叠：轮次结束后（agent IDLE），整个轮次中所有 thinking + tool + 中间 message 合并为单个"N步过程"折叠卡片（ProcessDrawer），只保留最后一条 message 独立显示；agent 运行时正常展示各元素；用户可点击 ProcessDrawer 展开查看详情；群聊/chat_with_agent 仅显示 TextSegment；群聊折叠时不显示 ProcessDrawer（collapseProcess && !isGroupChat），展开时顶部显示 ProcessDrawer（showProcessHeader，仅组内第一个 AgentTurn）、底部唯一一个 ProcessCollapseButton（showProcessFooter，仅组内最后一个 AgentTurn），类似 thinking 的折叠效果；displayElements 和 processStepCount 使用 remember 缓存避免重组时重复计算；expandedGroups 在 agent IDLE 时仅清除流式输出组的展开状态，保留用户手动展开的组；每个 AgentTurn 中的 ProcessCollapseButton 仅渲染一次（移除元素列表末尾多余的重复按钮），确保按钮位置在轮次最后一条消息上方；过程压缩完成时显示统计信息：`%d步过程 · 🧠x次思考 · 🔧y次工具 · 📨z条消息 · ⏱共耗时N秒`（thinking=Thinking流块数，工具=工具调用次数，消息=折叠前消息数，时长=TurnMetadata.latencyMs 聚合除以 1000），由 TurnProcessStats / computeTurnProcessStats / aggregateTurnProcessStats 计算后传入 ProcessDrawer.stats 形参
   6b. 元数据徽章（token/模型/延迟）仅在 Turn 中最后一个非空 TextSegment 显示（lastMetadataElementIndex），避免多条 message 重复显示
   6c. ChatTurnConverter 中 thinking 字段仅在为 null 时赋值（if (thinking == null) thinking = thinkingBlock），防止后续 ASSISTANT 消息覆盖第一个 thinking
   6. 支持长按消息弹出操作菜单（复制、重新生成、删除）
@@ -34,7 +34,8 @@
   10. 用户消息气泡宽度自适应：气泡宽度由内容决定（wrapContentWidth），最大不超过屏幕 80%；引用区域和文本内容均跟随气泡宽度；去掉 unbounded=true 让 widthIn(max) 约束生效
   8. 支持滑动切换会话（侧边抽屉）
   9. 支持聊天内搜
-  10. 消息排队机制：智能体 THINKING/EXECUTING_TOOL 时用户发送的消息入池排队（MessageQueueManager），智能体回到 IDLE 后自动 flush（flushQueuedMessages）；flush 时先写入一条带 `[Queue: N messages]` 前缀的 USER 消息到 sessionStore，再调用 deliverMessage(skipUserMessage=true) 避免重复写入
+  10. 消息排队机制：智能体 THINKING/EXECUTING_TOOL 时用户发送的消息入池排队（MessageQueueManager），智能体回到 IDLE 后自动 flush（flushQueuedMessages）；flush 时写入 USER 消息到 sessionStore（不带 [Queue] 前缀），再调用 deliverMessage(skipUserMessage=true) 避免重复写入；入队时移除 optimistic UserTurn，flush 时重新添加，避免排队消息提前显示在聊天界面
+  10b. 队列交互：TopBar 队列图标可点击，弹出 BottomSheet（QueueBottomSheet）显示排队消息列表；每条消息支持上移/下移（ArrowUp/ArrowDown 按钮）和删除（Delete 按钮）；MessageQueueManager 暴露 queueItems StateFlow 镜像，支持 removeAt(index) 和 move(fromIndex, toIndex) 操作
 
 ### 多选消息
 
@@ -436,16 +437,31 @@
 - **输入规则**：技能选择
 - **输出结果**：技能启用状态更
 
-### 技能商店界
+### 技能商店界面
 
-- **功能描述**：浏览和安装在线技
+- **功能描述**：浏览和安装在线技能，支持多市场搜索、安装队列、分页加载、Provider 可用性检测
 - **交互逻辑**
-  1. 展示可安装的技能列表（分类展示
-  2. 搜索技
-  3. 安装/卸载技
-  4. 查看技能详情和评分
-- **输入规则**：搜索关键词、安装选择
-- **输出结果**：技能安卸载
+  1. 多市场源切换：三个 Provider（LobeHub / Skills.sh / ClawHub）以 FilterChip 展示，不可用时 disabled + Tooltip 显示原因；`MarketProvider.available()` 返回 `(Boolean, String?)` 检测 CLI 环境
+  2. 搜索：输入关键词后并行搜索已选 Provider（`coroutineScope { selectedKeys.map { async { provider.search() } }.awaitAll() }`），单个 Provider 失败返回 `MarketSearchError` 不中断其他；搜索结果合并展示
+  3. 分页：每个 Provider 独立分页（`cursors: Map<String, Int>`），LazyColumn 底部 LoadMoreItem（Loading 或"加载更多"按钮）
+  4. 排序：SortType 枚举（HOT / NEW / RATING / INSTALLS），`displayNameRes` 引用 strings.xml 多语言资源
+  5. 安装队列：批量选择技能入队，串行执行（`runNext()` 逐个安装）；支持取消（取消当前 Job，CLI 进程随协程取消终止）、重试、清除已完成；队列项状态 QUEUED → INSTALLING → COMPLETED / FAILED / CANCELLED
+  6. 安装目标切换：TargetToggle 组件切换 Pool / Workspace；Pool 目标调用 SkillPoolManager.createSkill，Workspace 目标调用 storeService.install() + 同步工作区
+  7. 安装确认弹窗（InstallDialog）：显示技能名称、描述、目标选择，确认后入队
+  8. 技能详情（SkillDetailSheet）：底部弹窗展示完整技能信息；点击技能卡片时若 `description` 为空，自动触发 `MarketProvider.getDetail()` 二次请求获取描述和作者信息（Skills.sh 使用 `npx skills info`，ClawHub 使用 `npx clawhub info`），加载中显示 CircularProgressIndicator + "正在搜索..."，获取后合并更新 selectedSkill
+  9. 热门技能行（HotSkillRow）：首页展示热门推荐
+  10. NodeStatusBanner：Linux 环境状态提示（Unknown / Checking / Installing / Ready / Failed），`LinuxNotReadyException` 在搜索模式下也给用户提示
+  11. 错误处理统一：`doSearch` 和 `loadHotSkills` 统一使用 `searchAll`，错误通过 `providerErrors: List<MarketSearchError>` 暴露给 UI
+  12. UI 组件拆分：SkillStoreScreen 骨架 ~200 行 + 11 个独立组件（SearchBar / SourceTabRow / SortChipRow / ResultCard / HotSkillRow / InstallDialog / SkillDetailSheet / InstallQueuePanel / TargetToggle / NodeStatusBanner / EmptyState）
+  13. 技能卡片布局：技能名称独占一行作为主标题（titleMedium Bold），SourceBadge + "by 作者" + 分类标签在第二行，描述在第三行（为空时隐藏），统计行右对齐（星标数 + 下载次数；ClawHub 无下载次数时用 TrendingUp 图标显示 confidence 分数替代）
+  14. 安装反馈：InstallQueue 添加 Listener 回调接口，安装成功后自动刷新 installedIds 并通过 Snackbar 显示"技能名 安装成功"，失败时显示"技能名 安装失败: 原因"；安装成功后刷新技能列表标记已安装状态
+  15. 安装进度显示：技能卡片按钮区域显示安装状态（排队中/安装中+CircularProgressIndicator），安装中时卡片底部显示 LinearProgressIndicator；SkillStoreUiState 新增 installingIds 和 queuedIds 追踪安装队列状态
+  15.1 已安装徽章：ResultCard.kt 列表卡片标题右侧展示 18dp 绿色(0xFF2E7D32) Check 图标作为已安装状态徽章；SkillDetailSheet.kt 详情页底部按钮区当 isInstalled 时显示居中绿色 Check + "已安装" 文字标识，未安装时仍保留安装 OutlinedButton；均不再使用禁用态 OutlinedButton 表示已安装
+  16. 安装防重复点击：showInstallDialog 和 installSkill 检查技能是否已在安装队列中（QUEUED/INSTALLING），避免重复入队
+  17. 技能描述预缓存：搜索/热门技能加载后后台批量预取 description 为空的技能详情，存入内存 descriptionCache；打开详情时优先使用缓存命中，避免重复网络请求
+  18. NodeStatusBanner 位置：Banner 作为 LazyColumn 的第一个 item 显示在列表内，而非 Scaffold content padding 之外
+- **输入规则**：搜索关键词、Provider 选择、排序类型、安装目标
+- **输出结果**：技能安装/卸载，安装队列状态
 
 ### 插件界面
 
@@ -624,12 +640,14 @@
 
 ### 语言设置界面
 
-- **功能描述**：配置应用语言
+- **功能描述**：配置应用语言（中/英/日/韩四种语言），静态文字多语言适配
 - **交互逻辑**
-  1. 展示可用语言列表
-  2. 选择语言后重启应用生
+  1. 展示可用语言列表（中文、English、日本語、한국어）
+  2. 选择语言后重启应用生效
+  3. LanguageManager.kt P0 修复：SharedPreferences key 统一为 `hippy_settings/language`
+  4. 多语言适配现状：strings.xml 87 条已定义但零引用，UI 层 1423 行 + Core 层 1250 行硬编码中文待提取，缺 `values-ja` / `values-ko` 目录，预计 1100+ 条需提取
 - **输入规则**：语言选择
-- **输出结果**：语言切换
+- **输出结果**：语言切换，界面静态文字多语言适配
 
 ### 全局规则界面
 
@@ -1320,6 +1338,28 @@
   - **SpawnSubAgentTool**：派发并发子任务（tasks 参数含 prompt，不含 agent_id；从 ToolContext 获取当前智能体 ID）
   - **CheckSubAgentTasksTool**：检查子代理任务状态
   - **AggregateSubAgentResultsTool**：聚合子代理结果
+
+### 技能商店架构
+
+- **功能描述**：技能商店后端架构，MarketProvider 模式消除三市场重复代码，SkillManager Facade 拆分降低职责过重
+- **流程**
+  1. MarketProvider 接口定义：`key / label / source` 属性 + `available(): AvailabilityResult` + `search(query, page, pageSize): Result<SearchResult>` + `install(identifier): Result<String>` + `getDetail(identifier): Result<StoreSkillItem?>`（默认返回 null，Skills.sh/ClawHub 覆盖实现通过 CLI info 命令获取描述和作者）
+  2. 三个 Provider 实现：`LobeHubProvider` / `SkillsShProvider` / `ClawHubProvider`，各封装 CLI 命令和输出解析；Skills.sh 和 ClawHub 实现 `getDetail` 分别调用 `npx skills info` 和 `npx clawhub info`，解析 Description/Author 字段
+  3. SkillStoreService 精简为 Provider 驱动（198 行 → ~80 行）：`searchAll` 通过 `coroutineScope { async }` 并行搜索，错误隔离（单 Provider 失败返回 `MarketSearchError` 不中断其他）
+  4. SkillManager Facade 拆分（454 行 → ~100 行 Facade + 3 子模块）：
+     - `SkillIndexManager`：索引加载/保存/重建、清单解析、Frontmatter 解析（含 LRU 缓存）；`EXCLUDED_DIRS` 集中定义系统排除目录（`_config` 等），`listSkills()`/`rebuildIndex()`/`getSkill()` 统一引用，防止系统目录被误识别为技能
+     - `SkillInstaller`：Zip/URL 安装、卸载、启用/禁用、SHA-256 校验、安全扫描；卸载时检查 `SkillIndexManager.EXCLUDED_DIRS` 防止误删系统目录
+     - `SkillConfigManager`：配置读写、密钥存取
+  5. Facade 保持外部 API 签名不变，ToolModule Koin DI 无需修改
+  6. InstallQueue 安装队列：`QueueItem(id, skill, target, status, error)`，状态 QUEUED → INSTALLING → COMPLETED / FAILED / CANCELLED；串行执行 `runNext()`；支持 `cancel(id)` / `retry(id)` / `clearCompleted()`；Listener 回调接口通知安装成功/失败
+  7. StoreSkillItem 新增 `confidence: Float` 字段，ClawHub score 不再污染 `installCount`
+  8. NodeStatus 改为 sealed class（Unknown / Checking / Installing / Ready / Failed），替代原 String 类型
+  9. 诊断日志：`LobeHubProvider` / `SkillsShProvider` 的 search/install 调用 `Timber.tag("LobeHub")` / `Timber.tag("SkillsSh")` 记录 cmd 完整文本 / exitCode / outputLen / 退出码分支(-1 未就绪 / -2 超时 / -3 异常 / 非零) / 解析前 500 字节原始输出，便于用户用 `adb logcat | grep -E "LobeHub|SkillsSh"` 定位 npx 命令失败根因
+- **关键机制**
+  - Provider Pattern 消除三市场重复搜索/安装方法
+  - Facade Pattern 保持 SkillManager API 兼容
+  - 并行搜索 + 错误隔离
+  - 安装队列串行执行 + 协程取消支持
 
 ## 多智能体协作
 
@@ -2060,6 +2100,24 @@
 - **旧渠道清理**：启动时删除旧版 agent_message 渠道
 - **通知追踪**：activeSessionNotifications (ConcurrentHashMap) 追踪每个会话的通知 ID，进入前台时批量取消
 
+### 智能体消息三合一弹窗
+
+- **功能描述**：智能体消息抵达时，根据用户状态自动选择最合适的提示方式，模拟微信/企业微信/QQ 的弹窗体验
+- **触发策略**
+  1. App 在此会话前台 → 跳过（用户已看到）
+  2. App 在前台但不在此会话 → App 内顶部聊天气泡（6 秒自动消失，点击跳转到对应 sessionId）
+  3. App 在后台 / 锁屏 → 系统通知 IMPORTANCE_HIGH 自动产生 Heads-up 顶部滑动横幅
+  4. App 在锁屏 → 系统通知 setFullScreenIntent 拉起 LockScreenMessageActivity 全屏卡片（半透明背景+消息卡），用户点击进入对应会话
+- **关键组件**
+  - InAppMessageBus：SharedFlow<InAppMessage> 事件总线（replay=0, buffer=4, DROP_OLDEST）
+  - InAppMessageBubbleHost：MainActivity 顶层 Box 嵌入的 Composable，订阅 InAppMessageBus.events，AnimatedVisibility(slideInVertically + fadeIn) 显示深色聊天气泡
+  - LockScreenMessageActivity：ComponentActivity，setShowWhenLocked + setTurnScreenOn + requestDismissKeyguard 拉起覆盖锁屏的 Compose 卡片
+  - ForegroundSessionTracker 新增 isAppForegroundFlow: StateFlow<Boolean> 供通知服务查询 App 前后台状态
+- **权限处理**
+  - AndroidManifest 添加 USE_FULL_SCREEN_INTENT 权限 + LockScreenMessageActivity 配置 showWhenLocked + turnScreenOn + showOnLockScreen + singleInstance + excludeFromRecents + taskAffinity=""
+  - Android 14+ 调用 NotificationManager.canUseFullScreenIntent() 动态检测，权限不足时回退到普通 Heads-up（不拉全屏）
+- **关键机制**：NotificationCompat.setFullScreenIntent(pendingIntent, highPriority=true) + WindowManager showWhenLocked + SharedFlow 事件分发
+
 ### 通知弹窗服务
 
 - **功能描述**：智能体发送通知时，在屏幕顶部弹出悬浮窗显示通知内容，可在其他应用上方显
@@ -2310,6 +2368,18 @@
   3. 全局启用层已启用则允许加载，否则返回错误提示
 - **输入规则**：技能 ID
 - **输出结果**：技能加载成功或错误提示
+
+### 技能可用性：profile.skills 显式 + 池中隐式触发
+
+- **功能描述**：智能体在 prompt 中仅展示 `profile.skills` 显式绑定的技能（安全），但技能池中（用户从商店安装但未绑定）的技能仍可通过 `SkillTriggerResolver` 的触发词/场景/扩展名匹配被发现，并注入到 `<skill_triggers>` 段供 LLM 使用
+- **交互逻辑**
+  1. `buildSkillInfoList` 与 `buildProgressiveCatalogText` 仅迭代 `profile.skills`，避免 prompt 被未授权技能淹没
+  2. `SkillTriggerResolver.resolve(userInput, enabledSkillIds)` 扫描范围 = `enabledSkillIds ∪ index.skills.keys`（去重）
+  3. 用户从技能商店安装新技能 → `InstallQueue.installOne` 调用 `skillManager.indexManager.rebuildIndex()`（不是仅 `invalidate()`），保证索引文件立即包含新技能
+  4. 用户输入匹配池中技能触发词/场景/扩展名 → 技能被 `resolveTriggeredSkills` 选中 → 通过 `<skill_triggers>` 段注入 prompt
+  5. 显式绑定入口：AgentSkillScreen 列出所有池+工作区技能，用户可手动开启
+- **输入规则**：用户消息文本；技能索引由 `SkillIndexManager` 维护
+- **输出结果**：命中技能注入到 `PromptContext.resolvedSkills` → `<skill_triggers>` 段；未命中则仅展示 `profile.skills`
 
 ### 非 Plan 模式计划显示保留
 

@@ -15,6 +15,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
+import com.lin.hippyagent.core.pool.ByteArrayOutputStreamPool
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicReference
@@ -25,7 +26,8 @@ class LiteRTLMTranscriber(
     private val serviceScope: CoroutineScope,
 ) {
     private var audioRecord: AudioRecord? = null
-    private var recordingBuffer = ByteArrayOutputStream()
+    private val baosPool = ByteArrayOutputStreamPool(initialBufferSize = 64 * 1024, maxSize = 2)
+    private var recordingBuffer: ByteArrayOutputStream? = null
     private var listeningJob: Job? = null
     private var timeoutJob: Job? = null
     private val currentCallback = AtomicReference<SttCallback?>(null)
@@ -58,16 +60,17 @@ class LiteRTLMTranscriber(
             return
         }
 
-        recordingBuffer.reset()
+        recordingBuffer = baosPool.acquire()
         audioRecord?.startRecording()
 
         listeningJob = serviceScope.launch {
             val data = ByteArray(bufferSize)
+            val buffer = recordingBuffer ?: return@launch
             while (coroutineContext.isActive) {
                 val read = audioRecord?.read(data, 0, data.size) ?: break
                 if (read > 0) {
-                    if (recordingBuffer.size() + read <= MAX_RECORDING_BYTES) {
-                        recordingBuffer.write(data, 0, read)
+                    if (buffer.size() + read <= MAX_RECORDING_BYTES) {
+                        buffer.write(data, 0, read)
                     } else {
                         break
                     }
@@ -107,8 +110,15 @@ class LiteRTLMTranscriber(
     }
 
     private suspend fun doTranscribe() = supervisorScope {
-        val pcmBytes = recordingBuffer.toByteArray()
-        recordingBuffer.reset()
+        val buffer = recordingBuffer
+        recordingBuffer = null
+        val pcmBytes = if (buffer != null) {
+            val bytes = buffer.toByteArray()
+            baosPool.release(buffer)
+            bytes
+        } else {
+            ByteArray(0)
+        }
 
         if (pcmBytes.isEmpty()) {
             withContext(Dispatchers.Main) {
@@ -148,7 +158,8 @@ class LiteRTLMTranscriber(
             }
         }
         audioRecord = null
-        recordingBuffer.reset()
+        recordingBuffer?.let { baosPool.release(it) }
+        recordingBuffer = null
         currentCallback.set(null)
     }
 

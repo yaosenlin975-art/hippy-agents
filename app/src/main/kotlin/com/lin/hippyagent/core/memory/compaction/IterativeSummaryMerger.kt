@@ -1,7 +1,8 @@
-﻿package com.lin.hippyagent.core.memory.compaction
+package com.lin.hippyagent.core.memory.compaction
 
 import com.lin.hippyagent.core.agent.session.MessageRole
 import com.lin.hippyagent.core.agent.session.SessionMessage
+import com.lin.hippyagent.core.pool.StringBuilderPool
 import timber.log.Timber
 
 /**
@@ -11,6 +12,7 @@ import timber.log.Timber
 class IterativeSummaryMerger(
     private val maxSummaryTokens: Int = 2000
 ) {
+    private val sbPool = StringBuilderPool()
 
     /**
      * 将已有压缩摘要与新消息迭代合并。
@@ -96,10 +98,9 @@ class IterativeSummaryMerger(
     /**
      * 解析摘要中的结构化段落。
      */
-    private fun parseSections(summary: String): MutableMap<String, String> {
+    private fun parseSections(summary: String): MutableMap<String, String> = sbPool.use { currentContent ->
         val sections = linkedMapOf<String, String>()
         var currentKey = "general"
-        val currentContent = StringBuilder()
 
         for (line in summary.lines()) {
             val trimmed = line.trim()
@@ -130,7 +131,7 @@ class IterativeSummaryMerger(
             sections[currentKey] = currentContent.toString().trim()
         }
 
-        return sections
+        sections
     }
 
     /**
@@ -188,7 +189,7 @@ class IterativeSummaryMerger(
                 val maxSectionChars = maxSectionTokens * 4
                 val combined = "$existingValue\n$value"
                 merged[key] = if (combined.length > maxSectionChars) {
-                    combined.take(maxSectionChars) + "\n..."
+                    buildString { append(combined.take(maxSectionChars)); append("\n...") }
                 } else {
                     combined
                 }
@@ -210,9 +211,8 @@ class IterativeSummaryMerger(
     /**
      * 截断摘要到 token 预算内。
      */
-    private fun truncateToBudget(sections: Map<String, String>): String {
-        val budget = maxSummaryTokens * 4 // 粗略按 1 token ≈ 4 chars 估算
-        val result = StringBuilder()
+    private fun truncateToBudget(sections: Map<String, String>): String = sbPool.use { result ->
+        val budget = maxSummaryTokens * 4
         var currentLength = 0
 
         for ((key, value) in sections) {
@@ -232,7 +232,7 @@ class IterativeSummaryMerger(
             currentLength += header.length + value.length + 2
         }
 
-        return result.toString().trim()
+        result.toString().trim()
     }
 
     /**
@@ -253,8 +253,7 @@ class IterativeSummaryMerger(
     /**
      * 简单摘要：将消息列表压缩为摘要文本。
      */
-    private fun summarizeMessages(messages: List<SessionMessage>): String {
-        val sb = StringBuilder()
+    private fun summarizeMessages(messages: List<SessionMessage>): String = sbPool.use { sb ->
         sb.appendLine("## 对话摘要")
 
         val userMessages = messages.filter { it.role == MessageRole.USER }
@@ -275,7 +274,7 @@ class IterativeSummaryMerger(
         sb.appendLine("- 用户消息: ${userMessages.size}")
         sb.appendLine("- 助手消息: ${assistantMessages.size}")
 
-        return sb.toString()
+        sb.toString()
     }
 
     /**

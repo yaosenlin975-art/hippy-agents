@@ -164,7 +164,7 @@ val agentModule = module {
 
     single { SubAgentOrchestrator(jobQueue = get(), dao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().hippyJobDao(), aggregator = get()) }
 
-    single { HeartbeatScheduler(agentFactory = get(), sessionStore = get(), storageManager = get()) }
+    single { HeartbeatScheduler(agentFactory = get(), sessionStore = get(), storageManager = get(), agentGroupManager = getOrNull()) }
 
     single { CronJobManager(context = androidContext(), agentFactory = get(), sessionStore = get()) }
 

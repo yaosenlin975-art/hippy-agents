@@ -208,10 +208,14 @@ fun AgentTurnCard(
             }
 
             if (showProcessHeader && groupProcessStepCount > 0) {
+                val headerStats = remember(turn.elements, turn.metadata?.latencyMs) {
+                    computeTurnProcessStats(turn)
+                }
                 ProcessDrawer(
                     stepCount = groupProcessStepCount,
                     isExpanded = true,
-                    onToggleExpand = onExpandGroup
+                    onToggleExpand = onExpandGroup,
+                    stats = headerStats
                 )
             }
 
@@ -320,10 +324,14 @@ fun AgentTurnCard(
                 val allGroupTurns = collapsedGroupTurns + listOf(turn)
                 val legacyStepCount = allGroupTurns.size
                 if (legacyStepCount > 0) {
+                    val collapseStats = remember(allGroupTurns) {
+                        aggregateTurnProcessStats(allGroupTurns)
+                    }
                     ProcessDrawer(
                         stepCount = legacyStepCount,
                         isExpanded = false,
-                        onToggleExpand = onExpandGroup
+                        onToggleExpand = onExpandGroup,
+                        stats = collapseStats
                     )
                 }
             }
@@ -547,6 +555,7 @@ private fun ProcessDrawer(
     stepCount: Int,
     isExpanded: Boolean,
     onToggleExpand: () -> Unit,
+    stats: TurnProcessStats? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -575,7 +584,18 @@ private fun ProcessDrawer(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.chat_step_process, stepCount),
+                        text = if (stats != null) {
+                            stringResource(
+                                R.string.chat_step_process_stats,
+                                stepCount,
+                                stats.thinkingCount,
+                                stats.toolCount,
+                                stats.messageCount,
+                                stats.durationSec
+                            )
+                        } else {
+                            stringResource(R.string.chat_step_process, stepCount)
+                        },
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
@@ -584,6 +604,39 @@ private fun ProcessDrawer(
             }
         }
     }
+}
+
+@Immutable
+data class TurnProcessStats(
+    val thinkingCount: Int,
+    val toolCount: Int,
+    val messageCount: Int,
+    val durationSec: Int
+)
+
+private fun computeTurnProcessStats(turn: ChatTurn.AgentTurn): TurnProcessStats {
+    val thinkingCount = turn.elements.count { it is TurnElement.ThinkingSegment }
+    val toolCount = turn.elements.count { it is TurnElement.ToolCallSegment }
+    val textSegments = turn.elements.filterIsInstance<TurnElement.TextSegment>()
+    val messageCount = (textSegments.size - 1).coerceAtLeast(0)
+    val durationSec = ((turn.metadata?.latencyMs ?: 0L) / 1000L).toInt()
+    return TurnProcessStats(thinkingCount, toolCount, messageCount, durationSec)
+}
+
+private fun aggregateTurnProcessStats(turns: List<ChatTurn.AgentTurn>): TurnProcessStats {
+    if (turns.isEmpty()) return TurnProcessStats(0, 0, 0, 0)
+    var thinking = 0
+    var tool = 0
+    var message = 0
+    var durationMs = 0L
+    for (t in turns) {
+        val s = computeTurnProcessStats(t)
+        thinking += s.thinkingCount
+        tool += s.toolCount
+        message += s.messageCount
+        durationMs += (t.metadata?.latencyMs ?: 0L)
+    }
+    return TurnProcessStats(thinking, tool, message, (durationMs / 1000L).toInt())
 }
 
 @Composable

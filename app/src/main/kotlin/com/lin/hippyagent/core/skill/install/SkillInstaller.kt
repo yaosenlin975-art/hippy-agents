@@ -90,6 +90,7 @@ class SkillInstaller(
 
     fun uninstallSkill(skillId: String): Result<Unit> {
         require(skillId !in PROTECTED_SKILLS) { "Cannot uninstall protected skill: $skillId" }
+        require(skillId !in SkillIndexManager.EXCLUDED_DIRS) { "Cannot uninstall system directory: $skillId" }
         val skillDir = skillsDir.resolve(skillId)
         if (!skillDir.exists()) {
             return Result.failure(IllegalArgumentException("Skill not found: $skillId"))
@@ -103,6 +104,7 @@ class SkillInstaller(
     }
 
     fun enableSkill(skillId: String): Result<Unit> {
+        if (skillId in SkillIndexManager.EXCLUDED_DIRS) return Result.failure(IllegalArgumentException("Cannot operate on system directory: $skillId"))
         val skillDir = skillsDir.resolve(skillId)
         if (!skillDir.exists()) {
             return Result.failure(IllegalArgumentException("Skill not found: $skillId"))
@@ -117,6 +119,7 @@ class SkillInstaller(
     }
 
     fun disableSkill(skillId: String): Result<Unit> {
+        if (skillId in SkillIndexManager.EXCLUDED_DIRS) return Result.failure(IllegalArgumentException("Cannot operate on system directory: $skillId"))
         val skillDir = skillsDir.resolve(skillId)
         if (!skillDir.exists()) {
             return Result.failure(IllegalArgumentException("Skill not found: $skillId"))

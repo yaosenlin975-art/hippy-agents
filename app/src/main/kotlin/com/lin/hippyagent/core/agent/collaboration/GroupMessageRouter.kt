@@ -6,7 +6,8 @@ data class RouteResult(
     val deliverToAgents: List<String>,
     val visibleToUser: Boolean = true,
     val rejectedTargets: List<RejectedTarget> = emptyList(),
-    val mentionPaths: Map<String, MentionPath> = emptyMap()
+    val mentionPaths: Map<String, MentionPath> = emptyMap(),
+    val rawMentions: List<String> = emptyList()
 )
 
 class GroupMessageRouter(
@@ -43,7 +44,8 @@ class GroupMessageRouter(
                 deliverToAgents = deliverToAgents,
                 visibleToUser = true,
                 rejectedTargets = rejectedTargets,
-                mentionPaths = mentionPaths
+                mentionPaths = mentionPaths,
+                rawMentions = mentions
             )
         }
 
@@ -64,7 +66,8 @@ class GroupMessageRouter(
 
         return RouteResult(
             deliverToAgents = targetAgents,
-            visibleToUser = true
+            visibleToUser = true,
+            rawMentions = mentions
         )
     }
 
@@ -82,7 +85,7 @@ class GroupMessageRouter(
                 val queuedMessage = QueuedMessage(
                     senderId = message.agentId,
                     content = message.content,
-                    mentions = mentionParser.parse(message.content),
+                    mentions = routeResult.rawMentions,
                     timestamp = message.timestamp,
                     senderIsUser = message.senderIsUser
                 )
