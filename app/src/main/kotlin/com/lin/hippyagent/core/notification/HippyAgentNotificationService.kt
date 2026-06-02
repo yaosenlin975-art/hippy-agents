@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.lin.hippyagent.R
+import com.lin.hippyagent.ui.MainActivity
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 

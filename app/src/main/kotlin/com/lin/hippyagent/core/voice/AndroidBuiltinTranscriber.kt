@@ -1,10 +1,8 @@
 package com.lin.hippyagent.core.voice
 
 import android.content.Context
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Process
 import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
 import android.Manifest
@@ -20,7 +18,11 @@ import timber.log.Timber
  * 已知问题：在 MIUI/HyperOS 设备上 grantPermission 后 SpeechRecognizer
  * 仍可能返回 ERROR_INSUFFICIENT_PERMISSIONS（error 9），因为 HyperOS 的
  * SpeechRecognizer 实现使用了与 AudioRecord 不同的权限检查路径。
- * AudioRecord warmup 无法修复此问题。
+ *
+ * 解决：在 RECORD_AUDIO 权限授权回调中调用 [notifyAppOps]，
+ * 通过反射将 AppOpsManager 的 OP_RECORD_AUDIO 设为 MODE_ALLOWED，
+ * 让厂商 SpeechRecognizer 服务端的权限校验通过。
+ * 若仍报 ERROR_INSUFFICIENT_PERMISSIONS，提示用户在系统设置中手动开关一次麦克风权限。
  *
  * 调用方应检测此错误并回退到 AudioRecord 录音 + 端侧转录。
  */
@@ -28,42 +30,6 @@ class AndroidBuiltinTranscriber(
     private val context: Context
 ) {
     companion object {
-        /**
-         * 通过短暂使用麦克风来尝试同步 AppOpsManager 的 RECORD_AUDIO 条目。
-         *
-         * 注意：在 HyperOS 上此方法可能无法解决 SpeechRecognizer 的权限问题，
-         * 因为两者使用不同的权限检查路径。保留此方法用于旧版 MIUI 兼容。
-         */
-        fun warmupAppOps(context: Context) {
-            if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) return
-            try {
-                val sampleRate = 16000
-                val channelConfig = AudioFormat.CHANNEL_IN_MONO
-                val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-                val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-                if (bufferSize <= 0) return
-
-                val recorder = AudioRecord(
-                    MediaRecorder.AudioSource.MIC,
-                    sampleRate, channelConfig, audioFormat, bufferSize
-                )
-                if (recorder.state != AudioRecord.STATE_INITIALIZED) {
-                    recorder.release()
-                    return
-                }
-                recorder.startRecording()
-                val buf = ByteArray(minOf(bufferSize, 256))
-                recorder.read(buf, 0, buf.size)
-                recorder.stop()
-                recorder.release()
-                Timber.d("AndroidBuiltinTranscriber: AppOps warmup via AudioRecord succeeded")
-            } catch (e: Exception) {
-                Timber.w(e, "AndroidBuiltinTranscriber: AppOps warmup failed (non-critical)")
-            }
-        }
-
         /**
          * 通过反射调用 AppOpsManager.setMode() 强制将 OP_RECORD_AUDIO 设为 MODE_ALLOWED。
          * 用于解决 MIUI/HyperOS 设备上 checkSelfPermission(RECORD_AUDIO) 已 GRANTED
@@ -78,27 +44,36 @@ class AndroidBuiltinTranscriber(
             try {
                 val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) ?: return
                 val appOpsClass = appOpsManager.javaClass
-                val opRecordAudio = appOpsClass.getDeclaredField("OP_RECORD_AUDIO").getInt(null)
-                val modeAllowed = appOpsClass.getDeclaredField("MODE_ALLOWED").getInt(null)
-                val setModeMethod = appOpsClass.getMethod(
-                    "setMode",
-                    Int::class.javaPrimitiveType,
-                    Int::class.javaPrimitiveType,
-                    String::class.java,
-                    Int::class.javaPrimitiveType
-                )
-                setModeMethod.invoke(
-                    appOpsManager,
-                    opRecordAudio,
-                    android.os.Process.myUid(),
-                    context.packageName,
-                    modeAllowed
-                )
-                Timber.i("AndroidBuiltinTranscriber: AppOps setMode(OP_RECORD_AUDIO=$opRecordAudio, MODE_ALLOWED=$modeAllowed) succeeded for ${context.packageName}")
+                var resolved = resolvedOpsReflection
+                if (resolved == null) {
+                    resolved = try {
+                        val op = appOpsClass.getDeclaredField("OP_RECORD_AUDIO").getInt(null)
+                        val mode = appOpsClass.getDeclaredField("MODE_ALLOWED").getInt(null)
+                        val method = appOpsClass.getMethod(
+                            "setMode",
+                            Int::class.javaPrimitiveType,
+                            Int::class.javaPrimitiveType,
+                            String::class.java,
+                            Int::class.javaPrimitiveType
+                        )
+                        Triple(op, mode, method)
+                    } catch (e: Exception) {
+                        Timber.w(e, "AndroidBuiltinTranscriber: AppOps reflection resolve failed (non-critical)")
+                        null
+                    }
+                    resolvedOpsReflection = resolved
+                }
+                if (resolved == null) return
+                val (op, mode, method) = resolved
+                method.invoke(appOpsManager, op, Process.myUid(), context.packageName, mode)
+                Timber.i("AndroidBuiltinTranscriber: AppOps setMode(OP_RECORD_AUDIO=$op, MODE_ALLOWED=$mode) succeeded for ${context.packageName}")
             } catch (e: Exception) {
-                Timber.w(e, "AndroidBuiltinTranscriber: AppOps setMode reflection failed (non-critical)")
+                Timber.w(e, "AndroidBuiltinTranscriber: AppOps setMode invoke failed (non-critical)")
             }
         }
+
+        @Volatile
+        private var resolvedOpsReflection: Triple<Int, Int, java.lang.reflect.Method>? = null
     }
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -235,20 +210,15 @@ class AndroidBuiltinTranscriber(
     private fun isMiuiOrHyperOs(): Boolean = _isMiuiOrHyperOs
 
     private val _isMiuiOrHyperOs: Boolean by lazy {
-        try {
-            val clazz = Class.forName("android.os.SystemProperties")
-            val get = clazz.getMethod("get", String::class.java, String::class.java)
-            val miuiVersion = get.invoke(null, "ro.miui.ui.version.name", "") as String
-            miuiVersion.isNotEmpty()
-        } catch (_: Exception) {
-            try {
-                val clazz = Class.forName("android.os.SystemProperties")
-                val get = clazz.getMethod("get", String::class.java, String::class.java)
-                val prop = get.invoke(null, "ro.miui.ui.version.code", "") as String
-                prop.isNotEmpty()
-            } catch (_: Exception) {
-                false
-            }
-        }
+        readSystemProperty("ro.miui.ui.version.name")?.isNotEmpty() == true ||
+            readSystemProperty("ro.miui.ui.version.code")?.isNotEmpty() == true
+    }
+
+    private fun readSystemProperty(name: String): String? = try {
+        val clazz = Class.forName("android.os.SystemProperties")
+        val get = clazz.getMethod("get", String::class.java, String::class.java)
+        get.invoke(null, name, "") as? String
+    } catch (_: Exception) {
+        null
     }
 }

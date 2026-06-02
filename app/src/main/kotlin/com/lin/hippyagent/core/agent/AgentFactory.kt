@@ -179,7 +179,9 @@ class AgentFactory(
                         return reloadAgent(agentId)
                     }
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Timber.w(e, "needsReload check failed for $agentId, fallback to cached")
+            }
             return cached
         }
 

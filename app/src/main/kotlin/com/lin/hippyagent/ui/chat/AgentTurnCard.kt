@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -189,8 +190,8 @@ fun AgentTurnCard(
             }
 
             if (collapseProcess && !isGroupChat) {
-                val allGroupTurns = collapsedGroupTurns + listOf(turn)
-                val processStepCount = remember(allGroupTurns) {
+                val processStepCount = remember(turn.id, collapsedGroupTurns.size) {
+                    val allGroupTurns = collapsedGroupTurns + listOf(turn)
                     allGroupTurns.sumOf { t ->
                         t.elements.count { it is TurnElement.ThinkingSegment || it is TurnElement.ToolCallSegment }
                     } + allGroupTurns.sumOf { t ->
@@ -321,11 +322,10 @@ fun AgentTurnCard(
                 )
             }
             if (collapseProcess && !isGroupChat) {
-                val allGroupTurns = collapsedGroupTurns + listOf(turn)
-                val legacyStepCount = allGroupTurns.size
+                val legacyStepCount = collapsedGroupTurns.size + 1
                 if (legacyStepCount > 0) {
-                    val collapseStats = remember(allGroupTurns) {
-                        aggregateTurnProcessStats(allGroupTurns)
+                    val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
+                        aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
                     }
                     ProcessDrawer(
                         stepCount = legacyStepCount,

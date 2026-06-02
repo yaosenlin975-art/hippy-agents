@@ -112,6 +112,7 @@ class InstallQueue(
                 SkillSource.LOBEHUB -> "lobehub"
                 SkillSource.SKILLS_SH -> "skills_sh"
                 SkillSource.CLAWHUB -> "clawhub"
+                SkillSource.SKILLHUB -> "clawhub"
             }
             val result = storeService.install(providerKey, item.skill.identifier)
             result.onSuccess {

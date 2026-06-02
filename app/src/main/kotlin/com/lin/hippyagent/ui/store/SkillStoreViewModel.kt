@@ -174,12 +174,7 @@ class SkillStoreViewModel(
             return
         }
         viewModelScope.launch {
-            val providerKey = when (skill.source) {
-                SkillSource.LOBEHUB -> "lobehub"
-                SkillSource.SKILLS_SH -> "skills_sh"
-                SkillSource.CLAWHUB -> "clawhub"
-                SkillSource.SKILLHUB -> "skillhub"
-            }
+            val providerKey = providerKeyFor(skill.source)
             storeService.getDetail(providerKey, skill.identifier).onSuccess { detail ->
                 if (detail != null && _uiState.value.selectedSkill?.identifier == skill.identifier) {
                     val merged = skill.copy(
@@ -271,13 +266,7 @@ class SkillStoreViewModel(
             try {
                 val source = state.activeSource
                 val keys = _selectedProviderKeys.value
-                val filteredKeys = when (source) {
-                    SkillSource.LOBEHUB -> keys intersect setOf("lobehub")
-                    SkillSource.SKILLS_SH -> keys intersect setOf("skills_sh")
-                    SkillSource.CLAWHUB -> keys intersect setOf("clawhub")
-                    SkillSource.SKILLHUB -> keys intersect setOf("skillhub")
-                    null -> keys
-                }
+                val filteredKeys = keysFor(source, keys)
                 val result = storeService.searchAll("popular", filteredKeys)
                 val errors = result.errors.map { MarketSearchError(it.provider, it.message) }
                 val all = result.results.sortedByDescending { it.installCount }
@@ -375,12 +364,7 @@ class SkillStoreViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             skills.filter { it.description.isBlank() }.forEach { skill ->
                 if (descriptionCache.containsKey(skill.identifier)) return@forEach
-                val providerKey = when (skill.source) {
-                    SkillSource.LOBEHUB -> "lobehub"
-                    SkillSource.SKILLS_SH -> "skills_sh"
-                    SkillSource.CLAWHUB -> "clawhub"
-                    SkillSource.SKILLHUB -> "skillhub"
-                }
+                val providerKey = providerKeyFor(skill.source)
                 runCatching {
                     storeService.getDetail(providerKey, skill.identifier).onSuccess { detail ->
                         if (detail != null) {
@@ -415,6 +399,23 @@ class SkillStoreViewModel(
             viewModelScope.launch { doSearch(query) }
         } else {
             loadHotSkills()
+        }
+    }
+
+    companion object {
+        private fun providerKeyFor(source: SkillSource): String = when (source) {
+            SkillSource.LOBEHUB -> "lobehub"
+            SkillSource.SKILLS_SH -> "skills_sh"
+            SkillSource.CLAWHUB -> "clawhub"
+            SkillSource.SKILLHUB -> "skillhub"
+        }
+
+        private fun keysFor(source: SkillSource?, keys: Set<String>): Set<String> = when (source) {
+            SkillSource.LOBEHUB -> keys intersect setOf("lobehub")
+            SkillSource.SKILLS_SH -> keys intersect setOf("skills_sh")
+            SkillSource.CLAWHUB -> keys intersect setOf("clawhub")
+            SkillSource.SKILLHUB -> keys intersect setOf("skillhub")
+            null -> keys
         }
     }
 }

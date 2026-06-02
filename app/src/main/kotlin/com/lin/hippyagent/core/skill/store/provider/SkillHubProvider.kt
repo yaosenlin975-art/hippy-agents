@@ -96,8 +96,8 @@ class SkillHubProvider(
                     val description = doc.selectFirst("meta[name=description]")?.attr("content")?.trim()
                         ?: doc.selectFirst("article p, .skill-content p, main p")?.text()?.trim()
                         ?: ""
-                    val version = VERSION_REGEX.find(doc.text())?.groupValues?.get(1).orEmpty()
-                    val (installCount, rating) = parseMetrics(doc.text())
+                    val version = extractVersion(doc)
+                    val (installCount, rating) = parseMetrics(extractMetricsText(doc))
                     StoreSkillItem(
                         identifier = identifier,
                         name = name,
@@ -109,7 +109,7 @@ class SkillHubProvider(
                         rating = rating,
                         version = version,
                         detailUrl = url,
-                        installCommand = "clawdhub install $identifier"
+                        installCommand = "npx -y clawhub install $identifier"
                     )
                 }
             }.onFailure { e ->
@@ -150,7 +150,7 @@ class SkillHubProvider(
                         installCount = installCount,
                         rating = rating,
                         detailUrl = "https://skillhub.cn$href",
-                        installCommand = "clawdhub install $slug"
+                        installCommand = "npx -y clawhub install $slug"
                     )
                 )
             }
@@ -185,15 +185,27 @@ class SkillHubProvider(
         return downloads to rating
     }
 
+    private fun extractVersion(doc: Element): String {
+        val meta = doc.selectFirst(".skill-meta, .skill-info, .metadata, aside") ?: return ""
+        return VERSION_REGEX.find(meta.text())?.groupValues?.get(1).orEmpty()
+    }
+
+    private fun extractMetricsText(doc: Element): String {
+        val meta = doc.selectFirst(".skill-meta, .skill-info, .metadata, aside, .skill-stats")
+        return meta?.text() ?: doc.text()
+    }
+
     private fun parseCount(raw: String): Long {
         val cleaned = raw.replace(",", "").trim()
-        val num = cleaned.toDoubleOrNull() ?: return 0L
+        if (cleaned.isEmpty()) return 0L
         val unit = cleaned.last().lowercaseChar()
+        val numStr = if (unit in "kmw") cleaned.dropLast(1) else cleaned
+        val num = numStr.toDoubleOrNull() ?: return 0L
         return when (unit) {
             'k' -> (num * 1_000).toLong()
             'm' -> (num * 1_000_000).toLong()
             'w' -> (num * 10_000).toLong()
-            else -> cleaned.toLongOrNull() ?: 0L
+            else -> num.toLong()
         }
     }
 
@@ -210,8 +222,8 @@ class SkillHubProvider(
 
     companion object {
         private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 HippyAgent/1.0"
-        private val DOWNLOAD_REGEX = Regex("([0-9]+(?:\\.[0-9]+)?[KMkmwW]?)\\s*下载")
-        private val RATING_REGEX = Regex("([0-9]\\.[0-9])\\s*(?:AI 评分|评分)")
+        private val DOWNLOAD_REGEX = Regex("([0-9][0-9,]*(?:\\.[0-9]+)?[KMkmwW]?)\\s*下载")
+        private val RATING_REGEX = Regex("(?<![0-9.])([0-9](?:\\.[0-9]+)?)\\s*(?:AI 评分|评分)")
         private val AUTHOR_REGEX = Regex("作者是\\s*(\\S+)|作者[：:]\\s*(\\S+)")
         private val VERSION_REGEX = Regex("V\\s*([0-9]+\\.[0-9]+\\.[0-9]+)")
     }
