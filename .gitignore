@@ -49,3 +49,6 @@ gradle.properties
 /gradle
 gradlew
 gradlew.bat
+docs/design.md.bak
+/docs/researchs
+docs/RELEASE_NOTES.md

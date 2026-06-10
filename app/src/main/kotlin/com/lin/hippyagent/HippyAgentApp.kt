@@ -131,6 +131,13 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
             modules(appModule)
         }
 
+        // 调度每日清理 7 天前 tool_approval 临时 task
+        // 必须在 startKoin 之后调用, 因为 Configuration.Provider 内部 get<WorkerFactory>()
+        // 首次访问 WorkManager 才触发初始化, 此时 Koin 已就绪
+        com.lin.hippyagent.core.security.ToolApprovalCleanupWorker.schedule(
+            androidx.work.WorkManager.getInstance(this)
+        )
+
         // ══════ 阶段 2：有序关键初始化（串行，确保依赖满足） ══════
         appScope.launch {
             try {
@@ -221,6 +228,32 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
                             agentId = pending.agentId,
                             severity = severity,
                             findingsSummary = findingsSummary
+                        )
+                    }
+                }
+            }
+        }
+
+        // 3b-2. 任务内审批请求通知 (source='task', 由 TaskExecutionEngine 触发)
+        appScope.launch {
+            val appDatabase = get<com.lin.hippyagent.core.agent.session.AppDatabase>()
+            val taskDao = appDatabase.taskDao()
+            val notificationService = get<HippyAgentNotificationService>()
+            val notifiedTaskIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+            taskDao.observeByStatusAndSource(
+                status = com.lin.hippyagent.core.agent.task.TaskStatus.AWAITING_APPROVAL,
+                source = "task"
+            ).collect { taskList ->
+                // 清理已不在 AWAITING_APPROVAL 的 ID, 防止 Set 无限增长
+                notifiedTaskIds.retainAll(taskList.map { it.id }.toSet())
+                for (task in taskList) {
+                    if (notifiedTaskIds.add(task.id) && !isAppInForeground) {
+                        val node = task.approvalNodes.firstOrNull()
+                        val prompt = node?.prompt.orEmpty()
+                        notificationService.sendTaskApprovalNotification(
+                            taskId = task.id,
+                            title = task.title,
+                            prompt = prompt
                         )
                     }
                 }

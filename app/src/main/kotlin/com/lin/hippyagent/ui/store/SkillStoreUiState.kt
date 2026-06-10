@@ -49,3 +49,11 @@ enum class SortType(@StringRes val displayNameRes: Int) {
     RATING(R.string.store_sort_rating),
     INSTALLS(R.string.store_sort_installs)
 }
+
+@Immutable
+data class ProviderStatus(
+    val providerId: String,
+    val available: Boolean,
+    val displayName: String,
+    val lastError: String? = null
+)

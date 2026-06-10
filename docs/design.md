@@ -1,6 +1,6 @@
 # HippyAgent 设计文档
 
-> 项目：HippyAgent Android 平台 AI 智能体应
+> 项目：HippyAgent Android 平台 AI 智能体应用
 > 架构：MVVM + Clean Architecture | Koin DI | Room | Jetpack Compose | Kotlin Coroutines
 > 包名：com.lin.hippyagent
 
@@ -8,14 +8,14 @@
 
 # 界面
 
-## 聊天与会
+## 聊天与会话
 
-### 聊天主界
+### 聊天主界面
 
-- **功能描述**：用户与 AI Agent 的核心交互界面，支持流式消息展示、工具调用可视化、思考过程展
+- **功能描述**：用户与 AI Agent 的核心交互界面，支持流式消息展示、工具调用可视化、思考过程展示
 - **交互逻辑**
   1. 用户在输入栏输入文本/语音，发送后进入 Agent 处理循环
-  2. Agent 回复以流式方式逐字渲染，支Markdown 渲染；sanitizeMarkdown 处理流式场景下未闭合的代码块（反引号奇数补全、三反引号奇数补闭合）
+  2. Agent 回复以流式方式逐字渲染，支持 Markdown 渲染；sanitizeMarkdown 处理流式场景下未闭合的代码块（反引号奇数补全、三反引号奇数补闭合）
   3. 工具调用以卡片形式展示（名称、参数、状态、结果），可展开/折叠；参数和结果内容使用统一的 Surface 卡片容器（surfaceVariant 半透明底色 + RoundedCornerShape(6.dp) + 6.dp 内边距），相同排版（11.sp Monospace + lineHeight 14.sp + maxLines 无限）；工具参数为空或仅为空 JSON 对象 {} 时不显示参数栏；工具开始执行时自动展开，执行完成后延迟 800ms 自动折叠（FAILED 不自动折叠）；Turn 结束后强制折叠所有 tool，不受用户手动展开影响；FAILED 工具折叠时在摘要下方显示失败原因首行预览（⚠ 前缀，error 色，最多 40 字符）；工具执行异常时 catch 块返回 ToolResult(success=false, error="工具执行异常: ...")，确保失败原因不丢失；resultText 使用 takeIf { it.isNotBlank() } 防止空字符串覆盖 error 信息；工具复制操作（长按菜单复制参数/结果/参数和结果，以及复制图标按钮）均会在剪贴板内容前添加【工具名】前缀
   4. 文件工具调用采用紧凑卡片样式
      - read_file：前缀 + 文件+ 斜体路径，失败时下方显示 原因
@@ -23,19 +23,19 @@
      - append_file：前缀 + 文件+ 斜体路径，结果直接显示追加内容（"Appended to" 行和 "+ " 前缀）；失败时文件名后显示原因，展开显示参数
      - delete_file：DEL 前缀 + 文件+ 斜体路径；失败时文件名后显示原因，展开显示参数
   5. 思考过程（Thinking Block）以可折叠区域展示，流式输出时自动展开，Turn 结束后强制折叠为摘要（不受用户手动展开影响）；折叠时显示首行内容预览（最多50字符）；标题栏显示思考耗时（如"思考过程 · 1.2s"）
-  6. 流式输出效果（仅普通聊天，群聊不启用）：文本和思考内容末尾显光标字符，标识智能体正在生成；元数据栏（token/模型/延迟）使AnimatedVisibility fadeIn+expandVertically 平滑出现；元数据栏内容：↑输入Token ↓输出Token · 缓存读取/写入Token · API调用次数 · 模型名称（fallback时显示🔄前缀） · 延迟时间；上下文比例进度条：显示当前上下文Token数/最大上下文窗口，>50%时黄色，<=50%时绿色，进度条旁显示百分比文字；移animateContentSize 避免流式期间弹簧动画持续触发 GC
-   6. 过程折叠：轮次结束后（agent IDLE），整个轮次中所有 thinking + tool + 中间 message 合并为单个"N步过程"折叠卡片（ProcessDrawer），只保留最后一条 message 独立显示；agent 运行时正常展示各元素；用户可点击 ProcessDrawer 展开查看详情；群聊/chat_with_agent 仅显示 TextSegment；群聊折叠时不显示 ProcessDrawer（collapseProcess && !isGroupChat），展开时顶部显示 ProcessDrawer（showProcessHeader，仅组内第一个 AgentTurn）、底部唯一一个 ProcessCollapseButton（showProcessFooter，仅组内最后一个 AgentTurn），类似 thinking 的折叠效果；displayElements 和 processStepCount 使用 remember 缓存避免重组时重复计算；expandedGroups 在 agent IDLE 时仅清除流式输出组的展开状态，保留用户手动展开的组；每个 AgentTurn 中的 ProcessCollapseButton 仅渲染一次（移除元素列表末尾多余的重复按钮），确保按钮位置在轮次最后一条消息上方；过程压缩完成时显示统计信息：`%d步过程 · 🧠x次思考 · 🔧y次工具 · 📨z条消息 · ⏱共耗时N秒`（thinking=Thinking流块数，工具=工具调用次数，消息=折叠前消息数，时长=TurnMetadata.latencyMs 聚合除以 1000），由 TurnProcessStats / computeTurnProcessStats / aggregateTurnProcessStats 计算后传入 ProcessDrawer.stats 形参
-  6b. 元数据徽章（token/模型/延迟）仅在 Turn 中最后一个非空 TextSegment 显示（lastMetadataElementIndex），避免多条 message 重复显示
-  6c. ChatTurnConverter 中 thinking 字段仅在为 null 时赋值（if (thinking == null) thinking = thinkingBlock），防止后续 ASSISTANT 消息覆盖第一个 thinking
-  6. 支持长按消息弹出操作菜单（复制、重新生成、删除）
-  7. PRIVATE 角色消息以可折叠卡片展示（PrivateTurnCard），标题显示"📋 与 X 的讨论"（X 为 targetAgentId 对应的智能体名称，使用 AnnotatedString 加粗显示），默认折叠，点击展开显示完整对话内容（发起者: 消息 / 目标智能体: 回复格式，不含 thinking 和 tool）；长按复制讨论内容到剪贴板（触觉反馈 + Toast 提示"已复制讨论内容"）；PRIVATE 消息不更新会话 lastMessage 预览；响应全局折叠/展开控制（LocalCollapseAll/LocalExpandVisible CompositionLocal）
-  8. 全局折叠/展开控制：TopAppBar 右上角为搜索图标按钮（点击切换搜索面板），通过 CompositionLocal（LocalCollapseAll / LocalExpandVisible）向下传递；ThinkingBlockView、ToolCallBlockView、PrivateTurnCard 均响应全局折叠和全局展开
-  9. 自动滚动到底部：用户点击"回到底部"按钮后设置 userPinnedToBottom=true，流式输出和工具调用期间持续自动跟随滚动；智能体回到 IDLE 时仅在用户不在底部才重置 userPinnedToBottom（保持置底状态直到用户主动上滑）；用户上滑离开底部时取消置底；普通聊天和群聊界面均支持键盘弹出时自动滚动到底部（使用 ViewTreeObserver.OnGlobalLayoutListener 检测 IME 可见性变化）
-  10. 用户消息气泡宽度自适应：气泡宽度由内容决定（wrapContentWidth），最大不超过屏幕 80%；引用区域和文本内容均跟随气泡宽度；去掉 unbounded=true 让 widthIn(max) 约束生效
-  8. 支持滑动切换会话（侧边抽屉）
-  9. 支持聊天内搜
-  10. 消息排队机制：智能体 THINKING/EXECUTING_TOOL 时用户发送的消息入池排队（MessageQueueManager），智能体回到 IDLE 后自动 flush（flushQueuedMessages）；flush 时写入 USER 消息到 sessionStore（不带 [Queue] 前缀），再调用 deliverMessage(skipUserMessage=true) 避免重复写入；入队时移除 optimistic UserTurn，flush 时重新添加，避免排队消息提前显示在聊天界面
-  10b. 队列交互：TopBar 队列图标可点击，弹出 BottomSheet（QueueBottomSheet）显示排队消息列表；每条消息支持上移/下移（ArrowUp/ArrowDown 按钮）和删除（Delete 按钮）；MessageQueueManager 暴露 queueItems StateFlow 镜像，支持 removeAt(index) 和 move(fromIndex, toIndex) 操作
+  6. 流式输出效果（仅普通聊天，群聊不启用）：文本和思考内容末尾显光标字符，标识智能体正在生成；元数据栏使用 AnimatedVisibility fadeIn+expandVertically 平滑出现；元数据栏内容：↑输入Token ↓输出Token · 缓存读取/写入Token · API调用次数 · 模型名称（fallback时显示🔄前缀） · 延迟时间；上下文比例进度条：显示当前上下文Token数/最大上下文窗口，>50%时黄色，<=50%时绿色，进度条旁显示百分比文字；移除 animateContentSize 避免流式期间弹簧动画持续触发 GC
+   7. 过程折叠：轮次结束后（agent IDLE），整个轮次中所有 thinking + tool + 中间 message 合并为单个"N步过程"折叠卡片（ProcessDrawer），只保留最后一条 message 独立显示；agent 运行时正常展示各元素；用户可点击 ProcessDrawer 展开查看详情；群聊/chat_with_agent 仅显示 TextSegment；群聊折叠时不显示 ProcessDrawer（collapseProcess && !isGroupChat），展开时顶部显示 ProcessDrawer（showProcessHeader，仅组内第一个 AgentTurn）、底部唯一一个 ProcessCollapseButton（showProcessFooter，仅组内最后一个 AgentTurn），类似 thinking 的折叠效果；displayElements 和 processStepCount 使用 remember 缓存避免重组时重复计算；expandedGroups 在 agent IDLE 时仅清除流式输出组的展开状态，保留用户手动展开的组；每个 AgentTurn 中的 ProcessCollapseButton 仅渲染一次（移除元素列表末尾多余的重复按钮），确保按钮位置在轮次最后一条消息上方；过程压缩完成时显示统计信息：`%d步过程 · 🧠x次思考 · 🔧y次工具 · 📨z条消息 · ⏱共耗时N秒`（thinking=Thinking流块数，工具=工具调用次数，消息=折叠前消息数，时长=TurnMetadata.latencyMs 聚合除以 1000），由 TurnProcessStats / computeTurnProcessStats / aggregateTurnProcessStats 计算后传入 ProcessDrawer.stats 形参
+  7b. 元数据徽章（token/模型/延迟）仅在 Turn 中最后一个非空 TextSegment 显示（lastMetadataElementIndex），避免多条 message 重复显示
+  7c. ChatTurnConverter 中 thinking 字段仅在为 null 时赋值（if (thinking == null) thinking = thinkingBlock），防止后续 ASSISTANT 消息覆盖第一个 thinking
+  8. 支持长按消息弹出操作菜单（复制、重新生成、删除）
+  9. PRIVATE 角色消息以可折叠卡片展示（PrivateTurnCard），标题显示"📋 与 X 的讨论"（X 为 targetAgentId 对应的智能体名称，使用 AnnotatedString 加粗显示），默认折叠，点击展开显示完整对话内容（发起者: 消息 / 目标智能体: 回复格式，不含 thinking 和 tool）；长按复制讨论内容到剪贴板（触觉反馈 + Toast 提示"已复制讨论内容"）；PRIVATE 消息不更新会话 lastMessage 预览；响应全局折叠/展开控制（LocalCollapseAll/LocalExpandVisible CompositionLocal）
+  10. 全局折叠/展开控制：TopAppBar 右上角为搜索图标按钮（点击切换搜索面板），通过 CompositionLocal（LocalCollapseAll / LocalExpandVisible）向下传递；ThinkingBlockView、ToolCallBlockView、PrivateTurnCard 均响应全局折叠和全局展开
+  11. 自动滚动到底部：用户点击"回到底部"按钮后设置 userPinnedToBottom=true，流式输出和工具调用期间持续自动跟随滚动；智能体回到 IDLE 时仅在用户不在底部才重置 userPinnedToBottom（保持置底状态直到用户主动上滑）；用户上滑离开底部时取消置底；普通聊天和群聊界面均支持键盘弹出时自动滚动到底部（使用 ViewTreeObserver.OnGlobalLayoutListener 检测 IME 可见性变化）
+  12. 用户消息气泡宽度自适应：气泡宽度由内容决定（wrapContentWidth），最大不超过屏幕 80%；引用区域和文本内容均跟随气泡宽度；去掉 unbounded=true 让 widthIn(max) 约束生效
+  13. 支持滑动切换会话（侧边抽屉）
+  14. 支持聊天内搜
+  15. 消息排队机制：智能体 THINKING/EXECUTING_TOOL 时用户发送的消息入池排队（MessageQueueManager），智能体回到 IDLE 后自动 flush（flushQueuedMessages）；flush 时写入 USER 消息到 sessionStore（不带 [Queue] 前缀），再调用 deliverMessage(skipUserMessage=true) 避免重复写入；入队时移除 optimistic UserTurn，flush 时重新添加，避免排队消息提前显示在聊天界面
+  15b. 队列交互：TopBar 队列图标可点击，弹出 BottomSheet（QueueBottomSheet）显示排队消息列表；每条消息支持上移/下移（ArrowUp/ArrowDown 按钮）和删除（Delete 按钮）；MessageQueueManager 暴露 queueItems StateFlow 镜像，支持 removeAt(index) 和 move(fromIndex, toIndex) 操作
 
 ### 多选消息
 
@@ -69,24 +69,24 @@
   11. 进入聊天界面时自动滚动到底部（LaunchedEffect(Unit) + snapshotFlow.first 确保首次进入置底，切换会话时同步置底并设置 userPinnedToBottom）
   12. 用户消息上方居中显示发送时间（10.sp，onSurfaceVariant 50% 透明度），时间格式：今天显示"HH:mm"，昨天显示"昨天 HH:mm"，今年显示"M月d日 HH:mm"，跨年显示"yyyy年M月d日 HH:mm"
   13. 设置按钮点击后跳转到系统设置界面中当前智能体的配置栏（通过 pendingSettingsAgentId 信号 + LaunchedEffect 切换 pager 到设置页）
-  13. 长按消息弹出操作菜单支持引用功能：引用时在输入框上方显示引用预览（发送者名称+内容摘要，可取消），发送时将引用信息（quotedMessageId/quotedContent/quotedSenderName）写入消息 metadataJson；用户消息气泡上方显示引用块（引用发送者名称+内容摘要）；智能体消息同样支持引用；Agent.buildPrompt 构建提示词时，从用户消息 metadataJson 提取引用信息，在用户消息文本前注入引用前缀（格式：[用户引用了xxx的消息: 引用内容]），使 LLM 能感知用户引用了哪条消息；修复：无附件消息路径使用 textWithoutAttachments（含引用前缀）替代 sessionMessage.content，确保引用信息正确注入
-  14. 长按智能体头像或名字自动在输入框填充 @智能体名称
-- **输入规则**：文本消息、语音输入、图片附
-- **输出结果**：Agent 回复文本、工具调用结果、思考过程、计划步
+  14. 长按消息弹出操作菜单支持引用功能：引用时在输入框上方显示引用预览（发送者名称+内容摘要，可取消），发送时将引用信息（quotedMessageId/quotedContent/quotedSenderName）写入消息 metadataJson；用户消息气泡上方显示引用块（引用发送者名称+内容摘要）；智能体消息同样支持引用；Agent.buildPrompt 构建提示词时，从用户消息 metadataJson 提取引用信息，在用户消息文本前注入引用前缀（格式：[用户引用了xxx的消息: 引用内容]），使 LLM 能感知用户引用了哪条消息；修复：无附件消息路径使用 textWithoutAttachments（含引用前缀）替代 sessionMessage.content，确保引用信息正确注入
+  15. 长按智能体头像或名字自动在输入框填充 @智能体名称
+- **输入规则**：文本消息、语音输入、图片附件
+- **输出结果**：Agent 回复文本、工具调用结果、思考过程、计划步骤
 
 ### 输入
 
-- **功能描述**：聊天输入组件，支持文本输入、语音输入、附件选择、模型切
+- **功能描述**：聊天输入组件，支持文本输入、语音输入、附件选择、模型切换
 - **交互逻辑**
   1. 文本输入框支持多行，Enter 发送，Shift+Enter 换行
   2. 语音按钮长按录音，松开发送（STT 转文字）；短按启动/停止 STT 语音输入文字；一般聊天和群聊界面均支持 STT 语音输入（GroupChatScreen 同样注入 STTService + 权限请求 + 启动/停止回调）
   3. 附件按钮支持选择图片/文件
   4. Chip 内嵌显示在输入框内部（OutlinedTextField prefix 区域），与文本混排，[@智能体] [附件1] 你好；chip 使用紧凑 Surface 样式（图文字+关闭按钮），按类型配色（文件图片技能紫/提及橙）
-  5. Backspace 删除：输入框文本为空时按 Backspace 整体删除最后一chip
+  5. Backspace 删除：输入框文本为空时按 Backspace 整体删除最后一个chip
   6. 光标位置保持：使用 remember + LaunchedEffect 同步外部文本变化，退格整段删除时同步更新 textFieldValue；避免光标被强制跳到末尾
-  6. 模型切换底部弹窗展示可用模型列表
-  7. 输入栏不再包含终止按钮，终止功能仅通过顶栏标题行右侧停止图标实现；模型选择栏移至会话标题下方（与标题上下排列，整体靠左对齐，点击弹出模型切换弹窗）；智能体状态（PulsingStatusDot 思考中/执行中）移至输入框上方左对齐
-- **输入规则**：文本、语音、图
+  7. 模型切换底部弹窗展示可用模型列表
+  8. 输入栏不再包含终止按钮，终止功能仅通过顶栏标题行右侧停止图标实现；模型选择栏移至会话标题下方（与标题上下排列，整体靠左对齐，点击弹出模型切换弹窗）；智能体状态（PulsingStatusDot 思考中/执行中）移至输入框上方左对齐
+- **输入规则**：文本、语音、图片
 - **输出结果**：发送消息到当前会话
 
 ### @提及输入
@@ -120,30 +120,30 @@
 
 ### 会话抽屉
 
-- **功能描述**：侧边抽屉展示会话历史列表，支持搜索、新建、删除、置
+- **功能描述**：侧边抽屉展示会话历史列表，支持搜索、新建、删除、置顶
 - **交互逻辑**
-  1. 左滑打开抽屉，展示当Agent 的所有会
-  2. 支持按时置顶排序
+  1. 左滑打开抽屉，展示当前 Agent 的所有会话
+  2. 支持按时间置顶排序
   3. 支持搜索会话内容
-  4. 长按会话弹出操作菜单（置顶、删除、重命名
+  4. 长按会话弹出操作菜单（置顶、删除、重命名）
 - **输入规则**：无
-- **输出结果**：切换到选中的会
+- **输出结果**：切换到选中的会话
 
 ### 计划面板
 
-- **功能描述**：展Agent 当前执行的计划步骤和进度
+- **功能描述**：展示 Agent 当前执行的计划步骤和进度
 - **交互逻辑**
-  1. 计划开关控制是否启用计划模
-  2. 计划面板展示步骤列表（待执行/执行已完失败
-  3. 每个步骤显示描述和状
-- **输入规则**：计划模式开
-- **输出结果**：计划步骤状态更
+  1. 计划开关控制是否启用计划模式
+  2. 计划面板展示步骤列表（待执行/执行中/已完成/失败）
+  3. 每个步骤显示描述和状态
+- **输入规则**：计划模式开关
+- **输出结果**：计划步骤状态更新
 
 ### 权限请求对话
 
-- **功能描述**：当 Agent 请求执行需要审批的操作时弹
+- **功能描述**：当 Agent 请求执行需要审批的操作时弹出
 - **交互逻辑**
-  1. 展示工具名称、参数、安全评估结
+  1. 展示工具名称、参数、安全评估结果
   2. 用户可选择「允许一次」「始终允许」「拒绝」「不再允许」四种审批选项
   3. 始终允许后该工具不再弹出审批；不再允许后该工命令持久拒绝
   4. PermissionTurnCard 按钮区上方展示安全发现摘要（最3 条，含严重程度和标题，超出显...还有 N 
@@ -152,23 +152,23 @@
 
 ### Agent 列表对话
 
-- **功能描述**：展示可Agent 列表，支持切换当前对Agent
+- **功能描述**：展示可用 Agent 列表，支持切换当前对话 Agent
 - **交互逻辑**
-  1. 展示所有已创建Agent（头像、名称、描述）
+  1. 展示所有已创建的 Agent（头像、名称、描述）
   2. 点击切换当前会话Agent
-  3. 角标显示 Agent 状态（在线/离线/忙碌
+  3. 角标显示 Agent 状态（在线/离线/忙碌）
 - **输入规则**：Agent 选择
-- **输出结果**：切Agent
+- **输出结果**：切换 Agent
 
 ### 群聊界面
 
-- **功能描述**：多 Agent 群聊界面，展示多Agent 的对
+- **功能描述**：多 Agent 群聊界面，展示多个 Agent 的对话
 - **交互逻辑**
-  1. 展示群组内所Agent 的消息，按发言顺序排列
-  2. 每个 Agent 消息带有不同颜色/头像标识（始终显示，不受 isGroupedWithPrevious 限制
+  1. 展示群组内所有 Agent 的消息，按发言顺序排列
+  2. 每个 Agent 消息带有不同颜色/头像标识（始终显示，不受 isGroupedWithPrevious 限制）
   3. 用户@mention 特定 Agent，只有匹配到群内存在智能体的 @提及 才会渲染为带 agent 专属颜色的内联标签（使用 AnnotatedString + SpanStyle 内联到单个 Text 组件，mention 用 SpanStyle 着色+背景+粗体，换行遵循自然断词）；未匹配的 @提及 保持粗体纯文本显示；同时支持 @displayName @agentId 两种格式匹配，agentId 匹配时标签显示 displayName；skill 标签（/skillname）同样使用 SpanStyle 渲染；mention/skill 标签之间的文本使用 MarkdownText 渲染，确保群聊中 Agent 回复的 markdown 格式正常显示
-  4. 群聊中始终显示头像（不受 showAvatars 设置影响），确保用户可区分不Agent
-  5. isImageAvatar 检查仅判断 URL 是否非空（isNullOrBlank），支持 HTTP/HTTPS/content:// 等任意有URL
+  4. 群聊中始终显示头像（不受 showAvatars 设置影响），确保用户可区分不同 Agent
+  5. isImageAvatar 检查仅判断 URL 是否非空（isNullOrBlank），支持 HTTP/HTTPS/content:// 等任意有效 URL
    6. 已读状态计算：readStateMap 过滤 disabledAgentIds 和已删除智能体（agentId 不在 agentProfiles 中的），禁用和已删除的智能体不显示已读/工作中状态；@提及匹配时同样排除禁用智能体
    7. 已删除/禁用智能体过滤：groupMemberIds 和 groupMembers 从 GroupRegistry.groupsFlow + AgentRepository.getProfiles() 通过 combine 响应式派生，删除/禁用智能体后自动刷新 UI（不再使用 remember(sessionId) 缓存导致 stale 列表）；AgentGroup.processMessage 回退逻辑检查 enabled；LLMSpeakerSelector 仅包含存在的启用智能体；@提及抽屉不显示已删除/禁用智能体
 - **输入规则**：文本消息、@mention
@@ -184,34 +184,34 @@
 - **输入规则**：群组消息历史、智能体描述
 - **输出结果**：SpeakerSelected / Finish / Error / Continue 四种决策结果
 
-## 会话与群
+## 会话与群组
 
 ### 会话列表界面
 
-- **功能描述**：展示所有会话的列表视图，支持分组、搜索、批量操
+- **功能描述**：展示所有会话的列表视图，支持分组、搜索、批量操作
 - **交互逻辑**
-  1. 按时间倒序展示会话（标题、最后消息、时间、未读数
-  2. 群组会话时间显示格式与普通会话统一（使formatInstantTime 智能相对时间
-  3. 群组会话按关Session lastUpdatedAt 降序排列
-  4. 群组卡片中时间靠右显示（groupName 占满剩余空间，时间自然右对齐
-  5. 支持分组展示（自定义分组
-  5. 支持搜索会话
-  6. 支持滑动删除，删除时级联删除关联的 chat_with_agent 私聊会话
-   7. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate）
-  8. 底部导航栏切换到会话列表
-  9. FAB 按钮新建会话
-  10. 多会话状态显示：sessionStatuses 按 sessionId 映射（而非 agentId），多个会话同时执行时各自独立显示智能体状态
-- **输入规则**：搜索关键词、分组操
+  1. 按时间倒序展示会话（标题、最后消息、时间、未读数）
+  2. 群组会话时间显示格式与普通会话统一（使用 formatInstantTime 智能相对时间）
+  3. 群组会话按关联 Session lastUpdatedAt 降序排列
+  4. 群组卡片中时间靠右显示（groupName 占满剩余空间，时间自然右对齐）
+  5. 支持分组展示（自定义分组）
+  6. 支持搜索会话
+  7. 支持滑动删除，删除时级联删除关联的 chat_with_agent 私聊会话
+   8. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate）
+  9. 底部导航栏切换到会话列表
+  10. FAB 按钮新建会话
+  11. 多会话状态显示：sessionStatuses 按 sessionId 映射（而非 agentId），多个会话同时执行时各自独立显示智能体状态
+- **输入规则**：搜索关键词、分组操作
 - **输出结果**：导航到聊天界面
 
 ### 群组设置界面
 
-- **功能描述**：配Agent 群组的成员和规则
+- **功能描述**：配置 Agent 群组的成员和规则
 - **交互逻辑**
-  1. 展示群组名称、成员列
+  1. 展示群组名称、成员列表
   2. 添加/移除群组成员
   3. 添加成员时检查 BOOTSTRAP 状态：未初始化的智能体（BOOTSTRAP.md 存在且 .bootstrap_completed 不存在）在列表中禁用选择，显示"未初始化，请先与该智能体对话完成初始化"红色提示，头像和名称降低透明度
-  4. 配置发言策略（轮LLM 选择/自由发言
+  4. 配置发言策略（轮流/LLM 选择/自由发言）
   5. 配置群组规则
   6. 配置决策模型：在"只接收@消息"开关下方显示"决策模型"行，点击弹出 ModelSwitchSheet 选择 LLM 模型；选中后显示模型名（primary 色），右侧显示关闭按钮可清除；决策模型用于群聊中 LLM 发言者选择和终止判断，持久化到 agent_groups 表的 llmSelectorProviderId/llmSelectorModelName 字段
 - **输入规则**：群组配置参数
@@ -224,30 +224,30 @@
   1. 输入群组名称
   2. 选择群组成员（从已有 Agent 列表中选择；未初始化的智能体禁用选择，显示"未初始化，请先与该智能体对话完成初始化"红色提示，Checkbox 禁用）
   3. 选择发言策略
-- **输入规则**：群组名称、成员列表、策
-- **输出结果**：创建群
+- **输入规则**：群组名称、成员列表、策略
+- **输出结果**：创建群组
 
-## 智能体配
+## 智能体配置
 
 ### 创建 Agent 界面
 
-- **功能描述**：创建新AI Agent 实例
+- **功能描述**：创建新的 AI Agent 实例
 - **交互逻辑**
-  1. 输入 Agent 名称、描
+  1. 输入 Agent 名称、描述
   2. 选择模型供应商和模型
   3. 配置系统提示
   4. 选择启用的技能和工具
 - **输入规则**：Agent 配置参数
-- **输出结果**：创Agent 并导航到配置界面
+- **输出结果**：创建 Agent 并导航到配置界面
 
 ### Agent 配置界面
 
-- **功能描述**：编Agent 的详细配
+- **功能描述**：编辑 Agent 的详细配置
 - **交互逻辑**
   1. 编辑基本信息（名称、描述、头像）
   2. 配置模型（供应商、模型名、回退模型、VLM 模型）；模型选择使用原子操作 updateModel(modelName, modelProvider) 同时更新模型名和供应商，避免中间状态触发自动保存
   3. 配置核心文件（RULES.md、SOUL.md、PROFILE.md 等）
-  4. 配置技能列
+  4. 配置技能列表
   5. 配置禁用/延迟工具
   6. 导航到子配置页面（运行配置、心跳、MCP、频道、Cron 任务等）
 - **输入规则**：Agent 配置参数
@@ -255,11 +255,11 @@
 
 ### 运行配置界面
 
-- **功能描述**：配Agent 运行时参
+- **功能描述**：配置 Agent 运行时参数
 - **交互逻辑**
-  1. 设置最大迭代次
-  2. 设置最大输入长
-  3. 开关自动继
+  1. 设置最大迭代次数
+  2. 设置最大输入长度
+  3. 开关自动继续
   4. 配置重试策略
   5. 设置语言偏好
   6. 长期记忆配置：压缩时记忆开关、自动记忆搜索开关（开启后显示"自动搜索最大结果数"默认2条、"自动搜索最低相关性分数"滑动条0~1默认0.3）、启动时重建索引开关
@@ -268,12 +268,12 @@
 
 ### 心跳设置界面
 
-- **功能描述**：配Agent 心跳（定时主动交互）
+- **功能描述**：配置 Agent 心跳（定时主动交互）
 - **交互逻辑**
-  1. 开关心跳功
+  1. 开关心跳功能
   2. 设置心跳间隔
-  3. 编辑心跳提示
-- **输入规则**：心跳参
+  3. 编辑心跳提示词
+- **输入规则**：心跳参数
 - **输出结果**：HeartbeatConfig 更新
 
 ### Cron 任务界面
@@ -293,91 +293,71 @@
 
 ### 核心文件编辑界面
 
-- **功能描述**：编Agent 工作区的 Markdown 核心文件
+- **功能描述**：编辑 Agent 工作区的 Markdown 核心文件
 - **交互逻辑**
   1. 展示核心文件列表（RULES.md、SOUL.md、PROFILE.md 等）
   2. 点击文件进入编辑模式
-  3. 支持新建自定义核心文
+  3. 支持新建自定义核心文件
   4. 支持启用/禁用核心文件
   5. 支持拖拽排序
-  6. 未创建的默认文件显示"未创标签，点击编辑可创建
+  6. 未创建的默认文件显示"未创建标签，点击编辑可创建
 - **输入规则**：Markdown 文本
-- **输出结果**：核心文件更
+- **输出结果**：核心文件更新
 
-## 模型与连
+## 模型与连接
 
-### 模型供应商界
-
-- **功能描述**：管AI 模型供应商（OpenAI、Anthropic、Ollama 等）
+### 模型供应商界面
+- **功能描述**：管理 AI 模型供应商（OpenAI、Anthropic、Ollama 等）
 - **交互逻辑**
   1. 展示已配置的供应商列表（名称、协议、状态）
   2. 添加新供应商
-  3. 编辑/删除供应
-  4. 设置默认供应
+  3. 编辑/删除供应商
+  4. 设置默认供应商
 - **输入规则**：供应商配置参数
 - **输出结果**：供应商列表更新
 
-### 供应商详情界
-
-- **功能描述**：编辑单个模型供应商的详细配
+### 供应商详情界面
+- **功能描述**：编辑单个模型供应商的详细配置
 - **交互逻辑**
-  1. 编辑供应商名称、Base URL、协议类
+  1. 编辑供应商名称、Base URL、协议类型
   2. 配置 API Key（加密存储）
-  3. 管理模型列表（添删除/设为默认
+  3. 管理模型列表（添加/删除/设为默认）
   4. 测试连接
 - **输入规则**：供应商详情参数
 - **输出结果**：供应商配置更新
 
-### 端侧模型管理界面
+### 端侧模型管理界面（已废弃）
 
-- **已废弃**（2026-05-26）：端侧管理 UI（OnDeviceModelScreen/OnDeviceModelViewModel）已移除。端侧推理引擎（OnDeviceModelManager/OnDeviceModelStore）保留，继续为 STT 转写和 LiteRT-LM ModelClient 提供支持。原功能描述如下：
-- **功能描述**：下载、管理和加载端侧离线推理模型（基于 Google LiteRT-LM 引擎），单页面布局（搜索功能集成到模型管理界面）
-- **交互逻辑**
-  1. 单页面布局：移除 Tab 栏，搜索功能集成到模型管理界面顶部（OutlinedTextField 搜索栏），直接显示模型管理内容
-  2. 搜索 Tab：顶部搜索框过滤模型名称/描述/ID，卡片列表展示所有目录模型，显示名称、描述、大小、能力标签、RAM 要求；已下载模型显示"已下载"禁用按钮，下载中显示进度条，未下载显示"下载模型"按钮
-  3. 模型管理 Tab：展示预置模型目录（从 assets/ondevice_models.json 加载），显示模型名称、大小、能力标签、RAM 要求；只显示已下载/下载中/暂停的模型，不再显示未下载模型
-  4. 模型卡片按状态分五种样式：未下载（显示下载按钮）、下载中（进度条+速度+暂停）、暂停（进度条+继续下载）、已下载未加载（后端选择下拉+加载引擎按钮+删除）、已加载（引擎状态+卸载/删除）、下载失败（重新下载）
-  5. 设备 RAM 不足时显示警告，仍允许用户强制下载
-  6. 后端选择下拉：自动/CPU/GPU/NPU（ExposedDropdownMenuBox），加载引擎时传入 BackendPreference
-  7. 同一时刻只加载一个端侧模型引擎，切换时自动卸载旧引擎（OnDeviceModelManager.currentEngineModelId StateFlow 管理）
-  8. 下载使用 HuggingFace 镜像自动替换域名（HuggingFaceMirror 探测+缓存），OkHttp 断点续传
-  9. 下载完成后自动注册虚拟 Provider 到 ModelProviderStore，模型出现在 Provider 列表可直接切换使用
-  10. 删除模型时同步移除虚拟 Provider 和本地文件
-  11. 设置项：自动卸载引擎开关（App 后台 5 分钟后自动卸载）
-  12. 下载暂停与恢复：用户暂停下载时设置 pausedByUser 标记并将状态设为 PAUSED（保留部分文件），真实失败时设为 DOWNLOAD_FAILED（删除部分文件）；进程重启后 recoverStaleDownloads 检测残留 DOWNLOADING 状态并重置为 PAUSED
-  13. 下载管理：TopBar 右上角显示下载图标+角标（活跃下载数），点击弹出 ModalBottomSheet 展示当前下载任务列表（进度+速度+暂停/继续）
-  14. 模型目录：自建模型目录（ondevice_models.json），包含 8 个 2B 参数以下端侧模型（Gemma3-1B、Qwen2.5-1.5B、DeepSeek-R1-Distill-Qwen-1.5B、Phi-4-mini、Qwen3-0.6B、TinyLlama-1.1B、Gemma3-270M、SmolLM-135M），移除了原有的 Gemma4-E2B/E4B
-- **输入规则**：模型选择、后端偏好、下载/加载/卸载/删除操作、搜索关键词
-- **输出结果**：模型下载完成、引擎加载/卸载状态变更、虚拟 Provider 注册/注销
+- **已废弃**（2026-05-26）：端侧管理 UI（OnDeviceModelScreen/OnDeviceModelViewModel）已移除。端侧推理引擎（OnDeviceModelManager/OnDeviceModelStore）保留，继续为 STT 转写和 LiteRT-LM ModelClient 提供支持。端侧模型通过 LiteRT-LM 引擎加载，支持 HuggingFace 镜像下载、断点续传、虚拟 Provider 注册、后端选择（Auto/CPU/GPU/NPU）、自动卸载等能力。模型目录见 `assets/ondevice_models.json`
 
 ### API Key 管理界面
 
-- **功能描述**：管理多API Key Profile，支持轮换和冷却
+- **功能描述**：管理多个 API Key Profile，支持轮换和冷却
 - **交互逻辑**
   1. 展示 API Key 列表（名称、状态、使用次数）
   2. 添加/删除 Key
-  3. 查看冷却状
-- **输入规则**：API Key 字符
+  3. 查看冷却状态
+- **输入规则**：API Key 字符串
 - **输出结果**：Key 列表更新
 
 ### MCP 设置界面
 
-- **功能描述**：配MCP（Model Context Protocol）客户端连接
+- **功能描述**：配置 MCP（Model Context Protocol）客户端连接
 - **交互逻辑**
-  1. 展示已配置的 MCP 客户端列
+  1. 展示已配置的 MCP 客户端列表
   2. 添加 MCP 客户端（URL、名称）
-  3. 启用/禁用客户
+  3. 启用/禁用客户端
   4. 查看客户端提供的工具列表
-- **输入规则**：MCP 客户端配
+- **输入规则**：MCP 客户端配置
 - **输出结果**：MCP 配置更新
 
 ### ACP 设置界面
 
-- **功能描述**：配ACP（Agent Communication Protocol）客户端和服务器
+- **功能描述**：配置 ACP（Agent Communication Protocol）客户端和服务器
 - **交互逻辑**
-  1. 管理 ACP 客户端连
-  2. 配置 ACP 服务器端
-  3. 查看连接状
+  1. 管理 ACP 客户端连接
+  2. 配置 ACP 服务器端点
+  3. 查看连接状态
 - **输入规则**：ACP 配置参数
 - **输出结果**：ACP 配置更新
 
@@ -424,18 +404,18 @@
 - **输入规则**：各平台 API 请求
 - **输出结果**：QrPollResult（Waiting/Scanned/Confirmed/Expired）
 
-## 技能与插件
+## 技能与插件件
 
 ### 技能池界面
 
-- **功能描述**：展示和管理所有已安装的技
+- **功能描述**：展示和管理所有已安装的技能
 - **交互逻辑**
   1. 展示技能卡片列表（名称、描述、状态）
-  2. 启用/禁用技
+  2. 启用/禁用技能
   3. 查看技能详情（技能详情弹窗显示完整 SKILL.md 文件内容，而非简要描述）
-  4. 导航到技能商
+  4. 导航到技能商店
 - **输入规则**：技能选择
-- **输出结果**：技能启用状态更
+- **输出结果**：技能启用状态更新
 
 ### 技能商店界面
 
@@ -467,46 +447,46 @@
 
 - **功能描述**：管理第三方插件
 - **交互逻辑**
-  1. 展示已安装插件列
+  1. 展示已安装插件列表
   2. URL 安装插件
   3. 卸载插件
-  4. 查看插件提供的工
-- **输入规则**：插URL
-- **输出结果**：插件安卸载
+  4. 查看插件提供的工具
+- **输入规则**：插件 URL
+- **输出结果**：插件安装/卸载
 
-## 记忆与洞
+## 记忆与洞察
 
 ### Second Brain 界面
 
-- **功能描述**：展示和管理 Agent 的长期记
+- **功能描述**：展示和管理 Agent 的长期记忆
 - **交互逻辑**
   1. 展示记忆条目列表（摘要、类型、置信度、重要性）
   2. 搜索记忆
   3. 手动添加/删除记忆
   4. 忽略/恢复记忆条目
-  5. 按类型筛选（事实/偏好/程序/社交
-- **输入规则**：搜索关键词、筛选条
-- **输出结果**：记忆条目更
+  5. 按类型筛选（事实/偏好/程序/社交）
+- **输入规则**：搜索关键词、筛选条件
+- **输出结果**：记忆条目更新
 
 ### Dream 记忆界面
 
-- **功能描述**：展Dream 记忆处理历史和状
+- **功能描述**：展示 Dream 记忆处理历史和状态
 - **交互逻辑**
   1. 展示 Dream 处理历史列表（时间、状态、效果）
   2. 手动触发 Dream 处理
   3. 查看处理前后对比
-- **输入规则**：手动触
+- **输入规则**：手动触发
 - **输出结果**：Dream 处理结果
 
 ### 记忆压缩界面
 
-- **功能描述**：展示和管理对话上下文压
+- **功能描述**：展示和管理对话上下文压缩
 - **交互逻辑**
   1. 展示压缩历史
   2. 查看压缩摘要
   3. 手动触发压缩
-- **输入规则**：手动触
-- **输出结果**：压缩结
+- **输入规则**：手动触发
+- **输出结果**：压缩结果
 
 ### 洞察界面
 
@@ -516,45 +496,50 @@
   2. 展示成本估算（按模型/供应商）
   3. 展示会话统计（数量、平均长度）
   4. 工具排行：显示英文工具名（原始 toolName），不再使用中文显示名
-  5. 技能排行：统计 load_skill 工具调用记录，按技ID 聚合调用次数，显示技能中文名（复BuiltinSkillNames 映射
+  5. 技能排行：统计 load_skill 工具调用记录，按技能 ID 聚合调用次数，显示技能中文名（复用 BuiltinSkillNames 映射）
   6. 智能体对话次数：按 agentId 分组统计会话数，显示智能体名称和对话次数，按次数降序排列
 - **输入规则**：时间范围选择
-- **输出结果**：统计数据展
+- **输出结果**：统计数据展示
 
-## 安全与审
+## 安全与审批
 
-### 收件箱界
+### 收件箱界面（Inbox）
 
-- **功能描述**：展示审批请求和推送消息的统一收件
+- **功能描述**：原"推送消息 Tab"扩为三 Tab 收件箱，统一承接"通知中心"和"任务中心"两个独立页面的功能
 - **交互逻辑**
-  1. Tab 布局：审批请/ 推送消
-  2. 审批请求 Tab 显示所有状态的审批记录（pending/approved/denied/timeout），不同状态用视觉样式区分：pending 正常显示+批准/拒绝按钮，approved 绿色"已批标签+降低透明度，denied 灰色"已拒标签+降低透明度，timeout 橙色"已超标签+降低透明
-  3. 推送消Tab 显示智能体主动推送的通知事件
-  4. 支持全部已读、刷新、单条删
-- **输入规则**：审批决策（批准/拒绝）、已读标
-- **输出结果**：审批状态更新、消息已读状态更
+  1. 顶部 TabRow：`事件` / `审批` / `任务`（默认事件）
+  2. **事件 Tab**：原 InboxScreen 行为，inbox_events 表的事件列表（已读/未读/全部已读/单删/刷新）
+  3. **审批 Tab**：占位界面，显示"暂无审批请求"；审批请求的实际查看在 ChatScreen inline 卡片 + 系统通知栏（详见「Task 审批服务」）
+  4. **任务 Tab**：复用 TaskListViewModel 列表，按状态显示 TaskEntity；点击任务项 → TaskDetailScreen
+  5. **路由**：`Screen.Inbox` 改为 `inbox?tab={tab}`（tab=events|approvals|tasks），由 `initialTab` 形参传入 `InboxTab` 枚举
+  6. **导航隐藏**：原 `settings_task_center` / `settings_notification_center` 在 SettingsScreen 的点击回调改为 `navController.navigate(Screen.Inbox.createRoute("tasks"/"events"))`
+  7. **深链接保留**：`Screen.TaskList` / `Screen.NotificationCenter` 路由仍在 `AppNavigation` 注册，composable 块改为 `LaunchedEffect` 立即 popUpTo 后跳 Inbox 对应 Tab
+- **输入规则**：InboxViewModel（事件）、TaskListViewModel（任务）— 审批 Tab 当前无数据源
+- **输出结果**：用户从底部导航 Inbox 入口或从 Settings 旧入口进入，都能落到对应 Tab；深链接（任务详情、通知、TaskList）正常跳转
+- **关键机制**：InboxTab 枚举 + Screen.Inbox.queryArg；inbox 自身 ViewModel 不变，新增 taskListViewModel koinViewModel 取自父 Activity scope
+- **回退方案**：若审批 Tab 后期需重新接入 Task 审批列表，从 `TaskDao.observeByStatus(AWAITING_APPROVAL)` 注入即可
 
 ### 工具审批界面
 
-- **功能描述**：管理工具执行审批规
+- **功能描述**：管理工具执行审批规则
 - **交互逻辑**
   1. 展示工具审批策略列表
-  2. 设置工具执行级别（自需审批/禁止
-  3. 配置自定义审批规
+  2. 设置工具执行级别（自动/需审批/禁止）
+  3. 配置自定义审批规则
 - **输入规则**：审批策略选择
-- **输出结果**：审批规则更
+- **输出结果**：审批规则更新
 
 ### 安全规则界面
 
-- **功能描述**：查看和撤销工具审批的「不再询问」规则（始终允许/不再允许
+- **功能描述**：查看和撤销工具审批的「不再询问」规则（始终允许/不再允许）
 - **交互逻辑**
   1. 展示所有持久化审批规则列表（工具名称、参数摘要、审批动作）
-  2. 单条删除：点击删除图标撤销规则，撤销后该工具审批将重新询
-  3. 批量清除：右上角删除按钮弹出确认对话框，清除所有规
+  2. 单条删除：点击删除图标撤销规则，撤销后该工具审批将重新询问
+  3. 批量清除：右上角删除按钮弹出确认对话框，清除所有规则
   4. 空状态提示：无规则时显示引导文案
   5. 规则卡片按审批动作着色：始终允许→默认色，不再允许→错误容器
-- **输入规则**：删清除操作
-- **输出结果**：规则撤销，工具审批恢复询
+- **输入规则**：删除/清除操作
+- **输出结果**：规则撤销，工具审批恢复询问
 
 ### 权限中心界面
 
@@ -569,35 +554,35 @@
 
 ### 工具安全界面
 
-- **功能描述**：配置工具安全守卫规
+- **功能描述**：配置工具安全守卫规则
 - **交互逻辑**
-  1. 展示安全级别（宽标准/严格
-  2. 配置每个 Guardian 的规
+  1. 展示安全级别（宽松/标准/严格）
+  2. 配置每个 Guardian 的规则
   3. 查看安全审计日志
 - **输入规则**：安全级别选择
-- **输出结果**：安全配置更
+- **输出结果**：安全配置更新
 
-### 无障碍设置界
+### 无障碍设置界面
 
 - **功能描述**：引导用户开启无障碍服务
 - **交互逻辑**
-  1. 展示无障碍服务说
-  2. 检测服务状
+  1. 展示无障碍服务说明
+  2. 检测服务状态
   3. 引导跳转到系统无障碍设置
 - **输入规则**：无
 - **输出结果**：无障碍服务启用
 
-## 数据与存
+## 数据与存储
 
 ### 数据存储界面
 
 - **功能描述**：展示存储使用情况和数据管理
 - **交互逻辑**
-  1. 展示存储空间使用情况（会话、记忆、文件等
+  1. 展示存储空间使用情况（会话、记忆、文件等）
   2. 清理缓存
-  3. 管理工作区文
+  3. 管理工作区文件
 - **输入规则**：清理选择
-- **输出结果**：存储空间释
+- **输出结果**：存储空间释放
 
 ### 备份恢复界面
 
@@ -619,23 +604,23 @@
 
 ## 应用设置
 
-### 设置主界
+### 设置主界面
 
 - **功能描述**：应用设置入口，分组展示所有设置项
 - **交互逻辑**
-  1. 分组展示：通用、Agent、模型、安全、数据、关
+  1. 分组展示：通用、Agent、模型、安全、数据、关于
   2. 点击导航到对应设置子页面
 - **输入规则**：设置项选择
-- **输出结果**：导航到子页
+- **输出结果**：导航到子页面
 
 ### UI 设置界面
 
-- **功能描述**：配置界面外
+- **功能描述**：配置界面外观
 - **交互逻辑**
-  1. 主题切换（浅深色/跟随系统
-  2. Agent 头像显示开
+  1. 主题切换（浅色/深色/跟随系统）
+  2. Agent 头像显示开关
   3. 字体大小调节
-- **输入规则**：主题选择、开
+- **输入规则**：主题选择、开关
 - **输出结果**：UI 配置更新
 
 ### 语言设置界面
@@ -651,9 +636,9 @@
 
 ### 全局规则界面
 
-- **功能描述**：编辑全局规则文件（对所Agent 生效
+- **功能描述**：编辑全局规则文件（对所有 Agent 生效）
 - **交互逻辑**
-  1. 展示全局规则 Markdown 编辑
+  1. 展示全局规则 Markdown 编辑器
   2. 保存规则
 - **输入规则**：Markdown 文本
 - **输出结果**：全局规则更新
@@ -662,19 +647,19 @@
 
 - **功能描述**：配置通知行为
 - **交互逻辑**
-  1. 开关各类通知（消息、权限请求、任务完成等
+  1. 开关各类通知（消息、权限请求、任务完成等）
   2. 配置通知渠道
-- **输入规则**：通知开
+- **输入规则**：通知开关
 - **输出结果**：通知配置更新
 
 ### 环境变量界面
 
-- **功能描述**：管Linux 环境变量
+- **功能描述**：管理 Linux 环境变量
 - **交互逻辑**
   1. 展示环境变量列表（键、值）
   2. 添加/编辑/删除环境变量
 - **输入规则**：键值对
-- **输出结果**：环境变量更
+- **输出结果**：环境变量更新
 
 ### 事件监听设置界面
 
@@ -711,26 +696,26 @@
 
 ### 关于界面
 
-- **功能描述**：展示应用信
+- **功能描述**：展示应用信息
 - **交互逻辑**
-  1. 展示版本号、构建时
+  1. 展示版本号、构建时间
   2. 版本号格式：`0.1.{yyMMddHHmm}`，基于打包时间自动生成，通过 BuildConfig.VERSION_NAME 读取确保应用内显示最新值
-  3. 展示开源许
+  3. 展示开源许可证
   4. 展示项目链接
 - **输入规则**：无
-- **输出结果**：信息展
+- **输出结果**：信息展示
 
-## 调试与诊
+## 调试与诊断
 
 ### 调试信息界面
 
 - **功能描述**：展示应用运行时调试信息
 - **交互逻辑**
   1. 展示系统信息（设备、Android 版本、内存）
-  2. 展示 Agent 运行状
-  3. 展示最近错误日
+  2. 展示 Agent 运行状态
+  3. 展示最近错误日志
 - **输入规则**：无
-- **输出结果**：调试信息展
+- **输出结果**：调试信息展示
 
 ### 日志界面
 
@@ -738,32 +723,32 @@
 - **交互逻辑**
   1. 顶部按钮栏：导出（导出日志到文件并分享）、实时日志（启动/停止 logcat 流）、清空（清除控制台内容）
   2. 进入界面自动启动实时日志流和自动滚动
-  2. 实时日志控制台：黑色背景终端风格，使用 logcat --pid 读取当前进程日志，按级别着色（Error 红色、Warning 黄色、Info 青色、Debug 白色、其他蓝色），等宽字体 11sp
-  3. 控制台支持文本选择复制、自动滚动到底部（可切换手动滚动）
-  4. 日志缓冲区上限 2000 行，超出自动淘汰旧行；LazyColumn 使用 itemsIndexed + key=index 避免重复 key 导致 crash
-  5. 导出功能：收集应用日志文件 + 系统信息，生成文本文件并分享
+  3. 实时日志控制台：黑色背景终端风格，使用 logcat --pid 读取当前进程日志，按级别着色（Error 红色、Warning 黄色、Info 青色、Debug 白色、其他蓝色），等宽字体 11sp
+  4. 控制台支持文本选择复制、自动滚动到底部（可切换手动滚动）
+  5. 日志缓冲区上限 2000 行，超出自动淘汰旧行；LazyColumn 使用 itemsIndexed + key=index 避免重复 key 导致 crash
+  6. 导出功能：收集应用日志文件 + 系统信息，生成文本文件并分享
 - **输入规则**：按钮操作
 - **输出结果**：实时日志流 / 导出日志文件
 
 ### 工具列表界面
 
-- **功能描述**：展示所有已注册的工
+- **功能描述**：展示所有已注册的工具
 - **交互逻辑**
   1. 按分类展示工具列表（内置/Android/Linux/MCP/技能）
   2. 点击查看工具详情（参数、描述、权限要求）
   3. 搜索工具
 - **输入规则**：搜索关键词
-- **输出结果**：工具信息展
+- **输出结果**：工具信息展示
 
 ### 工具详情界面
 
 - **功能描述**：展示单个工具的详细信息
 - **交互逻辑**
-  1. 展示工具名称、描述、参数定
+  1. 展示工具名称、描述、参数定义
   2. 展示权限要求
   3. 展示执行历史
 - **输入规则**：无
-- **输出结果**：工具详情展
+- **输出结果**：工具详情展示
 
 ## 引导
 
@@ -771,7 +756,7 @@
 
 - **功能描述**：首次启动时的初始化进度界面
 - **交互逻辑**
-  1. 展示初始化步骤进度（DI 容器 关键组件 后台任务
+  1. 展示初始化步骤进度（DI 容器 → 关键组件 → 后台任务）
   2. 初始化完成后自动跳转
 - **输入规则**：无
 - **输出结果**：初始化完成
@@ -780,37 +765,37 @@
 
 - **功能描述**：首次使用时的引导流
 - **交互逻辑**
-  1. 引导配置模型供应
+  1. 引导配置模型供应商
   2. 引导授予必要权限
-  3. 引导创建第一Agent
-  4. 完成后进入聊天界
+  3. 引导创建第一个 Agent
+  4. 完成后进入聊天界面
   5. 首页（step 0）显示"已有 API Key? 直接配置 →"按钮，点击跳转到模型供应商界面
-- **输入规则**：引导步骤操
-- **输出结果**：引导完成，进入主界
+- **输入规则**：引导步骤操作
+- **输出结果**：引导完成，进入主界面
 
-## 调试与诊
+## 调试与诊断
 
 ### 界面交互展示页面
 
-- **功能描述**：纯交互展示HTML 原型页面，用于无功能逻辑的界面流程演
+- **功能描述**：纯交互展示的 HTML 原型页面，用于无功能逻辑的界面流程演示
 - **交互逻辑**
-  1. 以手机框架形式展示所有界面，同一时间只显示一个界
+  1. 以手机框架形式展示所有界面，同一时间只显示一个界面
   2. 通过点击交互进行界面跳转，保持原有导航逻辑
-  3. 主页 4 Tab（会收件洞察/设置）底部导航切
+  3. 主页 4 Tab（会收件箱/洞察/设置）底部导航切
   4. 设置页分组卡片展开/折叠，点击跳转子页面
   5. Agent 配置卡片提供 12 个子配置入口
   6. 聊天界面支持会话抽屉、模型切换、计划面板、菜单等抽屉弹窗；ChatScreen/GroupChatScreen 共享 Hook（rememberChatSessionState/rememberChatTtsState/rememberChatAutoScrollState），inputText 收归 ChatInputViewModel 消除双源真相
-  7. 所有子页面通过返回按钮回退到上一
+  7. 所有子页面通过返回按钮回退到上一级
   8. 新建按钮弹出 CreateDrawer（聊群组/分组/智能体）
   9. 包含 40+ 个界面的完整交互流程
-- **输入规则**：点击交
+- **输入规则**：点击交互
 - **输出结果**：界面跳转与展示
 
 ---
 
 # 系统
 
-## 运行时引
+## 运行时引擎
 
 ### 文件附件卡片渲染
 
@@ -888,22 +873,22 @@
 
 ### Agent 核心引擎
 
-- **功能描述**：Agent 消息处理主循环，实现 ReAct（Reasoning + Acting）模
+- **功能描述**：Agent 消息处理主循环，实现 ReAct（Reasoning + Acting）模式
 - **流程**
-  1. 接收用户消息，构Prompt（系统提示词 + 核心文件 + 记忆 + 技+ 工具定义
-  2. 调用 LLM 获取响应（流非流式）
+  1. 接收用户消息，构Prompt（系统提示词 + 核心文件 + 记忆 + 技能 + 工具定义）
+  2. 调用 LLM 获取响应（流式/非流式）
   3. 解析响应中的 ToolCall
-  4. 若有 ToolCall：执行工将结果追加到上下回到步骤 2
-  5. 若无 ToolCall：返回最终文本回
+  4. 若有 ToolCall：执行工具，将结果追加到上下文，回到步骤 2
+  5. 若无 ToolCall：返回最终文本回复
   6. 循环检测：检测重复工具调用模式，自动中断
-  7. 自动继续：当模型输出 `[CONTINUE]` 标记时自动继
+  7. 自动继续：当模型输出 `[CONTINUE]` 标记时自动继续
 - **关键机制**
   - Per-Session 互斥锁：同一会话同时只处理一条消息；互斥锁在 finally 块中先 unlock 再 updateSessionState(IDLE)，避免 status=IDLE 但 mutex 仍锁定的竞态窗口
   - Per-Session Job 跟踪：sessionJobs（ConcurrentHashMap<String, Job>）跟踪每个会话的协程 Job，支持 stopSession 精准取消单个会话、stop 取消所有会话；processMessage/processMessageStream 入口注册 Job，finally 块移除；destroy 时清空所有 Job
   - 对象池复用：StringBuilder、ToolCallInfo 列表
-  - 上下文压缩：Token 超限时自动压缩历史消
+  - 上下文压缩：Token 超限时自动压缩历史消息
   - 故障转移：主模型失败时自动切换到回退模型
-  - AgentSessionManager 集成：可选的会话生命周期管理（创更新活跃时间
+  - AgentSessionManager 集成：可选的会话生命周期管理（创建/更新活跃时间）
   - 消息 senderId 一致性：所有 ASSISTANT/TOOL 消息均携带 senderId=agentId，确保 ChatTurnConverter 正确归组；当 senderId 为 null 时（历史消息），不拆分为独立 turn，仅当两个连续非 TOOL 消息的 senderId 均非 null 且不同时才拆分
   - 错误持久化与广播：processMessageStream/processMessage 的异常捕获（OOM/超时/网络错误）均持久化为 ASSISTANT 消息（sessionStore.addMessage）+ 广播（channelManager.broadcast）+ 流式输出（emit StreamChunk.Content），确保用户在聊天界面可见错误提示
   - 共享方法提取：processMessage/processMessageStream 重复逻辑提取prepareMessageContext（离线检消息入队+模型解析+/pro检Prompt构建+工具定义）、handleToolCalls（修持久并行执行+失败信号+权限检测）、handleTextReply（纯文本回复持久广播），两个入口方法调用共享方法消除 ~70% 重复代码
@@ -916,10 +901,10 @@
 
 - **功能描述**：创建和管理 Agent 实例
 - **流程**
-  1. LRU 缓存（最10 实例），Agent ID 缓存
+  1. LRU 缓存（最多 10 个实例），按 Agent ID 缓存
   2. AgentRepository 加载 AgentProfile
   3. 根据 Profile 配置创建 ModelClient
-  4. 注入中间件链（DanglingToolCall Clarification Memory LoopDetection
+  4. 注入中间件链（DanglingToolCall → Clarification → Memory → LoopDetection）
   5. 注册 Agent AgentRegistry（可选）
   6. 返回 Agent 实例
 - **关键机制**：缓存淘汰、延迟初始化、AgentRegistry 注册/注销；getAgent() 检测 enabled 变化自动触发 reloadAgent()；SettingsViewModel/ConversationListViewModel 操作后显式调用 reloadAgent()
@@ -927,11 +912,11 @@
 ### 中间件链
 
 - **功能描述**：在 Agent 处理循环中插入可插拔的中间件
-- **中间件列*
+- **中间件列表**
   - **DanglingToolCallMiddleware**：修复悬空的工具调用（LLM 输出 tool_call 但未完成 JSON）；死亡螺旋检测：任何 dangling ids（不仅是重复 id）均递增 consecutiveDanglingCount，阈值 MAX_CONSECUTIVE_DANGLING=3；修剪时使用完整 danglingSet（不仅 newIds）；removeEmptyAssistantMessages 同时检查 reasoningContent 避免误删含 thinking 的消息
   - **ClarificationMiddleware**：检测模糊请求，自动请求用户澄清
-  - **MemoryMiddleware**：在 Prompt 中注入相关记
-  - **TitleMiddleware**：自动生成会话标
+  - **MemoryMiddleware**：在 Prompt 中注入相关记忆
+  - **TitleMiddleware**：自动生成会话标题
   - **ThreadDataMiddleware**：注入线程上下文数据
   - **SummarizationMiddleware**：自动摘要长对话
   - **SubagentLimitMiddleware**：限制子代理数量
@@ -941,12 +926,12 @@
 
 ### 工具调用修复管道
 
-- **功能描述**：修LLM 输出中的异常工具调用
+- **功能描述**：修复 LLM 输出中的异常工具调用
 - **流程**
-  1. **ScavengeRepair**：从 LLM 输出文本中拾取被截断tool_call JSON
-  2. **TruncationRepair**：修复被截断JSON 参数（补全括号等
-  3. **StormBreaker**：检测并打断"风暴"（模型疯狂输出重tool calls
-- **关键机制**：管道式处理，每一步可选择跳过或修
+  1. **ScavengeRepair**：从 LLM 输出文本中拾取被截断的 tool_call JSON
+  2. **TruncationRepair**：修复被截断的 JSON 参数（补全括号等）
+  3. **StormBreaker**：检测并打断"风暴"（模型疯狂输出重复 tool calls）
+- **关键机制**：管道式处理，每一步可选择跳过或修复
 
 ### Curator 技能自动创建
 
@@ -1037,29 +1022,29 @@
 
 ### 会话存储
 
-- **功能描述**：持久化会话和消息数
+- **功能描述**：持久化会话和消息数据
 - **流程**
-  1. 基于 Room 数据库存储（AppDatabase
+  1. 基于 Room 数据库存储（AppDatabase）
   2. 三表拆分：sessions（16 字段，核心会话信息）、session_stats（7 字段，token 用量与费用统计，外键级联删除）、session_compression（2 字段，压缩摘要，外键级联删除）
   3. SessionDao 管理核心会话 CRUD（含 getFullById 三表 JOIN 查询返回 SessionFullRow）
   4. SessionStatsDao 管理 token 用量更新（updateTokenUsage）和完成时间（updateFinishedAt）
   5. SessionCompressionDao 管理压缩摘要（upsertSummary）
-  6. MessageDao 管理 Message 实体（CRUD、按会话查询
+  6. MessageDao 管理 Message 实体（CRUD、按会话查询）
   7. InsightsDao 通过 LEFT JOIN session_stats 聚合洞察统计
   8. RoomSessionStore 构造注入三个 DAO，createSession 事务插入 sessions + session_stats，toSession 从 SessionFullRow 映射
 - **关键机制**：Room Migration（v1-v20）、FTS 搜索、索引优化、deleteMessage 按 ID 删除消息（MessageDao.deleteById）、SessionFullRow 三表 JOIN 投影、外键级联删除保证数据一致性
 
 ### 计划系统
 
-- **功能描述**：Agent 执行计划的管
+- **功能描述**：Agent 执行计划的管理
 - **流程**
   1. Agent 通过 PlanTools 创建计划（步骤列表）
-  2. 每个步骤有状态（pending/in_progress/completed/failed
-  3. Agent 执行步骤并更新状
+  2. 每个步骤有状态（pending/in_progress/completed/failed）
+  3. Agent 执行步骤并更新状态
   4. PlanPanel UI 实时展示进度
 - **关键机制**：PlanManager 管理计划生命周期
 
-## 模型与路
+## 模型与路由
 
 ### 端侧模型推理引擎
 
@@ -1089,19 +1074,32 @@
   - **镜像缓存**：首次探测后缓存到内存+DataStore，后续直接使用缓存结果
   - **SamplerConfig 类型**：temperature/topP 使用 Double 类型（LiteRT-LM API 要求）
 
-### 模型客户
+### 模型客户端
 
-- **功能描述**：统一的多供应LLM 调用接口
+- **功能描述**：统一的多供应商 LLM 调用接口
 - **支持协议**
-  - **OpenAI**：兼OpenAI API 格式（支SSE 流式
-  - **Anthropic**：Anthropic Messages API（支SSE 流式），支持 contentBlocks 多模态消息序列化（image_url 转为 Anthropic 原生 base64 image source 格式）
+  - **OpenAI**：兼容 OpenAI API 格式（支持 SSE 流式）
+  - **Anthropic**：Anthropic Messages API（支持 SSE 流式），支持 contentBlocks 多模态消息序列化（image_url 转为 Anthropic 原生 base64 image source 格式）
   - **Ollama**：Ollama 本地模型 API
 - **流程**
-  1. 构建请求（消息列+ 工具定义 + 参数
-  2. 发HTTP 请求
+  1. 构建请求（消息列表 + 工具定义 + 参数）
+  2. 发送 HTTP 请求
   3. 解析响应（流式逐块解析 / 非流式整块解析）
   4. 返回 ModelCallResponse Flow<ModelStreamChunk>
-- **关键机制**：OkHttp SSE、序列化/反序列化、错误重试、API Key 日志脱敏（仅显示末4位）；SSE onFailure 中提取 HTTP 状态码（如 429），用 runCatching 安全读取 response.body 避免二次 IOException
+- **关键机制**：OkHttp SSE、序列化/反序列化、错误重试、API Key 日志脱敏（仅显示末 4 位）；SSE onFailure 中提取 HTTP 状态码（如 429），用 runCatching 安全读取 response.body 避免二次 IOException
+
+### TaskPlanner fallbackModel 注入
+
+- **功能描述**：修复自动决策硬编码 gpt-4o-mini 的 bug；`TaskPlanner` 在 `modelName` 为空时降级到 `fallbackModelName`，`fallbackModelName` 由 AppModule 在 DI 初始化时同步预读第一个 default provider 的第一个 default model 注入
+- **交互逻辑**
+  1. `AppModule` 构造 `TaskPlanner` 时调用 `providerStore.providers.first()`（runBlocking 同步桥接）取当前 provider 列表
+  2. 通过 `ModelProviderMatcher.findMatchingProvider(providers, "")` 找 default provider；找不到时降级到 `isDefault && enabled` 第一个
+  3. 取该 provider 的 `models.firstOrNull { isDefault }?.name ?: firstOrNull { enabled }?.name ?: firstOrNull()?.name` 作为 `fallbackModelName`
+  4. `TaskPlanner.planTask()` 内 `effectiveModel = modelName.isBlank() ? fallbackModelName : modelName`；两者都为空时抛 `TaskPlanningException`
+  5. 启动后台协程再异步 `configure(client, modelName)`，在 providers 流变化时刷新 client
+- **输入规则**：用户 query、当前 `modelName`、`fallbackModelName`
+- **输出结果**：调用真实配置的 default model，不再使用 gpt-4o-mini 兜底
+- **关键机制**：DI 初始化阶段使用 `runBlocking` 同步桥接（一次性开销，可接受）；删除原 `TaskPlanner.DEFAULT_MODEL` 常量；保留 `TaskPlanner` companion object 中的其他常量不变
 
 ### 视觉能力检测与图片消息处理
 
@@ -1123,8 +1121,8 @@
 
 - **功能描述**：根据消息复杂度自动选择合适的模型
 - **流程**
-  1. RuleClassifier 分析消息复杂度（简中等/复杂
-  2. MessageComplexityExtractor 提取复杂度特
+  1. RuleClassifier 分析消息复杂度（简单/中等/复杂）
+  2. MessageComplexityExtractor 提取复杂度特征
   3. ModelRouter 根据复杂度选择轻量/重量模型
   4. EscalationContract 定义模型升级条件
 - **关键机制**：规则分类、预算管理、上下文管理
@@ -1133,7 +1131,7 @@
 
 - **功能描述**：主模型调用失败时自动切换到备用模型
 - **流程**
-  1. 检测主模型调用失败（网络错超时/限流
+  1. 检测主模型调用失败（网络错误/超时/限流）
   2. 查找回退模型列表
   3. 按顺序尝试回退模型
   4. 记录故障信息用于后续分析
@@ -1168,25 +1166,42 @@
 
 - **功能描述**：管理多API Key，支持轮换和冷却
 - **流程**
-  1. 维护 Key 列表及使用计
-  2. 选择可用 Key（未冷却、未超限
+  1. 维护 Key 列表及使用计数
+  2. 选择可用 Key（未冷却、未超限）
   3. Key 触发限流后进入冷却期
-  4. 冷却结束后重新可
+  4. 冷却结束后重新可用
 
-## 收件箱系
+## 收件箱系统
 
-### 收件箱存
+### 收件箱存储
 
-- **功能描述**：统一管理审批请求和推送消息的持久化存
+- **功能描述**：仅存智能体主动推送的消息事件。**审批生命周期已 2026-06 全部迁出 inbox_events / pending_approvals 表，统一收口到 Task 审批系统（TaskApprovalService）**
 - **流程**
-  1. InboxStore 封装 InboxDao，提appendEvent/listEvents/getAllApprovals/resolveApproval 等方
-  2. ApprovalService 管理审批生命周期：createPendingApproval 写入数据+ 创建 CompletableDeferred，waitForApproval 挂起等待用户决策，resolveApproval 更新数据库状+ 完成 Deferred
-  3. SendNotificationTool 发送通知时同步调inboxStore.appendEvent 写入推送消
-  4. ToolApprovalManager 统一管理审批流程：requestApproval 创建审批请求（写InboxStore + ApprovalService 挂起等待 CompletableDeferred，resolveApproval 处理用户决策（四选项 持久化规+ 写入收件箱事
-  5. ToolGuardian HIGH+ 风险调用 ToolApprovalManager.requestApproval 挂起等待审批，前台弹+ 后台通知栏审批并
-  6. ~~ToolGuard 审批请求同步ApprovalService~~（已废弃并删除，ToolGuardian + ToolApprovalManager 替代
-  7. ~~ToolApprovalService.showApprovalNotification 同步调用 ApprovalService.createPendingApproval~~（已废弃并删除，通知栏审批委ToolApprovalManager.resolveApproval
-- **关键机制**：Room 持久化（inbox_events + pending_approvals 表）、CompletableDeferred 挂起等待、Koin DI 注入、ToolApprovalReceiver 通过 companion object 静态引ToolApprovalManager（避BroadcastReceiver 中使runBlocking + GlobalContext）、ApprovalDecision 统一inbox 枚举（APPROVED/DENIED）、ToolApprovalManager 规则存储使用 DataStore（Preferences DataStore）、_pendingApprovals 使用 Mutex 保护并发安全
+  1. InboxStore 封装 InboxDao，提供 appendEvent / listEvents / markRead / markAllRead / deleteEvent 等方法
+  2. SendNotificationTool 发送通知时调用inboxStore.appendEvent 写入推送消息
+  3. InboxScreen 只读 inbox_events 推送消息（ListEvents，不再读取审批源）
+  4. ~~ApprovalService.createPendingApproval / waitForApproval / resolveApproval~~ — **2026-06 删除**，由 TaskApprovalService 替代
+  5. ~~ToolApprovalManager 写 InboxStore + ApprovalService 双写~~ — **2026-06 改为只写 Room + NotificationCenter 路径**
+- **关键机制**：Room 持久化（inbox_events 表，保留 push_message 类型）、Koin DI 注入
+- **被替换的旧机制（已删除）**：CompletableDeferred 挂起等待 / 旧 ApprovalDecision inbox 枚举 / pending_approvals 表
+
+### Task 审批服务（统一审批入口 — 2026-06 重构）
+
+- **功能描述**：替代旧 inbox.ApprovalService + 单工具 ad-hoc 拦截两套机制。所有审批（任务内 ApprovalNode + 单工具拦截 + 未来扩展点）走 TaskApprovalService。
+- **流程**
+  1. **任务内审批**（TaskExecutionEngine）：step.requiresApproval=true → status RUNNING → AWAITING_APPROVAL → TaskApprovalService.register(node) 启 300s 超时协程 → NotificationCenter.notify(APPROVAL_REQUEST) → 用户决策 (approve/reject/modify) → 状态机转移
+  2. **单工具拦截**（ToolApprovalManager）：Agent.executeTool → ToolApprovalManager.requestApproval → checkRule(tool_approval_rules) 命中 ALWAYS_* 直接返回 → 未命中建临时 TaskEntity (source='tool_approval', 1 step + 1 ApprovalNode) → TaskApprovalService.register → 用户决策 → 选 ALWAYS_* 写 tool_approval_rules
+  3. **Chat 接收**（ChatViewModel/ChatScreen）：observe TaskDao.findBySessionSourcesStatus(AWAITING_APPROVAL) → 当前 session 顶部 inline 卡片（InlineApprovalCard）→ 其他 session 弹 Dialog（OtherSessionApprovalDialog）→ ChatViewModel.onApprove/onDeny → ToolApprovalManager.resolveApproval → TaskApprovalService.approve/reject
+  4. **后台通知栏**（HippyAgentApp 观察者 + ToolApprovalReceiver）：单工具拦截时仍由 _pendingApprovals StateFlow 触发系统通知；ToolApprovalReceiver 处理通知「批准 / 拒绝」按钮 → ToolApprovalManager.resolveApproval
+- **关键机制**
+  - **单一真相源**：所有审批状态存 Room `executable_tasks` 表（status, approvalNodes, source 字段），不再分散在 inbox_events / pending_approvals / DataStore
+  - **任务区分**：TaskEntity.source 字段 'task'（真任务）/ 'tool_approval'（单工具拦截），加复合索引 (status, source, created_at)；Room 版本 v22 → v23（MIGRATION_22_23：ALTER TABLE 加 source 列 + CREATE TABLE tool_approval_rules + 3 个复合索引）
+  - **规则持久化**：`tool_approval_rules` 表（key, action, tool_name, arg_hash, created_at），复合索引 (tool_name, arg_hash)；从 DataStore 迁来
+  - **7 天清理**：ToolApprovalCleanupWorker（WorkManager 周期 24h）清 source='tool_approval' && status IN (COMPLETED, FAILED) && created_at < now-7d 的 TaskEntity
+  - **UI 默认隐藏**：TaskListViewModel 默认 _showToolApproval=false，过滤 source='tool_approval' 不污染任务列表；用户可切 toggle
+  - **并发幂等**：ToolApprovalManager.resolveApproval 用 ConcurrentHashMap.newKeySet() 的 resolvedSet 做幂等门，UI + broadcast 双触发只处理一次
+  - **超时双保险**：TaskApprovalService 内部 300s timeout 协程；ToolApprovalManager.requestApproval 兜底 310s withTimeoutOrNull → DENY_ONCE
+- **被替换的旧机制（已删除）**：~~ApprovalService.kt / InboxStore审批方法 / InboxDao审批方法 / PendingApproval entity / InboxScreen.ApprovalsTab~~ — 2026-06 全部删除，审批生命周期统一由 TaskApprovalService 管理
 
 ## 工具系统
 
@@ -1194,24 +1209,23 @@
 
 - **功能描述**：管理所有工具的注册、查询和执行
 - **流程**
-  1. ToolInitializer 注册所有内置工
+  1. ToolInitializer 注册所有内置工具
   2. 工具按名称注册到 ToolRegistry
-  3. Agent 构建请求时通getDefinitionsForAgent() 获取该 Agent 可见的工具列表（4 层过滤）
-  4. Agent 请求执行工具时，Registry 查找并调
-  5. 执行前进行安全检查（ToolGuardian 项检+ HIGH 起审 + ToolApprovalManager 四选项审批
-  6. HIGH/CRITICAL 风险需用户审批（四选项：允许一始终允许/拒绝一不再允许），MEDIUM 仅记日志
-  7. 审批结果写入收件箱（不管处理没处理都显示
-  8. 安全阻止的工具调用写入收件箱（ToolApprovalManager.recordBlockedCall 记录 blocked_by_guardian 事件
-  9. 执行后返ToolResult
+  3. Agent 构建请求时通过 getDefinitionsForAgent() 获取该 Agent 可见的工具列表（4 层过滤）
+  4. Agent 请求执行工具时，Registry 查找并调用
+  5. 执行前进行安全检查（ToolGuardian 项检+ HIGH 起审）+ ToolApprovalManager 四选项审批
+  6. HIGH/CRITICAL 风险需用户审批（四选项：允许一次/始终允许/拒绝/不再允许），MEDIUM 仅记日志
+  7. ~~审批结果写入收件箱~~（2026-06 删除：审批生命周期已迁出 inbox_events，详见「Task 审批服务」）
+  8. ~~安全阻止的工具调用写入收件箱（ToolApprovalManager.recordBlockedCall 记录 blocked_by_guardian 事件）~~（2026-06 删除：recordBlockedCall 改为仅 log 不写 inbox）
+  9. 执行后返回ToolResult
 - **关键机制**
   - 工具中文名映射：BuiltinToolNames 提供工具英文名→中文显示名映射，ToolCallBlockView 使用 getDisplayName() 展示中文名，无映射时回退英文原名
-- **关键机制**
   - 权限检查器（Android 权限 + 自定义权限）
-  - 延迟工具注册（DeferredToolRegistry
-  - 工具访问控制（ToolAccessController）Agent 构建请求时使getDefinitionsForAgent(agentId) 而非 getVisibleDefinitions()，确denyList/allowList 真正生效
+  - 延迟工具注册（DeferredToolRegistry）
+  - 工具访问控制（ToolAccessController）：Agent 构建请求时使用getDefinitionsForAgent(agentId) 而非 getVisibleDefinitions()，确保denyList/allowList 真正生效
   - **按 Agent 角色动态工具过滤（defaultToolKit）**：已废弃（2026-05-26）。工具全量注入，不再以 defaultToolKit 过滤，仅保留访问控制层（denyList/allowList）过滤
   - 文件锁管理（FileLockManager，防止并发写入冲突）
-  - TTL 管理（ToolTTLManager
+  - TTL 管理（ToolTTLManager）
 
 ### 按 Agent 角色动态工具过滤（defaultToolKit）— 已废弃
 
@@ -1223,48 +1237,48 @@
 
 - **功能描述**：Agent 可调用的内置能力
 - **工具列表**
-  - **ShellTools**：执Shell 命令、获取工作目录、管理环境变
+  - **ShellTools**：执行 Shell 命令、获取工作目录、管理环境变量
   - **FileTools**：读写文件、列表目录、搜索文件（write_file/edit_file 返回 diff 格式，append_file 返回追加内容原文，delete_file 返回简"Deleted path"）；文件不存在时相对路径自动重定向到智能体工作区（绝对路径不重定向）；edit_file 工具描述强制要求先用 read_file 读取原文再精确复制 old_text，old_text 未找到时返回含文件预览的错误提示
   - **GitTools**：Git 操作
   - **ImageGenerateTool**：AI 图片生成
-  - **SkillTools**：技能管
-  - **ReadLogcatTool**：读Logcat
+  - **SkillTools**：技能管理
+  - **ReadLogcatTool**：读取 Logcat
   - **SendNotificationTool**：发送通知，system 类型同时发送系统通知栏通知和悬浮窗弹窗（无悬浮窗权限时仅走通知栏）
-  - **SendImageToUserTool**：发送图
-  - **CronTool**：定时任务管
-  - **GetCurrentTimeTool**：获取当前时
+  - **SendImageToUserTool**：发送图片
+  - **CronTool**：定时任务管理
+  - **GetCurrentTimeTool**：获取当前时间
   - **GradleTools**：Gradle 构建
-  - **ViewMediaTools**：查看媒体文
+  - **ViewMediaTools**：查看媒体文件
   - **ToolSearchTool**：搜索延迟加载的工具
-  - **AskClarificationTool**：请求用户澄
+  - **AskClarificationTool**：请求用户澄清
   - **LoadSkillTool**：动态加载技能；回退逻辑：workspace/skill.json → workspace/skill_config.json → AgentRepository.getEnabledSkillsFromJson（含 AgentProfile.skills 回退）；加载技能时调用 SkillLifecycleManager.activateSkill 动态注册技能关联工具
   - **MemorySearchTool**：搜索长期记忆，搜索范围包括：智能体的 MEMORY.md、memory 文件夹下所有 markdown 文件、Second Brain 记忆库；封装 MemoryRepository.searchHybrid + 工作区文件关键词搜索，支持 query + limit 参数，返回分类结果（工作区记忆文件 + Second Brain 记忆库）
   - **AgentInfoTool**：查询智能体信息（agent_info），支持4种查询模式：单智能体查询、列表查询、关键词搜索、群组成员查询
 
 ### Android 系统工具
 
-- **功能描述**：调Android 系统能力的工
+- **功能描述**：调用 Android 系统能力的工具
 - **工具列表**
   - **WifiTools**：WiFi 管理
-  - **SmsTools**：短信收
+  - **SmsTools**：短信收发
   - **SensorTools**：传感器数据读取
-  - **PhoneTools**：拨打电
-  - **NotificationTools**：通知管理（含通知缓存
-  - **MediaTools**：媒体管
-  - **MediaSessionTools**：媒体会话控
-  - **LocationTools**：定
+  - **PhoneTools**：拨打电话
+  - **NotificationTools**：通知管理（含通知缓存）
+  - **MediaTools**：媒体管理
+  - **MediaSessionTools**：媒体会话控制
+  - **LocationTools**：定位
   - **ContactTools**：联系人访问
-  - **CalendarTools**：日历管
-  - **BluetoothTools**：蓝牙管
+  - **CalendarTools**：日历管理
+  - **BluetoothTools**：蓝牙管理
   - **AndroidTools**：通用 Android 操作
-  - **AlarmTools**：闹钟管
+  - **AlarmTools**：闹钟管理
 
 ### 网络工具
 
-- **功能描述**：网络访问工
+- **功能描述**：网络访问工具
 - **工具列表**
-  - **WebFetchTool**：抓取网页内
-  - **WebSearchTool**：网络搜
+  - **WebFetchTool**：抓取网页内容
+  - **WebSearchTool**：网络搜索
 
 ### 浏览器自动化工具
 
@@ -1304,21 +1318,21 @@
 
 ### 手机控制工具
 
-- **功能描述**：通过无障碍服务控制手
+- **功能描述**：通过无障碍服务控制手机
 - **工具列表**
   - **ScreenInteractTool**：屏幕交互（点击、滑动、输入）
-  - **PhoneAutomateTool**：手机自动化（VLM 分析屏幕 + 执行操作
+  - **PhoneAutomateTool**：手机自动化（VLM 分析屏幕 + 执行操作）
 
 ### Linux 工具
 
-- **功能描述**：在 PRoot Linux 容器中执行操
+- **功能描述**：在 PRoot Linux 容器中执行操作
 - **工具列表**
-  - **ExecuteBashTool**：执Bash 命令
-  - **ExecutePythonTool**：执Python 脚本
-  - **InstallPackageTool**：安Linux 
-  - **FileTransferTool**：Android Linux 文件传输
+  - **ExecuteBashTool**：执行 Bash 命令
+  - **ExecutePythonTool**：执行 Python 脚本
+  - **InstallPackageTool**：安装 Linux 包
+  - **FileTransferTool**：Android 与 Linux 文件传输
   - **ClipboardSyncTool**：剪贴板同步
-  - **DeviceAccessTool**：设备访
+  - **DeviceAccessTool**：设备访问
   - **SshServerTool**：SSH 服务
 
 ### MCP 工具注册
@@ -1327,11 +1341,11 @@
 - **流程**
   1. MCPClientManager 连接 MCP 服务
   2. 获取服务器提供的工具列表
-  3. MCPToolRegistrar MCP 工具转为 ToolDefinition
-  4. 注册ToolRegistry
-- **关键机制**：MCP 协议适配、工具参数转换、客户端断开时自动注销工具（unregisterClient
+  3. MCPToolRegistrar 将 MCP 工具转为 ToolDefinition
+  4. 注册到 ToolRegistry
+- **关键机制**：MCP 协议适配、工具参数转换、客户端断开时自动注销工具（unregisterClient））
 
-### 子代理工
+### 子代理工具
 
 - **功能描述**：支持当前智能体并发执行多个子任务（嵌套 session，不创建新智能体）
 - **工具列表**
@@ -1341,7 +1355,7 @@
 
 ### 技能商店架构
 
-- **功能描述**：技能商店后端架构，MarketProvider 模式消除三市场重复代码，SkillManager Facade 拆分降低职责过重
+- **功能描述**：技能商店后端架构，MarketProvider 模式消除三市场重复代码，SkillManager Facade 拆分以降低职责过重
 - **流程**
   1. MarketProvider 接口定义：`key / label / source` 属性 + `available(): AvailabilityResult` + `search(query, page, pageSize): Result<SearchResult>` + `install(identifier): Result<String>` + `getDetail(identifier): Result<StoreSkillItem?>`（默认返回 null，Skills.sh/ClawHub 覆盖实现通过 CLI info 命令获取描述和作者）
   2. 三个 Provider 实现：`LobeHubProvider` / `SkillsShProvider` / `ClawHubProvider`，各封装 CLI 命令和输出解析；Skills.sh 和 ClawHub 实现 `getDetail` 分别调用 `npx skills info` 和 `npx clawhub info`，解析 Description/Author 字段
@@ -1365,24 +1379,24 @@
 
 ### 群聊广播预检评分系统
 
-- **功能描述**：群聊广播消息前的三关预检评分，决定哪Agent 需要接收广播消
+- **功能描述**：群聊广播消息前的三关预检评分，决定哪些 Agent 需要接收广播消息
 - **流程**
   1. BroadcastPreScorer 组装三关评分管道：TriggerWordMatcher DescriptionPhraseMatcher SemanticScorer
-  2. 对每个候Agent 依次执行管道中的 Scorer，取最高分
+  2. 对每个候选 Agent 依次执行管道中的 Scorer，取最高分
   3. 分数达到阈值（默认 7）时早期退出，不再执行后续 Scorer
-  4. 返回按分数降序排列的 RelevanceScore 列表，isRelevant 判断是否需要广
-- **三关评分*
-  - **TriggerWordMatcher**：触发词精确匹配，命2+ 9 分，命中 1 7 分，未命0 
-  - **DescriptionPhraseMatcher**：描述短语匹配，关键词交集每+2 分，短语命中每个 +3 分，上限 7 分；内置中文停用词过
+  4. 返回按分数降序排列的 RelevanceScore 列表，isRelevant 判断是否需要广播
+- **三关评分**
+  - **TriggerWordMatcher**：触发词精确匹配，命中 2+ 得 9 分，命中 1 得 7 分，未命中 0 分 
+  - **DescriptionPhraseMatcher**：描述短语匹配，关键词交集每个 +2 分，短语命中每个 +3 分，上限 7 分；内置中文停用词过滤滤
   - **SemanticScorer**：语义相似度评分，HybridSemanticScorer 混合实现（0.6 关键词相似度 + 0.4 词频余弦相似度），ONNX 模型可用时自动刷新嵌入
-- **关键机制**：管道式评分、早期退出、工厂函数自动检ONNX 模型文件决定是否启用语义评分
+- **关键机制**：管道式评分、早期退出、工厂函数自动检测 ONNX 模型文件决定是否启用语义评分
 
 ### 群聊编排
 
-- **功能描述**：编排多 Agent 群聊对话，已合并AgentGroup 中统一管理
+- **功能描述**：编排多 Agent 群聊对话，已合并到 AgentGroup 中统一管理
 - **流程**
   1. AgentGroup 接收用户消息，通过 GroupMessageRouter 路由到目Agent
-  2. 为每个目Agent 构建群组系统提示（通过 systemPromptSuffix 注入，使GroupChatPrompts.buildAgentSystemPrompt
+  2. 为每个目Agent 构建群组系统提示（通过 systemPromptSuffix 注入，使用 GroupChatPrompts.buildAgentSystemPrompt
   3. 群组系统提示包含：智能体自身身份描述（agentDescriptions[agentId]）、群组信息、其他智能体描述、@沟通方式、提及链路（含回环检测提示）、群聊交流规则（通过 @ 相互回复形成讨论）
   4. 所有 Agent 共享同一 sessionId（groupId），不再创建 `${groupId}_${agentId}` 的独立会话，消除 UI 中出现的幽灵会话
   5. 群组通信上下文通过 systemPromptSuffix 提供（按相关性过滤的消息、成员描述），不依赖 session 内其Agent 的消息；过滤规则：保留用户广播消+ @当前 Agent 的消+ 当前 Agent 自身消息，移takeLast(20) 硬截断，Agent ContextManager Token 限制自动压缩
@@ -1403,6 +1417,24 @@
   - **LLM 终止判断**（`shouldTerminateWithLLM()`）：调用 LLMSpeakerSelector.shouldTerminate()，让 LLM 判断群聊是否应该结束；终止关键词支持多语言（YES/yes/Y/是/完成/结束/done/complete/finished），拒绝终止关键词（NO/no/N/否/继续/未完成/continue/not yet/ongoing），trim+首词+大小写不敏感匹配；仅在处理后且满足条件（轮次>maxRounds/2 或 ping-pong 检测）时调用
   - 三项能力均通过 AgentGroupConfig 配置开关（enableLLMSpeakerSelection/enablePingPongDetection/enableLLMTermination），默认关闭
   - LLM 决策模型配置：AgentGroupConfig 和 GroupChatConfig 支持 llmSelectorProviderId + llmSelectorModelName 字段，指定群组决策（发言者选择/终止判断）使用的模型供应商和模型名；LLMSpeakerSelector 优先使用 providerId/modelName 组合查找 modelClient，回退到 llmSelectorModel 按模型名查找；AgentModule 构建时遍历所有 enabled provider，为每个模型注册双键（modelName + providerId/modelName），确保 provider+model 精确匹配可用
+
+### 群聊用户消息集中决策
+
+- **功能描述**：群聊中用户消息触发时，由 `GroupPreDecisionMaker` 一次 LLM 调用同时决定本轮的 (mode, broadcastScope)，整轮共享同一决策
+  1. `GroupPreDecisionMaker.decide(groupId, userMessage)` 在收到无 @ 提及的用户消息时被 `GroupMessageRouter.route()` 调用
+  2. LLM 返回 JSON `{"mode": "WORK|CHAT", "broadcast_scope": "ALL|RELEVANT|NONE", "reasoning": "..."}`，3 秒超时回退到 `(WORK, ALL)`
+  3. 决策通过 `onDecisionDecided` 回调写入 `AgentGroup._currentTurnDecision`
+  4. `GroupMessageRouter.route()` 据 `broadcastScope` 过滤 `deliverToAgents`（NONE=空，RELEVANT=BroadcastPreScorer 二次打分，ALL=全量或打分非空）
+  5. `AgentGroup.processAgentResponse` 读取 `_currentTurnDecision`，调用 `ModeOrchestrator.resolveMode(overrideMode = decision.mode)` + `applyForMode` 将模式 prompt 拼入 `systemPromptSuffix`
+  6. `ModeOrchestrator.ModeSource` 新增 `GROUP_DECIDED`，供 UI 标识当前模式来源
+  7. `ModeOrchestrator.resolveMode(overrideMode = ...)` 当非 AUTO 时短路返回（不再调用 ModeRouter.decideMode）
+- **关键设计**
+  - 集中决策避免 N 个 Agent 各自跑 ModeRouter 造成 N 次 LLM 调用 + N 份独立决策可能不一致
+  - modelClients 通过 `named("groupModelClients")` 单例 + ConcurrentHashMap 异步填充，GroupPreDecisionMaker 持引用即可看到后续条目
+  - `getGroupConfig`/`getAgentDescriptions` lambdas 在 AgentGroupManager 中通过 `groupConfigCache`/`groupDescriptionsCache` 提供同步数据（创建群组时缓存，add/remove/delete 时失效）
+  - 失败/超时回退到 `(WORK, ALL)` 保证群聊不卡死，符合用户要求
+  - @提及场景跳过集中决策（已在显式路由路径）
+- **输出结果**：群聊单轮共享一个 mode 和 broadcastScope，所有被广播的 Agent 使用相同 mode
 
 ### 群聊交流规则
 
@@ -1475,31 +1507,31 @@
 
 - **功能描述**：提供智能体元信息的查询与缓存能力，支持 Agent 间互相了解身份、职责、边界和协作偏好
 - **交互逻辑**
-  1. AgentInfoTool（agent_info）对外暴种查询模式：单智能体查询（query=agentId）、列表查询（query="list"）、关键词搜索（query="search:keyword"）、群组成员查询（query="group:groupId"
+  1. AgentInfoTool（agent_info）对外暴露四种查询模式：单智能体查询（query=agentId）、列表查询（query="list"）、关键词搜索（query="search:keyword"）、群组成员查询（query="group:groupId"
   2. AgentInfoRepository 聚合 AgentRegistry、AgentRepository、GroupRegistry 数据源，构建 AgentCard 数据模型
   3. AgentCardParser 作为 fallback 解析器，SOUL.md 解析 identity、从 AGENTS.md 解析 responsibilities/boundaries
   4. AgentInfoCache 基于 ConcurrentHashMap 的事件驱动缓存，监听 AgentRegistry 变更自动失效
   5. AgentProfile 扩展 identity/responsibilities/boundaries/collaboration 字段，优先使用结构化数据，fallback Markdown 解析
 - **输入规则**：query 参数（agentId / list / search:keyword / group:groupId）、可refresh 参数
-- **输出结果**：ToolResult 包含 JSON 格式 output 和人类可forUser 摘要
+- **输出结果**：ToolResult 包含 JSON 格式 output 和人类可读的 forUser 摘要
 
 ### Agent 群组管理
 
-- **功能描述**：管Agent 群组的创建、配置和生命周期
+- **功能描述**：管理 Agent 群组的创建、配置和生命周期
 - **流程**
-  1. GroupRegistry 持久化群组配置（Room 数据agent_groups 表），支renameGroup 仅更新名称而不丢失其他字段
-  2. AgentGroupManager 统一管理群组生命周期和状态机（直接持AgentFactory + AgentMessageBus + LLMSpeakerSelector + GroupCollaborationProtocol，不再依GroupChatOrchestrator/GroupLifecycleManager
+  1. GroupRegistry 持久化群组配置（Room 数据库agent_groups 表），支持renameGroup 仅更新名称而不丢失其他字段
+  2. AgentGroupManager 统一管理群组生命周期和状态机（直接持有AgentFactory + AgentMessageBus + LLMSpeakerSelector + GroupCollaborationProtocol，不再依赖 GroupChatOrchestrator/GroupLifecycleManager）
   3. 群组生命周期状态机：FORMING ACTIVE SUSPENDED DISSOLVED
      - FORMING：群组刚创建，尚未添加成员；添加第一个成员后自动切换ACTIVE
      - ACTIVE：群组活跃，可正常通信；suspendGroup() 可切换为 SUSPENDED
-     - SUSPENDED：群组暂停（所有成员离不活跃）；activateGroup() 可恢复为 ACTIVE
-     - DISSOLVED：群组解散（所有成员移除或手动解散）；不可逆，不可再添加成
-  4. 群组成员状态跟踪（GroupMemberStatus：ONLINE/INACTIVE/OFFLINE），支持 updateMemberStatus 更新心跳状
-  5. 健康检查（checkGroupHealth）：检测不活跃/离线成员，给出建议状态（全部离线→SUSPENDED，无成员→DISSOLVED，否则→ACTIVE
+     - SUSPENDED：群组暂停（所有成员离组/不活跃）；activateGroup() 可恢复为 ACTIVE
+     - DISSOLVED：群组解散（所有成员移除或手动解散）；不可逆，不可再添加成员
+  4. 群组成员状态跟踪（GroupMemberStatus：ONLINE/INACTIVE/OFFLINE），支持 updateMemberStatus 更新心跳状态
+  5. 健康检查（checkGroupHealth）：检测不活跃/离线成员，给出建议状态（全部离线→SUSPENDED，无成员→DISSOLVED，否则→ACTIVE）
   6. AgentMessageBus 联动：addAgent 时注册消息路由，removeAgent/dissolveGroup 时注销
-  7. AgentGroup 定义群组成员和规则，处理群组消息路由Agent 响应
-  8. getOrCreateAgentGroup 创建 AgentGroup 时注speakerSelector + collaborationProtocol，默认启LLM 发言者选择、Ping-pong 检测、LLM 终止判断
-- **关键机制**：群组持久化（Room agent_groups 表，groupId/groupName/agentIds/mentionOnlyAgentIds/llmSelectorProviderId/llmSelectorModelName/createdAt 字段）、成员管理、AgentGroup 缓存（addAgent/removeAgent cleanup 旧实例确保重建一致性）、renameGroup 原子更新名称、updateGroupLlmSelector 更新决策模型配置（更新后清除 AgentGroup 缓存强制重建）、JSON→Room 数据迁移（首次启动自动迁groups.json 并删除旧文件）、生命周期状态机、成员状态跟踪、健康检查、消息总线联动、LLM 发言者选择/Ping-pong 检LLM 终止判断默认启用
+  7. AgentGroup 定义群组成员和规则，处理群组消息路由和Agent 响应
+  8. getOrCreateAgentGroup 创建 AgentGroup 时注入speakerSelector + collaborationProtocol，默认启用LLM 发言者选择、Ping-pong 检测、LLM 终止判断
+- **关键机制**：群组持久化（Room agent_groups 表，groupId/groupName/agentIds/mentionOnlyAgentIds/llmSelectorProviderId/llmSelectorModelName/createdAt 字段）、成员管理、AgentGroup 缓存（addAgent/removeAgent cleanup 旧实例确保重建一致性）、renameGroup 原子更新名称、updateGroupLlmSelector 更新决策模型配置（更新后清除 AgentGroup 缓存强制重建）、JSON→Room 数据迁移（首次启动自动迁groups.json 并删除旧文件）、生命周期状态机、成员状态跟踪、健康检查、消息总线联动、LLM 发言者选择/Ping-pong 检测/LLM 终止判断默认启用
 
 ### 群聊 @ 机制核心组件
 
@@ -1507,7 +1539,7 @@
 - **交互逻辑**
   1. MentionChainManager：回环检测机制，深度检查（>=maxDepth 拒绝）+ 环路检查（hasCycle：agentId 已在 path 中即视为环路，但不再硬性阻断，而是标记为 cycleTarget 允许传播，同时在系统提示词中注入回环提示让智能体自行判断），为每 allowed 目标生成独立 MentionPath；PropagationResult 新增 cycleTargets 字段记录回环目标；熔断器（连续拒绝=threshold 触发，冷却后自动恢复）；GroupMessageRouter 路由时检 isCircuitOpen 跳过熔断目标、被拒绝时调 recordRejection 记录
   2. ParallelArbitrator：并行触发仲裁，基于 TriggerTicket 和 TriggerPriority（USER_DIRECT > USER_BROADCAST > AI_MENTION > AI_SILENT）管理会话锁，支持优先级抢占（USER_DIRECT 抢占所有、USER_BROADCAST 抢占 AI_MENTION 和 AI_SILENT、AI_MENTION 抢占 AI_SILENT），30s 超时自动驱逐，evictExpired 惰性清理（仅当 lockTimestamps 超过 1000 条时触发）
-  3. DisplayNameFuzzyMapper：@displayName agentId 映射，支持精确匹agentId 精确匹配 displayName 前缀匹配 包含匹配四级降级
+  3. DisplayNameFuzzyMapper：@displayName agentId 映射，支持精确匹配agentId 精确匹配 → displayName 前缀匹配 → 包含匹配，四级降级
 - **输入规则**：MentionPath、TriggerTicket、mentionText、GroupChatMessage 列表
 - **输出结果**：PropagationResult（allowed/rejected/paths/cycleTargets）、AcquireResult（Granted/Denied）、agentId
 
@@ -1520,21 +1552,20 @@
   3. MessageRelay 负责消息中继
   4. MentionParser 解析 @mention（Regex 预编译为顶层常量，避免每次调用重新编译）
   5. GroupMessageRouter 路由群组消息
-- **关键机制**：发订阅模式、消息队
+- **关键机制**：发布/订阅模式、消息队列
 
 ### ~~DAG 任务编排~~（已废弃，2026-05-20 删除）
 
-- **功能描述**：基于有向无环图的任务编
+- **功能描述**：基于有向无环图的任务编排
 - **流程**
   1. DagTaskOrchestrator 解析 DAG 任务
-  2. TaskStateMachine 管理任务状态转
+  2. TaskStateMachine 管理任务状态转换
   3. 并行执行无依赖的任务
   4. 串行执行有依赖的任务
-  5. 聚合所有任务结
+  5. 聚合所有任务结果
 - **关键机制**：DAG 拓扑排序、状态机、并行调度、ProcessingMarker 过期检测、TeamTaskHandoff 结果写入
 
-### 子代理系
-
+### 子代理系统
 - **功能描述**：支持当前智能体并发执行多个子任务（嵌套 session），不创建新智能体
 - **流程**
   1. Agent 通过 SpawnSubAgentTool 派发并发子任务（tasks 参数为 JSON 数组，每项含 prompt，不含 agent_id）
@@ -1565,10 +1596,10 @@
 
 ### Agent 会话管理
 
-- **功能描述**：管Agent 的会话绑定和会话生命周期，维Agent Session 的映射关
-- **交互逻辑**：Agent 启动时绑定会话，结束时释放；支持Agent 查询活跃会话、按会话查询所Agent
+- **功能描述**：管理 Agent 的会话绑定和会话生命周期，维护 Agent 与 Session 的映射关系
+- **交互逻辑**：Agent 启动时绑定会话，结束时释放；支持Agent 查询活跃会话、按会话查询所有 Agent
 - **输入规则**：Agent ID、Session ID 绑定/解绑请求
-- **输出结果**：AgentSession 映射、活跃会话列
+- **输出结果**：AgentSession 映射、活跃会话列表
 
 ### Agent 消息路由
 
@@ -1576,39 +1607,39 @@
 - **交互逻辑**
   1. 接收 AgentMessage（含发送方、接收方、负载）
   2. 点对点消息直接投递到目标 Agent 队列
-  3. 广播消息投递到群组内所Agent
-- **输入规则**：AgentMessage（senderId、recipientId、payload
+  3. 广播消息投递到群组内所有 Agent
+- **输入规则**：AgentMessage（senderId、recipientId、payload）
 - **输出结果**：消息投递到目标 Agent
 
 ### 主动触发
 
-- **功能描述**：基于记忆和频道状态主动触Agent 交互，实Agent 主动式行
+- **功能描述**：基于记忆和频道状态主动触发 Agent 交互，实现 Agent 主动式行为
 - **交互逻辑**
-  1. 监听频道消息和记忆变
-  2. MemoryManager + HybridRetriever（语义检+ 关键词检索）评估触发条件
+  1. 监听频道消息和记忆变化
+  2. MemoryManager + HybridRetriever（语义检索 + 关键词检索）评估触发条件
   3. 满足条件时构造触发消息发送给目标 Agent
-- **输入规则**：频道事件、记忆更
+- **输入规则**：频道事件、记忆更新
 - **输出结果**：Agent 主动交互消息
 
 ### 团队任务交接
 
 - **功能描述**：多 Agent 团队内的任务交接和工件传递，支持 Agent 间工作成果的有序流转
 - **交互逻辑**
-  1. Agent 完成子任务后，将产出物写入共workspace 目录
-  2. TeamTaskHandoff 记录交接关系（源 Agent 目标 Agent 工件路径
-  3. 目标 Agent workspace 读取交接工件继续执行
-- **输入规则**：源 Agent ID、目Agent ID、工件描
-- **输出结果**：交接记录、工件文件路
+  1. Agent 完成子任务后，将产出物写入共享 workspace 目录
+  2. TeamTaskHandoff 记录交接关系（源 Agent、目标 Agent、工件路径
+  3. 目标 Agent 从 workspace 读取交接工件继续执行
+- **输入规则**：源 Agent ID、目标 Agent ID、工件描述
+- **输出结果**：交接记录、工件文件路径
 
 ### 处理标记
 
-- **功能描述**：标记和跟踪群组协作中消息的处理状态，防止重复处理和遗
+- **功能描述**：标记和跟踪群组协作中消息的处理状态，防止重复处理和遗漏
 - **交互逻辑**
-  1. 消息进入处理时标记为 ProcessingMarkerData（含 Agent ID、消ID、时间戳
-  2. 处理完成后清除标
-  3. 其他 Agent 可查询消息是否已被处
-- **输入规则**：消ID、Agent ID
-- **输出结果**：处理状态（已处未处处理中）
+  1. 消息进入处理时标记为 ProcessingMarkerData（含 Agent ID、消息 ID、时间戳）
+  2. 处理完成后清除标记
+  3. 其他 Agent 可查询消息是否已被处理
+- **输入规则**：消息 ID、Agent ID
+- **输出结果**：处理状态（已处理/未处理/处理中）
 
 ### 群组协作协议
 
@@ -1616,31 +1647,31 @@
 - **交互逻辑**
   1. GroupCollaborationProtocol 定义协作规则（发言顺序、Mention 解析、回复协议）
   2. MentionExchange 处理 Agent 间的 @mention 交互
-  3. shouldStopPingPong() 检测无意义来回对话，已集成AgentGroup.detectPingPong()
+  3. shouldStopPingPong() 检测无意义来回对话，已集成到 AgentGroup.detectPingPong()
   4. ~~isMinimalMentionRequired(TaskEvent)~~（已删除 2026-05-21，TaskEvent 随 taskflow/taskqueue 死代码清理已移除）
 - **输入规则**：群组配置、Mention 消息
 - **输出结果**：协作规则、Mention 路由结果
 
 
-## 任务与流
+## 任务与流程
 
 ### HippyJob 任务队列
 
-- **功能描述**：持久化任务队列，支持优先级、重试、超时、幂
+- **功能描述**：持久化任务队列，支持优先级、重试、超时、幂等
 - **流程**
-  1. HippyJobQueue 提交任务到队
-  2. HippyJobWorker 轮询获取待执行任
+  1. HippyJobQueue 提交任务到队列
+  2. HippyJobWorker 轮询获取待执行任务
   3. 执行任务（支持子任务、超时、重试）
-  4. 更新任务状态（WAITING ACTIVE COMPLETED/FAILED
+  4. 更新任务状态（WAITING → ACTIVE → COMPLETED/FAILED）
   5. StallDetector 检测卡住的任务
   6. RateLimiter 限制任务执行速率
 - **关键机制**
   - Room 持久化（hippy_jobs 表）
-  - 优先级排序（复合索引 status+priority+createdAt
-  - 指数退避重
-  - 幂等性保证（idempotencyKey
+  - 优先级排序（复合索引 status+priority+createdAt）
+  - 指数退避重试
+  - 幂等性保证（idempotencyKey）
   - 父子任务关系
-  - 锁机制（lockToken + lockUntil
+  - 锁机制（lockToken + lockUntil）
 
 ### 流程引擎
 
@@ -1648,16 +1679,16 @@
 - **流程**
   1. FlowEngine 创建流程记录
   2. FlowStepExecutor 执行每个步骤
-  3. 步骤间可传递数
+  3. 步骤间可传递数据
   4. 支持流程状态查询和取消
 - **关键机制**：Room 持久化（flow_records + flow_steps 表）
 
 ### 心跳调度
 
-- **功能描述**：定时触Agent 主动交互
+- **功能描述**：定时触发 Agent 主动交互
 - **流程**
   1. HeartbeatScheduler 根据配置创建定时任务
-  2. 到达心跳时间时，构造心跳消
+  2. 到达心跳时间时，构造心跳消息
   3. 调用 Agent.processMessage 处理
   4. 记录心跳执行结果
 - **关键机制**：CoroutineScheduler、配置化间隔
@@ -1688,46 +1719,46 @@
   4. schedule 参数为可选，与 natural_language 二选一
 - **关键机制**：Cron 表达式解析、AlarmManager、WorkerFactory 注册 CronJobWorker（五参构造：Context + WorkerParameters + AgentFactory + SessionStore + CronJobManager）、NaturalLanguageCronParser 正则匹配 + 预处理归一化、执行后自动重新调度；CronJobManager 并发安全：createJob/deleteJob/updateJob/recordExecution/clearHistory 使用 mutex.withLock 保护，读操作（getEnabledJobs/getJob/getExecutions/getStats）使用 toList() 快照避免 ConcurrentModificationException
 
-## 记忆与人
+## 记忆与人格
 
 ### 记忆管理
 
 - **功能描述**：协调记忆的存储、检索和更新
 - **流程**
   1. 短期记忆：当前对话上下文
-  2. 长期记忆：文件存+ 向量检
+  2. 长期记忆：文件存储 + 向量检索
   3. Second Brain：Room + FTS5 全文搜索
-- **关键机制**：分层记忆架
+- **关键机制**：分层记忆架构
 
 ### Second Brain 记忆系统
 
-- **功能描述**：结构化长期记忆存储和检
+- **功能描述**：结构化长期记忆存储和检索
 - **流程**
   1. MemoryExtractor 从对话中提取记忆条目
   2. 记忆条目包含：摘要、详情、类型、置信度、重要性、耐久
   3. MemoryDao 提供 CRUD + FTS 搜索
-  4. MemoryRepository 提供高层接口（存检修剪/统计
-  5. 记忆类型：事fact)、偏preference)、程procedure)、社social)
-  6. 证据类型：对话、工具输出、用户反
+  4. MemoryRepository 提供高层接口（存储/检索/修剪/统计）
+  5. 记忆类型：事实(fact)、偏好(preference)、程序(procedure)、社交(social)
+  6. 证据类型：对话、工具输出、用户反馈
 - **关键机制**
   - Room 持久化（memories + memories_fts 虚拟表）
   - FTS5 全文搜索
-  - 置信重要性评
-  - 修剪策略（低重要+ 长期未使优先修剪
+  - 置信度/重要性评分
+  - 修剪策略（低重要性 + 长期未使用优先修剪）
 
 ### Dream 记忆处理
 
 - **功能描述**：后台整理和优化记忆
 - **流程**
-  1. DreamScheduler 定期触发（WorkManager
+  1. DreamScheduler 定期触发（WorkManager）
   2. DreamWorker 执行后台处理（构造参数：AppDatabase?、DreamEntityBridge?，均默认 null）
   3. DreamMemoryProcessor 处理流程
      - 扫描长期未整理的记忆
      - 合并相似记忆
-     - 修剪低价值记
+     - 修剪低价值记忆
      - 生成新的洞察
   4. 记录 Dream 处理历史（dream_history 表）
-- **关键机制**：WorkManager、增量处理、历史记
+- **关键机制**：WorkManager、增量处理、历史记录
 
 ### 相册记忆
 
@@ -1753,20 +1784,19 @@
 
 ### 记忆检索
 
-- **功能描述**：多策略记忆检
-- **检索策*
+- **功能描述**：多策略记忆检索
+- **检索策略**
   1. **KeywordRetriever**：关键词匹配
-  2. **SymbolicRetriever**：符号检
-  3. **ReflectionRetriever**：反思检
+  2. **SymbolicRetriever**：符号检索
+  3. **ReflectionRetriever**：反思检索
   4. **RetrievalPlanner**：检索规划（选择最佳检索策略组合）
-  5. **QueryIntentClassifier**：查询意图分
-- **关键机制**：混合检索、意图分
+  5. **QueryIntentClassifier**：查询意图分类
+- **关键机制**：混合检索、意图分类
 
-### 上下文压
-
-- **功能描述**：当对话上下文超Token 限制时自动压
+### 上下文压缩
+- **功能描述**：当对话上下文超过 Token 限制时自动压缩
 - **流程**
-  1. ContextManager 检Token 使用
+  1. ContextManager 检测 Token 使用量
   2. CompactionTrigger 触发压缩条件
   3. IterativeSummaryMerger 迭代合并摘要
   4. ~~ToolOutputTrimmer 裁剪工具输出~~（已删除，2026-05-20）
@@ -1775,15 +1805,15 @@
 
 ### 知识图谱
 
-- **功能描述**：实关系知识图谱存储和查
+- **功能描述**：实体关系知识图谱存储和查询
 - **流程**
-  1. EntityExtractor 从对话中提取实体和关
-  2. KnowledgeGraphStore 存储Room（graph_entities + graph_relations 表）
+  1. EntityExtractor 从对话中提取实体和关系
+  2. KnowledgeGraphStore 存储到 Room（graph_entities + graph_relations 表）
   3. DreamEntityBridge 连接 Dream 处理和知识图
-  4. 支持实体查询和关系遍
-- **关键机制**：Room 持久化、实体模式匹
+  4. 支持实体查询和关系遍历
+- **关键机制**：Room 持久化、实体模式匹配
 
-## 通信与网
+## 通信与网络
 
 ### 频道管理
 
@@ -1802,25 +1832,25 @@
 
 ### 网络监控
 
-- **功能描述**：监控网络连接状
+- **功能描述**：监控网络连接状态
 - **流程**
   1. NetworkMonitor 监听网络变化
-  2. 网络恢复时触OfflineMessageQueue 重发
-  3. 离线时消息入队等
+  2. 网络恢复时触发 OfflineMessageQueue 重发
+  3. 离线时消息入队等待
 - **关键机制**：ConnectivityManager、Flow 状态流
 
 ### 离线消息队列
 
-- **功能描述**：网络离线时缓存待发送消
+- **功能描述**：网络离线时缓存待发送消息
 - **流程**
   1. 网络不可用时消息入队
-  2. 网络恢复时按序重
-  3. 重发失败时重新入
-- **关键机制**：SharedPreferences 持久化、自动重
+  2. 网络恢复时按序重发
+  3. 重发失败时重新入队
+- **关键机制**：SharedPreferences 持久化、自动重试
 
 ### MCP 服务
 
-- **功能描述**：实MCP 协议服务器，供外部工具连
+- **功能描述**：实现 MCP 协议服务器，供外部工具连接
 - **流程**
   1. MCPServer 启动 HTTP 服务器（NanoHTTPD
   2. MCPServerTransport 处理 MCP 协议传输
@@ -1828,55 +1858,54 @@
   4. MCPClientManager 管理外部 MCP 客户端连
 - **关键机制**：NanoHTTPD、SSE、JSON-RPC
 
-## 存储与数
+## 存储与数据
 
 ### 存储管理
 
-- **功能描述**：管理应用文件存
+- **功能描述**：管理应用文件存储
 - **流程**
   1. StorageManager 管理工作目录
-  2. WorkspaceManager 管理 Agent 工作
-  3. SecureStorage 加密存储敏感数据（EncryptedSharedPreferences
+  2. WorkspaceManager 管理 Agent 工作区
+  3. SecureStorage 加密存储敏感数据（EncryptedSharedPreferences））
   4. ConfigStorage 存储配置数据
-- **关键机制**：SAF（Storage Access Framework）、加密存
+- **关键机制**：SAF（Storage Access Framework）、加密存储
 
 ### Agent 仓库
 
 - **功能描述**：Agent Profile CRUD 仓库
 - **流程**
   1. 管理 agents/*.json 配置文件
-  2. 管理 workspaces/ 工作区目
+  2. 管理 workspaces/ 工作区目录
   3. 支持 SAF 同步
   4. PROFILE.md 名字双向同步
-  5. 核心文件管理（CRUD、排序、启禁用）
+  5. 核心文件管理（CRUD、排序、启用/禁用）
   6. getAgentById(agentId) 直接从内存缓存获取 AgentProfile，供 InsightsEngine 等模块查询智能体名称
-  6. 默认智能体内置头像：createDefaultAgentIfNeeded 时将 res/drawable/ic_hippy_avatar.png 写入 files/avatars/hippy.png，设置 avatarUrl 为该文件路径；已有默认智能体但无头像时自动补
+  7. 默认智能体内置头像：createDefaultAgentIfNeeded 时将 res/drawable/ic_hippy_avatar.png 写入 files/avatars/hippy.png，设置 avatarUrl 为该文件路径；已有默认智能体但无头像时自动补充
 - **关键机制**：JSON 文件持久化、SAF 同步
 
 ### 数据迁移
 
-- **功能描述**：应用版本升级时的数据迁
+- **功能描述**：应用版本升级时的数据迁移
 - **流程**
   1. MigrationManager 注册迁移规则
-  2. 检测版本变
+  2. 检测版本变化
   3. 执行迁移脚本
   4. Room Migration 处理数据库结构变更（v1-v17）
-- **关键机制**：版本检测、迁移注
+- **关键机制**：版本检测、迁移注解
 
 ### 备份恢复
 
 - **功能描述**：应用数据备份和恢复
 - **流程**
   1. BackupManager 创建备份（ZIP 格式
-  2. 选择备份范围（会配置/记忆/全部
+  2. 选择备份范围（会话/配置/记忆/全部）
   3. 恢复时解压并合并数据
-- **关键机制**：ZIP 压缩、数据合并策
+- **关键机制**：ZIP 压缩、数据合并策略
 
 ## 手机控制
 
-### 无障碍服
-
-- **功能描述**：通过 Android 无障碍服务控制手
+### 无障碍服务
+- **功能描述**：通过 Android 无障碍服务控制手机
 - **流程**
   1. PhoneControlAccessibilityService 注册为无障碍服务
   2. AccessibilityController 管理服务连接
@@ -1885,25 +1914,24 @@
   5. ScreenObserver 监听屏幕变化
 - **关键机制**：AccessibilityService、节点树遍历
 
-### 手机自动
-
+### 手机自动化
 - **功能描述**：VLM 驱动的手机自动化操作
 - **流程**
   1. 截取屏幕截图
-  2. VLM（视觉语言模型）分析屏幕内
-  3. DualTrackDecisionEngine 选择操作路径（无障碍vs VLM
+  2. VLM（视觉语言模型）分析屏幕内容
+  3. DualTrackDecisionEngine 选择操作路径（无障碍vs VLM）
   4. ActionExecutor 执行操作
-  5. ActionApprover 审批高风险操
+  5. ActionApprover 审批高风险操作
   6. 循环直到任务完成
-- **关键机制**：VLM 视觉分析、双轨决策、审批机
+- **关键机制**：VLM 视觉分析、双轨决策、审批机制
 
 ### 审批覆盖
 
-- **功能描述**：高风险操作的悬浮窗审批界面，可在其他应用上方显
+- **功能描述**：高风险操作的悬浮窗审批界面，可在其他应用上方显示
 - **流程**
   1. AccessibilityController.interact() 需要审批时，自动启ApprovalOverlayService（前台服务）
   2. ApprovalOverlayService 显示悬浮窗（TYPE_APPLICATION_OVERLAY + FLAG_NOT_FOCUSABLE | FLAG_NOT_TOUCH_MODAL
-  3. 展示操作详情和风险评
+  3. 展示操作详情和风险评估
   4. 用户审批/拒绝
   5. PermissionActionReceiver 接收审批结果
 - **关键机制**：前台服务（foregroundServiceType="specialUse"）、SYSTEM_ALERT_WINDOW、FLAG_NOT_FOCUSABLE | FLAG_NOT_TOUCH_MODAL、常驻通知
@@ -1913,12 +1941,12 @@
 - **功能描述**：增强屏幕理解的感知能力
 - **流程**
   1. SmartPerceptionLayer 整合多源感知数据
-  2. IncrementalSensor 增量检测屏幕变
-  3. ScreenFrameSampler 采样屏幕
-  4. VisionFrameBuffer 缓存视觉
+  2. IncrementalSensor 增量检测屏幕变化
+  3. ScreenFrameSampler 采样屏幕帧
+  4. VisionFrameBuffer 缓存视觉帧
   5. AdUiGuard 检测和过滤广告 UI
   6. AppSpecializationManager 应用特化处理
-- **关键机制**：增量感知、帧采样、广告过
+- **关键机制**：增量感知、帧采样、广告过滤
 
 ### 相机感知
 
@@ -1931,15 +1959,14 @@
 - **输入规则**：isActive 布尔值控制预览开关，cameraId 指定摄像头（默认"0"后置）
 - **输出结果**：相机帧推送到 VisionFrameBuffer，UI 显示实时预览
 
-### YOLO UI 检
-
-- **功能描述**：基YOLO 模型UI 元素检
+### YOLO UI 检测
+- **功能描述**：基于 YOLO 模型的 UI 元素检测
 - **流程**
   1. UiYoloDetectionEngine 加载 ONNX YOLO 模型
-  2. 检测屏幕上UI 元素（按钮、输入框等）
-  3. UiDetectionFusionEngine 融合无障碍树YOLO 检测结
+  2. 检测屏幕上的 UI 元素（按钮、输入框等）
+  3. UiDetectionFusionEngine 融合无障碍树与 YOLO 检测结果
   4. 输出 FusedElement 列表
-- **关键机制**：ONNX Runtime、多源融
+- **关键机制**：ONNX Runtime、多源融合
 
 ### 本地语音视觉中心
 
@@ -1998,8 +2025,8 @@
 
 - **功能描述**：在 Android 上通过 PRoot 运行 Linux 环境
 - **流程**
-  1. PRootEngine 初始PRoot 环境
-  2. PRootBridge 通过 JNI 调用 PRoot 原生
+  1. PRootEngine 初始化 PRoot 环境
+  2. PRootBridge 通过 JNI 调用 PRoot 原生代码
   3. LinuxProcess 管理 Linux 进程
   4. LinuxManager 提供高层管理接口
 - **关键机制**：PRoot JNI、进程管理、rootfs 管理
@@ -2020,12 +2047,12 @@
 - **功能描述**：Linux 容器安全控制
 - **流程**
   1. ResourceLimiter 限制资源使用（CPU、内存、磁盘）
-  2. CommandSandbox 沙箱化命令执
+  2. CommandSandbox 沙箱化命令执行
 - **关键机制**：资源配额、命令白名单
 
 ### Linux 保活服务
 
-- **功能描述**：保Linux 容器持续运行
+- **功能描述**：保持 Linux 容器持续运行
 - **流程**
   1. LinuxKeepAliveService 前台服务
   2. 显示常驻通知
@@ -2037,39 +2064,56 @@
 
 ### 权限管理
 
-- **功能描述**：管Android 权限请求和状
+- **功能描述**：管理 Android 权限请求和状态
 - **流程**
-  1. PermissionManager 检查权限状
+  1. PermissionManager 检查权限状态
   2. 请求必要权限
-  3. 记录权限授予状
+  3. 记录权限授予状态
   4. 自定义工具权限管理：approveCustomToolPermission（一持久）、isCustomToolApproved、isCustomToolPermanentlyApproved、denyCustomToolPermanently、isCustomToolPermanentlyDenied，使DataStore 持久
 - **关键机制**：CopyOnWriteArrayList 线程安全临时授权、ConcurrentHashMap 正则缓存（matchesPattern 逐字符转义 `.()[]{}+^$|\`）、ConcurrentHashMap.newKeySet 线程安全 onceApprovedCustomPerms
 
 ### 工具安全守卫
 
-- **功能描述**：工具执行前的安全检
+- **功能描述**：工具执行前的安全检查
 - **流程**
-  1. ToolGuardian 检查工具调用安全性（8 项检+ HIGH 起审
-  2. ~~ToolGuard 组合多个 Guardian 的检查结果~~（已废弃并删除，ToolGuardian 内部处理
+  1. ToolGuardian 检查工具调用安全性（8 项检查 + HIGH 起审）
+  2. ~~ToolGuard 组合多个 Guardian 的检查结果~~（已废弃并删除，ToolGuardian 内部处理）
   3. Guardian 列表（由 ToolGuardian 内部管理）：
-     - **AndroidPermissionGuardian**：检Android 权限
-     - **StorageAccessGuardian**：检查存储访问权
-     - **NetworkPolicyGuardian**：检查网络策
+     - **AndroidPermissionGuardian**：检查Android 权限
+     - **StorageAccessGuardian**：检查存储访问权限
+     - **NetworkPolicyGuardian**：检查网络策略
      - **AccessibilityGuardian**：检查无障碍权限
   4. 根据安全级别（宽标准/严格）决定是否自动执行或需审批
-  5. PermissionViewModel 通过构造函数注PermissionManager（不再使GlobalContext
+  5. PermissionViewModel 通过构造函数注入PermissionManager（不再使用GlobalContext）
   6. 文件操作工具（read_file/write_file/edit_file/append_file/delete_file等）仅做路径可访问性检查，跳过危险命令模式检查和 Shell 逃逸检测
   7. 命令执行工具（execute_bash/execute_python等）仍做完整安全检查
-- **关键机制**：Guardian 链、安全级别、审批流程、构造函数注
+- **关键机制**：Guardian 链、安全级别、审批流程、构造函数注入
 
 ### 认证管理
 
-- **功能描述**：管API Key 和认证信
+- **功能描述**：管理 API Key 和认证信息
 - **流程**
-  1. AuthManager 管理认证状
+  1. AuthManager 管理认证状态
   2. SecretMigrationManager 处理密钥迁移
   3. SecureStorage 加密存储密钥
-- **关键机制**：EncryptedSharedPreferences、密钥迁移、revokedJtis 上限淘汰0000
+- **关键机制**：EncryptedSharedPreferences、密钥迁移、revokedJtis 上限淘汰 10000
+
+### 模式系统增强 (2026-06)
+
+- **NONE 模式**：`AgentMode` 枚举新增 `NONE`，含义为"不做模式区分，启用所有 enabled 的工具和 skills"。WorkspaceSkillConfig.resolveEffectiveSkills/Tools 对 NONE 短路返回全集；ModeOrchestrator 对 NONE 注入空 system prompt 后缀。
+- **XML 模式/模型切换声明**：智能体在回复中可声明 `<switch_to_mode>work|chat|auto|none</switch_to_mode>` 或 `<switch_to_model>complex|main|light</switch_to_model>`。`SwitchDeclarationDetector`（`TurnFailureTracker.kt`）检测后 `stripAll` 清理给用户的内容；模式/模型 override 写入 `SessionState.modeOverride`（单次生效，下次 turn 消费）。
+- **modeOverride 消费机制**：`Agent.consumeModeOverride(sessionId)` 在 `ChatViewModel.resolveModeSuffix` 入口优先消费，避免再次 LLM 决策；消费后清空，用户手动选择的模式恢复优先级。
+- **复杂任务模型双触发切换**：
+  1. 智能体 XML 声明 `<switch_to_model>complex</switch_to_model>`
+  2. 后台补判：toolCallCount > 1 或 `<needs_pro>` 标记 → `escalatedThisTurn = true`（本 turn 剩余使用 `profile.complexModelName`）
+- **决策过程可视化**：`ChatUiState.isModeDeciding`（仅 AUTO/WORK 模式），从 `resolveModeSuffix` 入口置 true，try/finally 置 false。`ChatScreen.kt` 底部栏优先显示 `chat_deciding`（复用 `PulsingStatusDot`），结束后回退到 `thinking` / `chat_executing`。
+- **过程折叠统计始终显示**：`AgentTurnCard.kt` 移除 `processStepCount > 0` 条件，`ProcessDrawer` 在折叠模式下无条件渲染；`ProcessCollapseButton` 保留 `> 0` 条件（无步骤不显示按钮）。
+- **多语言支持**：新增 `chat_mode_none`（无/None/없음/なし）和 `chat_deciding`（决策中.../Deciding.../결정 중.../決定中...）于 `values{,-en,-ko,-ja}/strings.xml`。
+- **processMessageStream 路径同步**：`Agent.processMessageStream` 的 text-only 路径补充 XML 切换检测、model escalation、tool count backend escalation 处理，与 `processMessage` 保持一致。
+- **顶栏模式选择器去重**：`ChatModeDropdown` 替代原 `ChatModeSelector` + 顶部 IconButton 双显示；下拉 Surface 同时支持单击展开与长按展开（`combinedClickable` + `@OptIn(ExperimentalFoundationApi::class)`）。
+- **修复模式决策模型不可点击**：`SharedConfigComponents.ModelSelectorRow` 的 `clickable` 从 `Card` 迁移到外层 `Row`，整行可点。
+- **修复 Auto 模式 Model URI 错误**：`ModeRouter` 改用 `ConcurrentHashMap<providerId, ModelClient>` 动态解析，profile 中配置的 providerId / modelName 准确解析。
+- **设置页清理**：移除系统设置中无功能的"任务中心"和"通知中心"入口（`SettingsScreen.kt`）。
 
 ## 通知系统
 
@@ -2120,40 +2164,38 @@
 
 ### 通知弹窗服务
 
-- **功能描述**：智能体发送通知时，在屏幕顶部弹出悬浮窗显示通知内容，可在其他应用上方显
+- **功能描述**：智能体发送通知时，在屏幕顶部弹出悬浮窗显示通知内容，可在其他应用上方显示
 - **流程**
   1. SendNotificationTool 发system 类型通知时，调用 NotificationOverlayService.show()
-  2. NotificationOverlayService 检SYSTEM_ALERT_WINDOW 权限，无权限则跳过弹
-  3. 有权限时启动前台服务，显TYPE_APPLICATION_OVERLAY 悬浮
-  4. 悬浮窗展示通知标题、内容和一确定"关闭按钮
-  5. 用户点击"确定"30 秒自动超时后，移除悬浮窗并停止服
+  2. NotificationOverlayService 检查 SYSTEM_ALERT_WINDOW 权限，无权限则跳过弹窗
+  3. 有权限时启动前台服务，显示 TYPE_APPLICATION_OVERLAY 悬浮窗
+  4. 悬浮窗展示通知标题、内容和一个"确定""关闭按钮
+  5. 用户点击"确定"30 秒自动超时后，移除悬浮窗并停止服务
 - **关键机制**：前台服务（foregroundServiceType="specialUse"）、SYSTEM_ALERT_WINDOW 权限检查、自动超dismiss
 
 ## 引导与初始化
 
-### 应用初始
-
-- **功能描述**：应用启动时的三阶段初始
+### 应用初始化
+- **功能描述**：应用启动时的三阶段初始化
 - **流程**
-  1. **阶段 1（同步）**：启Koin DI 容器
+  1. **阶段 1（同步）**：启动 Koin DI 容器
   2. **阶段 2（有序关键）**
      - AgentRepository & 默认 Agent 创建（含内置头像 `hippy.png` 写入 `files/avatars/hippy.png`，avatarUrl 指向该路径）
-     - PermissionManager 初始
-     - ModelProviderStore 默认供应
-     - Second Brain 记忆数据
-     - 工具注册（内+ Linux
+     - PermissionManager 初始化
+     - ModelProviderStore 默认供应商
+     - Second Brain 记忆数据库
+     - 工具注册（内置 + Linux）
      - LinuxKeepAliveService 启动
-     - PawJobWorker 启动
-  3. **阶段 3（非关键后台*
+     - HippyJobWorker 启动
+  3. **阶段 3（非关键后台任务）**
      - 权限请求通知监听
      - 工具审批请求通知监听（观察 ToolApprovalManager.pendingApprovals，后台时发送审批通知）
-     - 内置技能安
+     - 内置技能安装
      - 网络恢复监听 + 离线消息重发
-     - Dream Memory 处理（延5 秒）
+     - Dream Memory 处理（延迟 5 秒）
 - **关键机制**：有序初始化、CoroutineScope + SupervisorJob
 
-### 开机启
-
+### 开机启动
 - **功能描述**：设备重启后自动恢复 Agent 服务
 - **流程**
   1. BootReceiver 接收 BOOT_COMPLETED 广播
@@ -2164,9 +2206,9 @@
 
 ---
 
-# 死代码检测报
+# 死代码检测报告
 
-## 高置信度死代
+## 高置信度死代码
 
 以下文件在项目中未被任何其他文件引用，属于确认的死代码：
 
@@ -2177,32 +2219,32 @@
 
 **已激活（原死代码，现已注册到 Koin DI 并集成）*
 
-| 文件 | | 激活日| 集成方式 |
+| 文件 | | 激活日期| 集成方式 |
 |------|-----|----------|----------|
-| `core/agent/AgentRegistry.kt` | `AgentRegistry` | 2026-05-19 | Koin DI 单例，AgentFactory 创建/移除 Agent 时自动注注销 |
-| `core/agent/AgentSessionManager.kt` | `AgentSessionManager`, `AgentSession` | 2026-05-19 | Koin DI 单例，Agent.processMessage 时自动创更新会话 |
-| `core/agent/AgentMessageRouter.kt` | `AgentMessageRouter`, `AgentMessage` | 2026-05-19 | Koin DI 单例，提Agent 间直接消息路由能|
-| `core/agent/middleware/LoopDetectionMiddleware.kt` | `LoopDetectionMiddleware` | 2026-05-19 | 已添加到 AgentFactory 中间件链（DanglingToolCall Clarification Memory LoopDetection|
-| `core/agent/group/TeamTaskHandoff.kt` | `TeamTaskHandoff` | 2026-05-19 | Koin DI 单例，集成到 DagTaskOrchestrator，DAG 任务完成时自动写入结果文|
+| `core/agent/AgentRegistry.kt` | `AgentRegistry` | 2026-05-19 | Koin DI 单例，AgentFactory 创建/移除 Agent 时自动注册/注销 |
+| `core/agent/AgentSessionManager.kt` | `AgentSessionManager`, `AgentSession` | 2026-05-19 | Koin DI 单例，Agent.processMessage 时自动创建/更新会话 |
+| `core/agent/AgentMessageRouter.kt` | `AgentMessageRouter`, `AgentMessage` | 2026-05-19 | Koin DI 单例，提供Agent 间直接消息路由能力|
+| `core/agent/middleware/LoopDetectionMiddleware.kt` | `LoopDetectionMiddleware` | 2026-05-19 | 已添加到 AgentFactory 中间件链（DanglingToolCall Clarification Memory LoopDetection）|
+| `core/agent/group/TeamTaskHandoff.kt` | `TeamTaskHandoff` | 2026-05-19 | Koin DI 单例，集成到 DagTaskOrchestrator，DAG 任务完成时自动写入结果文件|
 | `core/agent/group/ProcessingMarker.kt` | `ProcessingMarker`, `ProcessingMarkerData` | 2026-05-19 | Koin DI 单例，集成到 DagTaskOrchestrator GroupChatOrchestrator |
-| `core/agent/group/GroupCollaborationProtocol.kt` | `GroupCollaborationProtocol`, `MentionExchange` | 2026-05-19 | Koin DI 单例，集成到 GroupChatOrchestrator，检Ping-Pong 对话自动终止 |
-| `core/agent/proactive/ProactiveTrigger.kt` | `ProactiveTrigger` | 2026-05-19 | Koin DI 单例，提Agent 主动触发能力（空闲检+ 记忆关联 + 频道推送） |
+| `core/agent/group/GroupCollaborationProtocol.kt` | `GroupCollaborationProtocol`, `MentionExchange` | 2026-05-19 | Koin DI 单例，集成到 GroupChatOrchestrator，检测Ping-Pong 对话自动终止 |
+| `core/agent/proactive/ProactiveTrigger.kt` | `ProactiveTrigger` | 2026-05-19 | Koin DI 单例，提供Agent 主动触发能力（空闲检测+ 记忆关联 + 频道推送） |
 
-## 重复/冗余代码（已清理
+## 重复/冗余代码（已清理）
 
 | 问题 | 处理方式 | 清理日期 |
 |------|----------|----------|
-| ~~SkillManager 重复体系~~ | 已删除旧`com.lin.hippyagent.skills` 包（SkillManager.kt + SkillManagerImpl.kt），零引| 2026-05-19 |
-| ~~ZipHelper 重复~~ | 已删`core.backup.ZipHelper`（未使用），保留 `core.plugin.ZipHelper`（含 Zip Bomb 防护| 2026-05-19 |
+| ~~SkillManager 重复体系~~ | 已删除旧`com.lin.hippyagent.skills` 包（SkillManager.kt + SkillManagerImpl.kt），零引用| 2026-05-19 |
+| ~~ZipHelper 重复~~ | 已删`core.backup.ZipHelper`（未使用），保留 `core.plugin.ZipHelper`（含 Zip Bomb 防护）| 2026-05-19 |
 | ~~ContextWindowOptimizer 死代码~~ | 已删`core/agent/collaboration/ContextWindowOptimizer.kt`，上下文过滤改为 AgentGroup.filterGroupMessagesForAgent + agent.contextMessageFilter 双层机制 | 2026-05-20 |
-| ~~BackupRestoreScreen 重复~~ | 已删`ui.settings.general.BackupRestoreScreen`（简化版），保留 `ui.settings.BackupRestoreScreen`（BackupManager 驱动，支持列创建/恢复/删除| 2026-05-19 |
+| ~~BackupRestoreScreen 重复~~ | 已删`ui.settings.general.BackupRestoreScreen`（简化版），保留 `ui.settings.BackupRestoreScreen`（BackupManager 驱动，支持列表创建/恢复/删除）| 2026-05-19 |
 
 | ~~GroupLifecycleManager~~ | 已删除 core/agent/group/GroupLifecycleManager.kt，未被引用 | 2026-05-20 |
 | ~~GroupChatOrchestrator~~ | 已删除 core/agent/collaboration/GroupChatOrchestrator.kt，未被引用 | 2026-05-20 |
 | ~~AgentConfigSection.kt.bak~~ | 已删除备份文件 | 2026-05-20 |
 | ~~ToolOutputTrimmer~~ | 已删除 core/agent/ToolOutputTrimmer.kt，上下文压缩改由 Agent.kt 内联处理 | 2026-05-20 |
 | ~~TurnBoundaryGuard~~ | 已删除 core/agent/TurnBoundaryGuard.kt，轮次边界保护改由 Agent.kt 内联处理 | 2026-05-20 |
-## 低置信度可能死代
+## 低置信度可能死代码
 
 | 文件/| 说明 |
 |---------|------|
@@ -2258,6 +2300,77 @@
   3. 麦克风按钮图标保持不变
 - **输入规则**：无
 - **输出结果**：麦克风按钮区域更简洁，仅显示图标和录音时长
+
+### 麦克风按钮暂时隐藏（所有聊天界面）
+
+- **功能描述**：暂时隐藏所有聊天界面（ChatScreen / GroupChatScreen）的麦克风按钮，等待后续修改优化
+- **交互逻辑**
+  1. `ChatInputBar` 中麦克风 UI 块（Box + Icon + 录音时长 Text）的外层 `if (state.isSttAvailable)` 改为 `if (false && state.isSttAvailable)`
+  2. 加注释 `// 非死代码：等待修改优化，暂时隐藏` 标注此为临时隐藏
+  3. `GroupChatScreen` 复用 `ChatInputBar` 组件，单点修改即可覆盖所有聊天界面
+- **输入规则**：无（isSttAvailable 仍由 SttRouter 提供，代码路径保留以便恢复）
+- **输出结果**：ChatScreen 和 GroupChatScreen 的输入栏不再显示麦克风按钮；STT/TTS 服务链路不受影响
+- **关键机制**：非死代码，加注释避免后续误删；不删除 STT 相关 state/callback 字段以备恢复
+
+### 模式决策栏 — 顶栏下拉
+
+- **功能描述**：原 ChatModeSelector 横向三段（Auto/Chat/Work）从 bottomBar 移到 TopAppBar.actions 下拉，置于 PlanToggle 按钮左侧；AUTO 模式时右侧附 ⚙️ icon
+- **交互逻辑**
+  1. 新增 `ChatModeDropdown` 紧凑下拉组件：36dp 高，RoundedCorner(20.dp) 圆角胶囊，单击展开 DropdownMenu 三选项
+  2. TopAppBar.actions 顺序：`[队列计数] [ChatModeDropdown] [PlanToggle] [Search]`
+  3. AUTO 选中时，右侧追加 IconButton，contentDescription 写入 `autoDecidedModeReasoning`（TalkBack 朗读）
+  4. `ChatScreen` 移除 bottomBar 中 `ChatModeSelector(...)` 整块
+- **输入规则**：当前 `selectedMode`、`autoDecidedModeReasoning`
+- **输出结果**：顶栏更紧凑，模式选择与计划模式按钮成组；输入栏上方不再显示三段选择器
+- **关键机制**：复用现有 `selectMode(mode: AgentMode)` ViewModel 方法；`selectedModeLocked == true` 时不渲染下拉（与旧行为一致）
+
+### Auto 决策结果 — 用户消息下方 hint
+
+- **功能描述**：原 `AutoDecisionBanner`（大条幅，bottomBar 上方）改为紧贴触发 auto 决策的 UserTurnCard 下方的紧凑 `AutoDecisionHint` chip
+- **交互逻辑**
+  1. `ChatViewModel.UiState` 新增 `autoDecidedModeTurnId: String?` 字段
+  2. `resolveModeSuffix()` 增加 `turnId: String?` 形参，调用处传入当前 `streamingTurnId`，存储到 `autoDecidedModeTurnId`
+  3. `ChatShared.kt` 渲染 UserTurnCard 之后，若 `s.autoDecidedModeTurnId == turn.id && s.autoDecidedModeSource == ModeSource.AUTO_DECIDED.name`，渲染 `AutoDecisionHint(decidedMode, reasoning, onSwitchToManual)`
+  4. AutoDecisionHint 视觉：⚙️ 图标 + "Auto 决策: Chat · AUTO_DECIDED" + 可选 reasoning 灰色小字 + "切回手动" 链接
+  5. ChatScreen / GroupChatScreen 移除 bottomBar 中 `AutoDecisionBanner(...)` 整块
+- **输入规则**：当前 `autoDecidedModeTurnId`、`autoDecidedMode`、`autoDecidedModeSource == AUTO_DECIDED`
+- **输出结果**：Auto 决策结果紧跟用户消息显示；输入栏上方不再有冗余大条幅
+- **关键机制**：单实例 autoDecidedModeState + per-turn turnId 关联，复用现有 ChatViewModel.selectMode() 切回手动
+
+### 模式决策模型 — Agent 级别配置
+
+- **功能描述**：为每个 Agent 单独配置"模式决策模型"，专门用于 Auto 模式下决定 Chat / Work 的 LLM 调用；未配置时降级到 Agent 的主模型
+- **交互逻辑**
+  1. `AgentProfile` 新增 2 字段：`decisionModelName: String = ""` + `decisionModelProvider: String = ""`，对应 SerialName `decision_model_name` / `decision_model_provider`
+  2. 智能体配置 / 新建智能体 2 个界面在复杂模型下方追加 "模式决策模型" 卡片（`Icons.Default.Psychology` 图标）
+  3. `AgentConfigViewModel.updateDecisionModel(name, provider)` 持久化字段（同 complexModel 的 autoSave 路径）
+  4. `ModeRouter.decideMode()` 新增可选参数 `overrideModelName: String? = null`，传入则覆盖 router 自身的 `modelName`；`buildCacheKey` 把 effectiveModel 纳入 key 防止不同 agent 模型决策结果串缓存
+  5. `ModeOrchestrator.resolveMode()` 决策路径：`overrideModelName = profile.decisionModelName.ifBlank { profile.modelName.ifBlank { null } }`
+- **输入规则**：当前 `agent.decisionModelName`、`agent.decisionModelProvider`、用户的 query
+- **输出结果**：每个 Agent 可独立配置轻量模型（如 gpt-4o-mini）做模式决策；未配置时使用主模型；与 Agent 主模型解耦，决策成本可控
+- **关键机制**：新增字段向后兼容旧 JSON（kotlinx.serialization 用 `""` 默认值）；`ModelSelectorRow` 复用现有 complex model 行的 Card+Row 模式；`ModelSwitchSheet` 复用同一组件
+
+### ModeRouter 启动硬编码修复
+
+- **功能描述**：`AgentModule` 中 `ModeRouter` 之前硬编码 `modelName = "gpt-4o-mini"` 且每次 single 实例化都 new 一个永不取消的 `CoroutineScope`，导致协程泄漏
+- **交互逻辑**
+  1. `ModeRouter` 构造参数 `applicationScope: CoroutineScope? = null` 改为可选（仍标注 `@Suppress("unused")`，保留参数位）
+  2. `AgentModule` 中 `applicationScope` 从 Koin 取 `named("applicationScope")` 的全局 scope 注入，避免每次 new 一个永不 cancel 的 scope
+  3. 启动时 `modelName = ""`，异步 `configure(client, modelName)` 拉 default provider 真实模型
+- **输入规则**：DI 启动时的 `providerStore`、`secureStorage`
+- **输出结果**：ModeRouter 不再持有泄漏的 `CoroutineScope`；启动时 `modelName` 为空也不会立即用 gpt-4o-mini，而是等异步 configure 注入真实 default 模型
+- **关键机制**：复用 `AppModule` 中 `TaskPlanner` 的"启动用占位 client + 后台 configure 真实 client"模式
+
+### 过程折叠 header 始终显示
+
+- **功能描述**：AgentTurnCard 顶部的 ProcessDrawer 头（"x步过程 · 🧠y次思考 · 🔧z次工具 · 📨w条消息 · ⏱s秒"）无论过程折叠/展开都始终显示
+- **交互逻辑**
+  1. `ChatShared.kt` `AgentTurnCard` 调用处：`showProcessHeader = !isCollapsed && isFirstInGroup` 改为 `showProcessHeader = isFirstInGroup`
+  2. `showProcessFooter = !isCollapsed && isLastInGroup` 保持不变（底部 footer 仅展开时显示）
+  3. `isProcessExpanded = !isCollapsed` 保持不变（控制中间 thinking/tool/message 列表的展开收起）
+- **输入规则**：当前 `isCollapsed`（组级折叠状态）、`isFirstInGroup`
+- **输出结果**：过程折叠时仍可见统计数字；过程展开时显示完整内容
+- **关键机制**：ProcessDrawer 头本身已始终渲染（header 不是 AnimatedVisibility），仅是上游 showProcessHeader 条件阻挡
 
 ### 附件 Chip 可视化显示
 
@@ -2380,6 +2493,36 @@
   5. 显式绑定入口：AgentSkillScreen 列出所有池+工作区技能，用户可手动开启
 - **输入规则**：用户消息文本；技能索引由 `SkillIndexManager` 维护
 - **输出结果**：命中技能注入到 `PromptContext.resolvedSkills` → `<skill_triggers>` 段；未命中则仅展示 `profile.skills`
+
+### 技能/工具 Chat/Work 可见模式勾选
+
+- **功能描述**：在 `AgentSkillScreen` 和 `ToolsListScreen` 单项旁加双 `FilterChip`（Chat / Work），被勾选视为该模式下可见
+- **交互逻辑**
+  1. 新增 `ModeVisibilityChips(visible: Set<String>, onChange: (Set<String>) -> Unit)` 共享组件
+  2. `AgentSkillScreen` 每个技能项的 per-agent `Checkbox` 右侧追加 `ModeVisibilityChips`；`ToolsListScreen` 工具 Card 底部追加
+  3. 状态用 `var visibleInModes by remember { mutableStateOf(mapOf<String, Set<String>>()) }` 局部存储；缺省视为 `setOf("Chat", "Work")`（都可见）
+  4. 当前**仅 UI 标记** — 渲染用，不在 `SkillTriggerResolver.resolve()` / `ToolAccessController` 入口强制过滤
+- **输入规则**：当前技能的 `visibleInModes[id]`
+- **输出结果**：UI 上每个技能/工具显示两个 FilterChip；用户可勾选/取消勾选
+- **关键机制**：后续可扩展为 ProfileConfig JSON 持久化字段 + 运行时过滤（未要求；当前范围仅 UI 标记）
+
+### 非 Clawhub 技能源调研报告（2026-06-03）
+
+- **问题**：「除了 Clawhub 外其他技能源无法使用」
+- **调研范围**：`app/src/main/kotlin/com/lin/hippyagent/core/skill/store/provider/`
+- **结论**：4 个 provider 的 `installCommand` 实际调起如下
+  - `ClawHubProvider.install()` → `npx -y clawhub install $id` ✅ 工作
+  - `SkillHubProvider.install()` → `npx -y clawhub install $id`（已统一重定向到 clawhub CLI，代码注释明确）✅ 工作
+  - `SkillsShProvider.install()` → `npx -y skills add $id -g -y` ❌ `skills` CLI 不可用 / 命令名错
+  - `LobeHubProvider.install()` → `npx -y @lobehub/market-cli skills install $id` ❌ `@lobehub/market-cli` 不可用 / 命令格式错
+- **根因**：
+  1. 三个非 ClawHub provider 的 `installCommand` 走**不同 npm CLI**，本地环境无对应包或参数错
+  2. 所有 provider 的异常信息统一 `output.take(200)` 截断，用户/日志看不到完整 stderr，无法诊断
+- **建议下一步（待用户拍板，未实施）**
+  1. 排查 `npx -y skills` / `npx -y @lobehub/market-cli` 在目标设备上是否能拉取 + 命令名是否准确（短超时实测）
+  2. 把异常信息扩到完整：`throw RuntimeException("$provider install failed (exit $code): $output")`
+  3. 短期方案：若不可用，将 SkillsSh / LobeHub 的 install 全部重定向到 `clawhub`（与 SkillHub 一致），保留 source 标签仅影响 `displayMarket` 字段
+- **当前 PR 范围**：仅调研，不动代码（按用户在 Phase 3 的选择）
 
 ### 非 Plan 模式计划显示保留
 

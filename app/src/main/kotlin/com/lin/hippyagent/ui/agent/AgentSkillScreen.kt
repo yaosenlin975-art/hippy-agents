@@ -67,6 +67,9 @@ fun AgentSkillScreen(
     // 全局技能启用/禁用状态
     var globalSkillStates by remember { mutableStateOf(mapOf<String, Boolean>()) }
 
+    // 技能在 Chat/Work 模式下的可见性（按技能 id 存储；缺省视为都可见；仅 UI 标记，运行时不过滤）
+    var visibleInModes by remember { mutableStateOf(mapOf<String, Set<String>>()) }
+
     LaunchedEffect(agentId) {
         agentRepository.getProfiles().collect { profiles ->
             val profile = profiles[agentId]
@@ -143,10 +146,43 @@ fun AgentSkillScreen(
                                     }
                                 }
                             )
+                            // Chat/Work 可见模式勾选栏（仅 UI 标记，运行时不过滤）
+                            ModeVisibilityChips(
+                                visible = visibleInModes[skill.id] ?: setOf("Chat", "Work"),
+                                onChange = { newSet ->
+                                    visibleInModes = visibleInModes + (skill.id to newSet)
+                                }
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * 技能/工具的 Chat/Work 模式可见性勾选栏。
+ * 视觉：两个并排的 FilterChip（Chat / Work），被勾选视为该模式下可见。
+ * 当前仅 UI 标记 — 渲染用，不在 SkillTriggerResolver / ToolAccessController 入口强制过滤。
+ */
+@Composable
+fun ModeVisibilityChips(
+    visible: Set<String>,
+    onChange: (Set<String>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        listOf("Chat", "Work").forEach { mode ->
+            FilterChip(
+                selected = mode in visible,
+                onClick = {
+                    val newSet = if (mode in visible) visible - mode else visible + mode
+                    onChange(newSet)
+                },
+                label = { Text(mode, fontSize = 10.sp) },
+                modifier = Modifier.padding(horizontal = 2.dp)
+            )
         }
     }
 }

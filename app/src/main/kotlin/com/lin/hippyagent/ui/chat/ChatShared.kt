@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
@@ -306,6 +307,9 @@ fun ChatTurnList(
         derivedStateOf { turns.filterIsInstance<ChatTurn.AgentTurn>().lastOrNull()?.id }
     }
 
+    // 响应式收集 uiState（替代非响应式 .value），用于在 UserTurn 下方渲染 AutoDecisionHint
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     val turnGroups = remember(turns, isGroupChat) { computeAgentTurnGroups(turns, isGroupChat) }
     val expandedGroups = remember { mutableStateMapOf<String, Boolean>() }
     val indexToGroup by remember(turnGroups) {
@@ -441,6 +445,18 @@ fun ChatTurnList(
                         onToggleSelection = { onToggleSelection(turn.message.id) },
                         onEnterMultiSelect = onEnterMultiSelect
                     )
+                    // Auto 决策结果：在触发本次 auto 决策的用户 turn 下显示 hint
+                    if (uiState.autoDecidedModeTurnId == turn.id &&
+                        uiState.autoDecidedModeSource == com.lin.hippyagent.core.agent.mode.ModeOrchestrator.ModeSource.AUTO_DECIDED.name &&
+                        !uiState.autoDecidedMode.isNullOrBlank()
+                    ) {
+                        AutoDecisionHint(
+                            decidedMode = uiState.autoDecidedMode!!,
+                            source = uiState.autoDecidedModeSource ?: "",
+                            reasoning = uiState.autoDecidedModeReasoning,
+                            onSwitchToManual = { viewModel.selectMode(com.lin.hippyagent.core.skill.AgentMode.CHAT) }
+                        )
+                    }
                 }
                 is ChatTurn.AgentTurn -> {
                     val group = indexToGroup[index]
@@ -593,7 +609,7 @@ fun ChatTurnList(
                                 collapsedGroupTurns = collapsedGroupTurns,
                                 onExpandGroup = onToggleExpandGroup,
                                 isProcessExpanded = !isCollapsed,
-                                showProcessHeader = !isCollapsed && isFirstInGroup,
+                                showProcessHeader = isFirstInGroup,
                                 showProcessFooter = !isCollapsed && isLastInGroup,
                                 groupProcessStepCount = groupStepCount
                             )
@@ -602,14 +618,12 @@ fun ChatTurnList(
                 }
                 is ChatTurn.SystemTurn -> SystemTurnCard(turn = turn)
                 is ChatTurn.PermissionTurn -> {
-                    val sessionId = viewModel.uiState.value.sessionId
-                    val agentId = viewModel.uiState.value.agentId
                     PermissionTurnCard(
                     turn = turn,
-                    onApproveOnce = { permissionViewModel.approvePermissionOnce(sessionId, agentId) },
-                    onApproveAlways = { permissionViewModel.approvePermissionAlways(sessionId, agentId) },
-                    onDenyOnce = { permissionViewModel.denyPermissionOnce(sessionId, agentId) },
-                    onDenyAlways = { permissionViewModel.denyPermissionAlways(sessionId, agentId) }
+                    onApproveOnce = { permissionViewModel.approvePermissionOnce(uiState.sessionId, uiState.agentId) },
+                    onApproveAlways = { permissionViewModel.approvePermissionAlways(uiState.sessionId, uiState.agentId) },
+                    onDenyOnce = { permissionViewModel.denyPermissionOnce(uiState.sessionId, uiState.agentId) },
+                    onDenyAlways = { permissionViewModel.denyPermissionAlways(uiState.sessionId, uiState.agentId) }
                 )
                 }
                 is ChatTurn.ClarificationTurn -> ClarificationTurnCard(

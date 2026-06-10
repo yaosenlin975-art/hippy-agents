@@ -386,6 +386,88 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
     }
 }
 
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS notification_events (
+                id TEXT NOT NULL PRIMARY KEY,
+                type TEXT NOT NULL,
+                priority TEXT NOT NULL,
+                title TEXT NOT NULL,
+                body TEXT NOT NULL,
+                source TEXT NOT NULL,
+                sourceType TEXT NOT NULL,
+                actions TEXT NOT NULL DEFAULT '[]',
+                payload TEXT DEFAULT NULL,
+                created_at INTEGER NOT NULL,
+                read_at INTEGER DEFAULT NULL,
+                acked_at INTEGER DEFAULT NULL,
+                aggregate_key TEXT DEFAULT NULL
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_notification_events_type ON notification_events(type)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_notification_events_created_at ON notification_events(created_at)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_notification_events_read_at ON notification_events(read_at)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_notification_events_type_created_at ON notification_events(type, created_at)")
+    }
+}
+
+val MIGRATION_21_22 = object : Migration(21, 22) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS executable_tasks (
+                id TEXT NOT NULL PRIMARY KEY,
+                title TEXT NOT NULL,
+                agent_id TEXT NOT NULL,
+                sessionId TEXT DEFAULT NULL,
+                status TEXT NOT NULL,
+                steps TEXT NOT NULL DEFAULT '[]',
+                executionContext TEXT NOT NULL DEFAULT '{}',
+                approvalNodes TEXT NOT NULL DEFAULT '[]',
+                result TEXT DEFAULT NULL,
+                error_message TEXT DEFAULT NULL,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                completed_at INTEGER DEFAULT NULL
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_status ON executable_tasks(status)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_created_at ON executable_tasks(created_at)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_agent_id ON executable_tasks(agent_id)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_status_created_at ON executable_tasks(status, created_at)")
+    }
+}
+
+val MIGRATION_22_23 = object : Migration(22, 23) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // executable_tasks 加 source 列, 默认 'task' 兼容旧数据
+        db.execSQL("ALTER TABLE executable_tasks ADD COLUMN source TEXT NOT NULL DEFAULT 'task'")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_source ON executable_tasks(source)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_executable_tasks_status_source_created_at ON executable_tasks(status, source, created_at)")
+
+        // tool_approval_rules 表
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS tool_approval_rules (
+                key TEXT NOT NULL PRIMARY KEY,
+                action TEXT NOT NULL,
+                tool_name TEXT NOT NULL,
+                arg_hash TEXT NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_tool_approval_rules_tool_name ON tool_approval_rules(tool_name)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_tool_approval_rules_tool_name_arg_hash ON tool_approval_rules(tool_name, arg_hash)")
+    }
+}
+
+val MIGRATION_23_24 = object : Migration(23, 24) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 审批已 2026-06 全部迁到 Task 审批系统, pending_approvals 表彻底作废
+        // DROP TABLE 清空旧数据 + 4 个相关索引
+        db.execSQL("DROP TABLE IF EXISTS pending_approvals")
+    }
+}
+
 val ALL_MIGRATIONS = listOf(
     MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
     MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
@@ -393,5 +475,9 @@ val ALL_MIGRATIONS = listOf(
     MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17,
     MIGRATION_17_18,
     MIGRATION_18_19,
-    MIGRATION_19_20
+    MIGRATION_19_20,
+    MIGRATION_20_21,
+    MIGRATION_21_22,
+    MIGRATION_22_23,
+    MIGRATION_23_24
 )

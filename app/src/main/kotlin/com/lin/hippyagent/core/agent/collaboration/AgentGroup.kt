@@ -7,6 +7,7 @@ import com.lin.hippyagent.core.agent.group.GroupCollaborationProtocol
 import com.lin.hippyagent.core.agent.group.MentionExchange
 import com.lin.hippyagent.core.agent.group.detectNewTask
 import com.lin.hippyagent.core.agent.group.detectQuestion
+import com.lin.hippyagent.core.agent.mode.ModeOrchestrator
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CoroutineScope
@@ -88,6 +89,8 @@ class AgentGroup(
     private val collaborationProtocol: GroupCollaborationProtocol? = null,
     private val config: AgentGroupConfig = AgentGroupConfig(),
     private val descriptionProvider: AgentDescriptionProvider? = null,
+    private val groupPreDecisionMaker: GroupPreDecisionMaker? = null,
+    private val modeOrchestrator: ModeOrchestrator? = null,
     var onAgentReplied: ((agentId: String, agentName: String, content: String, sessionId: String) -> Unit)? = null
 ) {
     private val _agentIds = MutableStateFlow(agentIds)
@@ -99,6 +102,20 @@ class AgentGroup(
     private val _isActive = MutableStateFlow(false)
     val isActive: StateFlow<Boolean> = _isActive
 
+    /**
+     * 当前轮（用户消息触发）的群聊集中决策 — 由 GroupPreDecisionMaker 写入。
+     * processAgentResponse 在调用 agent.processMessage 前读取，决定 mode 注入。
+     * 下一次用户消息进入时由 GroupMessageRouter.route() 覆盖。
+     */
+    @Volatile
+    private var _currentTurnDecision: GroupPreDecision? = null
+    val currentTurnDecision: GroupPreDecision? get() = _currentTurnDecision
+
+    @Synchronized
+    fun setTurnDecision(decision: GroupPreDecision?) {
+        _currentTurnDecision = decision
+    }
+
     /** 每个智能体的待处理消息队列 */
     private val agentQueues: ConcurrentHashMap<String, AgentMessageQueue> =
         ConcurrentHashMap(agentIds.associateWith { AgentMessageQueue(it) })
@@ -109,7 +126,16 @@ class AgentGroup(
     private var broadcastPreScorer: BroadcastPreScorer? = null
     private val groupScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    private val router: GroupMessageRouter = GroupMessageRouter(agentQueues, MentionParser, mentionChainManager, displayNameFuzzyMapper) { broadcastPreScorer }
+    private val router: GroupMessageRouter = GroupMessageRouter(
+        groupId = groupId,
+        agentQueues = agentQueues,
+        mentionParser = MentionParser,
+        mentionChainManager = mentionChainManager,
+        displayNameFuzzyMapper = displayNameFuzzyMapper,
+        broadcastPreScorerProvider = { broadcastPreScorer },
+        groupPreDecisionMaker = groupPreDecisionMaker,
+        onDecisionDecided = { decision -> setTurnDecision(decision) }
+    )
 
     private suspend fun getAgentName(agentId: String): String {
         return agentFactory.getAgent(agentId)?.profileConfig?.name?.ifBlank { agentId } ?: agentId
@@ -499,7 +525,8 @@ class AgentGroup(
             currentRound = _messages.value.size,
             maxRounds = 100
         )
-        val systemPromptSuffix = GroupChatPrompts.buildAgentSystemPrompt(agentId, groupContext, mentionPath, isCycleTarget)
+        val baseSuffix = GroupChatPrompts.buildAgentSystemPrompt(agentId, groupContext, mentionPath, isCycleTarget)
+        val systemPromptSuffix = resolveGroupModeSuffix(agentId, baseSuffix, userContent)
 
         val existingSessionMessages = sessionStore.getMessages(groupId).getOrDefault(emptyList())
         val previousToolMsgIds = existingSessionMessages.filter { it.role == MessageRole.TOOL }.map { it.id }.toSet()
@@ -641,6 +668,37 @@ class AgentGroup(
         val agent = agentFactory.getAgent(agentId) ?: return
         val cleaned = agent.profileConfig.disabledTools.filter { it !in GROUP_DENIED_TOOLS }
         agent.setToolDenyList(cleaned)
+    }
+
+    /**
+     * 群聊模式决策注入 — 当前轮若有 [GroupPreDecision]，由 [ModeOrchestrator] 应用模式过滤，
+     * 并将模式 prompt 拼到 baseSuffix 末尾；否则仅返回 baseSuffix（保持现有行为）。
+     */
+    private suspend fun resolveGroupModeSuffix(agentId: String, baseSuffix: String, userContent: String): String {
+        val orchestrator = modeOrchestrator
+        val decision = _currentTurnDecision
+        if (orchestrator == null || decision == null) {
+            return baseSuffix
+        }
+        return runCatching {
+            val profile = agentFactory.getAgent(agentId)?.profileConfig ?: return@runCatching baseSuffix
+            val resolution = orchestrator.resolveMode(
+                agentId = agentId,
+                profile = profile,
+                userMessage = userContent,
+                overrideMode = decision.mode,
+            )
+            val modeSuffix = orchestrator.applyForMode(agentId, profile, resolution)
+            if (modeSuffix.isBlank()) baseSuffix
+            else buildString {
+                append(baseSuffix)
+                append("\n\n")
+                append(modeSuffix)
+            }
+        }.getOrElse { e ->
+            Timber.w(e, "AgentGroup: resolveGroupModeSuffix failed for $agentId, fallback to baseSuffix")
+            baseSuffix
+        }
     }
 
     fun getHistory(limit: Int = 50): List<GroupChatMessage> {

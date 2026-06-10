@@ -460,6 +460,13 @@ fun ChatScreen(
                                     .padding(horizontal = 8.dp, vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                Icon(
+                                    imageVector = Icons.Default.Psychology,
+                                    contentDescription = stringResource(R.string.agent_model),
+                                    modifier = Modifier.size(12.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                                Spacer(Modifier.width(3.dp))
                                 Text(
                                     text = modelDisplayName,
                                     fontSize = 11.sp,
@@ -503,6 +510,14 @@ fun ChatScreen(
                         )
                     }
                     }
+                    if (!uiState.selectedModeLocked) {
+                        val selectedMode by viewModel.selectedMode.collectAsStateWithLifecycle()
+                        ChatModeDropdown(
+                            selectedMode = selectedMode,
+                            onModeSelected = { mode -> viewModel.selectMode(mode) },
+                            autoDecidedModeReasoning = uiState.autoDecidedModeReasoning
+                        )
+                    }
                     IconButton(onClick = { planViewModel.togglePlanMode() }) {
                         Icon(
                             Icons.Default.Checklist,
@@ -519,7 +534,13 @@ fun ChatScreen(
         },
         bottomBar = {
             Column {
-                if (uiState.agentStatus == AgentStatus.THINKING ||
+                if (uiState.isModeDeciding) {
+                    com.lin.hippyagent.ui.components.PulsingStatusDot(
+                        isThinking = true,
+                        label = stringResource(R.string.chat_deciding),
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                } else if (uiState.agentStatus == AgentStatus.THINKING ||
                     uiState.agentStatus == AgentStatus.EXECUTING_TOOL) {
                     com.lin.hippyagent.ui.components.PulsingStatusDot(
                         isThinking = uiState.agentStatus == AgentStatus.THINKING,
@@ -557,6 +578,15 @@ fun ChatScreen(
                     PlanProgressChip(
                         plan = currentPlan!!,
                         onClick = { showPlanPanel = true }
+                    )
+                }
+                val currentApproval by viewModel.currentSessionApproval.collectAsStateWithLifecycle()
+                if (currentApproval != null) {
+                    InlineApprovalCard(
+                        task = currentApproval!!,
+                        onApprove = { viewModel.onApprove(currentApproval!!.id) },
+                        onDeny = { viewModel.onDeny(currentApproval!!.id) },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
                 ChatInputBar(
@@ -822,6 +852,17 @@ fun ChatScreen(
                     }
                 }
             }
+        )
+    }
+
+    // 其他 session / 无 session 的 task / tool_approval 等待审批 → 弹 Dialog
+    val otherApproval by viewModel.otherSessionApproval.collectAsStateWithLifecycle()
+    if (otherApproval != null) {
+        OtherSessionApprovalDialog(
+            task = otherApproval!!,
+            onApprove = { viewModel.onApprove(otherApproval!!.id) },
+            onDeny = { viewModel.onDeny(otherApproval!!.id) },
+            onDismiss = { viewModel.onDeny(otherApproval!!.id) }
         )
     }
 

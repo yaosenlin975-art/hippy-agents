@@ -72,6 +72,8 @@ import kotlinx.serialization.json.put
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import timber.log.Timber
 import kotlin.math.min
 import kotlin.math.pow
@@ -116,7 +118,9 @@ data class SessionState(
     /** 缺失的 Android 运行时权限列表 */
     val missingAndroidPermissions: List<String> = emptyList(),
     /** 最近一次 LLM 调用是否使用了 fallback 模型，非 null 时为实际使用的 fallback 模型名 */
-    val usedFallbackModel: String? = null
+    val usedFallbackModel: String? = null,
+    /** mid-turn 智能体声明的模式覆盖；null 时由 ChatViewModel 调用 orchestrator 解析 (AUTO) */
+    val modeOverride: String? = null
 )
 
 data class AgentState(
@@ -180,7 +184,7 @@ class Agent(
     /** 群组聊天时过滤上下文消息的回调 — 只给 agent 看它该看的 */
     var contextMessageFilter: ((com.lin.hippyagent.core.agent.session.SessionMessage) -> Boolean)? = null,
 
-) {
+) : KoinComponent {
     /**
      * 去除模型名称中的供应商前缀，例如 "小米/mimo-v2.5" -> "mimo-v2.5"
      * API 只需要模型 ID，不需要供应商前缀。
@@ -336,6 +340,17 @@ class Agent(
     private fun currentSessionId(): String? = _currentProcessingSessionId
 
     val profileConfig: AgentProfile get() = profile
+
+    /** 获取指定会话的 SessionState, 不存在则返回默认 IDLE */
+    fun getSessionState(sessionId: String): SessionState =
+        _state.value.getSessionState(sessionId)
+
+    /** 消费并清空 sessionState.modeOverride (单次使用, 下次 turn 恢复用户手动选择) */
+    fun consumeModeOverride(sessionId: String): String? {
+        val current = _state.value.getSessionState(sessionId).modeOverride ?: return null
+        updateSessionState(sessionId) { it.copy(modeOverride = null) }
+        return current
+    }
 
     fun steer(direction: String, sessionId: String? = null) {
         val sid = sessionId ?: currentSessionId()
@@ -844,18 +859,35 @@ class Agent(
                     val needsProResult = com.lin.hippyagent.core.model.routing.NeedsProDetector.detect(
                         choice.message.content ?: ""
                     )
-                    if (needsProResult.hasMarker && profile.complexModelName.isNotEmpty() && !escalatedThisTurn) {
+                    val xmlModelSwitch = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.detectModelSwitch(
+                        choice.message.content ?: ""
+                    )
+                    val xmlModeSwitch = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.detectModeSwitch(
+                        choice.message.content ?: ""
+                    )
+                    val wantsComplex = needsProResult.hasMarker || xmlModelSwitch == "complex"
+                    if (wantsComplex && profile.complexModelName.isNotEmpty() && !escalatedThisTurn) {
                         escalatedThisTurn = true
-                        Timber.w("NEEDS_PRO detected: escalating to complex model (reason=${(needsProResult as? com.lin.hippyagent.core.model.routing.NeedsProResult.REQUESTED)?.reasonText})")
-                        val cleanedContent = com.lin.hippyagent.core.model.routing.NeedsProDetector.stripMarker(
-                            choice.message.content ?: ""
+                        Timber.w("Model escalation requested: $needsProResult / xmlModel=$xmlModelSwitch → complex ${profile.complexModelName}")
+                        val cleanedContent = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.stripAll(
+                            com.lin.hippyagent.core.model.routing.NeedsProDetector.stripMarker(choice.message.content ?: "")
                         )
                         if (cleanedContent.isNotBlank()) {
                             messages.add(ModelMessage(role = "assistant", content = cleanedContent))
                         }
                         return@repeat
                     }
-                    handleTextReply(choice.message.content, choice.message.reasoningContent, sessionId, channelId)
+                    if (xmlModeSwitch != null) {
+                        val targetMode = xmlModeSwitch.uppercase()
+                        Timber.w("Agent ${profile.agentId} declared mode switch → $targetMode (next turn takes effect)")
+                        updateSessionState(sessionId) { it.copy(modeOverride = targetMode) }
+                    }
+                    handleTextReply(
+                        com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.stripAll(choice.message.content ?: ""),
+                        choice.message.reasoningContent,
+                        sessionId,
+                        channelId
+                    )
                     return@runCatching
                 }
 
@@ -872,6 +904,12 @@ class Agent(
                         turnFailureTracker = turnFailureTracker
                     )
                     escalatedThisTurn = tcResult.escalatedThisTurn
+                    // 后台补判：tool 调用 > 1 次 → 自动切复杂任务模型 (本轮剩余使用)
+                    val sessionToolCount = _state.value.getSessionState(sessionId).toolCallCount
+                    if (!escalatedThisTurn && sessionToolCount > 1 && profile.complexModelName.isNotEmpty()) {
+                        escalatedThisTurn = true
+                        Timber.w("Backend escalation: toolCallCount=$sessionToolCount > 1, switching to complex model ${profile.complexModelName}")
+                    }
                     if (tcResult.shouldReturn) return@runCatching
                 } else {
                     val reply = choice.message.content
@@ -936,7 +974,8 @@ class Agent(
         overrideModel: String? = null,
         overrideProviderId: String? = null,
         planContext: String? = null,
-        skipUserMessage: Boolean = false
+        skipUserMessage: Boolean = false,
+        systemPromptSuffix: String? = null
     ): Flow<StreamChunk> = flow {
         val sessionMutex = getOrCreateSessionMutex(sessionId)
 
@@ -953,7 +992,7 @@ class Agent(
         var afterAgentCalled = false
         try {
             getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, overrideModel = overrideModel)
+            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel)
             if (ctx == null) {
                 emit(StreamChunk.Content("📡 网络不可用，消息已缓存，网络恢复后自动发送"))
                 return@flow
@@ -1182,8 +1221,24 @@ class Agent(
                         Timber.d("Auto-continue(stream): text-only (${autoContinueExtraCount}/${AUTO_CONTINUE_MAX_EXTRA}); session=$sessionId")
                         return@repeat
                     }
-                    val reply = fullContent.toString()
-                    val fullReply = reasoningPrefix + reply
+                    val rawReply = fullContent.toString()
+                    val xmlModelSwitch = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.detectModelSwitch(rawReply)
+                    val xmlModeSwitch = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.detectModeSwitch(rawReply)
+                    val needsProResult = com.lin.hippyagent.core.model.routing.NeedsProDetector.detect(rawReply)
+                    val wantsComplex = needsProResult.hasMarker || xmlModelSwitch == "complex"
+                    if (wantsComplex && profile.complexModelName.isNotEmpty() && !escalatedThisTurn) {
+                        escalatedThisTurn = true
+                        Timber.w("Model escalation(stream): $needsProResult / xmlModel=$xmlModelSwitch → complex ${profile.complexModelName}")
+                    }
+                    if (xmlModeSwitch != null) {
+                        val targetMode = xmlModeSwitch.uppercase()
+                        Timber.w("Agent ${profile.agentId} declared mode switch (stream) → $targetMode (next turn takes effect)")
+                        updateSessionState(sessionId) { it.copy(modeOverride = targetMode) }
+                    }
+                    val cleanedReply = com.lin.hippyagent.core.model.routing.SwitchDeclarationDetector.stripAll(
+                        com.lin.hippyagent.core.model.routing.NeedsProDetector.stripMarker(rawReply)
+                    )
+                    val fullReply = reasoningPrefix + cleanedReply
                     if (fullReply.isNotEmpty()) {
                         val assistantMsg = sessionStore.addMessage(sessionId, MessageRole.ASSISTANT, fullReply, senderId = profile.agentId).getOrNull()
                         if (assistantMsg != null && thinkingDurationMs > 0L) {
@@ -1192,8 +1247,10 @@ class Agent(
                                 sessionStore.updateMessageMetadata(assistantMsg.id, metaJson)
                             }
                         }
+                        // 注意：前面的 Content chunks 已流式 emit 给 UI；此处不再重复 emit 以免用户看到重复。
+                        // 通道广播使用清理后的内容, 避免将 XML 标签传播给其他频道接收者。
                         val replyMessage = ChannelMessage(
-                            content = reply,
+                            content = cleanedReply,
                             senderId = profile.agentId,
                             sessionId = sessionId
                         )
@@ -1229,6 +1286,12 @@ class Agent(
                     thinkingDurationMs = thinkingDurationMs
                 )
                 escalatedThisTurn = tcResult.escalatedThisTurn
+                // 后台补判：tool 调用 > 1 次 → 自动切复杂任务模型 (本轮剩余使用)
+                val sessionToolCount = _state.value.getSessionState(sessionId).toolCallCount
+                if (!escalatedThisTurn && sessionToolCount > 1 && profile.complexModelName.isNotEmpty()) {
+                    escalatedThisTurn = true
+                    Timber.w("Backend escalation(stream): toolCallCount=$sessionToolCount > 1, switching to complex model ${profile.complexModelName}")
+                }
                 } finally {
                     fullContent.clear()
                     sbPool.release(fullContent)

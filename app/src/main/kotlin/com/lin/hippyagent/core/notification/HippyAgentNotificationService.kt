@@ -86,7 +86,7 @@ class HippyAgentNotificationService(
      * 发送心跳提醒
      */
     fun sendHeartbeatNotification(title: String, message: String) {
-        if (!settingsManager.shouldNotify(NotificationType.HEARTBEAT)) {
+        if (!settingsManager.shouldNotify(UserNotificationType.HEARTBEAT)) {
             Timber.d("Heartbeat notification skipped (quiet hours or disabled)")
             return
         }
@@ -103,7 +103,7 @@ class HippyAgentNotificationService(
      * 发送任务完成通知
      */
     fun sendTaskCompleteNotification(title: String, message: String) {
-        if (!settingsManager.shouldNotify(NotificationType.TASK_COMPLETE)) {
+        if (!settingsManager.shouldNotify(UserNotificationType.TASK_COMPLETE)) {
             Timber.d("Task complete notification skipped (quiet hours or disabled)")
             return
         }
@@ -120,7 +120,7 @@ class HippyAgentNotificationService(
      * 发送错误告警
      */
     fun sendErrorNotification(title: String, message: String) {
-        if (!settingsManager.shouldNotify(NotificationType.ERROR)) {
+        if (!settingsManager.shouldNotify(UserNotificationType.ERROR)) {
             Timber.d("Error notification skipped (quiet hours or disabled)")
             return
         }
@@ -210,7 +210,7 @@ class HippyAgentNotificationService(
      *  - App 在此会话   → 跳过
      */
     fun sendAgentMessageNotification(agentName: String, sessionName: String = "", message: String, sessionId: String, agentId: String? = null) {
-        if (!settingsManager.shouldNotify(NotificationType.AGENT_MESSAGE)) {
+        if (!settingsManager.shouldNotify(UserNotificationType.AGENT_MESSAGE)) {
             Timber.d("Agent message notification skipped (quiet hours or disabled)")
             return
         }
@@ -339,6 +339,36 @@ class HippyAgentNotificationService(
 
         notificationManager.notify(NOTIFICATION_PERMISSION_REQUEST + requestIdHash, notification)
         Timber.i("Tool approval notification sent for $requestId tool=$toolName")
+    }
+
+    /**
+     * 发送任务内审批请求通知 (source='task', 由 TaskExecutionEngine 触发, 走 ToolApprovalReceiver)
+     *
+     * 只提供「批准 / 拒绝」两按钮 (ONCE 模式)。Task 审批不允许 ALWAYS —
+     * 持久化规则属于 tool_approval 的范畴。
+     */
+    fun sendTaskApprovalNotification(
+        taskId: String,
+        title: String,
+        prompt: String
+    ) {
+        val requestIdHash = taskId.hashCode()
+
+        val allowIntent = createToolApprovalActionIntent(taskId, "allow_once")
+        val denyIntent = createToolApprovalActionIntent(taskId, "deny_once")
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_PERMISSION_REQUEST)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(context.getString(R.string.notification_task_approval_title, title))
+            .setContentText(prompt.ifBlank { title })
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .addAction(android.R.drawable.ic_menu_view, context.getString(R.string.notification_allow_once), allowIntent)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, context.getString(R.string.notification_deny), denyIntent)
+            .build()
+
+        notificationManager.notify(NOTIFICATION_PERMISSION_REQUEST + requestIdHash, notification)
+        Timber.i("Task approval notification sent for $taskId title=$title")
     }
 
     /**

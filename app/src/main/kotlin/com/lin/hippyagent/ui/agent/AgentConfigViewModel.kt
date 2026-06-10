@@ -327,6 +327,11 @@ class AgentConfigViewModel(
         scheduleAutoSave()
     }
 
+    fun updateDecisionModel(modelName: String, modelProvider: String) {
+        _uiState.update { it.copy(agent = it.agent?.copy(decisionModelName = modelName, decisionModelProvider = modelProvider), isEditing = true) }
+        scheduleAutoSave()
+    }
+
     fun updateSkills(skills: List<String>) {
         _uiState.update { it.copy(agent = it.agent?.copy(skills = skills), isEditing = true) }
         scheduleAutoSave()

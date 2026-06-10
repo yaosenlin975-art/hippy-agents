@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -102,12 +103,14 @@ fun ModelSelectorRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 8.dp))
         Card(
-            modifier = Modifier.weight(1f).clickable(onClick = onClick),
+            modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Row(
@@ -141,10 +144,13 @@ fun AgentProfileFields(
     fallbackModelProvider: String,
     complexModelName: String,
     complexModelProvider: String,
+    decisionModelName: String = "",
+    decisionModelProvider: String = "",
     providerNames: Map<String, String>,
     onShowModelSelector: () -> Unit,
     onShowFallbackModelSelector: () -> Unit,
     onShowComplexModelSelector: () -> Unit,
+    onShowDecisionModelSelector: () -> Unit = {},
     trailingContent: @Composable (RowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -279,6 +285,18 @@ fun AgentProfileFields(
                 placeholder = stringResource(R.string.agent_complex_model_hint),
                 icon = Icons.Default.Tune,
                 onClick = onShowComplexModelSelector
+            )
+
+            Spacer(Modifier.height(8.dp))
+            ModelSelectorRow(
+                label = stringResource(R.string.agent_decision_model),
+                modelText = if (decisionModelName.isNotEmpty()) {
+                    val p = providerNames[decisionModelProvider] ?: decisionModelProvider
+                    "$p/$decisionModelName"
+                } else "",
+                placeholder = stringResource(R.string.agent_decision_model_hint),
+                icon = Icons.Default.Psychology,
+                onClick = onShowDecisionModelSelector
             )
         }
     }

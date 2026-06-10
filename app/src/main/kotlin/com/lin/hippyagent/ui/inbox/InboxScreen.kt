@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,15 +25,12 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -43,7 +38,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,30 +53,27 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.session.InboxEvent
-import com.lin.hippyagent.core.agent.session.PendingApproval
 import com.lin.hippyagent.ui.components.HippyTopBar
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+enum class InboxTab { Events, Tasks }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InboxScreen(
     viewModel: InboxViewModel,
     onBackClick: () -> Unit,
+    onTaskClick: (String) -> Unit = {},
+    initialTab: InboxTab = InboxTab.Events,
     modifier: Modifier = Modifier
 ) {
     val events by viewModel.events.collectAsStateWithLifecycle()
-    val approvals by viewModel.approvals.collectAsStateWithLifecycle()
     val unreadCount by viewModel.unreadCount.collectAsStateWithLifecycle()
+    val taskListViewModel: com.lin.hippyagent.ui.task.TaskListViewModel = org.koin.androidx.compose.koinViewModel()
 
-    val tabTitles = listOf(stringResource(R.string.inbox_approval_requests), stringResource(R.string.inbox_push_messages))
-
-    val pagerState = rememberPagerState(initialPage = 0) { tabTitles.size }
-    val coroutineScope = rememberCoroutineScope()
+    var selectedTab by remember { mutableStateOf(initialTab) }
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -92,215 +86,110 @@ fun InboxScreen(
                 showBackButton = false,
                 onBackClick = onBackClick,
                 actions = {
-                    if (unreadCount > 0) {
+                    if (selectedTab == InboxTab.Events && unreadCount > 0) {
                         IconButton(onClick = { viewModel.markAllRead() }) {
                             Icon(Icons.Default.DoneAll, contentDescription = stringResource(R.string.inbox_mark_all_read))
                         }
                     }
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.settings_logs))
+                    IconButton(onClick = {
+                        if (selectedTab == InboxTab.Events) viewModel.refresh()
+                    }) {
+                        Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
                     }
                 }
             )
         },
         modifier = modifier
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                containerColor = MaterialTheme.colorScheme.background
-            ) {
-                tabTitles.forEachIndexed { index, title ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            TabRow(selectedTabIndex = selectedTab.ordinal) {
+                InboxTab.entries.forEach { tab ->
                     Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch { pagerState.animateScrollToPage(index) }
-                        },
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
                         text = {
                             Text(
-                                text = if (index == 0 && approvals.isNotEmpty()) {
-                                    "$title (${approvals.size})"
-                                } else if (index == 1 && unreadCount > 0) {
-                                    "$title ($unreadCount)"
-                                } else {
-                                    title
-                                },
-                                fontWeight = if (pagerState.currentPage == index) FontWeight.SemiBold else FontWeight.Normal
+                                when (tab) {
+                                    InboxTab.Events -> stringResource(R.string.inbox_tab_events)
+                                    InboxTab.Tasks -> stringResource(R.string.inbox_tab_tasks)
+                                }
                             )
                         }
                     )
                 }
             }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> ApprovalsTab(
-                        approvals = approvals,
-                        onApprove = { viewModel.approve(it) },
-                        onDeny = { viewModel.deny(it) }
-                    )
-                    1 -> EventsTab(
-                        events = events,
-                        onMarkRead = { viewModel.markRead(it) },
-                        onDelete = { viewModel.deleteEvent(it) }
-                    )
-                }
+            when (selectedTab) {
+                InboxTab.Events -> EventsTab(
+                    events = events,
+                    onMarkRead = { viewModel.markRead(it) },
+                    onDelete = { viewModel.deleteEvent(it) },
+                    modifier = Modifier.fillMaxSize()
+                )
+                InboxTab.Tasks -> TasksTab(
+                    viewModel = taskListViewModel,
+                    onTaskClick = onTaskClick,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ApprovalsTab(
-    approvals: List<PendingApproval>,
-    onApprove: (String) -> Unit,
-    onDeny: (String) -> Unit
+private fun TasksTab(
+    viewModel: com.lin.hippyagent.ui.task.TaskListViewModel,
+    onTaskClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    if (approvals.isEmpty()) {
-        EmptyStateView(message = stringResource(R.string.inbox_no_approvals))
+    val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+    if (tasks.isEmpty()) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            Text(
+                text = stringResource(R.string.task_list_empty),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         return
     }
-
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
     ) {
-        items(items = approvals, key = { it.requestId }) { approval ->
-            ApprovalCard(
-                approval = approval,
-                onApprove = { onApprove(approval.requestId) },
-                onDeny = { onDeny(approval.requestId) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ApprovalCard(
-    approval: PendingApproval,
-    onApprove: () -> Unit,
-    onDeny: () -> Unit
-) {
-    val isPending = approval.status == "pending"
-    val cardAlpha = if (isPending) 1f else 0.6f
-    val statusLabel = when (approval.status) {
-        "approved" -> stringResource(R.string.inbox_approved)
-        "denied" -> stringResource(R.string.inbox_denied)
-        "timeout" -> stringResource(R.string.inbox_timed_out)
-        else -> null
-    }
-    val statusColor = when (approval.status) {
-        "approved" -> Color(0xFF4CAF50)
-        "denied" -> Color(0xFF9E9E9E)
-        "timeout" -> Color(0xFFFF9800)
-        else -> MaterialTheme.colorScheme.primary
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = cardAlpha)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isPending) 1.dp else 0.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        items(items = tasks, key = { it.id }) { task ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onTaskClick(task.id) },
+                shape = RoundedCornerShape(12.dp)
             ) {
-                SeverityIcon(severity = approval.severity)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = approval.toolName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = cardAlpha)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (statusLabel != null) {
+                Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text = statusLabel,
-                        fontSize = 12.sp,
+                        text = task.title,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
-                        color = statusColor,
-                        modifier = Modifier
-                            .background(statusColor.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text(
-                    text = formatTimestamp(approval.createdAt),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = cardAlpha)
-                )
-            }
-
-            if (approval.findingsSummary.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = approval.findingsSummary,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = cardAlpha),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            if (approval.findingsCount > 0) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.inbox_findings_count, approval.findingsCount),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = cardAlpha),
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            if (isPending) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    OutlinedButton(
-                        onClick = onDeny,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text(stringResource(R.string.inbox_deny))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = onApprove,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Text(stringResource(R.string.inbox_approve))
-                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "${task.status.name} · ${formatTimestamp(task.createdAt)}",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun EventsTab(
     events: List<InboxEvent>,
     onMarkRead: (String) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (events.isEmpty()) {
         EmptyStateView(message = stringResource(R.string.inbox_no_events))
@@ -308,7 +197,7 @@ private fun EventsTab(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
     ) {
@@ -417,22 +306,6 @@ private fun EventCard(
 }
 
 @Composable
-private fun SeverityIcon(severity: String) {
-    val (icon, tint) = when (severity) {
-        "critical" -> Icons.Default.Error to Color(0xFFD32F2F)
-        "error" -> Icons.Default.Error to Color(0xFFE53935)
-        "warning" -> Icons.Default.Warning to Color(0xFFFF9800)
-        else -> Icons.Default.Info to Color(0xFF2196F3)
-    }
-    Icon(
-        imageVector = icon,
-        contentDescription = severity,
-        tint = tint,
-        modifier = Modifier.size(20.dp)
-    )
-}
-
-@Composable
 private fun StatusIcon(status: String, severity: String) {
     val (icon, tint) = when (status) {
         "success" -> Icons.Default.CheckCircle to Color(0xFF4CAF50)
@@ -471,7 +344,10 @@ private fun EmptyStateView(message: String) {
     }
 }
 
+private val TIMESTAMP_FORMATTER = ThreadLocal.withInitial {
+    SimpleDateFormat("MM/dd HH:mm", Locale.getDefault())
+}
+
 private fun formatTimestamp(timestamp: Long): String {
-    val sdf = SimpleDateFormat("MM/dd HH:mm", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+    return TIMESTAMP_FORMATTER.get()!!.format(Date(timestamp))
 }

@@ -40,6 +40,16 @@ data class AgentProfile(
     @SerialName("complex_model_provider")
     val complexModelProvider: String = "",
 
+    /**
+     * 模式决策专用模型 — 留空时由 ModeOrchestrator 降级到 [modelName]。
+     * 用于 ModeRouter.decideMode 决定 Chat / Work 时的 LLM 调用。
+     */
+    @SerialName("decision_model_name")
+    val decisionModelName: String = "",
+
+    @SerialName("decision_model_provider")
+    val decisionModelProvider: String = "",
+
     @SerialName("vlm_model_name")
     val vlmModelName: String = "",
 
@@ -102,6 +112,12 @@ data class AgentProfile(
 
     @SerialName("deferred_tool_groups")
     val deferredToolGroups: List<String> = emptyList(),
+
+    @SerialName("default_mode")
+    val defaultMode: String = "AUTO",
+
+    @SerialName("mode_locked")
+    val modeLocked: Boolean = false,
 
     // --- Legacy fields (mirrored for backward compatibility) ---
     // These fields are kept for a transition period to allow downgrading

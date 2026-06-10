@@ -84,6 +84,7 @@ fun AgentConfigScreen(
     var showModelSelector by remember { mutableStateOf(false) }
     var showFallbackModelSelector by remember { mutableStateOf(false) }
     var showComplexModelSelector by remember { mutableStateOf(false) }
+    var showDecisionModelSelector by remember { mutableStateOf(false) }
     var editingFilename by remember { mutableStateOf<String?>(null) }
     var editingContent by remember { mutableStateOf("") }
     var isEditingContentLoaded by remember { mutableStateOf(false) }
@@ -191,10 +192,13 @@ fun AgentConfigScreen(
                         fallbackModelProvider = agent.fallbackModelProvider,
                         complexModelName = agent.complexModelName,
                         complexModelProvider = agent.complexModelProvider,
+                        decisionModelName = agent.decisionModelName,
+                        decisionModelProvider = agent.decisionModelProvider,
                         providerNames = uiState.providerNames,
                         onShowModelSelector = { showModelSelector = true },
                         onShowFallbackModelSelector = { showFallbackModelSelector = true },
-                        onShowComplexModelSelector = { showComplexModelSelector = true }
+                        onShowComplexModelSelector = { showComplexModelSelector = true },
+                        onShowDecisionModelSelector = { showDecisionModelSelector = true }
                     )
                 }
 
@@ -424,6 +428,23 @@ fun AgentConfigScreen(
                     onDismiss = { showComplexModelSelector = false },
                     onNavigateToSettings = {
                         showComplexModelSelector = false
+                        onNavigateToModelProvider()
+                    }
+                )
+            }
+
+            if (showDecisionModelSelector) {
+                ModelSwitchSheet(
+                    selectedModel = agent.decisionModelName,
+                    selectedProviderId = agent.decisionModelProvider.takeIf { it.isNotBlank() },
+                    availableModels = uiState.availableModels,
+                    onModelSelected = { model, providerId ->
+                        viewModel.updateDecisionModel(model, providerId)
+                        showDecisionModelSelector = false
+                    },
+                    onDismiss = { showDecisionModelSelector = false },
+                    onNavigateToSettings = {
+                        showDecisionModelSelector = false
                         onNavigateToModelProvider()
                     }
                 )

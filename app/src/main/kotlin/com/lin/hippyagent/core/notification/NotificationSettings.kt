@@ -29,20 +29,20 @@ data class NotificationSettings(
     /**
      * 检查是否应该发送通知
      */
-    fun shouldNotify(type: NotificationType, currentHour: Int): Boolean {
+    fun shouldNotify(type: UserNotificationType, currentHour: Int): Boolean {
         if (!enabled) return false
         if (isInQuietHours(currentHour)) return false
 
         return when (type) {
-            NotificationType.HEARTBEAT -> heartbeatReminder
-            NotificationType.TASK_COMPLETE -> taskComplete
-            NotificationType.ERROR -> errorAlert
-            NotificationType.AGENT_MESSAGE -> agentMessage
+            UserNotificationType.HEARTBEAT -> heartbeatReminder
+            UserNotificationType.TASK_COMPLETE -> taskComplete
+            UserNotificationType.ERROR -> errorAlert
+            UserNotificationType.AGENT_MESSAGE -> agentMessage
         }
     }
 }
 
-enum class NotificationType {
+enum class UserNotificationType {
     HEARTBEAT,
     TASK_COMPLETE,
     ERROR,

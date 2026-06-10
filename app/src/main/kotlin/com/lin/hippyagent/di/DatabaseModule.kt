@@ -18,10 +18,9 @@ import com.lin.hippyagent.core.task.HippyJobQueue
 import com.lin.hippyagent.core.task.HippyJobWorker
 import com.lin.hippyagent.core.task.StallDetector
 import com.lin.hippyagent.core.task.RateLimiter
+import com.lin.hippyagent.core.agent.task.TaskExecutionEngine
 import com.lin.hippyagent.core.hooks.HippyHookManager
 import com.lin.hippyagent.core.inbox.InboxStore
-import com.lin.hippyagent.core.inbox.ApprovalService
-import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val databaseModule = module {
@@ -52,10 +51,6 @@ val databaseModule = module {
         InboxStore(inboxDao = db.inboxDao())
     }
 
-    single {
-        ApprovalService(inboxStore = get())
-    }
-
     single { HippyJobQueue(dao = get<AppDatabase>().hippyJobDao()) }
 
     single {
@@ -65,10 +60,32 @@ val databaseModule = module {
             scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
         )
         worker.register("subagent_loop", com.lin.hippyagent.core.agent.subagent.SubAgentLoopHandler(agentFactory = get(), sessionStore = get()))
+        worker.register(
+            com.lin.hippyagent.core.agent.task.TaskExecutionEngine.TASK_STEP_JOB_NAME,
+            com.lin.hippyagent.core.agent.task.TaskStepJobHandler(
+                engine = get<com.lin.hippyagent.core.agent.task.TaskExecutionEngine>(),
+                agentFactory = get(),
+            )
+        )
         worker
     }
 
     single { StallDetector(dao = get<AppDatabase>().hippyJobDao()) }
+
+    single {
+        TaskExecutionEngine(
+            dao = get<AppDatabase>().taskDao(),
+            jobQueue = get(),
+            stallDetector = get(),
+            applicationScope = get(
+                kotlinx.coroutines.CoroutineScope::class,
+                org.koin.core.qualifier.named("applicationScope")
+            ),
+            taskPlanner = getOrNull<com.lin.hippyagent.core.agent.task.TaskPlanner>(),
+            auditLogger = getOrNull<com.lin.hippyagent.core.agent.task.AuditLogger>(),
+            approvalService = getOrNull<com.lin.hippyagent.core.agent.task.TaskApprovalService>()
+        )
+    }
 
     single { RateLimiter() }
 

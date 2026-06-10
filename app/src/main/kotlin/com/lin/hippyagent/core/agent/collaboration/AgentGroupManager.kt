@@ -2,6 +2,7 @@ package com.lin.hippyagent.core.agent.collaboration
 
 import android.content.Context
 import com.lin.hippyagent.core.agent.AgentFactory
+import com.lin.hippyagent.core.agent.mode.ModeOrchestrator
 import com.lin.hippyagent.core.agent.session.SessionStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -41,7 +42,9 @@ class AgentGroupManager(
     private val collaborationProtocol: com.lin.hippyagent.core.agent.group.GroupCollaborationProtocol? = null,
     private val appScope: CoroutineScope = CoroutineScope(SupervisorJob()),
     private val inactiveTimeoutMs: Long = 300_000L,
-    private val descriptionProvider: AgentDescriptionProvider? = null
+    private val descriptionProvider: AgentDescriptionProvider? = null,
+    private val modelClients: Map<String, com.lin.hippyagent.core.model.ModelClient> = emptyMap(),
+    private val modeOrchestrator: ModeOrchestrator? = null
 ) {
     private val _activeGroups = MutableStateFlow<List<GroupInfo>>(emptyList())
     val activeGroups: StateFlow<List<GroupInfo>> = _activeGroups.asStateFlow()
@@ -93,12 +96,44 @@ class AgentGroupManager(
 
         groupRegistry.deleteGroup(groupId)
         agentGroupCache.remove(groupId)?.cleanup()
+        groupConfigCache.remove(groupId)
+        groupDescriptionsCache.remove(groupId)
         _groupStates.remove(groupId)
         _groupStateFlows.remove(groupId)
         refreshActiveGroups()
         Timber.i("Group deleted: ${group.groupName} ($groupId)")
         return Result.success(Unit)
     }
+
+    private fun groupConfigFor(groupId: String): GroupPreDecisionConfig? {
+        val cached = groupConfigCache[groupId] ?: return null
+        return cached
+    }
+
+    private fun agentDescriptionsFor(groupId: String): List<Pair<String, String>> {
+        return groupDescriptionsCache[groupId] ?: emptyList()
+    }
+
+    private fun cacheGroupConfig(groupId: String, group: GroupInfo) {
+        val modelName = group.llmSelectorModelName?.takeIf { it.isNotBlank() } ?: return
+        groupConfigCache[groupId] = GroupPreDecisionConfig(
+            decisionProviderId = group.llmSelectorProviderId,
+            decisionModelName = modelName
+        )
+    }
+
+    private suspend fun cacheAgentDescriptions(groupId: String, group: GroupInfo) {
+        val list = group.agentIds.map { id ->
+            val agent: com.lin.hippyagent.core.agent.Agent? = runCatching { agentFactory.getAgent(id) }.getOrNull()
+            val name: String = agent?.profileConfig?.name?.ifBlank { id } ?: id
+            val desc: String = agent?.profileConfig?.identity?.ifBlank { name } ?: name
+            id to desc
+        }
+        groupDescriptionsCache[groupId] = list
+    }
+
+    private val groupConfigCache = ConcurrentHashMap<String, GroupPreDecisionConfig>()
+    private val groupDescriptionsCache = ConcurrentHashMap<String, List<Pair<String, String>>>()
 
     fun addAgent(groupId: String, agentId: String): Result<Unit> {
         val lifecycleState = groupLifecycleStates[groupId]
@@ -116,6 +151,7 @@ class AgentGroupManager(
         }
 
         groupMemberStatuses[groupId]?.put(agentId, GroupMemberStatus.ONLINE)
+        groupDescriptionsCache.remove(groupId)
         groupLastActivity[groupId] = Instant.now()
 
         if (lifecycleState == GroupLifecycleState.FORMING) {
@@ -145,6 +181,7 @@ class AgentGroupManager(
             dissolveGroup(groupId)
         } else {
             agentGroupCache[groupId]?.removeAgentId(agentId)
+            groupDescriptionsCache.remove(groupId)
         }
 
         refreshActiveGroups()
@@ -245,6 +282,14 @@ class AgentGroupManager(
         val group = groupRegistry.getGroup(groupId) ?: return null
 
         return agentGroupCache.getOrPut(groupId) {
+            cacheGroupConfig(groupId, group)
+            cacheAgentDescriptions(groupId, group)
+            // modelClients 是异步填充的 ConcurrentHashMap 引用，构造时即使为空后续条目也会被 GroupPreDecisionMaker 看到
+            val groupPreDecisionMaker = GroupPreDecisionMaker(
+                modelClients = modelClients,
+                getGroupConfig = { gid -> groupConfigFor(gid) },
+                getAgentDescriptions = { gid -> agentDescriptionsFor(gid) }
+            )
             AgentGroup(
                 groupId = groupId,
                 groupName = group.groupName,
@@ -260,7 +305,9 @@ class AgentGroupManager(
                     llmSelectorProviderId = group.llmSelectorProviderId,
                     llmSelectorModelName = group.llmSelectorModelName
                 ),
-                descriptionProvider = descriptionProvider
+                descriptionProvider = descriptionProvider,
+                groupPreDecisionMaker = groupPreDecisionMaker,
+                modeOrchestrator = modeOrchestrator
             ).also { agentGroup ->
                 agentGroup.mentionOnlyAgentIds = group.mentionOnlyAgentIds
                 val cachedDescriptions = group.agentIds.associateWith { id ->

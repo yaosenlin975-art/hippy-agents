@@ -13,9 +13,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.lin.hippyagent.core.agent.mode.ModeOnboarding
 import com.lin.hippyagent.core.notification.InAppMessageBubbleHost
 import com.lin.hippyagent.ui.navigation.AppNavigation
 import com.lin.hippyagent.ui.theme.HippyTheme
+import org.koin.android.ext.android.get
 
 class MainActivity : ComponentActivity() {
 
@@ -91,6 +93,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestBasicPermissions()
+        get<ModeOnboarding>().showIfNeeded(this)
         val deepLinkSessionId = intent.getStringExtra("deep_link_session_id")
         setContent {
             HippyTheme {

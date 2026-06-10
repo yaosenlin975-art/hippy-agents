@@ -10,12 +10,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.skill.SkillInfo
 import com.lin.hippyagent.core.skill.SkillManager
+import com.lin.hippyagent.core.skill.curator.skillopt.SkillAudit
+import com.lin.hippyagent.core.skill.curator.skillopt.SkillAuditRecord
 import com.lin.hippyagent.ui.components.HippyTopBar
 import com.lin.hippyagent.R
 import androidx.compose.ui.res.stringResource
@@ -49,6 +54,15 @@ fun SkillPoolScreen(
     var showAddSheet by remember { mutableStateOf(false) }
     var selectedSkillDetail by remember { mutableStateOf<SkillInfo?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val skillAudit = remember(context) { SkillAudit(context) }
+    val scoreMap by produceState<Map<String, SkillAuditRecord>>(
+        initialValue = emptyMap(),
+        key1 = refreshTrigger,
+        key2 = skillAudit
+    ) {
+        value = skillAudit.loadReport().records.associateBy { it.skillId }
+    }
 
     // ZIP 文件选择器
     val zipPickerLauncher = rememberLauncherForActivityResult(
@@ -189,6 +203,14 @@ fun SkillPoolScreen(
                 showBackButton = true,
                 onBackClick = onBackClick,
                 actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            skillAudit.runAudit(knownSkillIds = skills.map { it.id })
+                            refreshTrigger++
+                        }
+                    }) {
+                        Icon(Icons.Default.WarningAmber, "运行评分", tint = MaterialTheme.colorScheme.onSurface)
+                    }
                     IconButton(onClick = onNavigateToStore) {
                         Icon(Icons.Default.Store, stringResource(R.string.skill_pool_store), tint = MaterialTheme.colorScheme.onSurface)
                     }
@@ -219,6 +241,7 @@ fun SkillPoolScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(skills, key = { it.id }) { skill ->
+                    val record = scoreMap[skill.id]
                     Card(
                         modifier = Modifier.fillMaxWidth().clickable { selectedSkillDetail = skill }
                     ) {
@@ -227,7 +250,41 @@ fun SkillPoolScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(skill.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(skill.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    if (record != null) {
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(
+                                            text = "score ${"%.2f".format(record.score)}",
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        if (record.status == "WARN") {
+                                            Spacer(Modifier.width(4.dp))
+                                            Icon(
+                                                Icons.Default.WarningAmber,
+                                                contentDescription = "低分警告",
+                                                tint = MaterialTheme.colorScheme.error,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                        if (record.archived) {
+                                            Spacer(Modifier.width(4.dp))
+                                            Icon(
+                                                Icons.Default.Archive,
+                                                contentDescription = "已归档",
+                                                tint = MaterialTheme.colorScheme.outline,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(Modifier.width(2.dp))
+                                            Text(
+                                                text = "已归档",
+                                                fontSize = 11.sp,
+                                                color = MaterialTheme.colorScheme.outline
+                                            )
+                                        }
+                                    }
+                                }
                                 Text(skill.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("v${skill.version}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }

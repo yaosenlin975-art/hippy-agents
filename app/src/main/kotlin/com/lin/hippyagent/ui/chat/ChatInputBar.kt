@@ -498,7 +498,8 @@ fun ChatInputBar(
                                 )
                             }
                         }
-                        if (state.isSttAvailable) {
+                        // 非死代码：等待修改优化，暂时隐藏麦克风按钮
+                        if (false && state.isSttAvailable) {
                             Box(
                                 modifier = Modifier
                                 .size(34.dp)

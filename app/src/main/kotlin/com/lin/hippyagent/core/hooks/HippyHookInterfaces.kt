@@ -1,7 +1,5 @@
 package com.lin.hippyagent.core.hooks
 
-import com.lin.hippyagent.core.inbox.ApprovalDecision
-
 interface HippyEventObserver {
     suspend fun onEvent(event: HippyEvent)
 }
@@ -16,9 +14,10 @@ interface HippyToolInterceptor {
     suspend fun afterTool(result: ToolResultHookResponse): HookResult<ToolResultHookResponse>
 }
 
-interface HippyToolApprover {
-    suspend fun approveTool(req: ToolApprovalRequest): ApprovalDecision
-}
+// 工具审批已 2026-06 迁移到 TaskApprovalService，hook 不再独立拦截；保留接口位以备未来插件扩展
+// interface HippyToolApprover {
+//     suspend fun approveTool(req: ToolApprovalRequest): ...
+// }
 
 data class HippyEvent(
     val type: String,

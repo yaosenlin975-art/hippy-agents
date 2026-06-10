@@ -49,19 +49,4 @@ interface InboxDao {
 
     @Query("DELETE FROM inbox_events WHERE id = :id")
     suspend fun deleteEvent(id: String)
-
-    @Insert
-    suspend fun insertApproval(approval: PendingApproval)
-
-    @Query("SELECT * FROM pending_approvals WHERE status = 'pending' ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
-    suspend fun getPendingApprovals(limit: Int = 100, offset: Int = 0): List<PendingApproval>
-
-    @Query("SELECT * FROM pending_approvals ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
-    suspend fun getAllApprovals(limit: Int = 100, offset: Int = 0): List<PendingApproval>
-
-    @Query("UPDATE pending_approvals SET status = :status WHERE requestId = :requestId")
-    suspend fun updateApprovalStatus(requestId: String, status: String)
-
-    @Query("SELECT COUNT(*) FROM pending_approvals WHERE status = 'pending'")
-    suspend fun getPendingApprovalCount(): Int
 }

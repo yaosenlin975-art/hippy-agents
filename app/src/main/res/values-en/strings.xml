@@ -459,8 +459,10 @@
     <string name="agent_select_model_hint">Tap to select model</string>
     <string name="agent_fallback_model">Fallback Model</string>
     <string name="agent_fallback_model_hint">Not set (used when primary model fails)</string>
-    <string name="agent_complex_model">Complex Model</string>
-    <string name="agent_complex_model_hint">Not set (auto-route for complex tasks)</string>
+    <string name="agent_complex_model">Complex model</string>
+    <string name="agent_complex_model_hint">Not set (auto-route complex tasks)</string>
+    <string name="agent_decision_model">Mode decision model</string>
+    <string name="agent_decision_model_hint">Not set (use main model)</string>
     <string name="agent_initial_skills">Initial Skills</string>
     <string name="agent_initial_skills_hint">Select skills to enable on agent startup</string>
     <string name="agent_tool_switch">Tool Switches</string>
@@ -653,16 +655,36 @@
     <!-- 收件箱 -->
 
     <string name="inbox_mark_all_read">Mark all read</string>
-    <string name="inbox_approval_requests">Approval Requests</string>
     <string name="inbox_push_messages">Push Messages</string>
-    <string name="inbox_no_approvals">No approval records</string>
     <string name="inbox_no_events">No push messages</string>
-    <string name="inbox_approved">Approved</string>
-    <string name="inbox_denied">Denied</string>
-    <string name="inbox_deny">Deny</string>
-    <string name="inbox_timed_out">Timed out</string>
-    <string name="inbox_findings_count">%1$d findings</string>
-    <string name="inbox_approve">Approve</string>
+    <string name="inbox_tab_events">Events</string>
+    <string name="inbox_tab_tasks">Tasks</string>
+    <string name="task_list_empty">No tasks</string>
+    <string name="chat_mode_auto">Auto</string>
+    <string name="chat_mode_chat">Chat</string>
+    <string name="chat_mode_work">Work</string>
+    <string name="chat_mode_none">None</string>
+    <string name="chat_mode_switch_to_manual">Switch to manual</string>
+    <string name="chat_mode_auto_decision">Auto decision: %1$s · %2$s</string>
+    <string name="chat_mode_auto_decision_reasoning">(%1$s)</string>
+    <string name="chat_mode_auto_decision_cd">Auto decision reason: %1$s</string>
+    <string name="chat_deciding">Deciding...</string>
+    <string name="notification_center_title">Notification Center</string>
+    <string name="notification_center_tab_all">All</string>
+    <string name="notification_center_tab_task">Task Completed</string>
+    <string name="notification_center_tab_agent_error">Agent Error</string>
+    <string name="notification_center_tab_approval">Approval Request</string>
+    <string name="notification_center_tab_status">Status Change</string>
+    <string name="notification_center_tab_system">System Message</string>
+    <string name="notification_center_empty">No notifications</string>
+    <string name="notification_action_mark_read">Mark as read</string>
+    <string name="notification_action_acknowledge">Acknowledge</string>
+    <string name="notification_action_dismiss">Dismiss</string>
+    <string name="notification_action_open">Open</string>
+    <string name="notification_action_open_task">Open task</string>
+    <string name="notification_action_open_log">Open log</string>
+    <string name="notification_action_approve">Approve</string>
+    <string name="notification_action_reject">Reject</string>
     <!-- 引导 -->
 
     <string name="onboarding_welcome">Welcome to HippyAgent</string>
@@ -697,6 +719,7 @@
     <string name="notification_mission_success">Success</string>
     <string name="notification_mission_fail">Failed</string>
     <string name="notification_tool_approval_title">%1$s tool approval: %2$s</string>
+    <string name="notification_task_approval_title">Task approval: %1$s</string>
     <string name="notification_tool_approval_desc">Agent %1$s requests to execute %2$s</string>
     <string name="notification_allow_once">Allow once</string>
     <string name="notification_always_allow">Always allow</string>
@@ -1231,6 +1254,28 @@
     <string name="cron_fri">Friday</string>
     <string name="cron_sat">Saturday</string>
     <string name="cron_sun">Sun</string>
+    <!-- T-26 Schedule Create Window (v2) -->
+    <string name="schedule_create_title">New Scheduled Task</string>
+    <string name="schedule_nl_label">Describe in natural language</string>
+    <string name="schedule_nl_placeholder">e.g. remind me at 3pm tomorrow to join a meeting</string>
+    <string name="schedule_nl_hint">Describe when to run; the system auto-parses it into a cron expression</string>
+    <string name="schedule_task_name_hint">Task name (optional)</string>
+    <string name="schedule_silent_label">Run silently in background</string>
+    <string name="schedule_silent_desc">No notifications, results are logged only</string>
+    <string name="schedule_preview_label">Parse preview</string>
+    <string name="schedule_preview_empty">Type above to see the parsed result</string>
+    <string name="schedule_preview_waiting">Parse failed; use manual input or refine the description</string>
+    <string name="schedule_preview_cron">Cron expression</string>
+    <string name="schedule_preview_human">Human readable</string>
+    <string name="schedule_preview_next">Next fire</string>
+    <string name="schedule_ambiguity_hint">Multiple possible times detected, please pick one</string>
+    <string name="schedule_oneshot_badge">One-shot</string>
+    <string name="schedule_manual_fallback">Enter cron expression manually</string>
+    <string name="schedule_manual_enable">Enable manual input</string>
+    <string name="schedule_manual_cron_label">Cron (5 fields)</string>
+    <string name="schedule_manual_help">Format: min hour day month dow, e.g. 0 15 * * * means daily 15:00</string>
+    <string name="schedule_save">Save task</string>
+    <string name="schedule_saved_toast">Task created</string>
     <!-- 技能池 -->
     <string name="skill_pool_no_skills">No skills</string>
     <string name="skill_pool_add_hint">Tap + in the top right to add skill</string>

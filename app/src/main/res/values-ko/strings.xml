@@ -455,6 +455,8 @@
     <string name="agent_fallback_model_hint">미설정(주 모델 실패 시 사용)</string>
     <string name="agent_complex_model">복잡 작업용 모델</string>
     <string name="agent_complex_model_hint">미설정(복잡 작업 자동 라우팅용)</string>
+    <string name="agent_decision_model">모드 결정 모델</string>
+    <string name="agent_decision_model_hint">미설정(주 모델 사용)</string>
     <string name="agent_initial_skills">초기 스킬</string>
     <string name="agent_initial_skills_hint">에이전트 시작 시 활성화할 스킬 선택</string>
     <string name="agent_tool_switch">도구 전환</string>
@@ -647,16 +649,20 @@
     <!-- 收件箱 -->
 
     <string name="inbox_mark_all_read">모두 읽음</string>
-    <string name="inbox_approval_requests">승인 요청</string>
     <string name="inbox_push_messages">푸시 메시지</string>
-    <string name="inbox_no_approvals">승인 기록 없음</string>
     <string name="inbox_no_events">푸시 메시지 없음</string>
-    <string name="inbox_approved">승인됨</string>
-    <string name="inbox_denied">거부됨</string>
-    <string name="inbox_deny">拒绝</string>
-    <string name="inbox_timed_out">시간 초과</string>
-    <string name="inbox_findings_count">%1$d건 발견</string>
-    <string name="inbox_approve">승인</string>
+    <string name="inbox_tab_events">이벤트</string>
+    <string name="inbox_tab_tasks">작업</string>
+    <string name="task_list_empty">작업 없음</string>
+    <string name="chat_mode_auto">Auto</string>
+    <string name="chat_mode_chat">Chat</string>
+    <string name="chat_mode_work">Work</string>
+    <string name="chat_mode_none">없음</string>
+    <string name="chat_mode_switch_to_manual">수동으로 전환</string>
+    <string name="chat_mode_auto_decision">Auto 결정: %1$s · %2$s</string>
+    <string name="chat_mode_auto_decision_reasoning">(%1$s)</string>
+    <string name="chat_mode_auto_decision_cd">Auto 결정 이유: %1$s</string>
+    <string name="chat_deciding">결정 중...</string>
     <!-- 引导 -->
 
     <string name="onboarding_welcome">HippyAgent에 오신 것을 환영합니다</string>
@@ -690,7 +696,8 @@
     <string name="notification_mission_complete">Mission 完成</string>
     <string name="notification_mission_success">成功</string>
     <string name="notification_mission_fail">失败</string>
-    <string name="notification_tool_approval_title">%1$s 工具审批: %2$s</string>
+    <string name="notification_tool_approval_title">%1$s 도구 승인: %2$s</string>
+    <string name="notification_task_approval_title">작업 승인: %1$s</string>
     <string name="notification_tool_approval_desc">智能体 %1$s 请求执行 %2$s</string>
     <string name="notification_allow_once">允许本次</string>
     <string name="notification_always_allow">始终允许</string>

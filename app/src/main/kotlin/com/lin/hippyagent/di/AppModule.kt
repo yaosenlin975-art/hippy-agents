@@ -11,10 +11,15 @@ import com.lin.hippyagent.core.i18n.LanguageManager
 import com.lin.hippyagent.core.log.LogExporter
 import com.lin.hippyagent.core.migration.MigrationManager
 import com.lin.hippyagent.core.model.ModelProviderStore
+import com.lin.hippyagent.core.model.ModelProviderMatcher
+import com.lin.hippyagent.core.model.ModelClientFactory
 import com.lin.hippyagent.core.model.AuthProfileManager
 import com.lin.hippyagent.core.model.TokenUsageManager
 import com.lin.hippyagent.core.model.routing.BudgetManager
 import com.lin.hippyagent.core.model.routing.ModelRouter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import com.lin.hippyagent.core.notification.HippyAgentNotificationService
 import com.lin.hippyagent.core.notification.BadgeManager
 import com.lin.hippyagent.core.onboarding.OnboardingManager
@@ -102,7 +107,10 @@ val viewModelModule = module {
             statsManager = get(),
             groupRegistry = get(),
             agentGroupManager = get(),
-            onDeviceModelManager = get()
+            onDeviceModelManager = get(),
+            modeOrchestrator = getOrNull<com.lin.hippyagent.core.agent.mode.ModeOrchestrator>(),
+            toolApprovalManager = get(),
+            taskDao = getOrNull<com.lin.hippyagent.core.agent.session.AppDatabase>().let { it?.taskDao() }
         )
     }
 
@@ -137,7 +145,25 @@ val viewModelModule = module {
     }
 
     viewModel {
-        com.lin.hippyagent.ui.inbox.InboxViewModel(inboxStore = get(), approvalService = get())
+        com.lin.hippyagent.ui.inbox.InboxViewModel(inboxStore = get())
+    }
+
+    viewModel {
+        com.lin.hippyagent.ui.notification.NotificationCenterViewModel(center = get())
+    }
+
+    viewModel {
+        com.lin.hippyagent.ui.task.TaskListViewModel(
+            dao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().taskDao(),
+            engine = getOrNull<com.lin.hippyagent.core.agent.task.TaskExecutionEngine>()
+        )
+    }
+
+    viewModel {
+        com.lin.hippyagent.ui.task.TaskDetailViewModel(
+            dao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().taskDao(),
+            approvalService = getOrNull<com.lin.hippyagent.core.agent.task.TaskApprovalService>()
+        )
     }
 
     viewModel {
@@ -183,6 +209,18 @@ val viewModelModule = module {
             sessionStore = get()
         )
     }
+
+    viewModel { (agentId: String, sessionId: String) ->
+        com.lin.hippyagent.core.scheduler.ScheduleCreateViewModel(
+            agentId = agentId,
+            modelProviderStore = get(),
+            secureStorage = get(),
+            scheduledTaskStore = get(),
+            onDeviceModelManager = getOrNull(),
+            sessionId = sessionId,
+            cronService = getOrNull()
+        )
+    }
 }
 
 val linuxModule = module {
@@ -224,6 +262,8 @@ val appModule = module {
             skillManager = null
         )
     }
+
+    single { com.lin.hippyagent.core.skill.curator.skillopt.SkillAudit(androidContext()) }
 
     single {
         Json {
@@ -313,6 +353,25 @@ val appModule = module {
     }
 
     single {
+        com.lin.hippyagent.core.notification.NotificationAggregator()
+    }
+
+    single<kotlinx.coroutines.CoroutineScope>(qualifier = org.koin.core.qualifier.named("applicationScope")) {
+        kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default
+        )
+    }
+
+    single {
+        com.lin.hippyagent.core.notification.NotificationCenter(
+            dao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().notificationEventDao(),
+            aggregator = get(),
+            applicationScope = get(kotlinx.coroutines.CoroutineScope::class, org.koin.core.qualifier.named("applicationScope")),
+            notificationService = get()
+        )
+    }
+
+    single {
         BadgeManager(
             context = androidContext(),
             sessionStore = get()
@@ -329,9 +388,87 @@ val appModule = module {
 
     single { LogExporter(context = androidContext()) }
 
+    single { com.lin.hippyagent.core.cron.CronRunLog(context = androidContext()) }
+
+    single { com.lin.hippyagent.core.cron.CronScheduleParser() }
+
+    single {
+        com.lin.hippyagent.core.cron.CronService(
+            applicationScope = kotlinx.coroutines.CoroutineScope(
+                kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO
+            ),
+            workManager = androidx.work.WorkManager.getInstance(androidContext()),
+            runLog = get(),
+            taskStore = get(),
+            taskEngine = getOrNull<com.lin.hippyagent.core.agent.task.TaskExecutionEngine>(),
+            parser = get()
+        )
+    }
+
     single { LanguageManager(context = androidContext()) }
 
+    single {
+        val providerStore = get<com.lin.hippyagent.core.model.ModelProviderStore>()
+        val fallbackClient = com.lin.hippyagent.core.model.OpenAIModelClient(
+            baseUrl = "https://api.openai.com/v1",
+            apiKey = ""
+        )
+
+        // 同步预读 default provider 第一个 default model，作为 fallbackModelName 注入 TaskPlanner
+        // 避免早期 planTask 走硬编码 gpt-4o-mini（P0 Bug: 自动决策错误使用小模型）
+        val initialProviders = runCatching {
+            kotlinx.coroutines.runBlocking { providerStore.providers.first() }
+        }.onFailure { Timber.w(it, "TaskPlanner: 同步预读 provider 失败, fallbackModelName 为空") }
+            .getOrNull()
+        val initialDefaultProvider = initialProviders?.let {
+            com.lin.hippyagent.core.model.ModelProviderMatcher.findMatchingProvider(it, "")
+        } ?: initialProviders?.let { providers ->
+            providers.firstOrNull { p -> p.isDefault && p.enabled }
+                ?: providers.firstOrNull { p -> p.enabled }
+        }
+        val fallbackModelName = initialDefaultProvider?.let { dp ->
+            dp.models.firstOrNull { it.isDefault }?.name
+                ?: dp.models.firstOrNull { it.enabled }?.name
+                ?: dp.models.firstOrNull()?.name
+        } ?: ""
+
+        com.lin.hippyagent.core.agent.task.TaskPlanner(
+            modelClient = fallbackClient,
+            modelName = "",
+            fallbackModelName = fallbackModelName
+        ).also { planner ->
+            val appScope = get<kotlinx.coroutines.CoroutineScope>(
+                org.koin.core.qualifier.named("applicationScope")
+            )
+            appScope.launch {
+                val secureStorage = get<com.lin.hippyagent.core.storage.SecureStorage>()
+                val providers = runCatching { providerStore.providers.first() }.getOrNull()
+                val defaultProvider = providers?.let { com.lin.hippyagent.core.model.ModelProviderMatcher.findMatchingProvider(it, "") }
+                    ?: providers?.let { providers ->
+                        providers.firstOrNull { p -> p.isDefault && p.enabled }
+                            ?: providers.firstOrNull { p -> p.enabled }
+                    }
+                if (defaultProvider != null) {
+                    val client = runCatching {
+                        com.lin.hippyagent.core.model.ModelClientFactory.create(
+                            provider = defaultProvider,
+                            secureStorage = secureStorage,
+                            onDeviceModelManager = getOrNull<com.lin.hippyagent.core.ondevice.OnDeviceModelManager>()
+                        )
+                    }.getOrNull() ?: return@launch
+                    val modelName = defaultProvider.models.firstOrNull { it.isDefault }?.name
+                        ?: defaultProvider.models.firstOrNull { it.enabled }?.name
+                        ?: defaultProvider.models.firstOrNull()?.name
+                        ?: return@launch
+                    planner.configure(client, modelName)
+                }
+            }
+        }
+    }
+
     single { SecretMigrationManager(context = androidContext(), secureStorage = get()) }
+
+    single { com.lin.hippyagent.core.agent.task.AuditLogger(context = androidContext()) }
 
     single {
         TokenUsageManager(
@@ -368,6 +505,19 @@ val appModule = module {
                             agentFactory = get(),
                             sessionStore = get(),
                             cronJobManager = get()
+                        )
+                    }
+                    com.lin.hippyagent.core.cron.CronServiceWorker::class.java.name -> {
+                        com.lin.hippyagent.core.cron.CronServiceWorker(
+                            context = appContext,
+                            params = workerParameters,
+                            cronService = get()
+                        )
+                    }
+                    com.lin.hippyagent.core.security.ToolApprovalCleanupWorker::class.java.name -> {
+                        com.lin.hippyagent.core.security.ToolApprovalCleanupWorker(
+                            context = appContext,
+                            params = workerParameters
                         )
                     }
                     else -> null

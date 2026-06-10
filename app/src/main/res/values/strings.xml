@@ -430,6 +430,18 @@
     <string name="settings_plugins_desc">管理已安装插件</string>
     <string name="settings_event_hooks">事件监听</string>
     <string name="settings_event_hooks_desc">管理系统事件 Hook 和静默时段</string>
+    <string name="settings_task_center">任务中心</string>
+    <string name="settings_task_center_desc">查看执行中/已完成的任务及审批</string>
+    <string name="settings_notification_center">通知中心</string>
+    <string name="settings_notification_center_desc">查看任务完成、Agent 错误、审批等通知</string>
+
+    <!-- ChatScreen 内联审批卡片 (当前 session) -->
+    <string name="chat_inline_approval_title">需要你的确认</string>
+    <string name="chat_inline_approval_subtitle">%1$s 任务的一个步骤需要你点头才能继续</string>
+    <string name="chat_inline_approval_approve">批准</string>
+    <string name="chat_inline_approval_deny">拒绝</string>
+    <string name="chat_inline_approval_pending">%1$s 在等你的决定</string>
+    <string name="chat_other_session_approval_hint">%1$s 中执行到 %2$s, 需你点头才能继续</string>
     <string name="settings_logs">日志</string>
     <string name="settings_debug_info_desc_new">收集诊断数据</string>
     <string name="settings_search_hint">搜索设置</string>
@@ -457,6 +469,8 @@
     <string name="agent_fallback_model_hint">未设置（主模型失败时使用）</string>
     <string name="agent_complex_model">复杂模型</string>
     <string name="agent_complex_model_hint">未设置（复杂任务自动路由）</string>
+    <string name="agent_decision_model">模式决策模型</string>
+    <string name="agent_decision_model_hint">未设置（使用主模型决策）</string>
     <string name="agent_initial_skills">初始技能</string>
     <string name="agent_initial_skills_hint">选择智能体启动时启用的技能</string>
     <string name="agent_tool_switch">工具开关</string>
@@ -653,16 +667,36 @@
     <!-- 收件箱 -->
 
     <string name="inbox_mark_all_read">全部已读</string>
-    <string name="inbox_approval_requests">审批请求</string>
     <string name="inbox_push_messages">推送消息</string>
-    <string name="inbox_no_approvals">暂无审批记录</string>
     <string name="inbox_no_events">暂无推送消息</string>
-    <string name="inbox_approved">已批准</string>
-    <string name="inbox_denied">已拒绝</string>
-    <string name="inbox_deny">拒绝</string>
-    <string name="inbox_timed_out">已超时</string>
-    <string name="inbox_findings_count">发现 %1$d 项</string>
-    <string name="inbox_approve">批准</string>
+    <string name="inbox_tab_events">事件</string>
+    <string name="inbox_tab_tasks">任务</string>
+    <string name="task_list_empty">暂无任务</string>
+    <string name="chat_mode_auto">Auto</string>
+    <string name="chat_mode_chat">Chat</string>
+    <string name="chat_mode_work">Work</string>
+    <string name="chat_mode_none">无</string>
+    <string name="chat_mode_switch_to_manual">切回手动</string>
+    <string name="chat_mode_auto_decision">Auto 决策: %1$s · %2$s</string>
+    <string name="chat_mode_auto_decision_reasoning">(%1$s)</string>
+    <string name="chat_mode_auto_decision_cd">Auto 决策原因: %1$s</string>
+    <string name="chat_deciding">决策中...</string>
+    <string name="notification_center_title">通知中心</string>
+    <string name="notification_center_tab_all">全部</string>
+    <string name="notification_center_tab_task">任务完成</string>
+    <string name="notification_center_tab_agent_error">Agent 错误</string>
+    <string name="notification_center_tab_approval">审批请求</string>
+    <string name="notification_center_tab_status">状态变化</string>
+    <string name="notification_center_tab_system">系统消息</string>
+    <string name="notification_center_empty">暂无通知</string>
+    <string name="notification_action_mark_read">标记已读</string>
+    <string name="notification_action_acknowledge">确认</string>
+    <string name="notification_action_dismiss">关闭</string>
+    <string name="notification_action_open">打开</string>
+    <string name="notification_action_open_task">打开任务</string>
+    <string name="notification_action_open_log">打开日志</string>
+    <string name="notification_action_approve">批准</string>
+    <string name="notification_action_reject">拒绝</string>
     <!-- 引导 -->
 
     <string name="onboarding_welcome">欢迎来到 HippyAgent</string>
@@ -700,6 +734,7 @@
     <string name="notification_mission_success">成功</string>
     <string name="notification_mission_fail">失败</string>
     <string name="notification_tool_approval_title">%1$s 工具审批: %2$s</string>
+    <string name="notification_task_approval_title">任务审批: %1$s</string>
     <string name="notification_tool_approval_desc">智能体 %1$s 请求执行 %2$s</string>
     <string name="notification_allow_once">允许本次</string>
     <string name="notification_always_allow">始终允许</string>
@@ -1201,6 +1236,7 @@
     <string name="cron_field_weekday">星期</string>
     <string name="cron_silent_label">静默执行</string>
     <string name="cron_add_task">添加定时任务</string>
+    <string name="cron_create_with_nl">自然语言创建</string>
     <string name="cron_every_minute">每分钟</string>
     <string name="cron_every_5min">每5分钟</string>
     <string name="cron_every_10min">每10分钟</string>
@@ -1234,6 +1270,28 @@
     <string name="cron_fri">周五</string>
     <string name="cron_sat">周六</string>
     <string name="cron_sun">周日</string>
+    <!-- T-26 Schedule Create Window (v2) -->
+    <string name="schedule_create_title">新建定时任务</string>
+    <string name="schedule_nl_label">自然语言描述</string>
+    <string name="schedule_nl_placeholder">例如：明天下午3点提醒我开会</string>
+    <string name="schedule_nl_hint">用自然语言描述何时执行,系统会自动解析成 cron 表达式</string>
+    <string name="schedule_task_name_hint">任务名称（可选）</string>
+    <string name="schedule_silent_label">后台静默执行</string>
+    <string name="schedule_silent_desc">不弹出通知,只记录结果</string>
+    <string name="schedule_preview_label">解析预览</string>
+    <string name="schedule_preview_empty">输入自然语言后这里显示解析结果</string>
+    <string name="schedule_preview_waiting">解析失败,请使用手动输入或调整描述</string>
+    <string name="schedule_preview_cron">Cron 表达式</string>
+    <string name="schedule_preview_human">人类可读</string>
+    <string name="schedule_preview_next">下次触发</string>
+    <string name="schedule_ambiguity_hint">检测到多个可能的时间,请选择一个</string>
+    <string name="schedule_oneshot_badge">一次性任务</string>
+    <string name="schedule_manual_fallback">手动输入 cron 表达式</string>
+    <string name="schedule_manual_enable">启用手动输入</string>
+    <string name="schedule_manual_cron_label">Cron 表达式（5 字段）</string>
+    <string name="schedule_manual_help">格式：分 时 日 月 周,例如 0 15 * * * 表示每天 15:00</string>
+    <string name="schedule_save">保存定时任务</string>
+    <string name="schedule_saved_toast">已创建定时任务</string>
     <!-- 技能池 -->
     <string name="skill_pool_no_skills">暂无技能</string>
     <string name="skill_pool_add_hint">点击右上 + 添加技能</string>

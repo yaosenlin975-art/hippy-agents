@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.notification
+package com.lin.hippyagent.core.notification
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -72,7 +72,7 @@ class NotificationSettingsManager(
     /**
      * 检查是否应该发送通知
      */
-    fun shouldNotify(type: NotificationType): Boolean {
+    fun shouldNotify(type: UserNotificationType): Boolean {
         val currentHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
         return currentSettings.shouldNotify(type, currentHour)
     }

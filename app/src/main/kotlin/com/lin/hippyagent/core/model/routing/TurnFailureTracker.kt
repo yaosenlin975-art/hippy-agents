@@ -64,6 +64,43 @@ object NeedsProDetector {
     }
 }
 
+/**
+ * 智能体显式声明切换 (XML 风格标记) — 模式与模型的 mid-turn 切换协议。
+ *
+ * 支持的标记:
+ * - `<switch_to_mode>work</switch_to_mode>` / `<switch_to_mode>chat</switch_to_mode>` (大小写不敏感)
+ * - `<switch_to_model>complex</switch_to_model>` / `<switch_to_model>main</switch_to_model>`
+ *
+ * 解析后从原始文本剥离避免泄露给用户。
+ */
+object SwitchDeclarationDetector {
+    private val SWITCH_TO_MODE = Regex(
+        "<switch_to_mode>\\s*(work|chat|auto|none)\\s*</switch_to_mode>",
+        RegexOption.IGNORE_CASE
+    )
+    private val SWITCH_TO_MODEL = Regex(
+        "<switch_to_model>\\s*(complex|main|light)\\s*</switch_to_model>",
+        RegexOption.IGNORE_CASE
+    )
+
+    fun detectModeSwitch(text: String): String? {
+        val match = SWITCH_TO_MODE.find(text) ?: return null
+        return match.groupValues[1].lowercase()
+    }
+
+    fun detectModelSwitch(text: String): String? {
+        val match = SWITCH_TO_MODEL.find(text) ?: return null
+        return match.groupValues[1].lowercase()
+    }
+
+    fun stripAll(text: String): String {
+        var result = text
+        result = SWITCH_TO_MODE.replace(result, "")
+        result = SWITCH_TO_MODEL.replace(result, "")
+        return result.trim()
+    }
+}
+
 sealed class NeedsProResult(val hasMarker: Boolean) {
     object NONE : NeedsProResult(false)
     class REQUESTED(val reasonText: String?) : NeedsProResult(true)

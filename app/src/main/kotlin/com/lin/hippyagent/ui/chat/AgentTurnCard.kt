@@ -199,13 +199,15 @@ fun AgentTurnCard(
                         (textSegments.size - if (t == turn) 1 else 0).coerceAtLeast(0)
                     }
                 }
-                if (processStepCount > 0) {
-                    ProcessDrawer(
-                        stepCount = processStepCount,
-                        isExpanded = false,
-                        onToggleExpand = onExpandGroup
-                    )
+                val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
+                    aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
                 }
+                ProcessDrawer(
+                    stepCount = processStepCount,
+                    isExpanded = false,
+                    onToggleExpand = onExpandGroup,
+                    stats = collapseStats
+                )
             }
 
             if (showProcessHeader && groupProcessStepCount > 0) {
@@ -323,23 +325,25 @@ fun AgentTurnCard(
             }
             if (collapseProcess && !isGroupChat) {
                 val legacyStepCount = collapsedGroupTurns.size + 1
-                if (legacyStepCount > 0) {
-                    val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
-                        aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
-                    }
-                    ProcessDrawer(
-                        stepCount = legacyStepCount,
-                        isExpanded = false,
-                        onToggleExpand = onExpandGroup,
-                        stats = collapseStats
-                    )
+                val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
+                    aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
                 }
+                ProcessDrawer(
+                    stepCount = legacyStepCount,
+                    isExpanded = false,
+                    onToggleExpand = onExpandGroup,
+                    stats = collapseStats
+                )
             }
             if (showProcessHeader && groupProcessStepCount > 0) {
+                val headerStats = remember(turn.elements, turn.metadata?.latencyMs) {
+                    computeTurnProcessStats(turn)
+                }
                 ProcessDrawer(
                     stepCount = groupProcessStepCount,
                     isExpanded = true,
-                    onToggleExpand = onExpandGroup
+                    onToggleExpand = onExpandGroup,
+                    stats = headerStats
                 )
             }
             if (!isGroupChat && !hasChatWithAgent && !collapseProcess) {

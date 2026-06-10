@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
@@ -71,6 +72,7 @@ fun CreateAgentScreen(
     var showModelSelector by remember { mutableStateOf(false) }
     var showFallbackModelSelector by remember { mutableStateOf(false) }
     var showComplexModelSelector by remember { mutableStateOf(false) }
+    var showDecisionModelSelector by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
 
     // 初始技能选择（默认全选）
@@ -195,6 +197,15 @@ fun CreateAgentScreen(
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Text(text = (uiState.agent?.complexModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.complexModelProvider] ?: uiState.agent!!.complexModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_complex_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Tune, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.agent_decision_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.height(4.dp))
+                        Card(modifier = Modifier.fillMaxWidth().clickable { showDecisionModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                            Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = (uiState.agent?.decisionModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.decisionModelProvider] ?: uiState.agent!!.decisionModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_decision_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
                     }
@@ -379,6 +390,23 @@ fun CreateAgentScreen(
             onDismiss = { showComplexModelSelector = false },
             onNavigateToSettings = {
                 showComplexModelSelector = false
+                onNavigateToModelProvider()
+            }
+        )
+    }
+
+    if (showDecisionModelSelector) {
+        ModelSwitchSheet(
+            selectedModel = uiState.agent?.decisionModelName ?: "",
+            selectedProviderId = uiState.agent?.decisionModelProvider,
+            availableModels = uiState.availableModels,
+            onModelSelected = { model, providerId ->
+                viewModel.updateDecisionModel(model, providerId)
+                showDecisionModelSelector = false
+            },
+            onDismiss = { showDecisionModelSelector = false },
+            onNavigateToSettings = {
+                showDecisionModelSelector = false
                 onNavigateToModelProvider()
             }
         )

@@ -629,7 +629,30 @@ fun AppNavigation(
                     viewModel = org.koin.androidx.compose.koinViewModel(
                         parameters = { org.koin.core.parameter.parametersOf(agentId) }
                     ),
-                    onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
+                    onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) },
+                    onNavigateToCreateWithNL = { navController.navigate(Screen.ScheduleCreate.createRoute(agentId, "")) }
+                )
+            }
+
+            composable(
+                route = Screen.ScheduleCreate.route,
+                arguments = listOf(
+                    navArgument("agentId") { type = NavType.StringType },
+                    navArgument("sessionId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val agentId = backStackEntry.arguments?.getString("agentId") ?: ""
+                val sessionId = backStackEntry.arguments?.getString("sessionId") ?: ""
+                com.lin.hippyagent.ui.schedule.ScheduleCreateScreen(
+                    viewModel = org.koin.androidx.compose.koinViewModel(
+                        parameters = { org.koin.core.parameter.parametersOf(agentId, sessionId) }
+                    ),
+                    onBackClick = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() }
                 )
             }
 
@@ -654,11 +677,23 @@ fun AppNavigation(
                 )
             }
 
-            composable(Screen.Inbox.route) {
+            composable(
+                route = Screen.Inbox.route,
+                arguments = listOf(androidx.navigation.navArgument("tab") {
+                    type = androidx.navigation.NavType.StringType
+                    defaultValue = "events"
+                })
+            ) { backStackEntry ->
+                val tab = backStackEntry.arguments?.getString("tab") ?: "events"
                 val inboxViewModel: com.lin.hippyagent.ui.inbox.InboxViewModel = org.koin.androidx.compose.koinViewModel()
+                val initialTab = runCatching {
+                    com.lin.hippyagent.ui.inbox.InboxTab.valueOf(tab.replaceFirstChar { it.uppercase() })
+                }.getOrDefault(com.lin.hippyagent.ui.inbox.InboxTab.Events)
                 com.lin.hippyagent.ui.inbox.InboxScreen(
                     viewModel = inboxViewModel,
-                    onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
+                    onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) },
+                    onTaskClick = { id -> navController.navigate(Screen.TaskDetail.createRoute(id)) },
+                    initialTab = initialTab
                 )
             }
 
@@ -693,6 +728,33 @@ fun AppNavigation(
                     viewModel = hookViewModel,
                     onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) }
                 )
+            }
+
+            // 通知中心 + 任务中心 已 2026-06 移植到 Inbox（保留 route 作 deepLink 重定向）
+            composable(Screen.TaskList.route) {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.Inbox.createRoute("tasks")) {
+                        popUpTo(Screen.TaskList.route) { inclusive = true }
+                    }
+                }
+            }
+
+            composable(Screen.TaskDetail.route) { backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId").orEmpty()
+                val detailViewModel: com.lin.hippyagent.ui.task.TaskDetailViewModel = org.koin.androidx.compose.koinViewModel()
+                com.lin.hippyagent.ui.task.TaskDetailScreen(
+                    taskId = taskId,
+                    viewModel = detailViewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Screen.NotificationCenter.route) {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.Inbox.createRoute("events")) {
+                        popUpTo(Screen.NotificationCenter.route) { inclusive = true }
+                    }
+                }
             }
         }
     }

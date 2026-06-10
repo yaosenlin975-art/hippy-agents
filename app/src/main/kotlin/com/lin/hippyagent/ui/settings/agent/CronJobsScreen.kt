@@ -257,7 +257,8 @@ private fun CronDropdown(
 @Composable
 fun CronJobsScreen(
     viewModel: CronJobsViewModel,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onNavigateToCreateWithNL: () -> Unit = {}
 ) {
     BackHandler(onBack = onBackClick)
     val state by viewModel.state.collectAsStateWithLifecycle()

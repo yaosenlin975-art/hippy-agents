@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import com.lin.hippyagent.core.inbox.ApprovalDecision
 import kotlinx.coroutines.withTimeoutOrNull
 
 data class HookRegistration(
@@ -24,7 +23,6 @@ enum class HookSource {
 class HippyHookManager {
     var observerTimeoutMs: Long = 500L
     var interceptorTimeoutMs: Long = 5_000L
-    var approvalTimeoutMs: Long = 60_000L
 
     private val hooks = mutableMapOf<String, HookRegistration>()
     @Volatile
@@ -80,15 +78,9 @@ class HippyHookManager {
         return current to HookDecision(HookAction.CONTINUE)
     }
 
-    suspend fun approveTool(req: ToolApprovalRequest): ApprovalDecision {
-        for (reg in snapshot()) {
-            val approver = reg.hook as? HippyToolApprover ?: continue
-            val decision = withTimeoutOrNull(approvalTimeoutMs) {
-                approver.approveTool(req.clone())
-            } ?: return ApprovalDecision.DENIED
-            if (decision != ApprovalDecision.APPROVED) return decision
-        }
-        return ApprovalDecision.APPROVED
+    suspend fun approveTool(req: ToolApprovalRequest) {
+        // 工具审批已 2026-06 迁移到 TaskApprovalService，hook 链不再独立审批
+        // 该方法保留为空占位，避免破坏未来插件扩展
     }
 
     suspend fun afterTool(result: ToolResultHookResponse): Pair<ToolResultHookResponse, HookDecision> {

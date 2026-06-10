@@ -31,9 +31,9 @@ val securityModule = module {
 
     single {
         com.lin.hippyagent.core.security.ToolApprovalManager(
-            context = androidContext(),
-            approvalService = get(),
-            inboxStore = get()
+            taskApprovalService = get(),
+            taskDao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().taskDao(),
+            ruleDao = get<com.lin.hippyagent.core.agent.session.AppDatabase>().toolApprovalRuleDao(),
         ).also {
             com.lin.hippyagent.core.security.ToolApprovalReceiver.manager = it
         }

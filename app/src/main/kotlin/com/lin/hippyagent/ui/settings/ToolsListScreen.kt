@@ -32,6 +32,8 @@ fun ToolsListScreen(
 ) {
     val allToolDefinitions = remember { toolRegistry.getAllDefinitions() }
     var searchQuery by remember { mutableStateOf("") }
+    // 工具的 Chat/Work 可见性状态（仅 UI 标记，运行时不过滤）
+    var visibleInModes by remember { mutableStateOf(mapOf<String, Set<String>>()) }
 
     val filteredDefinitions = remember(allToolDefinitions, searchQuery) {
         if (searchQuery.isBlank()) allToolDefinitions
@@ -81,7 +83,12 @@ fun ToolsListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredDefinitions, key = { it.name }) { definition ->
-                    ToolItem(definition, onClick = { onToolClick(definition.name) })
+                    ToolItem(
+                        definition = definition,
+                        visible = visibleInModes[definition.name] ?: setOf("Chat", "Work"),
+                        onChange = { newSet -> visibleInModes = visibleInModes + (definition.name to newSet) },
+                        onClick = { onToolClick(definition.name) }
+                    )
                 }
             }
         }
@@ -89,7 +96,12 @@ fun ToolsListScreen(
 }
 
 @Composable
-private fun ToolItem(definition: ToolDefinition, onClick: () -> Unit) {
+private fun ToolItem(
+    definition: ToolDefinition,
+    visible: Set<String>,
+    onChange: (Set<String>) -> Unit,
+    onClick: () -> Unit
+) {
     val cnName = BuiltinToolNames.getDisplayName(definition.name)
     val displayName = buildAnnotatedString {
         if (cnName.isNotEmpty()) {
@@ -111,6 +123,11 @@ private fun ToolItem(definition: ToolDefinition, onClick: () -> Unit) {
             Text(displayName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             Text(definition.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(stringResource(R.string.tools_params_count, definition.parameters.size), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(8.dp))
+            com.lin.hippyagent.ui.agent.ModeVisibilityChips(
+                visible = visible,
+                onChange = onChange
+            )
         }
     }
 }

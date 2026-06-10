@@ -12,6 +12,7 @@ import com.lin.hippyagent.core.agent.collaboration.GroupRegistry
 import com.lin.hippyagent.core.agent.group.GroupCollaborationProtocol
 import com.lin.hippyagent.core.agent.session.AppDatabase
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val channelModule = module {
@@ -38,7 +39,9 @@ val channelModule = module {
             context = androidContext(),
             speakerSelector = getOrNull(),
             collaborationProtocol = getOrNull(),
-            descriptionProvider = getOrNull()
+            descriptionProvider = getOrNull(),
+            modelClients = getOrNull(named("groupModelClients")) ?: emptyMap(),
+            modeOrchestrator = getOrNull()
         )
     }
 

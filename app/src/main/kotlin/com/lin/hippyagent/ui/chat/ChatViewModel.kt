@@ -50,6 +50,9 @@ import com.lin.hippyagent.core.memory.ProactiveMemoryManager
 import com.lin.hippyagent.core.model.ModelProvider
 import com.lin.hippyagent.core.model.ModelProviderStore
 import com.lin.hippyagent.core.notification.HippyAgentNotificationService
+import com.lin.hippyagent.core.agent.task.TaskDao
+import com.lin.hippyagent.core.agent.task.TaskEntity
+import com.lin.hippyagent.core.agent.task.TaskStatus
 import com.lin.hippyagent.core.backup.BackupManager
 import com.lin.hippyagent.core.stats.StatsManager
 import kotlinx.coroutines.Job
@@ -57,6 +60,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -121,7 +125,15 @@ data class ChatUiState(
     val pendingSendChips: List<InputChip> = emptyList(),
     val isMultiSelectMode: Boolean = false,
     val selectedMessageIds: Set<String> = emptySet(),
-    val iterationExhausted: Boolean = false
+    val iterationExhausted: Boolean = false,
+    val autoDecidedMode: String? = null,
+    val autoDecidedModeSource: String? = null,
+    val autoDecidedModeReasoning: String? = null,
+    /** 触发本次 auto 决策的用户 turn.id；用于在用户消息下显示 AutoDecisionHint */
+    val autoDecidedModeTurnId: String? = null,
+    val selectedModeLocked: Boolean = false,
+    /** Auto/Work 模式正在 LLM 决策中 (决策完成前显示「决策中」状态) */
+    val isModeDeciding: Boolean = false
 )
 
 @Immutable
@@ -146,7 +158,10 @@ class ChatViewModel(
     private val statsManager: StatsManager? = null,
     private val groupRegistry: com.lin.hippyagent.core.agent.collaboration.GroupRegistry? = null,
     private val agentGroupManager: com.lin.hippyagent.core.agent.collaboration.AgentGroupManager? = null,
-    private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null
+    private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null,
+    private val modeOrchestrator: com.lin.hippyagent.core.agent.mode.ModeOrchestrator? = null,
+    private val toolApprovalManager: com.lin.hippyagent.core.security.ToolApprovalManager? = null,
+    private val taskDao: TaskDao? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
@@ -186,6 +201,24 @@ class ChatViewModel(
     private var hasDerivedTitle = false
     private var deliveryJob: Job? = null
     private var currentSessionId: String = ""
+    private val _selectedMode = MutableStateFlow(com.lin.hippyagent.core.skill.AgentMode.AUTO)
+    val selectedMode: StateFlow<com.lin.hippyagent.core.skill.AgentMode> = _selectedMode.asStateFlow()
+
+    fun selectMode(mode: com.lin.hippyagent.core.skill.AgentMode) {
+        _selectedMode.value = mode
+    }
+
+    // 当前 session 等待审批的 task (source IN ['task','tool_approval'], status=AWAITING_APPROVAL)
+    private val _currentSessionApproval = MutableStateFlow<TaskEntity?>(null)
+    val currentSessionApproval: StateFlow<TaskEntity?> = _currentSessionApproval.asStateFlow()
+
+    // 其他 session 等待审批的 task (后台 session / 无 session)
+    private val _otherSessionApproval = MutableStateFlow<TaskEntity?>(null)
+    val otherSessionApproval: StateFlow<TaskEntity?> = _otherSessionApproval.asStateFlow()
+
+    private val approvalSources = listOf("task", "tool_approval")
+    private var approvalObserverJob: Job? = null
+    private var sessionObserverJob: Job? = null
 
     private val voiceRecorder = com.lin.hippyagent.core.voice.VoiceRecorder(
         outputDir = java.io.File(context.cacheDir, "voice_messages").also { it.mkdirs() },
@@ -230,6 +263,70 @@ class ChatViewModel(
 
     init {
         loadAvailableModels()
+        startApprovalObserver()
+    }
+
+    private fun startApprovalObserver() {
+        val dao = taskDao ?: return
+        approvalObserverJob?.cancel()
+        approvalObserverJob = viewModelScope.launch {
+            // 跟随 _uiState.sessionId: session 切换时取消旧 session 的两个 observe 子协程, 启新的
+            _uiState.map { it.sessionId }.distinctUntilChanged().collect { sid ->
+                sessionObserverJob?.cancel()
+                if (sid.isEmpty()) {
+                    _currentSessionApproval.value = null
+                    _otherSessionApproval.value = null
+                    return@collect
+                }
+                sessionObserverJob = launch {
+                    launch {
+                        dao.observeCurrentSessionApprovalList(
+                            sessionId = sid,
+                            sources = approvalSources,
+                            status = TaskStatus.AWAITING_APPROVAL
+                        ).collect { list ->
+                            _currentSessionApproval.value = list.firstOrNull()
+                        }
+                    }
+                    launch {
+                        dao.observeOtherSessionApprovalList(
+                            sessionId = sid,
+                            sources = approvalSources,
+                            status = TaskStatus.AWAITING_APPROVAL
+                        ).collect { list ->
+                            _otherSessionApproval.value = list.firstOrNull()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 用户在 ChatScreen 内点批准/拒绝
+     * - always=false: ALLOW_ONCE / DENY_ONCE
+     * - always=true: ALLOW_ALWAYS / DENY_ALWAYS (写 tool_approval_rules)
+     */
+    fun onApprove(approvalId: String, always: Boolean = false) {
+        val mgr = toolApprovalManager ?: return
+        viewModelScope.launch {
+            mgr.resolveApproval(
+                requestId = approvalId,
+                action = if (always) com.lin.hippyagent.core.security.ApprovalAction.ALLOW_ALWAYS
+                else com.lin.hippyagent.core.security.ApprovalAction.ALLOW_ONCE
+            )
+        }
+    }
+
+    fun onDeny(approvalId: String, always: Boolean = false) {
+        val mgr = toolApprovalManager ?: return
+        viewModelScope.launch {
+            mgr.resolveApproval(
+                requestId = approvalId,
+                action = if (always) com.lin.hippyagent.core.security.ApprovalAction.DENY_ALWAYS
+                else com.lin.hippyagent.core.security.ApprovalAction.DENY_ONCE
+            )
+        }
     }
 
     private fun loadAvailableModels() {
@@ -398,12 +495,18 @@ class ChatViewModel(
                 }
                 val agentDisplayName = agent.profileConfig.name.ifBlank { agentId }
                 val agentModel = agent.profileConfig.modelName
-                _uiState.update { it.copy(agentName = agentDisplayName) }
+                _uiState.update {
+                    it.copy(
+                        agentName = agentDisplayName,
+                        selectedModeLocked = agent.profileConfig.modeLocked,
+                    )
+                }
                 viewModelScope.launch {
                     agentRepository.getProfiles().collect { profiles ->
                         val currentId = _uiState.value.agentId
                         val name = profiles[currentId]?.name?.ifBlank { currentId } ?: currentId
-                        _uiState.update { it.copy(agentName = name) }
+                        val locked = profiles[currentId]?.modeLocked ?: _uiState.value.selectedModeLocked
+                        _uiState.update { it.copy(agentName = name, selectedModeLocked = locked) }
                     }
                 }
                 val matchedModel = _uiState.value.availableModels.find { model ->
@@ -1097,8 +1200,10 @@ class ChatViewModel(
         var thinkingChunkCount = 0
         var messageCountBeforeCompaction = 0
 
+        val modeSuffix = resolveModeSuffix(content, freshAgent.profileConfig.agentId, freshAgent, turnId = streamingTurnId, sessionId = sessionId)
+
         try {
-            agent.processMessageStream(sessionId, "console", content, overrideModel, overrideProviderId = selectedProviderId, planContext = planContext, skipUserMessage = skipUserMessage)
+            agent.processMessageStream(sessionId, "console", content, overrideModel, overrideProviderId = selectedProviderId, planContext = planContext, skipUserMessage = skipUserMessage, systemPromptSuffix = modeSuffix)
                 .collect { chunk ->
                     when (chunk) {
                         is com.lin.hippyagent.core.agent.StreamChunk.Content -> {
@@ -1603,6 +1708,68 @@ class ChatViewModel(
         private val VISION_MODEL_REGEX = Regex("(?i)(vision|vl|gemini|gpt-4o|gpt-5|claude-3|claude-4|qwen-vl|llava|deepseek-vl|flash-image)")
     }
 
+    /**
+     * 解析模式并应用模式过滤;返回 system prompt 后缀(可空)。
+     * 失败 / orchestrator 不可用时返回 null,不打断主流程。
+     */
+    private suspend fun resolveModeSuffix(
+        content: String,
+        agentId: String,
+        agent: com.lin.hippyagent.core.agent.Agent,
+        turnId: String? = null,
+        sessionId: String? = null,
+    ): String? {
+        val orchestrator = modeOrchestrator ?: return null
+        // 智能体 XML 声明的模式覆盖 (本 turn 优先消费)
+        val modeOverride: com.lin.hippyagent.core.skill.AgentMode? = sessionId
+            ?.let { agent.getSessionState(it).modeOverride }
+            ?.let { runCatching { com.lin.hippyagent.core.skill.AgentMode.valueOf(it) }.getOrNull() }
+        if (modeOverride != null && sessionId != null) {
+            agent.consumeModeOverride(sessionId)
+            Timber.w("Consumed modeOverride=$modeOverride for session=$sessionId")
+        }
+        val effectiveMode = modeOverride ?: _selectedMode.value
+        // 仅在 AUTO/WORK 模式下显示「决策中」状态 (USER_SELECTED/PROFILE_DEFAULT 不走 LLM 决策)
+        val isAutoOrWork = effectiveMode == com.lin.hippyagent.core.skill.AgentMode.AUTO ||
+            effectiveMode == com.lin.hippyagent.core.skill.AgentMode.WORK
+        if (isAutoOrWork) {
+            _uiState.update { it.copy(isModeDeciding = true) }
+        }
+        return try {
+            val resolution = if (modeOverride != null) {
+                com.lin.hippyagent.core.agent.mode.ModeOrchestrator.ModeResolution(
+                    mode = modeOverride,
+                    source = com.lin.hippyagent.core.agent.mode.ModeOrchestrator.ModeSource.AUTO_DECIDED,
+                    reasoning = "智能体声明切换 → ${modeOverride.name}",
+                )
+            } else {
+                orchestrator.resolveMode(
+                    agentId = agentId,
+                    profile = agent.profileConfig,
+                    userMessage = content,
+                    sessionSelectedMode = _selectedMode.value.takeIf { it != com.lin.hippyagent.core.skill.AgentMode.AUTO },
+                )
+            }
+            val suffix = orchestrator.applyForMode(agentId, agent.profileConfig, resolution)
+            _uiState.update {
+                it.copy(
+                    autoDecidedMode = resolution.mode.name,
+                    autoDecidedModeSource = resolution.source.name,
+                    autoDecidedModeReasoning = resolution.reasoning,
+                    autoDecidedModeTurnId = turnId,
+                )
+            }
+            suffix.takeIf { s -> s.isNotBlank() }
+        } catch (e: Exception) {
+            Timber.w(e, "ModeOrchestrator: failed to resolve mode, skipping")
+            null
+        } finally {
+            if (isAutoOrWork) {
+                _uiState.update { it.copy(isModeDeciding = false) }
+            }
+        }
+    }
+
     private fun isCurrentModelVisionCapable(): Boolean {
         val selectedModel = _uiState.value.selectedModel
         if (selectedModel.isBlank()) return false
@@ -2001,6 +2168,9 @@ class ChatViewModel(
 
     override fun onCleared() {
         Timber.d("ChatViewModel onCleared: deliveryScope 保持活跃, 不取消后台任务")
+
+        sessionObserverJob?.cancel()
+        approvalObserverJob?.cancel()
 
         val sessionId = _uiState.value.sessionId
         if (sessionId.isNotEmpty()) {
