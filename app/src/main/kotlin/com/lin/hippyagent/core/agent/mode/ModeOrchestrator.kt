@@ -2,7 +2,6 @@ package com.lin.hippyagent.core.agent.mode
 
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.skill.AgentMode
-import com.lin.hippyagent.core.tools.ToolRegistry
 import timber.log.Timber
 
 /**
@@ -22,7 +21,6 @@ class ModeOrchestrator(
     private val promptInjector: ModeSystemPromptInjector,
     private val skillActivator: ModeAwareSkillActivator,
     private val toolFilter: ModeAwareToolFilter,
-    private val toolRegistry: ToolRegistry,
 ) {
     data class ModeResolution(
         val mode: AgentMode,
@@ -79,13 +77,16 @@ class ModeOrchestrator(
             else -> {
                 val decisionModelName = profile.decisionModelName.takeIf { it.isNotBlank() }
                 val complexModel = profile.complexModelName.takeIf { it.isNotBlank() }
+                // 决策模型未配置时回退到主模型, 主模型缺 provider 时尝试从 modelName 解析 ("provider/model" 形式)
+                val fallbackModel = profile.modelName.takeIf { it.isNotBlank() }
+                val fallbackProvider = profile.modelProvider.takeIf { it.isNotBlank() }
+                    ?: fallbackModel?.substringBefore('/', "")?.takeIf { it.isNotBlank() && '/' in fallbackModel }
                 val decision = modeRouter.decideMode(
                     userMessage = userMessage,
                     agentId = agentId,
-                    overrideModelName = decisionModelName
-                        ?: profile.modelName.takeIf { it.isNotBlank() },
+                    overrideModelName = decisionModelName ?: fallbackModel,
                     overrideProviderId = if (decisionModelName != null) profile.decisionModelProvider.takeIf { it.isNotBlank() }
-                        else profile.modelProvider.takeIf { it.isNotBlank() },
+                        else fallbackProvider,
                     complexModelName = complexModel
                 )
                 ModeResolution(
@@ -103,22 +104,35 @@ class ModeOrchestrator(
     /**
      * 应用模式过滤:
      * 1. 激活 mode-aware 技能
-     * 2. 过滤 mode-aware 工具
+     * 2. 过滤 mode-aware 工具(可选叠加 [extraDeniedTools],用于群聊等场景强制禁用)
      * 3. 生成 mode-specific system prompt 后缀
+     *
+     * [extraDeniedTools] 与 mode/visibility 解耦,强制追加到 denyList。
+     * 典型用法:群聊把 [GROUP_DENIED_TOOLS] 传入,确保被设计为禁用的工具不被任何 mode 重新放行。
      */
     fun applyForMode(
         agentId: String,
         profile: AgentProfile,
         resolution: ModeResolution,
+        extraDeniedTools: Set<String> = emptySet(),
     ): String {
-        // AUTO / NONE：不走模式过滤 (AUTO 由 chatViewModel 走另一条路径处理, NONE 不过滤)
-        if (resolution.mode == AgentMode.AUTO || resolution.mode == AgentMode.NONE) {
+        // AUTO：跳过模式过滤, 由 chatViewModel 走另一条路径处理
+        if (resolution.mode == AgentMode.AUTO) {
             return ""
         }
-        val skillIds = profile.skills.toSet()
-        skillActivator.activateForMode(agentId, resolution.mode, skillIds)
-        val allToolIds = toolRegistry.getDefinitionsForAgent(agentId).map { it.name }.toSet()
-        toolFilter.applyForMode(agentId, resolution.mode, allToolIds)
+        // NONE 模式：不进行模式区分, 仍调用 activator/filter
+        // (resolveEffectiveSkills/Tools 内 isUnfiltered 分支会加载所有已启用项)
+
+        // 1. 候选技能 = profile.skills - profile.disabledSkills(全局禁用,等价于 OFF)
+        val candidateSkillIds = (profile.skills - profile.disabledSkills.toSet()).toSet()
+        skillActivator.activateForMode(agentId, resolution.mode, candidateSkillIds)
+        // 2. 工具由 ToolFilter 内部获取 allToolIds,profile.disabledTools 视为"全局 OFF"
+        toolFilter.applyForMode(agentId, resolution.mode, profile.disabledTools.toSet(), extraDeniedTools)
+
+        // NONE 模式无 mode-specific system prompt 后缀
+        if (resolution.mode == AgentMode.NONE) {
+            return ""
+        }
         return promptInjector.promptFor(resolution.mode)
     }
 

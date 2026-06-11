@@ -490,7 +490,8 @@ class Agent(
         overrideProviderId: String?,
         skipUserMessage: Boolean = false,
         systemPromptSuffix: String? = null,
-        overrideModel: String? = null
+        overrideModel: String? = null,
+        forceEscalate: Boolean = false,
     ): PreparedContext? {
         if (!networkMonitor.isOnline()) {
             val queued = com.lin.hippyagent.core.network.QueuedMessage(
@@ -516,9 +517,14 @@ class Agent(
             Timber.d("Preemptive compression: estimated $messageCount messages may exceed context window")
         }
 
-        val escalatedThisTurn = userMessage.trim().equals("/pro", ignoreCase = true)
+        // 升级到 heavy model 的两种独立来源:
+        // 1. escalatedByDecision: ModeOrchestrator 经 LLM 判定本 turn 需要复杂模型
+        // 2. escalatedByUser:     用户显式输入 /pro 命令
+        val escalatedByDecision = forceEscalate
+        val escalatedByUser = userMessage.trim().equals("/pro", ignoreCase = true)
+        val escalatedThisTurn = escalatedByDecision || escalatedByUser
         if (escalatedThisTurn) {
-            Timber.i("/pro command: forcing HEAVY model for this turn")
+            Timber.i("Escalate heavy model: byDecision=$escalatedByDecision, byUser=$escalatedByUser")
         }
 
         val effectiveModel = overrideModel ?: profile.modelName
@@ -732,7 +738,8 @@ class Agent(
         overrideModel: String? = null,
         skipUserMessage: Boolean = false,
         overrideProviderId: String? = null,
-        systemPromptSuffix: String? = null
+        systemPromptSuffix: String? = null,
+        forceEscalate: Boolean = false,
     ): Result<Unit> = getOrCreateSessionMutex(sessionId).withLock {
     getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
     _currentProcessingSessionId = sessionId
@@ -744,7 +751,7 @@ class Agent(
         return runCatching {
             Timber.d("Agent ${profile.agentId} processing message: $content")
 
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel)
+            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel, forceEscalate)
                 ?: return Result.failure(NetworkUnavailableException("网络连接不可用，消息已缓存"))
 
             val effectiveClient = ctx.effectiveClient
@@ -975,7 +982,8 @@ class Agent(
         overrideProviderId: String? = null,
         planContext: String? = null,
         skipUserMessage: Boolean = false,
-        systemPromptSuffix: String? = null
+        systemPromptSuffix: String? = null,
+        forceEscalate: Boolean = false,
     ): Flow<StreamChunk> = flow {
         val sessionMutex = getOrCreateSessionMutex(sessionId)
 
@@ -992,7 +1000,7 @@ class Agent(
         var afterAgentCalled = false
         try {
             getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel)
+            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel, forceEscalate)
             if (ctx == null) {
                 emit(StreamChunk.Content("📡 网络不可用，消息已缓存，网络恢复后自动发送"))
                 return@flow

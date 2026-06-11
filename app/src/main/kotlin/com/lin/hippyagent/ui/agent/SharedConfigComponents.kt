@@ -58,6 +58,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -87,6 +90,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lin.hippyagent.core.skill.SkillInfo
 import com.lin.hippyagent.core.skill.SkillManager
+import com.lin.hippyagent.core.skill.SkillVisibility
 import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.ui.components.getAvatarIcon
@@ -302,13 +306,72 @@ fun AgentProfileFields(
     }
 }
 
+/**
+ * 4 态可见范围选择器:Off | Chat | Work | All
+ * 替换原 On/Off Switch;持久化到 [WorkspaceSkillConfigManager.setSkillVisibility] / [setToolVisibility]。
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SkillVisibilityPicker(
+    value: SkillVisibility,
+    onValueChange: (SkillVisibility) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf(
+        SkillVisibility.OFF to stringResource(R.string.agent_skill_visibility_off),
+        SkillVisibility.CHAT to stringResource(R.string.agent_skill_visibility_chat),
+        SkillVisibility.WORK to stringResource(R.string.agent_skill_visibility_work),
+        SkillVisibility.ALL to stringResource(R.string.agent_skill_visibility_all)
+    )
+    SingleChoiceSegmentedButtonRow(modifier = modifier) {
+        options.forEachIndexed { index, (visibility, label) ->
+            SegmentedButton(
+                selected = value == visibility,
+                onClick = { onValueChange(visibility) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(label, fontSize = 11.sp, maxLines = 1, softWrap = false)
+            }
+        }
+    }
+}
+
+/**
+ * 已废弃:仅保留给全局 [com.lin.hippyagent.ui.settings.ToolsListScreen] 使用。
+ * 新位置(per-agent 场景)统一用 [SkillVisibilityPicker],4 态且持久化。
+ */
+@Deprecated("Use SkillVisibilityPicker for per-agent scope; this is UI-only and not persisted")
+@Composable
+fun ModeVisibilityChips(
+    visible: Set<String>,
+    onChange: (Set<String>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        listOf("Chat", "Work").forEach { mode ->
+            androidx.compose.material3.FilterChip(
+                selected = mode in visible,
+                onClick = {
+                    val newSet = if (mode in visible) visible - mode else visible + mode
+                    onChange(newSet)
+                },
+                label = { Text(mode, fontSize = 10.sp) },
+                modifier = Modifier.padding(horizontal = 2.dp)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SkillsManagementSheet(
+    agentId: String,
     skills: List<String>,
-    disabledSkills: List<String>,
     skillManager: SkillManager,
-    onToggleSkillEnabled: (String, Boolean) -> Unit,
     onUpdateSkills: (List<String>) -> Unit,
     onNavigateToStore: () -> Unit,
     onInstallFromZip: () -> Unit,
@@ -320,6 +383,17 @@ fun SkillsManagementSheet(
     var selectedSkillDetail by remember { mutableStateOf<SkillInfo?>(null) }
     var skillSearchQuery by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val configRegistry: com.lin.hippyagent.core.skill.WorkspaceSkillConfigManagerRegistry = org.koin.compose.koinInject()
+    val skillConfig = remember(agentId) { configRegistry.forAgent(agentId) }
+    var visibilities by remember { mutableStateOf<Map<String, SkillVisibility>>(emptyMap()) }
+    // 记录每个 skill 上次「非 OFF」的可见范围,详情弹窗里切回 ON 时恢复
+    // 仅在 toggle 事件中更新,LaunchedEffect 重算时不能覆盖(否则丢失切 OFF 前缓存)
+    var lastEnabledVisibility by remember { mutableStateOf<Map<String, SkillVisibility>>(emptyMap()) }
+    LaunchedEffect(agentId, allPoolSkills) {
+        visibilities = buildMap {
+            for (id in skills) put(id, skillConfig.getSkillVisibility(id))
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -392,13 +466,14 @@ fun SkillsManagementSheet(
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredSkills, key = { it }) { skillId ->
                         val skillInfo = skillMap[skillId]
-                        val isEnabled = skillId !in disabledSkills
+                        val visibility = visibilities[skillId] ?: SkillVisibility.ALL
+                        val isOn = visibility != SkillVisibility.OFF
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
                                 .clickable { selectedSkillDetail = skillInfo },
-                            colors = CardDefaults.cardColors(containerColor = if (isEnabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            colors = CardDefaults.cardColors(containerColor = if (isOn) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -409,7 +484,7 @@ fun SkillsManagementSheet(
                                         text = skillInfo?.displayNameOrName() ?: skillId,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                        color = if (isOn) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
                                     if (skillInfo != null) {
                                         Text(
@@ -428,13 +503,17 @@ fun SkillsManagementSheet(
                                     }
                                 }
                                 Spacer(Modifier.width(8.dp))
-                                Switch(
-                                    checked = isEnabled,
-                                    onCheckedChange = { enabled -> onToggleSkillEnabled(skillId, enabled) },
-                                    modifier = Modifier.height(24.dp)
+                                SkillVisibilityPicker(
+                                    value = visibility,
+                                    onValueChange = { newVis ->
+                                        visibilities = visibilities + (skillId to newVis)
+                                        skillConfig.setSkillVisibility(skillId, newVis)
+                                    }
                                 )
                                 IconButton(
                                     onClick = {
+                                        lastEnabledVisibility = lastEnabledVisibility - skillId
+                                        visibilities = visibilities - skillId
                                         onUpdateSkills(skills - skillId)
                                     },
                                     modifier = Modifier.size(32.dp)
@@ -459,8 +538,23 @@ fun SkillsManagementSheet(
                 skillManager = skillManager,
                 onDismiss = { selectedSkillDetail = null },
                 fromAgentConfig = true,
-                isSkillEnabled = skill.id !in disabledSkills,
-                onToggleSkill = onToggleSkillEnabled
+                isSkillEnabled = (visibilities[skill.id] ?: SkillVisibility.ALL) != SkillVisibility.OFF,
+                onToggleSkill = { id, enabled ->
+                    if (enabled) {
+                        // 切回 ON: 恢复上次的非 OFF 可见范围(默认 ALL)
+                        val restore = lastEnabledVisibility[id] ?: SkillVisibility.ALL
+                        visibilities = visibilities + (id to restore)
+                        skillConfig.setSkillVisibility(id, restore)
+                    } else {
+                        // 切到 OFF 前先记住当前可见范围,便于下次恢复
+                        val current = visibilities[id] ?: SkillVisibility.ALL
+                        if (current != SkillVisibility.OFF) {
+                            lastEnabledVisibility = lastEnabledVisibility + (id to current)
+                        }
+                        visibilities = visibilities + (id to SkillVisibility.OFF)
+                        skillConfig.setSkillVisibility(id, SkillVisibility.OFF)
+                    }
+                }
             )
         }
 
@@ -670,14 +764,22 @@ fun LoadFromPoolSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolsManagementSheet(
+    agentId: String,
     disabledTools: List<String>,
-    onToggleToolEnabled: (String, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     val toolRegistry = org.koin.compose.koinInject<ToolRegistry>()
+    val configRegistry: com.lin.hippyagent.core.skill.WorkspaceSkillConfigManagerRegistry = org.koin.compose.koinInject()
+    val toolConfig = remember(agentId) { configRegistry.forAgent(agentId) }
     val allTools = remember { toolRegistry.getVisibleDefinitions() }
     var toolSearchQuery by remember { mutableStateOf("") }
     var selectedTool by remember { mutableStateOf<ToolDefinition?>(null) }
+    var visibilities by remember { mutableStateOf<Map<String, SkillVisibility>>(emptyMap()) }
+    LaunchedEffect(agentId, allTools) {
+        visibilities = buildMap {
+            for (def in allTools) put(def.name, toolConfig.getToolVisibility(def.name))
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -718,11 +820,12 @@ fun ToolsManagementSheet(
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredTools, key = { it.name }) { toolDef ->
-                        val isEnabled = toolDef.name !in disabledTools
+                        val visibility = visibilities[toolDef.name] ?: SkillVisibility.ALL
+                        val isOn = visibility != SkillVisibility.OFF
                         Card(
                             onClick = { selectedTool = toolDef },
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            colors = CardDefaults.cardColors(containerColor = if (isEnabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            colors = CardDefaults.cardColors(containerColor = if (isOn) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -733,7 +836,7 @@ fun ToolsManagementSheet(
                                         text = toolDef.displayName.ifEmpty { toolDef.name },
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                        color = if (isOn) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
                                     Text(
                                         text = toolDef.description,
@@ -744,13 +847,12 @@ fun ToolsManagementSheet(
                                     )
                                 }
                                 Spacer(Modifier.width(8.dp))
-                                Switch(
-                                    checked = isEnabled,
-                                    onCheckedChange = { enabled -> onToggleToolEnabled(toolDef.name, enabled) },
-                                    colors = SwitchDefaults.colors(
-                                        checkedThumbColor = MaterialTheme.colorScheme.surface,
-                                        checkedTrackColor = MaterialTheme.colorScheme.primary
-                                    )
+                                SkillVisibilityPicker(
+                                    value = visibility,
+                                    onValueChange = { newVis ->
+                                        visibilities = visibilities + (toolDef.name to newVis)
+                                        toolConfig.setToolVisibility(toolDef.name, newVis)
+                                    }
                                 )
                             }
                         }

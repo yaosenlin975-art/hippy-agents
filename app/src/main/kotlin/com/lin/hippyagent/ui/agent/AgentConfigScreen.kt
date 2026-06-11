@@ -470,10 +470,9 @@ fun AgentConfigScreen(
 
             if (showSkillsSheet) {
                 SkillsManagementSheet(
+                    agentId = uiState.agent?.agentId ?: "",
                     skills = uiState.agent?.skills ?: emptyList(),
-                    disabledSkills = uiState.agent?.disabledSkills ?: emptyList(),
                     skillManager = skillManager,
-                    onToggleSkillEnabled = { skillId, enabled -> viewModel.toggleSkillEnabled(skillId, enabled) },
                     onUpdateSkills = { viewModel.updateSkills(it) },
                     onNavigateToStore = onNavigateToStore,
                     onInstallFromZip = { zipPickerLauncher.launch("application/zip") },
@@ -484,8 +483,8 @@ fun AgentConfigScreen(
 
             if (showToolsSheet) {
                 ToolsManagementSheet(
+                    agentId = uiState.agent?.agentId ?: "",
                     disabledTools = uiState.agent?.disabledTools ?: emptyList(),
-                    onToggleToolEnabled = { toolName, enabled -> viewModel.toggleToolEnabled(toolName, enabled) },
                     onDismiss = { showToolsSheet = false }
                 )
             }

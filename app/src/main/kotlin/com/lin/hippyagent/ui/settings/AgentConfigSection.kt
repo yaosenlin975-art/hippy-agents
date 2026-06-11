@@ -110,6 +110,7 @@ fun AgentConfigSection(
     var showModelSelector by remember { mutableStateOf(false) }
     var showFallbackModelSelector by remember { mutableStateOf(false) }
     var showComplexModelSelector by remember { mutableStateOf(false) }
+    var showDecisionModelSelector by remember { mutableStateOf(false) }
     var editingFilename by remember { mutableStateOf<String?>(null) }
     var editingContent by remember { mutableStateOf("") }
     var isEditingContentLoaded by remember { mutableStateOf(false) }
@@ -246,10 +247,13 @@ fun AgentConfigSection(
                                 fallbackModelProvider = agent.fallbackModelProvider,
                                 complexModelName = agent.complexModelName,
                                 complexModelProvider = agent.complexModelProvider,
+                                decisionModelName = agent.decisionModelName,
+                                decisionModelProvider = agent.decisionModelProvider,
                                 providerNames = uiState.providerNames,
                                 onShowModelSelector = { showModelSelector = true },
                                 onShowFallbackModelSelector = { showFallbackModelSelector = true },
                                 onShowComplexModelSelector = { showComplexModelSelector = true },
+                                onShowDecisionModelSelector = { showDecisionModelSelector = true },
                                 trailingContent = {
                                     Box {
                                         IconButton(onClick = { showAgentSwitcher = true }) {
@@ -541,6 +545,23 @@ fun AgentConfigSection(
         )
     }
 
+    if (showDecisionModelSelector) {
+        ModelSwitchSheet(
+            selectedModel = uiState.agent?.decisionModelName ?: "",
+            selectedProviderId = uiState.agent?.decisionModelProvider,
+            availableModels = uiState.availableModels,
+            onModelSelected = { model, providerId ->
+                viewModel.updateDecisionModel(model, providerId)
+                showDecisionModelSelector = false
+            },
+            onDismiss = { showDecisionModelSelector = false },
+            onNavigateToSettings = {
+                showDecisionModelSelector = false
+                onNavigateToModelProvider()
+            }
+        )
+    }
+
     if (editingFilename != null && isEditingContentLoaded) {
         val currentFilename = editingFilename!!
         val currentContent = editingContent
@@ -561,10 +582,9 @@ fun AgentConfigSection(
 
     if (showSkillsSheet) {
         SkillsManagementSheet(
+            agentId = uiState.agent?.agentId ?: "",
             skills = uiState.agent?.skills ?: emptyList(),
-            disabledSkills = uiState.agent?.disabledSkills ?: emptyList(),
             skillManager = skillManager,
-            onToggleSkillEnabled = { skillId, enabled -> viewModel.toggleSkillEnabled(skillId, enabled) },
             onUpdateSkills = { viewModel.updateSkills(it) },
             onNavigateToStore = onNavigateToStore,
             onInstallFromZip = { zipPickerLauncher.launch("application/zip") },
@@ -575,8 +595,8 @@ fun AgentConfigSection(
 
     if (showToolsSheet) {
         ToolsManagementSheet(
+            agentId = uiState.agent?.agentId ?: "",
             disabledTools = uiState.agent?.disabledTools ?: emptyList(),
-            onToggleToolEnabled = { toolName, enabled -> viewModel.toggleToolEnabled(toolName, enabled) },
             onDismiss = { showToolsSheet = false }
         )
     }

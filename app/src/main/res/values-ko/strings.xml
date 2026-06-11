@@ -307,6 +307,7 @@
     <string name="chat_agent_workflow">%1$s의 워크플로</string>
     <string name="chat_no_process_info">프로세스 정보 없음</string>
     <string name="chat_step_process">%1$d단계</string>
+    <string name="chat_step_process_stats">%1$d단계 · 🧠사고 %2$d회 · 🔧도구 %3$d회 · 📨메시지 %4$d개 · ⏱%5$d초</string>
     <string name="chat_collapse_process">프로세스 접기</string>
     <string name="chat_error_label">⚠ 오류</string>
     <string name="chat_api_calls">%1$d회 요청</string>
@@ -447,6 +448,10 @@
     <string name="agent_saved">저장됨</string>
     <string name="agent_skill_installed">스킬 %1$s 설치 성공</string>
     <string name="agent_skill_install_failed">설치 실패: %1$s</string>
+    <string name="agent_skill_visibility_off">끄기</string>
+    <string name="agent_skill_visibility_chat">Chat만</string>
+    <string name="agent_skill_visibility_work">Work만</string>
+    <string name="agent_skill_visibility_all">모두</string>
     <string name="agent_create">에이전트 만들기</string>
     <string name="agent_name_hint">에이전트 이름 지정(선택)</string>
     <string name="agent_default_model">기본 모델</string>

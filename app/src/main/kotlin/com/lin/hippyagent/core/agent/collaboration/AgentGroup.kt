@@ -526,7 +526,8 @@ class AgentGroup(
             maxRounds = 100
         )
         val baseSuffix = GroupChatPrompts.buildAgentSystemPrompt(agentId, groupContext, mentionPath, isCycleTarget)
-        val systemPromptSuffix = resolveGroupModeSuffix(agentId, baseSuffix, userContent)
+        val modeSuffixResult = resolveGroupModeSuffix(agentId, baseSuffix, userContent)
+        val systemPromptSuffix = modeSuffixResult.suffix
 
         val existingSessionMessages = sessionStore.getMessages(groupId).getOrDefault(emptyList())
         val previousToolMsgIds = existingSessionMessages.filter { it.role == MessageRole.TOOL }.map { it.id }.toSet()
@@ -545,7 +546,8 @@ class AgentGroup(
                 content = userContent,
                 skipUserMessage = true,
                 systemPromptSuffix = systemPromptSuffix,
-                overrideProviderId = agent.profileConfig.modelProvider.ifBlank { null }
+                overrideProviderId = agent.profileConfig.modelProvider.ifBlank { null },
+                forceEscalate = modeSuffixResult.useComplexModel,
             )
 
             if (!result.isSuccess) return null
@@ -672,32 +674,49 @@ class AgentGroup(
 
     /**
      * 群聊模式决策注入 — 当前轮若有 [GroupPreDecision]，由 [ModeOrchestrator] 应用模式过滤，
-     * 并将模式 prompt 拼到 baseSuffix 末尾；否则仅返回 baseSuffix（保持现有行为）。
+     * 将模式 prompt 拼到 baseSuffix 末尾；同时把 LLM 决策的 useComplexModel 透传，
+     * 调用方据此决定 processMessage 是否升级到 heavy model。
+     * 否则仅返回 baseSuffix（保持现有行为）。
      */
-    private suspend fun resolveGroupModeSuffix(agentId: String, baseSuffix: String, userContent: String): String {
+    private data class GroupModeSuffixResult(
+        val suffix: String,
+        val useComplexModel: Boolean = false,
+    )
+
+    private suspend fun resolveGroupModeSuffix(agentId: String, baseSuffix: String, userContent: String): GroupModeSuffixResult {
         val orchestrator = modeOrchestrator
         val decision = _currentTurnDecision
         if (orchestrator == null || decision == null) {
-            return baseSuffix
+            return GroupModeSuffixResult(suffix = baseSuffix)
         }
         return runCatching {
-            val profile = agentFactory.getAgent(agentId)?.profileConfig ?: return@runCatching baseSuffix
+            val profile = agentFactory.getAgent(agentId)?.profileConfig
+                ?: return@runCatching GroupModeSuffixResult(suffix = baseSuffix)
             val resolution = orchestrator.resolveMode(
                 agentId = agentId,
                 profile = profile,
                 userMessage = userContent,
                 overrideMode = decision.mode,
             )
-            val modeSuffix = orchestrator.applyForMode(agentId, profile, resolution)
-            if (modeSuffix.isBlank()) baseSuffix
-            else buildString {
-                append(baseSuffix)
-                append("\n\n")
-                append(modeSuffix)
+            val modeSuffix = orchestrator.applyForMode(
+                agentId = agentId,
+                profile = profile,
+                resolution = resolution,
+                extraDeniedTools = GROUP_DENIED_TOOLS.toSet(),
+            )
+            val combined = if (modeSuffix.isBlank()) {
+                baseSuffix
+            } else {
+                buildString {
+                    append(baseSuffix)
+                    append("\n\n")
+                    append(modeSuffix)
+                }
             }
+            GroupModeSuffixResult(suffix = combined, useComplexModel = resolution.useComplexModel)
         }.getOrElse { e ->
             Timber.w(e, "AgentGroup: resolveGroupModeSuffix failed for $agentId, fallback to baseSuffix")
-            baseSuffix
+            GroupModeSuffixResult(suffix = baseSuffix)
         }
     }
 

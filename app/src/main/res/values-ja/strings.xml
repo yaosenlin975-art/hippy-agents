@@ -307,6 +307,7 @@
     <string name="chat_agent_workflow">%1$s のワークフロー</string>
     <string name="chat_no_process_info">プロセス情報なし</string>
     <string name="chat_step_process">%1$dステップ</string>
+    <string name="chat_step_process_stats">%1$dステップ · 🧠思考%2$d回 · 🔧ツール%3$d回 · 📨メッセージ%4$d件 · ⏱%5$d秒</string>
     <string name="chat_collapse_process">プロセスを折りたたむ</string>
     <string name="chat_error_label">⚠ エラー</string>
     <string name="chat_api_calls">%1$d回リクエスト</string>
@@ -447,6 +448,10 @@
     <string name="agent_saved">保存しました</string>
     <string name="agent_skill_installed">スキル %1$s をインストールしました</string>
     <string name="agent_skill_install_failed">インストール失敗: %1$s</string>
+    <string name="agent_skill_visibility_off">オフ</string>
+    <string name="agent_skill_visibility_chat">Chat のみ</string>
+    <string name="agent_skill_visibility_work">Work のみ</string>
+    <string name="agent_skill_visibility_all">すべて</string>
     <string name="agent_create">エージェント作成</string>
     <string name="agent_name_hint">エージェントに名前を付ける（任意）</string>
     <string name="agent_default_model">デフォルトモデル</string>

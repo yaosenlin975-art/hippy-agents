@@ -2372,6 +2372,66 @@
 - **输出结果**：过程折叠时仍可见统计数字；过程展开时显示完整内容
 - **关键机制**：ProcessDrawer 头本身已始终渲染（header 不是 AnimatedVisibility），仅是上游 showProcessHeader 条件阻挡
 
+### 顶栏模型展示 vs 模式选择 视觉区分
+
+- **功能描述**：顶栏会话标题下方的"当前模型"展示行曾使用 `Icons.Default.Psychology` 图标 + 纯背景填充样式，与右侧 `ChatModeDropdown` 视觉相似导致用户误以为是第二个模式选择器（点击无反应）
+- **交互逻辑**
+  1. `ChatScreen.kt` 顶栏 title 区域 `modelDisplayName` 行改为 `Icons.Default.SwapHoriz`（语义为"切换/交换"，明确为模型切换而非模式选择）
+  2. 容器加 1.dp `outlineVariant` 圆角边框（区别于 `surfaceVariant` 填充；与 ChatModeDropdown 的胶囊背景也形成对比）
+  3. 图标右侧追加 "模型: " 文本前缀，模型名作为值显示；去掉原 KeyboardArrowDown 下拉箭头（与 ChatModeDropdown 区分，避免双重"下拉"暗示）
+  4. 圆角从 12.dp 改为 6.dp + 文本大小从 11.sp 标签 10.sp/模型名 11.sp 形成层级
+- **输入规则**：当前 `uiState.selectedModel`（如 "deepseek-v4-flash"）
+- **输出结果**：用户能清晰区分"左侧带边框的模型切换行（SwapHoriz + 模型名）"与"右侧胶囊形态的模式下拉（AUTO/CHAT/WORK/NONE）"，不再混淆
+- **关键机制**：不删除模型展示行（用户仍需快速看到当前模型），仅通过图标/边框/标签三重信号强化"这是模型切换器"语义
+
+### 移除任务中心和通知中心入口
+
+- **功能描述**：系统设置界面移除"任务中心"和"通知中心"两个独立入口，二者已完全迁移至收件箱（Inbox）Tab；避免用户需要去两个地方查看待办/通知
+- **交互逻辑**
+  1. `SettingsScreen.kt`：从"通用 / 模型与AI / 系统与权限"任一分组的 `items` 列表中移除 Notifications / Assignment 图标项
+  2. `SettingsScreen.kt` `onClick(key)` 移除 `R.string.notifications` / `R.string.task_center` 分支
+  3. `MainScreen.kt`：移除 `onNavigateToNotification = { navController.navigate(Screen.Notification.route) }` 回调
+  4. `Screen.kt` 保留 `Screen.Notification` / `Screen.TaskList` 等对象定义（防止 deep link 失效或外部代码引用），仅不再注册导航路径
+- **输入规则**：无
+- **输出结果**：设置界面更精简；任务/通知统一从收件箱入口进入
+- **关键机制**：导航对象保留以便未来 deep link 复用；收件箱的 events / tasks Tab 完全承担原通知中心/任务中心职责
+
+### Agent 决策模型 — 点击修复
+
+- **功能描述**：`AgentConfigSection` 中"模式决策模型"行（`Icons.Default.Psychology` + 模型名）点击无反应；`showComplexModelSelector` 状态有但决策模型版本缺失
+- **交互逻辑**
+  1. `AgentConfigSection.kt` 新增 `var showDecisionModelSelector by remember { mutableStateOf(false) }` 状态
+  2. `AgentProfileFields(...)` 调用处新增 `onShowDecisionModelSelector = { showDecisionModelSelector = true }` 形参透传
+  3. 末尾新增 `if (showDecisionModelSelector) ModelSwitchSheet(...)` 与复杂模型同结构；`onModelSelected` 调用 `viewModel.updateDecisionModel(model, providerId)` 持久化
+  4. `AgentConfigScreen.kt`（独立配置页）同步加同对 state + 回调，确保两处配置页行为一致
+  5. `SharedConfigComponents.AgentProfileFields` 函数签名 `onShowDecisionModelSelector: () -> Unit = {}` 补默认值（不破坏旧调用点）
+- **输入规则**：当前 `uiState.agent?.decisionModelName / decisionModelProvider`、可用 `availableModels`
+- **输出结果**：决策模型行可点击，弹出 ModelSwitchSheet 选择 LLM 供应商和模型
+- **关键机制**：复用 `updateDecisionModel` 已有的 autoSave 路径（与 `updateComplexModel` 同模式），无新增持久化逻辑
+
+### Auto 模式 Model URI 错误修复
+
+- **功能描述**：`auto` 模式下即便 Agent 配置了正确的 provider/model，ModeRouter 仍可能选到 OpenAI 的 client（OpenAIModelClient 日志可见 `model=deepseek-v4-flash`）；原因是 `clientFor()` 匹配顺序未优先 `providerId/model` 组合
+- **交互逻辑**
+  1. `ModeRouter.clientFor()` 调整匹配顺序：① `providerId/model` 精确匹配（有 providerId 时优先） → ② 全名精确匹配 → ③ 剥前缀后匹配 → ④ providerId 前缀模糊匹配 → ⑤ fallback 到第一个可用 client 并 Timber.w 记录
+  2. `ModeOrchestrator.resolveMode()` 决策路径：当 `profile.modelProvider` 为空时，从 `modelName` 解析 `fallbackProvider`（`substringBefore('/')`，仅当 modelName 含 `/` 时采用），避免 `null` provider 触发模糊匹配选错 client
+  3. `overrideProviderId` 透传规则：`decisionModelName` 非空时使用 `profile.decisionModelProvider`；否则使用 `fallbackProvider`（从 modelName 解析）
+- **输入规则**：`profile.modelName / modelProvider / decisionModelName / decisionModelProvider`、`complexModelName`
+- **输出结果**：auto 模式下 ModeRouter 准确选到 provider 对应的 ModelClient，不再误命中 OpenAI 兜底
+- **关键机制**：复用现有 `ConcurrentHashMap<String, ModelClient>` 客户端池；不引入新缓存层
+
+### 决策中状态指示（AUTO/WORK 模式 LLM 路由期间）
+
+- **功能描述**：AUTO 或 WORK 模式下，ModeRouter 需要 LLM 调用决定"Chat vs Work / 是否切到复杂模型"；此期间用户看不到任何状态变化（1-3 秒空白），不知道发生了什么
+- **交互逻辑**
+  1. `ChatUiState` 新增 `isModeDeciding: Boolean = false` 字段
+  2. `ChatViewModel.resolveModeSuffix()` 在 `effectiveMode == AUTO || WORK` 时将 `isModeDeciding = true`；`finally` 块中复位为 false
+  3. `ChatScreen.kt` `bottomBar` 顶部新增判断：`if (uiState.isModeDeciding) PulsingStatusDot(isThinking = true, label = R.string.chat_deciding)`，与原 THINKING/EXECUTING_TOOL 状态指示互斥
+  4. `finally` 在 `resolveModeSuffix` 返回时执行，理论上 `processMessageStream` 开始后 `agentStatus` 变 `THINKING`，指示切换为"思考中"
+- **输入规则**：当前 `effectiveMode = modeOverride ?: _selectedMode.value`
+- **输出结果**：用户在 AUTO/WORK 模式发送消息后立刻看到"决策中"状态指示，几秒后切换为"思考中"
+- **关键机制**：`isModeDeciding` 与 `agentStatus` 状态机解耦；ModeRouter 失败/异常时 `finally` 仍会复位
+
 ### 附件 Chip 可视化显示
 
 - **功能描述**：附件和图片 chip 在输入栏上方以 FlowRow 形式排列显示
@@ -2494,17 +2554,20 @@
 - **输入规则**：用户消息文本；技能索引由 `SkillIndexManager` 维护
 - **输出结果**：命中技能注入到 `PromptContext.resolvedSkills` → `<skill_triggers>` 段；未命中则仅展示 `profile.skills`
 
-### 技能/工具 Chat/Work 可见模式勾选
+### 技能/工具可见范围(Off/Chat/Work/All 4 态)
 
-- **功能描述**：在 `AgentSkillScreen` 和 `ToolsListScreen` 单项旁加双 `FilterChip`（Chat / Work），被勾选视为该模式下可见
+- **功能描述**：在 `SkillsManagementSheet`、`ToolsManagementSheet`、`AgentSkillScreen` 单项旁出现 4 态 `SkillVisibilityPicker`(Off / Chat / Work / All),持久化到该 agent 的 `workspaces/$agentId/skill_config.json`;`ModeOrchestrator.applyForMode` 路径上的 `ModeAwareSkillActivator.activateForMode` / `ModeAwareToolFilter.applyForMode` 在调用 `resolveEffective*` 时按 4 态强制过滤,真正控制该 agent 在不同模式下注入哪些技能/工具
 - **交互逻辑**
-  1. 新增 `ModeVisibilityChips(visible: Set<String>, onChange: (Set<String>) -> Unit)` 共享组件
-  2. `AgentSkillScreen` 每个技能项的 per-agent `Checkbox` 右侧追加 `ModeVisibilityChips`；`ToolsListScreen` 工具 Card 底部追加
-  3. 状态用 `var visibleInModes by remember { mutableStateOf(mapOf<String, Set<String>>()) }` 局部存储；缺省视为 `setOf("Chat", "Work")`（都可见）
-  4. 当前**仅 UI 标记** — 渲染用，不在 `SkillTriggerResolver.resolve()` / `ToolAccessController` 入口强制过滤
-- **输入规则**：当前技能的 `visibleInModes[id]`
-- **输出结果**：UI 上每个技能/工具显示两个 FilterChip；用户可勾选/取消勾选
-- **关键机制**：后续可扩展为 ProfileConfig JSON 持久化字段 + 运行时过滤（未要求；当前范围仅 UI 标记）
+  1. 新增 `SkillVisibility` 枚举(OFF/CHAT/WORK/ALL)与 `SkillVisibilityPicker` 共享组件(基于 `SingleChoiceSegmentedButtonRow`)
+  2. `SkillsManagementSheet` / `ToolsManagementSheet` / `AgentSkillScreen` 把原 On/Off Switch 替换为 Picker
+  3. Picker 选中值经 `WorkspaceSkillConfigManagerRegistry.forAgent(agentId)` 落到 per-agent `skill_config.json`
+  4. Koin 用 `WorkspaceSkillConfigManagerRegistry` 取代原单例 `WorkspaceSkillConfigManager`,`ModeAwareSkillActivator` / `ModeAwareToolFilter` / `ModeOnboarding` 改用 registry
+  5. 4 态 ↔ (enabled, modes) 映射:OFF→enabled=false;CHAT→modes={CHAT};WORK→modes={WORK};ALL→modes={} (空集=无模式限制,所有模式都过)
+  6. 老数据兼容:旧 `modes={CHAT,WORK}` 读时映射为 ALL
+  7. 新装技能 / 新建 agent 默认 ALL(无 entry → resolveEffective* 不过滤)
+- **输入规则**:用户切换 Picker;`registry.forAgent(agentId).setSkillVisibility / setToolVisibility`
+- **输出结果**:`skill_config.json` 落盘;`resolveEffectiveSkills/Tools` 在 `ModeOrchestrator.applyForMode` 路径上按 4 态过滤
+- **关键机制**:`ToolsListScreen`(全局,非 per-agent)暂不动,只把旧 `ModeVisibilityChips` 标记为 `@Deprecated` 保留以不破坏编译;后续如需统一可单独立项
 
 ### 非 Clawhub 技能源调研报告（2026-06-03）
 

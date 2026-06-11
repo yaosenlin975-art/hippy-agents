@@ -461,6 +461,10 @@
     <string name="agent_saved">已保存</string>
     <string name="agent_skill_installed">技能 %1$s 安装成功</string>
     <string name="agent_skill_install_failed">安装失败: %1$s</string>
+    <string name="agent_skill_visibility_off">关闭</string>
+    <string name="agent_skill_visibility_chat">仅 Chat</string>
+    <string name="agent_skill_visibility_work">仅 Work</string>
+    <string name="agent_skill_visibility_all">全部</string>
     <string name="agent_create">创建智能体</string>
     <string name="agent_name_hint">给智能体起个名字（可选）</string>
     <string name="agent_default_model">默认模型</string>

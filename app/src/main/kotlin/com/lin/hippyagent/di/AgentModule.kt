@@ -27,7 +27,7 @@ import com.lin.hippyagent.core.model.AuthProfileManager
 import com.lin.hippyagent.core.storage.SecureStorage
 import com.lin.hippyagent.core.storage.ConfigStorage
 import com.lin.hippyagent.core.skill.SkillLifecycleManager
-import com.lin.hippyagent.core.skill.WorkspaceSkillConfigManager
+import com.lin.hippyagent.core.skill.WorkspaceSkillConfigManagerRegistry
 import com.lin.hippyagent.core.tools.ToolGuardian
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.core.model.TokenUsageManager
@@ -224,14 +224,14 @@ val agentModule = module {
     }
 
     single {
-        WorkspaceSkillConfigManager(
-            workspaceDir = java.io.File(androidContext().filesDir, "workspace")
+        WorkspaceSkillConfigManagerRegistry(
+            baseDir = androidContext().filesDir
         )
     }
 
-    single { com.lin.hippyagent.core.agent.mode.ModeAwareSkillActivator(skillConfig = get(), skillLoader = get()) }
+    single { com.lin.hippyagent.core.agent.mode.ModeAwareSkillActivator(skillConfigRegistry = get(), skillLoader = get()) }
 
-    single { com.lin.hippyagent.core.agent.mode.ModeAwareToolFilter(skillConfig = get(), toolRegistry = get()) }
+    single { com.lin.hippyagent.core.agent.mode.ModeAwareToolFilter(skillConfigRegistry = get(), toolRegistry = get()) }
 
     single {
         com.lin.hippyagent.core.agent.task.TaskApprovalService(
@@ -242,7 +242,7 @@ val agentModule = module {
         )
     }
 
-    single { com.lin.hippyagent.core.agent.mode.ModeOnboarding(skillConfig = get(), prefs = get()) }
+    single { com.lin.hippyagent.core.agent.mode.ModeOnboarding(skillConfigRegistry = get(), prefs = get()) }
 
     single {
         com.lin.hippyagent.core.agent.mode.ModeOrchestrator(
@@ -250,7 +250,6 @@ val agentModule = module {
             promptInjector = com.lin.hippyagent.core.agent.mode.ModeSystemPromptInjector(),
             skillActivator = get(),
             toolFilter = get(),
-            toolRegistry = get()
         )
     }
 }

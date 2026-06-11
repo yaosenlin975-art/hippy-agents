@@ -189,25 +189,33 @@ fun AgentTurnCard(
                 )
             }
 
-            if (collapseProcess && !isGroupChat) {
-                val processStepCount = remember(turn.id, collapsedGroupTurns.size) {
-                    val allGroupTurns = collapsedGroupTurns + listOf(turn)
-                    allGroupTurns.sumOf { t ->
-                        t.elements.count { it is TurnElement.ThinkingSegment || it is TurnElement.ToolCallSegment }
-                    } + allGroupTurns.sumOf { t ->
-                        val textSegments = t.elements.filterIsInstance<TurnElement.TextSegment>()
-                        (textSegments.size - if (t == turn) 1 else 0).coerceAtLeast(0)
+            // 始终渲染过程统计行(只要 turn 含 process 元素), 折叠态/展开态均可见。
+            // isExpanded 仅控制显示状态, 元素的实际可见性由 displayElements + collapseProcess 决定。
+            // 注意：grouped turn 的第一个由下方 showProcessHeader 分支渲染, 此处跳过避免重复。
+            if (!isGroupChat && !showProcessHeader) {
+                val hasProcessElements = remember(turn.elements) {
+                    turn.elements.any { it is TurnElement.ThinkingSegment || it is TurnElement.ToolCallSegment }
+                }
+                if (hasProcessElements) {
+                    val processStepCount = remember(turn.id, collapsedGroupTurns.size) {
+                        val allGroupTurns = collapsedGroupTurns + listOf(turn)
+                        allGroupTurns.sumOf { t ->
+                            t.elements.count { it is TurnElement.ThinkingSegment || it is TurnElement.ToolCallSegment }
+                        } + allGroupTurns.sumOf { t ->
+                            val textSegments = t.elements.filterIsInstance<TurnElement.TextSegment>()
+                            (textSegments.size - if (t == turn) 1 else 0).coerceAtLeast(0)
+                        }
                     }
+                    val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
+                        aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
+                    }
+                    ProcessDrawer(
+                        stepCount = processStepCount,
+                        isExpanded = !collapseProcess,
+                        onToggleExpand = onExpandGroup,
+                        stats = collapseStats
+                    )
                 }
-                val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
-                    aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
-                }
-                ProcessDrawer(
-                    stepCount = processStepCount,
-                    isExpanded = false,
-                    onToggleExpand = onExpandGroup,
-                    stats = collapseStats
-                )
             }
 
             if (showProcessHeader && groupProcessStepCount > 0) {
@@ -323,17 +331,24 @@ fun AgentTurnCard(
                     onAvatarLongClick = onLongClickAvatar?.let { cb -> { cb(agentName) } }
                 )
             }
-            if (collapseProcess && !isGroupChat) {
-                val legacyStepCount = collapsedGroupTurns.size + 1
-                val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
-                    aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
+            // 始终渲染过程统计行(legacy 路径, turn.elements 为空时也用 toolCalls 兜底)
+            // 同主路径：grouped turn 第一个由下方 showProcessHeader 分支渲染, 此处跳过避免重复。
+            if (!isGroupChat && !showProcessHeader) {
+                val hasProcessElements = remember(turn.toolCalls, turn.thinking) {
+                    turn.thinking != null || turn.toolCalls.isNotEmpty()
                 }
-                ProcessDrawer(
-                    stepCount = legacyStepCount,
-                    isExpanded = false,
-                    onToggleExpand = onExpandGroup,
-                    stats = collapseStats
-                )
+                if (hasProcessElements) {
+                    val legacyStepCount = collapsedGroupTurns.size + 1
+                    val collapseStats = remember(turn.id, collapsedGroupTurns.size) {
+                        aggregateTurnProcessStats(collapsedGroupTurns + listOf(turn))
+                    }
+                    ProcessDrawer(
+                        stepCount = legacyStepCount,
+                        isExpanded = !collapseProcess,
+                        onToggleExpand = onExpandGroup,
+                        stats = collapseStats
+                    )
+                }
             }
             if (showProcessHeader && groupProcessStepCount > 0) {
                 val headerStats = remember(turn.elements, turn.metadata?.latencyMs) {

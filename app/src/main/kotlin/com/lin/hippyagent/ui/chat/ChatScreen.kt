@@ -17,6 +17,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -450,23 +452,33 @@ fun ChatScreen(
                         }
                         val modelDisplayName = uiState.selectedModel.substringAfterLast("/")
                         if (modelDisplayName.isNotEmpty()) {
+                            // 与 ChatModeDropdown 视觉区分: 使用 SwapHoriz 图标(模型切换语义) +
+                            // 圆角边框,明确"这是模型切换器,不是 mode 选择器"。
+                            val modelLabel = stringResource(R.string.agent_model)
                             Row(
                                 modifier = Modifier
                                     .clickable { showModelSwitch = true }
-                                    .background(
-                                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                                        RoundedCornerShape(12.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        shape = RoundedCornerShape(6.dp)
                                     )
-                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                                    .padding(horizontal = 6.dp, vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Psychology,
-                                    contentDescription = stringResource(R.string.agent_model),
+                                    imageVector = Icons.Default.SwapHoriz,
+                                    contentDescription = modelLabel,
                                     modifier = Modifier.size(12.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
                                 )
                                 Spacer(Modifier.width(3.dp))
+                                Text(
+                                    text = "$modelLabel:",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
                                 Text(
                                     text = modelDisplayName,
                                     fontSize = 11.sp,
@@ -474,12 +486,6 @@ fun ChatScreen(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     fontWeight = FontWeight.Medium
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }

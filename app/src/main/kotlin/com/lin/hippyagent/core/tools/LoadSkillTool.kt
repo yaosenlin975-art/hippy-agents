@@ -89,7 +89,10 @@ class LoadSkillTool(
                 } catch (_: Exception) {}
             }
 
-            val config = com.lin.hippyagent.core.skill.WorkspaceSkillConfigManager(workspace)
+            val config = com.lin.hippyagent.core.skill.WorkspaceSkillConfigManager(
+                workspaceDir = workspace,
+                agentId = agentId
+            )
             val enabled = config.loadConfig().enabledSkills
             if (enabled.isNotEmpty()) return enabled
         }

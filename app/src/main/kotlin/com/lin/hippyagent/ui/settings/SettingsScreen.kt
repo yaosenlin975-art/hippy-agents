@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
@@ -103,7 +102,6 @@ fun SettingsScreen(
     onNavigateToDataStorage: () -> Unit = {},
     onNavigateToExportLog: () -> Unit = {},
     onNavigateToLanguage: () -> Unit = {},
-    onNavigateToNotification: () -> Unit = {},
     onNavigateToToolSecurity: (String) -> Unit = {},
     onNavigateToAccessibilitySetup: () -> Unit = {},
     onNavigateToSkillPool: () -> Unit = {},
@@ -152,7 +150,6 @@ fun SettingsScreen(
         listOf(
             SettingsGroup(R.string.settings_general, Icons.Default.Language, listOf(
                 SettingsItem(Icons.Default.Language, R.string.language, uiState.language, R.string.language),
-                SettingsItem(Icons.Default.Notifications, R.string.notifications, if (uiState.notificationsEnabled) context.getString(R.string.enabled) else context.getString(R.string.settings_closed), R.string.notifications),
                 SettingsItem(Icons.Default.Palette, R.string.settings_ui_settings, context.getString(R.string.settings_ui_settings_desc), R.string.settings_ui_settings),
                 SettingsItem(Icons.Default.Storage, R.string.data_storage, uiState.storagePath, R.string.data_storage),
             )),
@@ -184,7 +181,6 @@ fun SettingsScreen(
     fun onClick(key: Int) {
         when (key) {
             R.string.language -> onNavigateToLanguage()
-            R.string.notifications -> onNavigateToNotification()
             R.string.settings_ui_settings -> onNavigateToUiSettings()
             R.string.settings_global_rules -> onNavigateToGlobalRules()
             R.string.data_storage -> onNavigateToDataStorage()

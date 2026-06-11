@@ -238,7 +238,6 @@ fun MainScreen(
                         onNavigateToDataStorage = { navController.navigate(Screen.DataStorage.route) },
                         onNavigateToExportLog = { navController.navigate(Screen.ExportLog.route) },
                         onNavigateToLanguage = { navController.navigate(Screen.Language.route) },
-                        onNavigateToNotification = { navController.navigate(Screen.Notification.route) },
                         onNavigateToToolSecurity = { agentId -> navController.navigate(Screen.AgentToolSecurity.createRoute(agentId)) },
                         onNavigateToAccessibilitySetup = { navController.navigate(Screen.AccessibilitySetup.route) },
                         onNavigateToEnvCheck = { navController.navigate(Screen.EnvCheck.route) },

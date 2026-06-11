@@ -73,13 +73,13 @@ class ModeRouter(
     private fun clientFor(modelName: String, providerId: String? = null): ModelClient? {
         if (modelName.isBlank()) return modelClients.values.firstOrNull()
         val normalized = modelName.substringAfterLast('/')
-        // 1. 全名精确匹配
-        modelClients[modelName]?.let { return it }
-        // 2. provider/model 组合匹配
+        // 1. provider/model 组合匹配 (有 providerId 时优先, 避免同名模型跨 provider 误命中)
         if (providerId != null) {
             modelClients["$providerId/$normalized"]?.let { return it }
             modelClients["$providerId/$modelName"]?.let { return it }
         }
+        // 2. 全名精确匹配 (modelName 已含 provider 前缀, 如 "deepseek/deepseek-v4-flash")
+        modelClients[modelName]?.let { return it }
         // 3. 剥前缀后匹配
         modelClients[normalized]?.let { return it }
         // 4. 按 providerId 前缀模糊匹配 (如 key="deepseek/deepseek-v4-flash")

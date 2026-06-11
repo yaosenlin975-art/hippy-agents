@@ -1200,10 +1200,20 @@ class ChatViewModel(
         var thinkingChunkCount = 0
         var messageCountBeforeCompaction = 0
 
-        val modeSuffix = resolveModeSuffix(content, freshAgent.profileConfig.agentId, freshAgent, turnId = streamingTurnId, sessionId = sessionId)
+        val modeResolution = resolveModeSuffix(content, freshAgent.profileConfig.agentId, freshAgent, turnId = streamingTurnId, sessionId = sessionId)
 
         try {
-            agent.processMessageStream(sessionId, "console", content, overrideModel, overrideProviderId = selectedProviderId, planContext = planContext, skipUserMessage = skipUserMessage, systemPromptSuffix = modeSuffix)
+            agent.processMessageStream(
+                sessionId = sessionId,
+                channelId = "console",
+                content = content,
+                overrideModel = overrideModel,
+                overrideProviderId = selectedProviderId,
+                planContext = planContext,
+                skipUserMessage = skipUserMessage,
+                systemPromptSuffix = modeResolution.suffix,
+                forceEscalate = modeResolution.useComplexModel,
+            )
                 .collect { chunk ->
                     when (chunk) {
                         is com.lin.hippyagent.core.agent.StreamChunk.Content -> {
@@ -1709,8 +1719,18 @@ class ChatViewModel(
     }
 
     /**
-     * 解析模式并应用模式过滤;返回 system prompt 后缀(可空)。
-     * 失败 / orchestrator 不可用时返回 null,不打断主流程。
+     * 模式解析结果: 后缀 + 是否需升级到复杂模型。
+     * 升级标志会通过 [com.lin.hippyagent.core.agent.Agent.processMessageStream] 的
+     * forceEscalate 形参传到 Agent,使复杂任务模型在本 turn 实际生效。
+     */
+    private data class ModeSuffixResult(
+        val suffix: String?,
+        val useComplexModel: Boolean,
+    )
+
+    /**
+     * 解析模式并应用模式过滤;返回 (system prompt 后缀, useComplexModel)。
+     * 失败 / orchestrator 不可用时返回 (null, false),不打断主流程。
      */
     private suspend fun resolveModeSuffix(
         content: String,
@@ -1718,15 +1738,16 @@ class ChatViewModel(
         agent: com.lin.hippyagent.core.agent.Agent,
         turnId: String? = null,
         sessionId: String? = null,
-    ): String? {
-        val orchestrator = modeOrchestrator ?: return null
-        // 智能体 XML 声明的模式覆盖 (本 turn 优先消费)
-        val modeOverride: com.lin.hippyagent.core.skill.AgentMode? = sessionId
+    ): ModeSuffixResult {
+        val orchestrator = modeOrchestrator ?: return ModeSuffixResult(null, false)
+        val nonNullSessionId = sessionId
+        val modeOverride: com.lin.hippyagent.core.skill.AgentMode? = nonNullSessionId
             ?.let { agent.getSessionState(it).modeOverride }
             ?.let { runCatching { com.lin.hippyagent.core.skill.AgentMode.valueOf(it) }.getOrNull() }
-        if (modeOverride != null && sessionId != null) {
-            agent.consumeModeOverride(sessionId)
-            Timber.w("Consumed modeOverride=$modeOverride for session=$sessionId")
+        // modeOverride 非空 ⇒ 上面 sessionId?.let 一定走过 ⇒ nonNullSessionId 必非空
+        if (modeOverride != null && nonNullSessionId != null) {
+            agent.consumeModeOverride(nonNullSessionId)
+            Timber.w("Consumed modeOverride=$modeOverride for session=$nonNullSessionId")
         }
         val effectiveMode = modeOverride ?: _selectedMode.value
         // 仅在 AUTO/WORK 模式下显示「决策中」状态 (USER_SELECTED/PROFILE_DEFAULT 不走 LLM 决策)
@@ -1759,10 +1780,13 @@ class ChatViewModel(
                     autoDecidedModeTurnId = turnId,
                 )
             }
-            suffix.takeIf { s -> s.isNotBlank() }
+            ModeSuffixResult(
+                suffix = suffix.takeIf { s -> s.isNotBlank() },
+                useComplexModel = resolution.useComplexModel,
+            )
         } catch (e: Exception) {
             Timber.w(e, "ModeOrchestrator: failed to resolve mode, skipping")
-            null
+            ModeSuffixResult(null, false)
         } finally {
             if (isAutoOrWork) {
                 _uiState.update { it.copy(isModeDeciding = false) }

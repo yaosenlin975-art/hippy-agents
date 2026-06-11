@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.SkillInfo
 import com.lin.hippyagent.core.skill.SkillManager
+import com.lin.hippyagent.core.skill.SkillVisibility
+import com.lin.hippyagent.core.skill.WorkspaceSkillConfigManagerRegistry
 import com.lin.hippyagent.data.repository.AgentRepository
 import com.lin.hippyagent.ui.components.HippyTopBar
 import kotlinx.coroutines.launch
@@ -59,16 +61,18 @@ fun AgentSkillScreen(
         mergedSkills
     }
     val coroutineScope = rememberCoroutineScope()
+    val configRegistry = org.koin.compose.koinInject<WorkspaceSkillConfigManagerRegistry>()
+    val skillConfig = remember(agentId) { configRegistry.forAgent(agentId) }
 
-    // 从 AgentProfile 加载已启用的技能列表
+    // 从 AgentProfile 加载已绑定的技能
     var enabledSkills by remember { mutableStateOf(setOf<String>()) }
     var skillsLoaded by remember { mutableStateOf(false) }
 
     // 全局技能启用/禁用状态
     var globalSkillStates by remember { mutableStateOf(mapOf<String, Boolean>()) }
 
-    // 技能在 Chat/Work 模式下的可见性（按技能 id 存储；缺省视为都可见；仅 UI 标记，运行时不过滤）
-    var visibleInModes by remember { mutableStateOf(mapOf<String, Set<String>>()) }
+    // 4 态可见范围(per-agent),与 skill_config.json 同步
+    var visibilities by remember { mutableStateOf(mapOf<String, SkillVisibility>()) }
 
     LaunchedEffect(agentId) {
         agentRepository.getProfiles().collect { profiles ->
@@ -84,6 +88,11 @@ fun AgentSkillScreen(
     LaunchedEffect(Unit) {
         val states = allSkills.associate { skill -> skill.id to skillManager.isSkillEnabled(skill.id) }
         globalSkillStates = states
+    }
+
+    // 加载每技能 4 态可见范围
+    LaunchedEffect(agentId, allSkills) {
+        visibilities = allSkills.associate { skill -> skill.id to skillConfig.getSkillVisibility(skill.id) }
     }
 
     Scaffold(
@@ -110,49 +119,52 @@ fun AgentSkillScreen(
             ) {
                 items(allSkills, key = { it.id }) { skill ->
                     val isGloballyEnabled = globalSkillStates[skill.id] ?: true
+                    val isBoundToAgent = skill.id in enabledSkills
+                    val visibility = visibilities[skill.id] ?: SkillVisibility.ALL
                     Card(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(skill.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text(skill.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(skill.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(skill.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                // 全局启用/禁用 Switch
+                                Switch(
+                                    checked = isGloballyEnabled,
+                                    onCheckedChange = { enabled ->
+                                        globalSkillStates = globalSkillStates + (skill.id to enabled)
+                                        skillManager.setSkillEnabled(skill.id, enabled)
+                                        refreshTrigger++
+                                    },
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                // Per-agent 绑定 Checkbox
+                                Checkbox(
+                                    checked = isBoundToAgent,
+                                    onCheckedChange = { checked ->
+                                        val newSkills = if (checked) {
+                                            enabledSkills + skill.id
+                                        } else {
+                                            enabledSkills - skill.id
+                                        }
+                                        enabledSkills = newSkills
+                                        coroutineScope.launch {
+                                            agentRepository.saveSkills(agentId, newSkills.toList())
+                                                .onFailure { Timber.e(it, "Failed to save skills for $agentId") }
+                                        }
+                                    }
+                                )
                             }
-                            // 全局启用/禁用 Switch
-                            Switch(
-                                checked = isGloballyEnabled,
-                                onCheckedChange = { enabled ->
-                                    globalSkillStates = globalSkillStates + (skill.id to enabled)
-                                    skillManager.setSkillEnabled(skill.id, enabled)
-                                    refreshTrigger++
-                                },
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            // Per-agent 选择 Checkbox
-                            Checkbox(
-                                checked = skill.id in enabledSkills,
-                                onCheckedChange = { checked ->
-                                    val newSkills = if (checked) {
-                                        enabledSkills + skill.id
-                                    } else {
-                                        enabledSkills - skill.id
+                            if (isBoundToAgent) {
+                                Spacer(Modifier.height(8.dp))
+                                SkillVisibilityPicker(
+                                    value = visibility,
+                                    onValueChange = { newVis ->
+                                        visibilities = visibilities + (skill.id to newVis)
+                                        skillConfig.setSkillVisibility(skill.id, newVis)
                                     }
-                                    enabledSkills = newSkills
-                                    // 立即持久化到 AgentProfile
-                                    coroutineScope.launch {
-                                        agentRepository.saveSkills(agentId, newSkills.toList())
-                                            .onFailure { Timber.e(it, "Failed to save skills for $agentId") }
-                                    }
-                                }
-                            )
-                            // Chat/Work 可见模式勾选栏（仅 UI 标记，运行时不过滤）
-                            ModeVisibilityChips(
-                                visible = visibleInModes[skill.id] ?: setOf("Chat", "Work"),
-                                onChange = { newSet ->
-                                    visibleInModes = visibleInModes + (skill.id to newSet)
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -160,30 +172,3 @@ fun AgentSkillScreen(
         }
     }
 }
-
-/**
- * 技能/工具的 Chat/Work 模式可见性勾选栏。
- * 视觉：两个并排的 FilterChip（Chat / Work），被勾选视为该模式下可见。
- * 当前仅 UI 标记 — 渲染用，不在 SkillTriggerResolver / ToolAccessController 入口强制过滤。
- */
-@Composable
-fun ModeVisibilityChips(
-    visible: Set<String>,
-    onChange: (Set<String>) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        listOf("Chat", "Work").forEach { mode ->
-            FilterChip(
-                selected = mode in visible,
-                onClick = {
-                    val newSet = if (mode in visible) visible - mode else visible + mode
-                    onChange(newSet)
-                },
-                label = { Text(mode, fontSize = 10.sp) },
-                modifier = Modifier.padding(horizontal = 2.dp)
-            )
-        }
-    }
-}
-

@@ -313,6 +313,7 @@
     <string name="chat_agent_workflow">%1$s workflow</string>
     <string name="chat_no_process_info">No process info</string>
     <string name="chat_step_process">%1$d steps</string>
+    <string name="chat_step_process_stats">%1$d steps · 🧠%2$d thoughts · 🔧%3$d tools · 📨%4$d messages · ⏱%5$ds</string>
     <string name="chat_collapse_process">Collapse process</string>
     <string name="chat_error_label">�?Error</string>
     <string name="chat_api_calls">%1$d requests</string>
@@ -453,6 +454,10 @@
     <string name="agent_saved">Saved</string>
     <string name="agent_skill_installed">Skill %1$s installed successfully</string>
     <string name="agent_skill_install_failed">Install failed: %1$s</string>
+    <string name="agent_skill_visibility_off">Off</string>
+    <string name="agent_skill_visibility_chat">Chat</string>
+    <string name="agent_skill_visibility_work">Work</string>
+    <string name="agent_skill_visibility_all">All</string>
     <string name="agent_create">Create Agent</string>
     <string name="agent_name_hint">Give the agent a name (optional)</string>
     <string name="agent_default_model">Default Model</string>
