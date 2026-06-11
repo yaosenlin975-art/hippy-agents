@@ -157,6 +157,7 @@
     <string name="chat_search_all_messages">全メッセージを検索...</string>
     <string name="chat_search_no_results">一致するメッセージが見つかりません</string>
     <string name="chat_stt_failed">音声認識失敗: %1$s</string>
+    <string name="chat_stt_no_model">%1$d 秒録音しました（オンデバイス認識モデル未ダウンロード、録音は %2$s に保存）</string>
     <string name="chat_mic_permission_needed">音声入力にはマイクの権限が必要です</string>
     <string name="chat_agents_working">%1$d エージェントが作業中</string>
     <string name="chat_mic_permission_title">マイクの権限が必要です</string>

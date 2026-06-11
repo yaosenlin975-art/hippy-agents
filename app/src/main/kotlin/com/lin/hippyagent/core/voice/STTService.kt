@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.voice
+package com.lin.hippyagent.core.voice
 
 import android.content.Context
 import kotlinx.coroutines.*
@@ -74,23 +74,19 @@ class STTService(
                     try {
                         val result = fallbackRecorder.stopRecording()
                         if (result != null && result.pcmBytes.isNotEmpty()) {
-
-                            val text = onDeviceModelManager?.transcribeAudio(result.pcmBytes) ?: ""
+                            val text: String = if (onDeviceModelManager != null) {
+                                onDeviceModelManager.transcribeAudio(result.pcmBytes)
+                            } else {
+                                // No on-device model available — surface a clear placeholder so the user
+                                // knows the audio was captured successfully but cannot be transcribed offline.
+                                val seconds = (result.durationMs / 1000).toInt()
+                                context.getString(R.string.chat_stt_no_model, seconds, result.file.absolutePath)
+                            }
                             withContext(Dispatchers.Main) {
-                                if (text.isNotBlank()) {
-                                    // activeEngine is already null from the fallback path,
-                                    // but we need to keep _isListening until result is delivered
-                                    _isListening.value = false
-                                    activeEngine = null
-                                    // Deliver via a resumed SttCallback stored in the fallback path
-                                    pendingFallbackCallback?.onFinalResult(SttResult(text = text, isFinal = true))
-                                    pendingFallbackCallback = null
-                                } else {
-                                    _isListening.value = false
-                                    activeEngine = null
-                                    pendingFallbackCallback?.onFinalResult(SttResult(text = "", isFinal = true))
-                                    pendingFallbackCallback = null
-                                }
+                                _isListening.value = false
+                                activeEngine = null
+                                pendingFallbackCallback?.onFinalResult(SttResult(text = text, isFinal = true))
+                                pendingFallbackCallback = null
                             }
                         } else {
                             withContext(Dispatchers.Main) {
@@ -201,33 +197,27 @@ class STTService(
             }
             override fun onError(error: Throwable) {
                 // On MIUI/HyperOS, SpeechRecognizer may fail with ERROR_INSUFFICIENT_PERMISSIONS
-                // even though AudioRecord works fine. Fall back to AudioRecord + transcription.
-                val isPermissionError = error.message?.contains("语音服务权限受限") == true
-                        || error.message?.contains("权限") == true
-                if (isPermissionError && canFallbackToAudioRecord()) {
-                    Timber.w("STTService: SpeechRecognizer failed on MIUI, falling back to AudioRecord")
-                    startFallbackRecording(callback)
-                } else {
-                    _isListening.value = false
-                    activeEngine = null
-                    callback.onError(error)
-                }
+                // (or other errors) even though AudioRecord works fine.
+                // Always fall back to AudioRecord path so the user isn't left without recording capability.
+                Timber.w(error, "STTService: SpeechRecognizer failed (${error.message}), falling back to AudioRecord")
+                startFallbackRecording(callback)
             }
         }
         androidBuiltinTranscriber.startListening(wrappedCallback)
     }
 
     /**
-     * Check if we can fall back to AudioRecord + on-device transcription.
-     * Requires OnDeviceModelManager to be available.
+     * Check if we can transcribe via on-device model after AudioRecord fallback completes.
      */
-    private fun canFallbackToAudioRecord(): Boolean {
+    private fun canTranscribeFallback(): Boolean {
         return onDeviceModelManager != null
     }
 
     /**
      * Start fallback recording using AudioRecord (works on MIUI/HyperOS).
      * The recording continues until stopListening() is called.
+     * If onDeviceModelManager is available, will transcribe after stop;
+     * otherwise returns a placeholder message with the recorded audio file path.
      */
     private fun startFallbackRecording(callback: SttCallback) {
         isFallbackRecording = true
@@ -242,7 +232,7 @@ class STTService(
             _isListening.value = false
             activeEngine = null
             pendingFallbackCallback = null
-            callback.onError(IllegalStateException("无法启动录音，请检查麦克风权限"))
+            callback.onError(IllegalStateException("无法启动录音（AudioRecord 初始化失败），请检查：1) 系统设置中麦克风权限 2) 是否有其他 App 占用麦克风 3) 设备硬件是否正常"))
             return
         }
 
@@ -253,7 +243,19 @@ class STTService(
             }
         }
 
-        Timber.d("STTService: Fallback AudioRecord recording started")
+        if (!canTranscribeFallback()) {
+            // No on-device model — schedule a forced stop after a short window so the user
+            // gets something usable (the recorded file is saved on disk for later upload / manual transcription)
+            serviceScope.launch {
+                delay(NATIVE_FALLBACK_MAX_DURATION_MS)
+                if (isFallbackRecording) {
+                    Timber.w("STTService: native fallback reached max duration without on-device model, finalizing")
+                    stopListening()
+                }
+            }
+        }
+
+        Timber.d("STTService: Fallback AudioRecord recording started, canTranscribeFallback=${canTranscribeFallback()}")
     }
 
     private suspend fun startMoonshineTranscription(modelPath: String, callback: SttCallback) {
@@ -358,6 +360,15 @@ class STTService(
         litertlmTranscriber.release()
         androidBuiltinTranscriber.release()
         serviceScope.cancel()
+    }
+
+    companion object {
+        /**
+         * Max duration to keep recording in the native AudioRecord-only fallback path
+         * when no on-device STT model is available. Without this guard the user would
+         * have to manually stop or wait for the 120s recorder timeout.
+         */
+        private const val NATIVE_FALLBACK_MAX_DURATION_MS = 30_000L
     }
 }
 

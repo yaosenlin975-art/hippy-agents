@@ -157,6 +157,7 @@
     <string name="chat_search_all_messages">Search all messages...</string>
     <string name="chat_search_no_results">No matching messages found</string>
     <string name="chat_stt_failed">Voice recognition failed: %1$s</string>
+    <string name="chat_stt_no_model">Recorded %1$d s of audio (no on-device STT model; saved to %2$s)</string>
     <string name="chat_mic_permission_needed">Microphone permission required for voice input</string>
     <string name="chat_agents_working">%1$d agents working</string>
     <string name="chat_mic_permission_title">Microphone Permission Required</string>

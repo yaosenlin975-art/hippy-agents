@@ -41,39 +41,89 @@ class AndroidBuiltinTranscriber(
          * 反射失败时仅记录警告，不影响主流程（不抛异常给调用方）。
          */
         fun notifyAppOps(context: Context) {
-            try {
-                val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) ?: return
-                val appOpsClass = appOpsManager.javaClass
-                var resolved = resolvedOpsReflection
-                if (resolved == null) {
-                    resolved = try {
-                        val op = appOpsClass.getDeclaredField("OP_RECORD_AUDIO").getInt(null)
-                        val mode = appOpsClass.getDeclaredField("MODE_ALLOWED").getInt(null)
-                        val method = appOpsClass.getMethod(
-                            "setMode",
-                            Int::class.javaPrimitiveType,
-                            Int::class.javaPrimitiveType,
-                            String::class.java,
-                            Int::class.javaPrimitiveType
-                        )
-                        Triple(op, mode, method)
-                    } catch (e: Exception) {
-                        Timber.w(e, "AndroidBuiltinTranscriber: AppOps reflection resolve failed (non-critical)")
-                        null
-                    }
-                    resolvedOpsReflection = resolved
+            val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) ?: run {
+                Timber.w("AndroidBuiltinTranscriber: APP_OPS_SERVICE unavailable")
+                return
+            }
+            val appOpsClass = appOpsManager.javaClass
+
+            // Try the high-affinity path first: setMode(OP_RECORD_AUDIO, ..., MODE_ALLOWED).
+            // On some MIUI/HyperOS builds this throws SecurityException because setMode is restricted
+            // to system/owner UIDs only.
+            val setModeResolved = resolveSetMode(appOpsClass)
+            if (setModeResolved != null) {
+                val (op, mode, method) = setModeResolved
+                try {
+                    method.invoke(appOpsManager, op, Process.myUid(), context.packageName, mode)
+                    Timber.i("AndroidBuiltinTranscriber: AppOps setMode(OP_RECORD_AUDIO=$op, MODE_ALLOWED=$mode) succeeded for ${context.packageName}")
+                    return
+                } catch (e: java.lang.reflect.InvocationTargetException) {
+                    val cause = e.targetException ?: e
+                    Timber.w(cause, "AndroidBuiltinTranscriber: AppOps setMode threw ${cause.javaClass.simpleName} — falling back to noteProxyOp")
+                } catch (e: Exception) {
+                    Timber.w(e, "AndroidBuiltinTranscriber: AppOps setMode failed — falling back to noteProxyOp")
                 }
-                if (resolved == null) return
-                val (op, mode, method) = resolved
-                method.invoke(appOpsManager, op, Process.myUid(), context.packageName, mode)
-                Timber.i("AndroidBuiltinTranscriber: AppOps setMode(OP_RECORD_AUDIO=$op, MODE_ALLOWED=$mode) succeeded for ${context.packageName}")
-            } catch (e: Exception) {
-                Timber.w(e, "AndroidBuiltinTranscriber: AppOps setMode invoke failed (non-critical)")
+            } else {
+                Timber.w("AndroidBuiltinTranscriber: AppOps setMode not available on this SDK — trying noteProxyOp")
+            }
+
+            // Fallback: noteProxyOp(op, proxyUid, proxyPackageName, proxyAttributionTag, ...)
+            // On some HyperOS builds this is the only path that successfully refreshes the
+            // cached permission state seen by the SpeechRecognizer service.
+            val noteProxyResolved = resolveNoteProxyOp(appOpsClass)
+            if (noteProxyResolved != null) {
+                val (op, method) = noteProxyResolved
+                try {
+                    val allowed = appOpsClass.getDeclaredField("MODE_ALLOWED").getInt(null)
+                    // The legacy 4-arg overload (op, proxyUid, proxyPackageName, mode) is
+                    // present on API 24+. Newer devices add more arguments; we attempt the
+                    // minimal signature first.
+                    method.invoke(appOpsManager, op, Process.myUid(), context.packageName, allowed)
+                    Timber.i("AndroidBuiltinTranscriber: AppOps noteProxyOp succeeded for ${context.packageName}")
+                } catch (e: Exception) {
+                    Timber.w(e, "AndroidBuiltinTranscriber: AppOps noteProxyOp failed (non-critical)")
+                }
             }
         }
 
         @Volatile
         private var resolvedOpsReflection: Triple<Int, Int, java.lang.reflect.Method>? = null
+
+        private fun resolveSetMode(appOpsClass: Class<*>): Triple<Int, Int, java.lang.reflect.Method>? {
+            resolvedOpsReflection?.let { return it }
+            return try {
+                val op = appOpsClass.getDeclaredField("OP_RECORD_AUDIO").getInt(null)
+                val mode = appOpsClass.getDeclaredField("MODE_ALLOWED").getInt(null)
+                val method = appOpsClass.getMethod(
+                    "setMode",
+                    Int::class.javaPrimitiveType,
+                    Int::class.javaPrimitiveType,
+                    String::class.java,
+                    Int::class.javaPrimitiveType
+                )
+                val triple = Triple(op, mode, method)
+                resolvedOpsReflection = triple
+                triple
+            } catch (e: Exception) {
+                Timber.w(e, "AndroidBuiltinTranscriber: AppOps setMode reflection resolve failed (non-critical)")
+                null
+            }
+        }
+
+        private fun resolveNoteProxyOp(appOpsClass: Class<*>): Pair<Int, java.lang.reflect.Method>? = try {
+            val op = appOpsClass.getDeclaredField("OP_RECORD_AUDIO").getInt(null)
+            val method = appOpsClass.getMethod(
+                "noteProxyOp",
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType,
+                String::class.java,
+                Int::class.javaPrimitiveType
+            )
+            op to method
+        } catch (e: Exception) {
+            Timber.w(e, "AndroidBuiltinTranscriber: AppOps noteProxyOp reflection resolve failed (non-critical)")
+            null
+        }
     }
 
     private var speechRecognizer: SpeechRecognizer? = null

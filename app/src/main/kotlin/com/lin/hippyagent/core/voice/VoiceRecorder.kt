@@ -36,17 +36,22 @@ class VoiceRecorder(
     fun startRecording(): File? {
         if (isRecording) return null
 
-        val bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
-        audioRecord = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize
-        )
+        val (audioSource, bufferSize) = resolveAudioSource() ?: run {
+            Timber.e("VoiceRecorder: no AudioSource/format combination supported on this device (sampleRate=$SAMPLE_RATE, channel=${CHANNELConfigToString(CHANNEL_CONFIG)}, format=PCM16BIT)")
+            return null
+        }
+
+        audioRecord = AudioRecord(audioSource, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize)
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
+            val state = audioRecord?.state
+            Timber.e("VoiceRecorder: AudioRecord.state != STATE_INITIALIZED (state=$state, audioSource=$audioSource, sampleRate=$SAMPLE_RATE, bufferSize=$bufferSize) — check RECORD_AUDIO permission and AppOps OP_RECORD_AUDIO")
             runCatching { audioRecord?.release() }
             audioRecord = null
             return null
         }
+
+        Timber.i("VoiceRecorder: startRecording audioSource=$audioSource sampleRate=$SAMPLE_RATE bufferSize=$bufferSize")
 
         outputFile = File(outputDir, "voice_${System.currentTimeMillis()}.wav")
         recordingBuffer = baosPool.acquire()
@@ -77,6 +82,41 @@ class VoiceRecorder(
 
         return outputFile
     }
+
+    /**
+     * 依次尝试多个 AudioSource，找到第一个 getMinBufferSize 返回合法值且 AudioRecord 可初始化的组合。
+     * 小米 HyperOS 上 MediaRecorder.AudioSource.MIC 经常返回 ERROR_BAD_VALUE（不允许非系统 App 直采），
+     * 此时需降级到 VOICE_RECOGNITION / VOICE_COMMUNICATION / DEFAULT。
+     */
+    private fun resolveAudioSource(): Pair<Int, Int>? {
+        val candidates = intArrayOf(
+            MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+            MediaRecorder.AudioSource.DEFAULT,
+        )
+        for (source in candidates) {
+            val size = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
+            if (size <= 0) {
+                Timber.w("VoiceRecorder: getMinBufferSize unsupported for audioSource=$source (size=$size)")
+                continue
+            }
+            val probe = AudioRecord(source, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, size)
+            val ok = probe.state == AudioRecord.STATE_INITIALIZED
+            runCatching { probe.release() }
+            if (ok) {
+                if (source != MediaRecorder.AudioSource.MIC) {
+                    Timber.w("VoiceRecorder: MIC source failed on this device, fell back to audioSource=$source")
+                }
+                return source to size
+            }
+            Timber.w("VoiceRecorder: AudioRecord probe failed for audioSource=$source (state=${probe.state})")
+        }
+        return null
+    }
+
+    private fun CHANNELConfigToString(@Suppress("UNUSED_PARAMETER") config: Int): String =
+        if (config == AudioFormat.CHANNEL_IN_MONO) "MONO" else "STEREO"
 
     suspend fun stopRecording(): VoiceRecordingResult? {
         if (!isRecording) return null

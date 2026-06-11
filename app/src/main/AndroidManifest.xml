@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 录音/录屏 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Android 14+ (API 34) 麦克风前台服务需要此权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <!-- Moonshine SDK minSdk 兼容：SDK 要求 API 35+，本应用 minSdk=26，运行时检查 -->
     <uses-sdk tools:overrideLibrary="ai.moonshine.voice" />

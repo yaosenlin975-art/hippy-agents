@@ -1,17 +1,12 @@
 package com.lin.hippyagent.ui.chat
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.compose.foundation.clickable
 import androidx.compose.animation.AnimatedVisibility
@@ -196,32 +191,12 @@ fun ChatScreen(
         })
     }
 
-    // 录音权限请求
-    var showAudioPermissionDialog by remember { mutableStateOf(false) }
+    // 录音权限请求（复用集中式 MicPermissionHandler，避免与 GroupChatScreen 漂移）
+    val micPermission = rememberMicPermissionHandler(
+        onGranted = { doStartStt() }
+    )
 
-    val audioPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            com.lin.hippyagent.core.voice.AndroidBuiltinTranscriber.notifyAppOps(context)
-            doStartStt()
-        } else {
-            val activity = context as? Activity
-            if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, android.Manifest.permission.RECORD_AUDIO)) {
-                showAudioPermissionDialog = true
-            } else {
-                Toast.makeText(context, context.getString(R.string.chat_mic_permission_needed), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    val startStt: () -> Unit = {
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            doStartStt()
-        } else {
-            audioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-        }
-    }
+    val startStt: () -> Unit = { micPermission.requestMicPermission() }
 
     val stopStt: () -> Unit = {
         sttListening = false
@@ -909,25 +884,10 @@ fun ChatScreen(
         )
     }
 
-    if (showAudioPermissionDialog) {
-        AlertDialog(
-            onDismissRequest = { showAudioPermissionDialog = false },
-            title = { Text(stringResource(R.string.chat_mic_permission_title)) },
-            text = { Text(stringResource(R.string.chat_mic_permission_denied)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showAudioPermissionDialog = false
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                }) { Text(stringResource(R.string.chat_go_to_settings)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAudioPermissionDialog = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        )
-    }
+    MicPermissionRationaleDialog(
+        show = micPermission.showRationaleDialog,
+        onDismiss = micPermission.dismissRationaleDialog,
+    )
     }
 }
 

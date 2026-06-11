@@ -157,6 +157,7 @@
     <string name="chat_search_all_messages">搜索所有消息...</string>
     <string name="chat_search_no_results">未找到匹配的消息</string>
     <string name="chat_stt_failed">语音识别失败: %1$s</string>
+    <string name="chat_stt_no_model">已录音 %1$d 秒（端侧识别模型不可用，录音已保存到 %2$s）</string>
     <string name="chat_mic_permission_needed">需要麦克风权限才能使用语音输入</string>
     <string name="chat_agents_working">%1$d 个智能体工作中</string>
     <string name="chat_mic_permission_title">需要麦克风权限</string>

@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private val basicPermissions: Array<String>
         get() {
             val perms = mutableListOf<String>(
-                // 网络状态（部分设备需要显式请求）
+                Manifest.permission.RECORD_AUDIO,
             )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 perms.add(Manifest.permission.POST_NOTIFICATIONS)
@@ -67,7 +67,6 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.CALL_PHONE,
                 Manifest.permission.READ_CALL_LOG,
                 Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
             )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 perms.add(Manifest.permission.BLUETOOTH_CONNECT)

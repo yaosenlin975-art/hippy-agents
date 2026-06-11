@@ -157,6 +157,7 @@
     <string name="chat_search_all_messages">모든 메시지 검색...</string>
     <string name="chat_search_no_results">일치하는 메시지를 찾을 수 없음</string>
     <string name="chat_stt_failed">음성 인식 실패: %1$s</string>
+    <string name="chat_stt_no_model">%1$d초 녹음됨 (온디바이스 STT 모델 없음, %2$s에 저장)</string>
     <string name="chat_mic_permission_needed">음성 입력에 마이크 권한이 필요합니다</string>
     <string name="chat_agents_working">%1$d개 에이전트 작업 중</string>
     <string name="chat_mic_permission_title">마이크 권한 필요</string>

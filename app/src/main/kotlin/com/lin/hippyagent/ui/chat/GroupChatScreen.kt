@@ -1,14 +1,6 @@
 package com.lin.hippyagent.ui.chat
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +8,12 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,8 +24,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -103,28 +91,12 @@ fun GroupChatScreen(
         })
     }
 
-    var showAudioPermissionDialog by remember { mutableStateOf(false) }
+    // 录音权限请求（复用集中式 MicPermissionHandler）
+    val micPermission = rememberMicPermissionHandler(
+        onGranted = { doStartStt() }
+    )
 
-    val audioPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            com.lin.hippyagent.core.voice.AndroidBuiltinTranscriber.notifyAppOps(context)
-            doStartStt()
-        } else {
-            val activity = context as? Activity
-            if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)) {
-                showAudioPermissionDialog = true
-            } else {
-                Toast.makeText(context, context.getString(R.string.chat_mic_permission_needed), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    val startStt: () -> Unit = {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) doStartStt()
-        else audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-    }
+    val startStt: () -> Unit = { micPermission.requestMicPermission() }
 
     val stopStt: () -> Unit = {
         sttListening = false
@@ -343,23 +315,8 @@ fun GroupChatScreen(
         }
     }
 
-    if (showAudioPermissionDialog) {
-        AlertDialog(
-            onDismissRequest = { showAudioPermissionDialog = false },
-            title = { Text(stringResource(R.string.chat_mic_permission_title)) },
-            text = { Text(stringResource(R.string.chat_mic_permission_denied)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showAudioPermissionDialog = false
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                }) { Text(stringResource(R.string.chat_go_to_settings)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAudioPermissionDialog = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        )
-    }
+    MicPermissionRationaleDialog(
+        show = micPermission.showRationaleDialog,
+        onDismiss = micPermission.dismissRationaleDialog,
+    )
 }
