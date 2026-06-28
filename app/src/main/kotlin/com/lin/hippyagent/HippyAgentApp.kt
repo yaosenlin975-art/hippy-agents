@@ -18,6 +18,7 @@ import com.lin.hippyagent.core.notification.HippyAgentNotificationService
 import com.lin.hippyagent.core.tools.ToolInitializer
 import com.lin.hippyagent.core.hooks.system.SystemHookManager
 import com.lin.hippyagent.core.trace.SpanCollector
+import com.lin.hippyagent.core.trace.TraceRetentionWorker
 import com.lin.hippyagent.core.trace.TraceSettings
 import com.lin.hippyagent.data.repository.AgentRepository
 import com.lin.hippyagent.di.appModule
@@ -157,6 +158,8 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
                 SpanCollector.updateSettings(enabled, masking, fullLlm)
             }
         }
+
+        TraceRetentionWorker.schedule(this)
 
         // ══════ 阶段 2：有序关键初始化（串行，确保依赖满足） ══════
         appScope.launch {
