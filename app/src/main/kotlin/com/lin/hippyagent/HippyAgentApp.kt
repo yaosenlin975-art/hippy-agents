@@ -17,6 +17,8 @@ import com.lin.hippyagent.core.linux.service.LinuxKeepAliveService
 import com.lin.hippyagent.core.notification.HippyAgentNotificationService
 import com.lin.hippyagent.core.tools.ToolInitializer
 import com.lin.hippyagent.core.hooks.system.SystemHookManager
+import com.lin.hippyagent.core.trace.SpanCollector
+import com.lin.hippyagent.core.trace.TraceSettings
 import com.lin.hippyagent.data.repository.AgentRepository
 import com.lin.hippyagent.di.appModule
 import com.lin.hippyagent.di.linuxModule
@@ -25,6 +27,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
@@ -137,6 +140,23 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
         com.lin.hippyagent.core.security.ToolApprovalCleanupWorker.schedule(
             androidx.work.WorkManager.getInstance(this)
         )
+
+        // ══════ SpanCollector 初始化（Koin 就绪后，Agent 活动前） ══════
+        val traceDao = get<com.lin.hippyagent.data.TraceSpanDao>()
+        SpanCollector.init(appScope, traceDao)
+
+        val traceSettings = get<TraceSettings>()
+        appScope.launch {
+            combine(
+                traceSettings.enabled,
+                traceSettings.sensitiveMasking,
+                traceSettings.fullLlmContent
+            ) { enabled, masking, fullLlm ->
+                Triple(enabled, masking, fullLlm)
+            }.collect { (enabled, masking, fullLlm) ->
+                SpanCollector.updateSettings(enabled, masking, fullLlm)
+            }
+        }
 
         // ══════ 阶段 2：有序关键初始化（串行，确保依赖满足） ══════
         appScope.launch {
@@ -296,7 +316,7 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
             // 设置重发回调
             offlineQueue.onNetworkRestored = { msg ->
                 runCatching {
-                    val agent = agentFactory.getAgent(msg.sessionId.substringBefore("_"))
+                    val agent = agentFactory.getAgent(msg.channelId)
                     if (agent != null) {
                         agent.processMessage(msg.sessionId, msg.channelId, msg.content)
                     } else {

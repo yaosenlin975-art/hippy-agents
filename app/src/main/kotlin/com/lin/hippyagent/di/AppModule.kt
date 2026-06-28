@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.di
+package com.lin.hippyagent.di
 
 import android.content.Context
 import androidx.work.WorkerFactory
@@ -46,6 +46,8 @@ import com.lin.hippyagent.ui.settings.SettingsViewModel
 import com.lin.hippyagent.ui.settings.hooks.SystemHookViewModel
 import com.lin.hippyagent.ui.workspace.CoreFilesViewModel
 import com.lin.hippyagent.core.agent.session.AppDatabase
+import com.lin.hippyagent.core.trace.TraceRepository
+import com.lin.hippyagent.core.trace.TraceSettings
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -361,6 +363,10 @@ val appModule = module {
             kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default
         )
     }
+
+    single { TraceSettings(androidContext()) }
+
+    single { TraceRepository(get()) }
 
     single {
         com.lin.hippyagent.core.notification.NotificationCenter(
