@@ -1916,13 +1916,37 @@ _你刚醒来。该搞清楚自己是谁了。_
         return result
     }
 
-    private fun resolveTriggeredSkills(sessionMessages: List<SessionMessage>): List<com.lin.hippyagent.core.skill.ResolvedSkill> {
+    private suspend fun resolveTriggeredSkills(sessionMessages: List<SessionMessage>): List<com.lin.hippyagent.core.skill.ResolvedSkill> {
         val skillIds = profile.skills
         if (skillIds.isEmpty()) return emptyList()
         val lastUserMsg = sessionMessages.lastOrNull { it.role == MessageRole.USER }?.content ?: return emptyList()
-        return runCatching {
+
+        val traceCtx = coroutineContext[TraceContextElement]
+        val span = if (traceCtx != null) {
+            SpanCollector.startSpan(
+                type = SpanType.SKILL_MATCH,
+                traceId = traceCtx.traceId,
+                parentSpanId = traceCtx.parentSpanId,
+                props = mapOf(
+                    "userGoal" to lastUserMsg.take(200)
+                )
+            )
+        } else {
+            SpanContext.NoOp
+        }
+        val result = runCatching {
             skillTriggerResolver.resolve(lastUserMsg, skillIds)
-        }.getOrElse { emptyList() }
+        }
+        val resolved = result.getOrElse { emptyList() }
+        SpanCollector.end(
+            span,
+            error = result.exceptionOrNull()?.message,
+            extraProps = mapOf(
+                "candidates" to resolved.map { it.name },
+                "winner" to (resolved.firstOrNull()?.name ?: "none")
+            )
+        )
+        return resolved
     }
 
     private fun resolveToolPath(path: String): String {
