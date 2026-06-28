@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +60,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -73,7 +75,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
+import com.lin.hippyagent.core.trace.TraceRepository
+import com.lin.hippyagent.core.trace.TraceSettings
 import com.lin.hippyagent.ui.components.HippyTopBar
+import kotlinx.coroutines.launch
 
 private data class SettingsGroup(
     val nameRes: Int,
@@ -261,9 +266,17 @@ fun SettingsScreen(
                 Spacer(Modifier.height(12.dp))
         }
 
-        item {
-            TextButton(onClick = onNavigateToTrace) {
-                Text("执行追踪（调试）")
+        item(key = "debug_section") {
+            val traceSettings: TraceSettings = org.koin.compose.koinInject()
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                DebugSection(
+                    traceSettings = traceSettings,
+                    onOpenTraceList = onNavigateToTrace
+                )
             }
         }
 
@@ -384,6 +397,108 @@ fun SettingsScreen(
             }
 
             item { Spacer(Modifier.height(80.dp)) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DebugSection(
+    traceSettings: TraceSettings,
+    onOpenTraceList: () -> Unit
+) {
+    val enabled by traceSettings.enabled.collectAsStateWithLifecycle(initialValue = false)
+    val masking by traceSettings.sensitiveMasking.collectAsStateWithLifecycle(initialValue = true)
+    val retention by traceSettings.retentionDays.collectAsStateWithLifecycle(initialValue = 7)
+    val fullLlm by traceSettings.fullLlmContent.collectAsStateWithLifecycle(initialValue = false)
+    val scope = rememberCoroutineScope()
+    val repository: TraceRepository = org.koin.compose.koinInject()
+    val retentionOptions = remember {
+        listOf(
+            TraceSettings.RETENTION_1_DAY to R.string.trace_retention_1_day,
+            TraceSettings.RETENTION_7_DAYS to R.string.trace_retention_7_days,
+            TraceSettings.RETENTION_30_DAYS to R.string.trace_retention_30_days,
+            TraceSettings.RETENTION_FOREVER to R.string.trace_retention_forever
+        )
+    }
+
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Text(
+            stringResource(R.string.trace_settings_group),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 14.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.trace_enable),
+                fontSize = 14.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = enabled,
+                onCheckedChange = { v -> scope.launch { traceSettings.setEnabled(v) } }
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.trace_sensitive_masking),
+                fontSize = 14.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = masking,
+                onCheckedChange = { v -> scope.launch { traceSettings.setSensitiveMasking(v) } }
+            )
+        }
+        Text(
+            stringResource(R.string.trace_retention),
+            fontSize = 14.sp,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            retentionOptions.forEach { (value, labelRes) ->
+                FilterChip(
+                    selected = retention == value,
+                    onClick = { scope.launch { traceSettings.setRetentionDays(value) } },
+                    label = { Text(stringResource(labelRes), fontSize = 12.sp) }
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.trace_full_llm_content),
+                fontSize = 14.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = fullLlm,
+                onCheckedChange = { v -> scope.launch { traceSettings.setFullLlmContent(v) } }
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TextButton(onClick = { scope.launch { repository.deleteAll() } }) {
+                Text(stringResource(R.string.trace_clear_all))
+            }
+            TextButton(onClick = onOpenTraceList) {
+                Text(stringResource(R.string.trace_open_list))
+            }
         }
     }
 }

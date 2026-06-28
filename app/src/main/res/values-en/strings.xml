@@ -1947,5 +1947,16 @@
     <string name="model_temperature_format">Temperature: %1$.2f</string>
     <string name="model_top_p_format">Top P: %1$.2f</string>
     <string name="skill_version_format">v%1$s</string>
+    <string name="trace_settings_group">Debug</string>
+    <string name="trace_enable">Execution Tracing</string>
+    <string name="trace_sensitive_masking">Sensitive Field Masking</string>
+    <string name="trace_retention">Retention Period</string>
+    <string name="trace_retention_1_day">1 day</string>
+    <string name="trace_retention_7_days">7 days</string>
+    <string name="trace_retention_30_days">30 days</string>
+    <string name="trace_retention_forever">Forever</string>
+    <string name="trace_full_llm_content">Full LLM Content Storage</string>
+    <string name="trace_clear_all">Clear All Traces Now</string>
+    <string name="trace_open_list">View Trace Records</string>
 </resources>
 

@@ -1958,5 +1958,16 @@
     <string name="model_temperature_format">Temperature: %1$.2f</string>
     <string name="model_top_p_format">Top P: %1$.2f</string>
     <string name="skill_version_format">v%1$s</string>
+    <string name="trace_settings_group">调试</string>
+    <string name="trace_enable">执行追踪</string>
+    <string name="trace_sensitive_masking">敏感字段脱敏</string>
+    <string name="trace_retention">保留期</string>
+    <string name="trace_retention_1_day">1 天</string>
+    <string name="trace_retention_7_days">7 天</string>
+    <string name="trace_retention_30_days">30 天</string>
+    <string name="trace_retention_forever">永久</string>
+    <string name="trace_full_llm_content">完整 LLM 内容存储</string>
+    <string name="trace_clear_all">立即清理所有 Trace</string>
+    <string name="trace_open_list">查看追踪记录</string>
 </resources>
 
