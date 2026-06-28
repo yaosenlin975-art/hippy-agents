@@ -462,6 +462,29 @@ val MIGRATION_23_24 = object : Migration(23, 24) {
     }
 }
 
+val MIGRATION_24_25 = object : Migration(24, 25) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS trace_span (
+                id TEXT NOT NULL PRIMARY KEY,
+                traceId TEXT NOT NULL,
+                parentSpanId TEXT,
+                type TEXT NOT NULL,
+                startedAt INTEGER NOT NULL,
+                durationMs INTEGER NOT NULL,
+                propsJson TEXT NOT NULL,
+                error TEXT,
+                createdAt INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_trace_span_traceId_startedAt ON trace_span(traceId, startedAt)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_trace_span_type_startedAt ON trace_span(type, startedAt)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_trace_span_startedAt ON trace_span(startedAt)")
+    }
+}
+
 val ALL_MIGRATIONS = listOf(
     MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
     MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
@@ -473,5 +496,6 @@ val ALL_MIGRATIONS = listOf(
     MIGRATION_20_21,
     MIGRATION_21_22,
     MIGRATION_22_23,
-    MIGRATION_23_24
+    MIGRATION_23_24,
+    MIGRATION_24_25
 )
