@@ -54,7 +54,7 @@ private class TracingModelClient(
                 props = mapOf(
                     "modelId" to (request.model.ifBlank { "unknown" }),
                     "providerId" to providerId,
-                    "requestMessages" to request.messages
+                    "requestMessages" to request.messages.joinToString("\n") { it.content }
                 )
             )
         } else {
