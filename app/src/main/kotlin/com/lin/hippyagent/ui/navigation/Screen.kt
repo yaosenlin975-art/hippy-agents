@@ -96,3 +96,10 @@ sealed class Screen(val route: String) {
     object NotificationCenter : Screen("settings/notification-center")
 }
 
+object TraceRoutes {
+    const val TRACE_LIST = "trace/list"
+    const val TRACE_DETAIL = "trace/detail/{traceId}"
+    const val TRACE_STATS = "trace/stats"
+    fun traceDetail(traceId: String) = "trace/detail/$traceId"
+}
+

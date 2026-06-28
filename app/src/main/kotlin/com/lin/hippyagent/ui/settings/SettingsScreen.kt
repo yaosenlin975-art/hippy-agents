@@ -51,6 +51,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -123,6 +124,7 @@ fun SettingsScreen(
     onNavigateToSkillManagement: (String) -> Unit = {},
     onNavigateToMemoryCompaction: (String) -> Unit = {},
     onNavigateToSystemHooks: () -> Unit = {},
+    onNavigateToTrace: () -> Unit = {},
     onAgentSwitched: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -257,6 +259,12 @@ fun SettingsScreen(
                     )
                 )
                 Spacer(Modifier.height(12.dp))
+        }
+
+        item {
+            TextButton(onClick = onNavigateToTrace) {
+                Text("执行追踪（调试）")
+            }
         }
 
         if (currentAgentId != null) {

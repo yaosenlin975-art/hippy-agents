@@ -256,6 +256,7 @@ fun MainScreen(
                         onNavigateToSkillManagement = { agentId -> navController.navigate(Screen.SkillManagement.createRoute(agentId)) },
                         onNavigateToMemoryCompaction = { agentId -> navController.navigate(Screen.MemoryCompaction.createRoute(agentId)) },
                         onNavigateToSystemHooks = { navController.navigate(Screen.SystemHooks.route) },
+                        onNavigateToTrace = { navController.navigate(TraceRoutes.TRACE_LIST) },
                         onAgentSwitched = { agentId ->
                             onCurrentAgentIdChanged(agentId)
                             sessionsViewModel.switchAgent(agentId)

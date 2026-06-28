@@ -751,6 +751,20 @@ fun AppNavigation(
                     }
                 }
             }
+
+            composable(TraceRoutes.TRACE_LIST) {
+                val vm: com.lin.hippyagent.ui.trace.TraceViewModel = org.koin.androidx.compose.koinViewModel()
+                com.lin.hippyagent.ui.trace.TraceListScreen(
+                    viewModel = vm,
+                    onTraceClick = { traceId -> navController.navigate(TraceRoutes.traceDetail(traceId)) },
+                    onOpenStats = { navController.navigate(TraceRoutes.TRACE_STATS) }
+                )
+            }
+            composable(TraceRoutes.TRACE_DETAIL) { backStackEntry ->
+                val traceId = backStackEntry.arguments?.getString("traceId") ?: return@composable
+                val vm: com.lin.hippyagent.ui.trace.TraceViewModel = org.koin.androidx.compose.koinViewModel()
+                com.lin.hippyagent.ui.trace.TraceDetailScreen(traceId = traceId, viewModel = vm, onBack = { navController.popBackStack() })
+            }
         }
     }
 

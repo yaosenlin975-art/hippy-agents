@@ -223,6 +223,8 @@ val viewModelModule = module {
             cronService = getOrNull()
         )
     }
+
+    viewModel { com.lin.hippyagent.ui.trace.TraceViewModel(get()) }
 }
 
 val linuxModule = module {
