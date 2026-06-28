@@ -1,5 +1,6 @@
 package com.lin.hippyagent.ui.trace
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -74,6 +75,7 @@ private fun SpanNode(
     depth: Int
 ) {
     var expanded by remember { mutableStateOf(true) }
+    var showDetail by remember { mutableStateOf(false) }
     val children = childrenMap[span.id] ?: emptyList()
 
     Column(modifier = Modifier.padding(start = (depth * 16).dp)) {
@@ -91,22 +93,72 @@ private fun SpanNode(
             Text(
                 text = "${span.type} (${span.durationMs}ms)",
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).clickable { showDetail = !showDetail }
             )
             if (span.error != null) {
                 Text("❌", color = MaterialTheme.colorScheme.error)
             }
         }
         Text(
-            text = span.propsJson.take(120),
+            text = summarizeProps(span),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 24.dp)
         )
+        if (showDetail && span.type == "LLM_CALL") {
+            LlmDetailPanel(span)
+        }
         if (expanded && children.isNotEmpty()) {
             children.forEach { child ->
                 SpanNode(span = child, childrenMap = childrenMap, depth = depth + 1)
             }
         }
     }
+}
+
+@Composable
+private fun LlmDetailPanel(span: TraceSpanEntity) {
+    Card(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 4.dp)) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            val props = parseProps(span.propsJson)
+            Text("模型: ${props["modelId"]}", style = MaterialTheme.typography.bodySmall)
+            Text("Provider: ${props["providerId"]}", style = MaterialTheme.typography.bodySmall)
+            Text("Prompt tokens: ${props["promptTokens"]}", style = MaterialTheme.typography.bodySmall)
+            Text("Completion tokens: ${props["completionTokens"]}", style = MaterialTheme.typography.bodySmall)
+            Text("Finish reason: ${props["finishReason"]}", style = MaterialTheme.typography.bodySmall)
+            props["messageCount"]?.let { Text("消息数: $it（已脱敏）", style = MaterialTheme.typography.bodySmall) }
+            props["responseChars"]?.let { Text("响应字符数: $it（已脱敏）", style = MaterialTheme.typography.bodySmall) }
+            (props["requestMessages"] as? String)?.let {
+                Spacer(Modifier.height(4.dp))
+                Text("请求消息:", style = MaterialTheme.typography.labelSmall)
+                Text(it, style = MaterialTheme.typography.bodySmall)
+            }
+            (props["responseText"] as? String)?.let {
+                Spacer(Modifier.height(4.dp))
+                Text("响应文本:", style = MaterialTheme.typography.labelSmall)
+                Text(it, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+private fun summarizeProps(span: TraceSpanEntity): String {
+    val props = parseProps(span.propsJson)
+    return when (span.type) {
+        "LLM_CALL" -> "model=${props["modelId"]}, tokens=${props["promptTokens"]}→${props["completionTokens"]}"
+        "TOOL_CALL" -> "tool=${props["toolName"]}, retry=${props["retryCount"] ?: 0}"
+        "SKILL_MATCH" -> "winner=${props["winner"]}"
+        "MEMORY_RETRIEVAL" -> "retriever=${props["retrieverType"]}, results=${props["results"]}"
+        "CONTEXT_COMPACTION" -> "before=${props["beforeTokens"]}→after=${props["afterTokens"]}"
+        "AGENT_LOOP" -> "agent=${props["agentId"]}, iter=${props["iterationCount"]}"
+        else -> span.propsJson.take(80)
+    }
+}
+
+private fun parseProps(json: String): Map<String, Any> {
+    if (json.isBlank()) return emptyMap()
+    return runCatching {
+        val obj = org.json.JSONObject(json)
+        obj.keys().asSequence().associateWith { obj.get(it) }
+    }.getOrDefault(emptyMap())
 }
