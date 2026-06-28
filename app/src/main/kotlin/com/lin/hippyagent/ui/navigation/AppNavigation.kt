@@ -765,6 +765,10 @@ fun AppNavigation(
                 val vm: com.lin.hippyagent.ui.trace.TraceViewModel = org.koin.androidx.compose.koinViewModel()
                 com.lin.hippyagent.ui.trace.TraceDetailScreen(traceId = traceId, viewModel = vm, onBack = { navController.popBackStack() })
             }
+            composable(TraceRoutes.TRACE_STATS) {
+                val vm: com.lin.hippyagent.ui.trace.TraceViewModel = org.koin.androidx.compose.koinViewModel()
+                com.lin.hippyagent.ui.trace.TraceStatsScreen(viewModel = vm, onBack = { navController.popBackStack() })
+            }
         }
     }
 
