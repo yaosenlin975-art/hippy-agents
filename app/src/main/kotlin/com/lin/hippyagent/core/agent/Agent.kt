@@ -2186,64 +2186,87 @@ _你刚醒来。该搞清楚自己是谁了。_
         existingSummary: String?,
         messagesToCompress: List<com.lin.hippyagent.core.agent.session.SessionMessage>
     ): String {
-        return try {
-            val request = ModelCallRequest(
-                model = stripModelPrefix(profile.modelName),
-                messages = listOf(
-                    ModelMessage(role = "system", content = COMPACT_SYSTEM_PROMPT),
-                    ModelMessage(role = "user", content = compactionPrompt)
-                ),
-                temperature = 0.3f,
-                maxTokens = 2048
+        val traceCtx = coroutineContext[TraceContextElement]
+        val span = if (traceCtx != null) {
+            SpanCollector.startSpan(
+                type = SpanType.CONTEXT_COMPACTION,
+                traceId = traceCtx.traceId,
+                parentSpanId = traceCtx.parentSpanId,
+                props = mapOf(
+                    "beforeTokens" to messagesToCompress.sumOf { it.content.toByteArray(Charsets.UTF_8).size / 4 },
+                    "strategy" to "summarize"
+                )
             )
+        } else {
+            SpanContext.NoOp
+        }
+        try {
+            val result = try {
+                val request = ModelCallRequest(
+                    model = stripModelPrefix(profile.modelName),
+                    messages = listOf(
+                        ModelMessage(role = "system", content = COMPACT_SYSTEM_PROMPT),
+                        ModelMessage(role = "user", content = compactionPrompt)
+                    ),
+                    temperature = 0.3f,
+                    maxTokens = 2048
+                )
 
-            val resp = callLlmWithRetryAndRateLimit(request)
-            val summary = resp.choices.firstOrNull()?.message?.content
-                ?: throw IllegalStateException("Compression LLM returned no content")
+                val resp = callLlmWithRetryAndRateLimit(request)
+                val summary = resp.choices.firstOrNull()?.message?.content
+                    ?: throw IllegalStateException("Compression LLM returned no content")
 
-            if (existingSummary != null) {
-                summaryMerger.mergeWithNewSummary(existingSummary, summary)
-            } else {
-                summary
-            }
-        } catch (e: Exception) {
-            Timber.w(e, "LLM compaction failed, falling back to rule-based summary")
-            var summary = if (existingSummary != null) {
-                summaryMerger.merge(existingSummary, messagesToCompress)
-            } else {
-                summaryMerger.merge("", messagesToCompress)
-            }
+                if (existingSummary != null) {
+                    summaryMerger.mergeWithNewSummary(existingSummary, summary)
+                } else {
+                    summary
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "LLM compaction failed, falling back to rule-based summary")
+                var summary = if (existingSummary != null) {
+                    summaryMerger.merge(existingSummary, messagesToCompress)
+                } else {
+                    summaryMerger.merge("", messagesToCompress)
+                }
 
-            val fallbackConfig = profile.running.lightContextConfig.contextCompactConfig
-            if (fallbackConfig.compactionFallbackEnabled) {
-                val contextWindow = resolveModelContextWindow() ?: profile.running.maxInputLength
-                val summaryTokens = summary.toByteArray(Charsets.UTF_8).size / 4
-                val maxSummaryTokens = (contextWindow * (1f - fallbackConfig.compactionFallbackReserveRatio)).toInt()
+                val fallbackConfig = profile.running.lightContextConfig.contextCompactConfig
+                if (fallbackConfig.compactionFallbackEnabled) {
+                    val contextWindow = resolveModelContextWindow() ?: profile.running.maxInputLength
+                    val summaryTokens = summary.toByteArray(Charsets.UTF_8).size / 4
+                    val maxSummaryTokens = (contextWindow * (1f - fallbackConfig.compactionFallbackReserveRatio)).toInt()
 
-                if (summaryTokens > maxSummaryTokens) {
-                    Timber.w("Rule-based summary still over limit ($summaryTokens > $maxSummaryTokens), re-splitting with fallback ratio ${fallbackConfig.compactionFallbackReserveRatio}")
-                    val fallbackReserve = (contextWindow * fallbackConfig.compactionFallbackReserveRatio).toInt()
-                    var keepCount = 0
-                    var keepTokens = 0
-                    for (i in messagesToCompress.indices.reversed()) {
-                        val msgTokens = messagesToCompress[i].content.toByteArray(Charsets.UTF_8).size / 4 + 4
-                        if (keepTokens + msgTokens > fallbackReserve) break
-                        keepCount++
-                        keepTokens += msgTokens
-                    }
-                    if (keepCount < messagesToCompress.size) {
-                        val toCompress = messagesToCompress.dropLast(keepCount)
-                        summary = if (existingSummary != null) {
-                            summaryMerger.merge(existingSummary, toCompress)
-                        } else {
-                            summaryMerger.merge("", toCompress)
+                    if (summaryTokens > maxSummaryTokens) {
+                        Timber.w("Rule-based summary still over limit ($summaryTokens > $maxSummaryTokens), re-splitting with fallback ratio ${fallbackConfig.compactionFallbackReserveRatio}")
+                        val fallbackReserve = (contextWindow * fallbackConfig.compactionFallbackReserveRatio).toInt()
+                        var keepCount = 0
+                        var keepTokens = 0
+                        for (i in messagesToCompress.indices.reversed()) {
+                            val msgTokens = messagesToCompress[i].content.toByteArray(Charsets.UTF_8).size / 4 + 4
+                            if (keepTokens + msgTokens > fallbackReserve) break
+                            keepCount++
+                            keepTokens += msgTokens
                         }
-                        Timber.w("Fallback re-split: compressed ${toCompress.size} messages, promoted $keepCount recent messages")
+                        if (keepCount < messagesToCompress.size) {
+                            val toCompress = messagesToCompress.dropLast(keepCount)
+                            summary = if (existingSummary != null) {
+                                summaryMerger.merge(existingSummary, toCompress)
+                            } else {
+                                summaryMerger.merge("", toCompress)
+                            }
+                            Timber.w("Fallback re-split: compressed ${toCompress.size} messages, promoted $keepCount recent messages")
+                        }
                     }
                 }
-            }
 
-            summary
+                summary
+            }
+            SpanCollector.end(span, extraProps = mapOf(
+                "afterTokens" to (result.toByteArray(Charsets.UTF_8).size / 4)
+            ))
+            return result
+        } catch (e: Exception) {
+            SpanCollector.end(span, error = e.message)
+            throw e
         }
     }
 
