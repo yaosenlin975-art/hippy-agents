@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.data.TraceSpanEntity
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TraceDetailScreen(
     traceId: String,

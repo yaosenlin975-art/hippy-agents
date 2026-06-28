@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.data.TraceSummaryRow
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TraceListScreen(
     viewModel: TraceViewModel,
