@@ -1565,7 +1565,22 @@ _你刚醒来。该搞清楚自己是谁了。_
         val sessionMessages = contextMessageFilter?.let { filter -> messagesAfterClear.filter { filter(it) } } ?: messagesAfterClear
 
         val autoMemorySearchConfig = profile.running.remeLightMemoryConfig.autoMemorySearchConfig
-        val commonMemoryEntries = runCatching {
+        val memTraceCtx = coroutineContext[TraceContextElement]
+        val memSpan = if (memTraceCtx != null) {
+            SpanCollector.startSpan(
+                type = SpanType.MEMORY_RETRIEVAL,
+                traceId = memTraceCtx.traceId,
+                parentSpanId = memTraceCtx.parentSpanId,
+                props = mapOf(
+                    "query" to (sessionMessages.lastOrNull { it.role == MessageRole.USER }?.content?.take(200) ?: ""),
+                    "retrieverType" to "hybrid"
+                )
+            )
+        } else {
+            SpanContext.NoOp
+        }
+        val memStartedAt = System.currentTimeMillis()
+        val memResult = runCatching {
             if (commonMemoryRepo != null && sessionMessages.isNotEmpty() && autoMemorySearchConfig.enabled) {
                 val lastUserMsg = sessionMessages.lastOrNull { it.role == MessageRole.USER }?.content ?: ""
                 if (lastUserMsg.isNotBlank()) {
@@ -1579,7 +1594,16 @@ _你刚醒来。该搞清楚自己是谁了。_
                         .take(autoMemorySearchConfig.maxResults)
                 } else emptyList()
             } else emptyList()
-        }.getOrDefault(emptyList())
+        }
+        val commonMemoryEntries = memResult.getOrDefault(emptyList())
+        SpanCollector.end(
+            memSpan,
+            error = memResult.exceptionOrNull()?.message,
+            extraProps = mapOf(
+                "results" to commonMemoryEntries.size,
+                "retrievalTimeMs" to (System.currentTimeMillis() - memStartedAt)
+            )
+        )
 
         val promptContext = PromptContext(
             workingDir = workingDir,
