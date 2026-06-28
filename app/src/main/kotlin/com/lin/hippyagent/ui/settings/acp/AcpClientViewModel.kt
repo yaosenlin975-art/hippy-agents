@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.UUID
 
+@Immutable
 data class AcpClientUiState(
     val servers: List<AcpRemoteServer> = emptyList(),
     val isDiscovering: Set<String> = emptySet(),

@@ -29,6 +29,7 @@ class DanglingToolCallMiddleware : AgentMiddleware {
                 pruneDanglingToolCalls(messages, danglingSet)
                 removeEmptyAssistantMessages(messages)
                 handledDanglingIds.addAll(danglingIds)
+                if (handledDanglingIds.size > HANDLED_DANGLING_MAX) handledDanglingIds.clear()
                 return MiddlewareResult.Modify(messages.toList())
             }
         }
@@ -60,6 +61,7 @@ class DanglingToolCallMiddleware : AgentMiddleware {
         }
 
         handledDanglingIds.addAll(danglingIds)
+        if (handledDanglingIds.size > HANDLED_DANGLING_MAX) handledDanglingIds.clear()
         return MiddlewareResult.Modify(messages.toList())
     }
 
@@ -110,5 +112,6 @@ class DanglingToolCallMiddleware : AgentMiddleware {
         const val PRIORITY = 20
         const val NAME = "dangling_tool_call"
         private const val MAX_CONSECUTIVE_DANGLING = 3
+        private const val HANDLED_DANGLING_MAX = 10_000
     }
 }

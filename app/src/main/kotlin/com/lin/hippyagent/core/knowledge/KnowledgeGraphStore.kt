@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.knowledge
+package com.lin.hippyagent.core.knowledge
 
 import com.lin.hippyagent.core.agent.session.GraphEntityDao
 import com.lin.hippyagent.core.agent.session.GraphEntityEntity
@@ -85,7 +85,7 @@ class KnowledgeGraphStore(
     }
 
     suspend fun searchEntities(query: String): List<GraphEntity> = withContext(Dispatchers.IO) {
-        entityDao.searchByName("%$query%").map { it.toDomain() }
+        entityDao.searchByName("%${escapeLike(query)}%").map { it.toDomain() }
     }
 
     suspend fun getEntitiesByType(type: EntityType): List<GraphEntity> = withContext(Dispatchers.IO) {
@@ -146,6 +146,10 @@ class KnowledgeGraphStore(
             val parts = it.split("=", limit = 2)
             if (parts.size == 2) parts[0] to parts[1] else null
         }
+    }
+
+    private fun escapeLike(input: String): String {
+        return input.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     }
 }
 

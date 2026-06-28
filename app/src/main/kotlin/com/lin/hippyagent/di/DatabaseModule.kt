@@ -24,6 +24,7 @@ import com.lin.hippyagent.core.inbox.InboxStore
 import org.koin.dsl.module
 
 val databaseModule = module {
+    // 记忆库独立数据库，文件名 commonmemory.db（非 secondbrain.db）
     single { MemoryDatabase.getInstance(androidContext()) }
 
     single<MemoryRepository> {
@@ -51,7 +52,7 @@ val databaseModule = module {
         InboxStore(inboxDao = db.inboxDao())
     }
 
-    single { HippyJobQueue(dao = get<AppDatabase>().hippyJobDao()) }
+    single { HippyJobQueue(dao = get<AppDatabase>().hippyJobDao(), database = get()) }
 
     single {
         val worker = HippyJobWorker(

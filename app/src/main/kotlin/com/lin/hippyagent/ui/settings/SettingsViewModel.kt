@@ -114,7 +114,7 @@ class SettingsViewModel(
             val result = repository.readCoreFile(agentId, "PROFILE.md")
             result.onSuccess { content ->
                 val updated = content.replace(
-                    Regex("""(- \*\*名字[：:]\*\*\s*).*""", RegexOption.MULTILINE),
+                    NAME_LINE_REGEX,
                     "$1$name"
                 )
                 if (updated != content) {

@@ -143,7 +143,7 @@ fun ProviderDetailScreen(
                 )
             }
 
-            items(provider.models) { model ->
+            items(provider.models, key = { it.id }) { model ->
                 ModelCard(
                     model = model,
                     onEdit = {

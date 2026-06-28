@@ -61,6 +61,8 @@ class CronJobManager(
 ) {
     private val jobs = mutableListOf<CronJob>()
     private val executions = mutableListOf<CronJobExecution>()
+    @Volatile private var jobsSnapshot: List<CronJob> = emptyList()
+    @Volatile private var executionsSnapshot: List<CronJobExecution> = emptyList()
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val workManager = WorkManager.getInstance(context)
     private val historyDir = File(context.filesDir, "cron_history")
@@ -75,6 +77,7 @@ class CronJobManager(
         jobs.add(job)
         scheduleJob(job)
         persistJobs()
+        jobsSnapshot = jobs.toList()
         Timber.i("Cron job created: ${job.name}")
     }
 
@@ -82,6 +85,7 @@ class CronJobManager(
         jobs.removeAll { it.id == id }
         workManager.cancelUniqueWork(id)
         persistJobs()
+        jobsSnapshot = jobs.toList()
         Timber.i("Cron job deleted: $id")
     }
 
@@ -92,13 +96,14 @@ class CronJobManager(
             scheduleJob(job)
         }
         persistJobs()
+        jobsSnapshot = jobs.toList()
     }
 
-    fun getJobs(): List<CronJob> = jobs.toList()
+    fun getJobs(): List<CronJob> = jobsSnapshot
 
-    fun getEnabledJobs(): List<CronJob> = jobs.toList().filter { it.enabled }
+    fun getEnabledJobs(): List<CronJob> = jobsSnapshot.filter { it.enabled }
 
-    fun getJob(id: String): CronJob? = jobs.toList().find { it.id == id }
+    fun getJob(id: String): CronJob? = jobsSnapshot.find { it.id == id }
 
     // --- Execution History ---
 
@@ -109,10 +114,11 @@ class CronJobManager(
             executions.removeFirst()
         }
         persistExecution(execution)
+        executionsSnapshot = executions.toList()
     }
 
     fun getExecutions(jobId: String? = null, limit: Int = 50): List<CronJobExecution> {
-        val snapshot = executions.toList()
+        val snapshot = executionsSnapshot
         val filtered = if (jobId != null) {
             snapshot.filter { it.jobId == jobId }
         } else {
@@ -122,9 +128,9 @@ class CronJobManager(
     }
 
     fun getStats(jobId: String): CronJobStats {
-        val execsSnapshot = executions.toList()
+        val execsSnapshot = executionsSnapshot
         val jobExecutions = execsSnapshot.filter { it.jobId == jobId }
-        val job = jobs.toList().find { it.id == jobId }
+        val job = jobsSnapshot.find { it.id == jobId }
         val successes = jobExecutions.filter { it.success }
         val failures = jobExecutions.filter { !it.success }
 
@@ -148,7 +154,7 @@ class CronJobManager(
     }
 
     fun getAllStats(): List<CronJobStats> {
-        return jobs.map { getStats(it.id) }
+        return jobsSnapshot.map { getStats(it.id) }
     }
 
     suspend fun clearHistory(jobId: String? = null) = mutex.withLock {
@@ -159,6 +165,7 @@ class CronJobManager(
             executions.clear()
             historyDir.listFiles()?.forEach { it.delete() }
         }
+        executionsSnapshot = executions.toList()
     }
 
     // --- Scheduling ---
@@ -330,15 +337,24 @@ class CronJobManager(
             // Load recent executions (last 500)
             historyDir.listFiles()?.forEach { file ->
                 if (file.extension == "jsonl") {
-                    file.readLines().takeLast(100).forEach { line ->
-                        if (line.isNotBlank()) {
-                            runCatching {
-                                executions.add(json.decodeFromString<CronJobExecution>(line))
+                    file.bufferedReader().use { reader ->
+                        val tail = ArrayDeque<String>(100)
+                        reader.forEachLine { line ->
+                            tail.addLast(line)
+                            if (tail.size > 100) tail.removeFirst()
+                        }
+                        tail.forEach { line ->
+                            if (line.isNotBlank()) {
+                                runCatching {
+                                    executions.add(json.decodeFromString<CronJobExecution>(line))
+                                }
                             }
                         }
                     }
                 }
             }
+            jobsSnapshot = jobs.toList()
+            executionsSnapshot = executions.toList()
         } catch (e: Exception) {
             Timber.e(e, "Failed to load cron history")
         }

@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 import androidx.compose.ui.res.stringResource
@@ -329,7 +329,7 @@ fun EnvCheckScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    val isLinuxReady by linuxManager.isReady.collectAsState(initial = false)
+    val isLinuxReady by linuxManager.isReady.collectAsStateWithLifecycle(initialValue = false)
     Timber.d("EnvCheckScreen: isLinuxReady=%s", isLinuxReady)
     var envStates by remember { mutableStateOf(BUILTIN_ENV_ITEMS.map { EnvCheckState(name = it.name, isInstalled = null) }) }
     var isCheckingAll by remember { mutableStateOf(false) }
@@ -967,7 +967,7 @@ private fun VoiceExtensionCard(
 ) {
     val context = LocalContext.current
     val voiceManager = remember { com.lin.hippyagent.core.voice.VoiceExtensionManager(context) }
-    val voiceState by voiceManager.state.collectAsState(initial = com.lin.hippyagent.core.voice.VoiceExtensionState())
+    val voiceState by voiceManager.state.collectAsStateWithLifecycle(initialValue = com.lin.hippyagent.core.voice.VoiceExtensionState())
     val isSttItem = envItem.name == "Moonshine STT"
 
     // 初始化

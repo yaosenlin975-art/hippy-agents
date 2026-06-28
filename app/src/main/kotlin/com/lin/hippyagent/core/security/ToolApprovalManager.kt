@@ -70,6 +70,11 @@ class ToolApprovalManager(
     private val pendingDeferreds = ConcurrentHashMap<String, CompletableDeferred<ApprovalAction>>()
     // 防止 UI + broadcast 并发重复处理同一 requestId
     private val resolvedSet = ConcurrentHashMap.newKeySet<String>()
+    private val resolvedOrder = java.util.concurrent.ConcurrentLinkedQueue<String>()
+
+    companion object {
+        private const val RESOLVED_SET_MAX = 10_000
+    }
 
     fun ruleKey(toolName: String, arguments: Map<String, Any>): String {
         val argSummary = arguments.entries
@@ -179,6 +184,11 @@ class ToolApprovalManager(
             // 已处理过, 补一次 deferred (可能另一线程先 await 后我们再 complete)
             pendingDeferreds.remove(requestId)?.complete(action)
             return
+        }
+        resolvedOrder.add(requestId)
+        if (resolvedSet.size > RESOLVED_SET_MAX) {
+            val oldest = resolvedOrder.poll()
+            if (oldest != null) resolvedSet.remove(oldest)
         }
 
         val pending = _pendingApprovals.value.find { it.requestId == requestId }

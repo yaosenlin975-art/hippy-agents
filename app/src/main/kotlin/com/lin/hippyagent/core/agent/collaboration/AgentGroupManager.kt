@@ -76,7 +76,7 @@ class AgentGroupManager(
         _groupStateFlows[groupId] = MutableStateFlow(state)
 
         groupLifecycleStates[groupId] = GroupLifecycleState.FORMING
-        groupMemberStatuses[groupId] = agentIds.associateWith { GroupMemberStatus.ONLINE }.toMutableMap()
+        groupMemberStatuses[groupId] = ConcurrentHashMap(agentIds.associateWith { GroupMemberStatus.ONLINE })
         groupLastActivity[groupId] = Instant.now()
 
         if (agentIds.isNotEmpty()) {
@@ -311,13 +311,13 @@ class AgentGroupManager(
             ).also { agentGroup ->
                 agentGroup.mentionOnlyAgentIds = group.mentionOnlyAgentIds
                 val cachedDescriptions = group.agentIds.associateWith { id ->
-                    runCatching { kotlinx.coroutines.runBlocking { agentFactory.getAgent(id) } }
+                    runCatching { agentFactory.getAgent(id) }
                         .getOrNull()?.profileConfig?.let { cfg ->
                             if (cfg.identity.isNotBlank()) cfg.identity else cfg.name.ifBlank { id }
                         } ?: id
                 }
                 val cachedTriggerWords = group.agentIds.associateWith { id ->
-                    runCatching { kotlinx.coroutines.runBlocking { agentFactory.getAgent(id) } }
+                    runCatching { agentFactory.getAgent(id) }
                         .getOrNull()?.profileConfig?.collaboration?.preferredTopics ?: emptyList()
                 }
                 val agentDescriptions: () -> Map<String, String> = { cachedDescriptions }

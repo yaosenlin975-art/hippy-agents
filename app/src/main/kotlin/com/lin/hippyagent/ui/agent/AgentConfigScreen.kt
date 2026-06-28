@@ -165,6 +165,12 @@ fun AgentConfigScreen(
         } else if (uiState.agent != null) {
             val agent = uiState.agent!!
 
+            val allMdFiles = remember(uiState.workspaceMdFiles, agent.coreFiles) {
+                (uiState.workspaceMdFiles + agent.coreFiles).distinct().sorted()
+            }
+            val regularFiles = remember(allMdFiles) { allMdFiles.filter { !it.startsWith("memory/") } }
+            val memoryFiles = remember(allMdFiles) { allMdFiles.filter { it.startsWith("memory/") } }
+
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize()
@@ -276,10 +282,6 @@ fun AgentConfigScreen(
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
                 }
 
-                val allMdFiles = (uiState.workspaceMdFiles + agent.coreFiles).distinct().sorted()
-                val regularFiles = allMdFiles.filter { !it.startsWith("memory/") }
-                val memoryFiles = allMdFiles.filter { it.startsWith("memory/") }
-
                 items(regularFiles, key = { it }) { filename ->
                     CoreFileItem(
                         filename = filename,
@@ -326,7 +328,7 @@ fun AgentConfigScreen(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("memories", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.agent_memories_section), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                     Text(
                                         context.getString(R.string.agent_file_count, memoryFiles.size),
                                         fontSize = 11.sp,

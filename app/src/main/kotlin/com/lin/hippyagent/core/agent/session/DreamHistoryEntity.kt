@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 
 @Entity(
     tableName = "dream_history",
@@ -31,9 +30,6 @@ data class DreamHistoryEntity(
 interface DreamHistoryDao {
     @Insert
     suspend fun insert(record: DreamHistoryEntity)
-
-    @Query("SELECT * FROM dream_history ORDER BY triggeredAt DESC LIMIT :limit")
-    fun getRecentHistory(limit: Int = 20): Flow<List<DreamHistoryEntity>>
 
     @Query("SELECT * FROM dream_history ORDER BY triggeredAt DESC LIMIT :limit")
     suspend fun getRecent(limit: Int = 20): List<DreamHistoryEntity>

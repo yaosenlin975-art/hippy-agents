@@ -16,7 +16,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import com.lin.hippyagent.ui.OnboardingScreen
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lin.hippyagent.R
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 import android.widget.Toast
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -38,8 +36,6 @@ fun AppNavigation(
     deepLinkSessionId: String? = null
 ) {
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
 
     var lastActiveAgentId by remember { mutableStateOf<String?>(null) }
 
@@ -49,8 +45,6 @@ fun AppNavigation(
         }
     }
 
-    val tabRoutes = listOf(Screen.Sessions.route, Screen.Settings.route)
-    val pagerState = rememberPagerState(initialPage = 0) { tabRoutes.size }
     val coroutineScope = rememberCoroutineScope()
 
     val linuxManager: com.lin.hippyagent.core.linux.LinuxManager = org.koin.compose.koinInject()
@@ -121,6 +115,8 @@ fun AppNavigation(
         }
     }
 
+    // TODO(W29/P2): currentAgentId 与 lastActiveAgentId 语义重叠，控制流分散。
+    //  建议统一用 AgentSelectionHolder 单例 + StateFlow 收集，避免双状态源同步问题。
     var currentAgentId by remember { mutableStateOf<String?>(null) }
 
     Box(modifier = modifier) {
@@ -131,10 +127,11 @@ fun AppNavigation(
             composable(Screen.Sessions.route) {
                 val sessionsViewModel: com.lin.hippyagent.ui.conversation.ConversationListViewModel = org.koin.androidx.compose.koinViewModel()
                 val mainPagerState = rememberPagerState(initialPage = 0) { 4 }
+                val sessionsUiState by sessionsViewModel.uiState.collectAsStateWithLifecycle()
 
                 LaunchedEffect(lastActiveAgentId) {
                     lastActiveAgentId?.let { agentId ->
-                        if (sessionsViewModel.uiState.value.currentAgentId != agentId) {
+                        if (sessionsUiState.currentAgentId != agentId) {
                             sessionsViewModel.switchAgent(agentId)
                         }
                     }
@@ -202,8 +199,7 @@ fun AppNavigation(
                         sessionId = sessionId,
                         agentId = agentId,
                         onBackClick = {
-                            val chatVm = try { org.koin.java.KoinJavaComponent.getKoin().get<com.lin.hippyagent.ui.chat.ChatViewModel>() } catch (_: Exception) { null }
-                            chatVm?.cleanupEmptySession()
+                            groupChatVm.cleanupEmptySession()
                             lastActiveAgentId = agentId
                             navController.popBackStack()
                         },
@@ -224,8 +220,7 @@ fun AppNavigation(
                         sessionId = sessionId,
                         agentId = agentId,
                         onBackClick = {
-                            val chatVm = try { org.koin.java.KoinJavaComponent.getKoin().get<com.lin.hippyagent.ui.chat.ChatViewModel>() } catch (_: Exception) { null }
-                            chatVm?.cleanupEmptySession()
+                            chatVm.cleanupEmptySession()
                             lastActiveAgentId = agentId
                             navController.popBackStack()
                         },
@@ -422,7 +417,7 @@ fun AppNavigation(
                 val context = androidx.compose.ui.platform.LocalContext.current
                 val skillManager = com.lin.hippyagent.core.skill.SkillManager(context)
                 val linuxManager: com.lin.hippyagent.core.linux.LinuxManager = org.koin.java.KoinJavaComponent.get(com.lin.hippyagent.core.linux.LinuxManager::class.java)
-                val isLinuxReady by linuxManager.isReady.collectAsState(initial = false)
+                val isLinuxReady by linuxManager.isReady.collectAsStateWithLifecycle(initialValue = false)
                 val workspaceManager = com.lin.hippyagent.core.storage.WorkspaceManager(
                     context,
                     com.lin.hippyagent.core.storage.StorageManager(context)
@@ -774,8 +769,10 @@ fun AppNavigation(
         OnboardingScreen(
             onComplete = {
                 showOnboarding = false
-                kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
-                    onboardingManager.completeOnboarding()
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        onboardingManager.completeOnboarding()
+                    }
                 }
             },
             onNavigateToModelProvider = {

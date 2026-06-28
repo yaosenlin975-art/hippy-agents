@@ -116,7 +116,7 @@ fun PluginScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item { Spacer(Modifier.height(8.dp)) }
-                items(plugins.entries.toList()) { (name, manifest) ->
+                items(plugins.entries.toList(), key = { it.key }) { (name, manifest) ->
                     PluginCard(
                         manifest = manifest,
                         onDelete = { viewModel.deletePlugin(name) }

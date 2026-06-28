@@ -64,7 +64,7 @@ interface GraphEntityDao {
     @Query("SELECT * FROM graph_entities WHERE type = :type LIMIT :limit OFFSET :offset")
     suspend fun getByType(type: String, limit: Int = 100, offset: Int = 0): List<GraphEntityEntity>
 
-    @Query("SELECT * FROM graph_entities WHERE name LIKE :query LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM graph_entities WHERE name LIKE :query ESCAPE '\\' LIMIT :limit OFFSET :offset")
     suspend fun searchByName(query: String, limit: Int = 100, offset: Int = 0): List<GraphEntityEntity>
 
     @Query("SELECT * FROM graph_entities LIMIT :limit OFFSET :offset")

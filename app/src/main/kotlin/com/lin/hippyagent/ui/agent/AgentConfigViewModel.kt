@@ -22,6 +22,8 @@ import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.File
 
+private val NAME_REGEX = Regex("""(- \*\*名字[：:]\*\*\s*)(.+)""")
+
 @Immutable
 data class AgentConfigUiState(
     val agent: AgentProfile? = null,
@@ -193,9 +195,8 @@ class AgentConfigViewModel(
         if (name.isBlank()) return
         repository.readCoreFile(agentId, "PROFILE.md")
             .onSuccess { content ->
-                val nameRegex = Regex("""(- \*\*名字[：:]\*\*\s*)(.+)""")
-                val updated = if (nameRegex.containsMatchIn(content)) {
-                    nameRegex.replace(content) { match ->
+                val updated = if (NAME_REGEX.containsMatchIn(content)) {
+                    NAME_REGEX.replace(content) { match ->
                         "${match.groupValues[1]}$name"
                     }
                 } else {

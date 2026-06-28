@@ -268,29 +268,32 @@ fun ConversationListScreen(
                 }
             } else {
                 val sessionMap = remember(uiState.allSessions) { uiState.allSessions.associateBy { it.id } }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
+                val (activeSessions, inactiveSessions) = remember(uiState.sessions, uiState.inactiveThresholdMinutes) {
                     val threshold = uiState.inactiveThresholdMinutes
                     val now = Instant.now()
-                    val (activeSessions, inactiveSessions) = if (threshold > 0) {
-                        uiState.sessions.filter { it.agentId != "group" }.partition { session ->
+                    val nonGroup = uiState.sessions.filter { it.agentId != "group" }
+                    if (threshold > 0) {
+                        nonGroup.partition { session ->
                             session.isPinned ||
                                 session.groupId != null ||
                                 ChronoUnit.MINUTES.between(session.lastUpdatedAt, now) < threshold
                         }
                     } else {
-                        uiState.sessions.filter { it.agentId != "group" } to emptyList()
+                        nonGroup to emptyList()
                     }
-
-                    val ungroupedActive = activeSessions.filter { it.groupId == null && it.agentId != "group" }
-                    val groupedActive = activeSessions.filter { it.groupId != null }
-                    val agentSessionGroups = uiState.sessionGroups.filter { g ->
-                        g.agentId == uiState.currentAgentId
-                    }
-
+                }
+                val ungroupedActive = remember(activeSessions) {
+                    activeSessions.filter { it.groupId == null && it.agentId != "group" }
+                }
+                val groupedActive = remember(activeSessions) { activeSessions.filter { it.groupId != null } }
+                val agentSessionGroups = remember(uiState.sessionGroups, uiState.currentAgentId) {
+                    uiState.sessionGroups.filter { g -> g.agentId == uiState.currentAgentId }
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
                     // 未分组的活跃会话
                     itemsIndexed(ungroupedActive, key = { _, session -> session.id }) { index, session ->
                         val effectiveStatus = uiState.sessionStatuses[session.id]
@@ -504,7 +507,7 @@ fun ConversationListScreen(
                             }
                         }
                         if (groupsExpanded) {
-                            itemsIndexed(uiState.groups) { index, group ->
+                            itemsIndexed(uiState.groups, key = { _, g -> g.groupId }) { index, group ->
                                 val groupSession = sessionMap[group.groupId]
                                 GroupCard(
                                     group = group,

@@ -40,6 +40,10 @@ class RoomMemoryRepositoryImpl(
             "需要" to "不需要",
             "偏好" to "不偏好"
         )
+
+        private fun escapeLike(input: String): String {
+            return input.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        }
     }
 
     // ============ 基础 CRUD ============
@@ -58,7 +62,7 @@ class RoomMemoryRepositoryImpl(
     override suspend fun update(entry: CommonMemoryEntry) {
         val entity = entry.toEntity()
         dao.update(entity)
-        dao.deleteFtsByRowId(entity.id.hashCode().toLong())
+        dao.deleteFtsByMemoryId(entity.id)
         dao.insertFts(MemoryFts(
             rowId = entity.id.hashCode().toLong(),
             memoryId = entity.id,
@@ -180,9 +184,9 @@ class RoomMemoryRepositoryImpl(
     ): CommonMemoryEntry? {
         if (normalizedTerms.isEmpty()) return null
 
-        val term1 = "%${normalizedTerms[0]}%"
-        val term2 = if (normalizedTerms.size > 1) "%${normalizedTerms[1]}%" else "%${normalizedTerms[0]}%"
-        val term3 = if (normalizedTerms.size > 2) "%${normalizedTerms[2]}%" else "%${normalizedTerms[0]}%"
+        val term1 = "%${escapeLike(normalizedTerms[0])}%"
+        val term2 = if (normalizedTerms.size > 1) "%${escapeLike(normalizedTerms[1])}%" else term1
+        val term3 = if (normalizedTerms.size > 2) "%${escapeLike(normalizedTerms[2])}%" else term1
 
         val candidate = dao.findMergeCandidate(type.value, term1, term2, term3)
         if (candidate == null) return null
@@ -201,9 +205,9 @@ class RoomMemoryRepositoryImpl(
     ): CommonMemoryEntry? {
         if (summaryTerms.isEmpty()) return null
 
-        val term1 = "%${summaryTerms[0]}%"
-        val term2 = if (summaryTerms.size > 1) "%${summaryTerms[1]}%" else "%${summaryTerms[0]}%"
-        val term3 = if (summaryTerms.size > 2) "%${summaryTerms[2]}%" else "%${summaryTerms[0]}%"
+        val term1 = "%${escapeLike(summaryTerms[0])}%"
+        val term2 = if (summaryTerms.size > 1) "%${escapeLike(summaryTerms[1])}%" else term1
+        val term3 = if (summaryTerms.size > 2) "%${escapeLike(summaryTerms[2])}%" else term1
 
         val candidate = dao.findConflictCandidate(type.value, term1, term2, term3)
         if (candidate == null) return null
@@ -249,7 +253,7 @@ class RoomMemoryRepositoryImpl(
     }
 
     override suspend fun searchBySummary(query: String, limit: Int): List<CommonMemoryEntry> {
-        return dao.searchBySummary("%$query%", limit).map { it.toCommonMemoryEntry() }
+        return dao.searchBySummary("%${escapeLike(query)}%", limit).map { it.toCommonMemoryEntry() }
     }
 
     override suspend fun hardDelete(id: String) {
@@ -259,9 +263,7 @@ class RoomMemoryRepositoryImpl(
     override suspend fun getStats(): MemoryStats {
         val total = dao.countActive()
         val byType = dao.countByType().associate { it.type to it.count }
-        val profile = dao.getProfileSummary()
-        val active = dao.getActiveSummary()
-        return MemoryStats(total, byType, profile, active)
+        return MemoryStats(total, byType, null, null)
     }
 
     override fun close() {
@@ -269,7 +271,7 @@ class RoomMemoryRepositoryImpl(
 
     suspend fun rebuildFtsIndex() {
         val db = database ?: return
-        val allEntries = dao.findActive(Int.MAX_VALUE, 0)
+        val allEntries = dao.findActive(5000, 0)
         db.withTransaction {
             db.openHelper.writableDatabase.execSQL("DELETE FROM memories_fts")
             allEntries.forEach { entity ->

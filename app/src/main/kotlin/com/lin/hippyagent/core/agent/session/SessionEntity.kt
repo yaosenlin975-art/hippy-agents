@@ -158,7 +158,7 @@ interface SessionDao {
         FROM sessions s
         LEFT JOIN session_stats st ON s.id = st.sessionId
         LEFT JOIN session_compression sc ON s.id = sc.sessionId
-        WHERE s.title LIKE :query AND s.hidden = 0 LIMIT :limit OFFSET :offset
+        WHERE s.title LIKE :query ESCAPE '\' AND s.hidden = 0 LIMIT :limit OFFSET :offset
     """)
     suspend fun searchByTitle(query: String, limit: Int = 100, offset: Int = 0): List<SessionFullRow>
 
@@ -177,10 +177,11 @@ interface SessionDao {
         LEFT JOIN session_compression sc ON s.id = sc.sessionId
         WHERE s.hidden = 0
         ORDER BY s.isPinned DESC, s.lastUpdatedAt DESC
+        LIMIT 500
     """)
     fun observeAll(): Flow<List<SessionFullRow>>
 
-    @Query("SELECT id, unreadCount, isMuted FROM sessions WHERE hidden = 0")
+    @Query("SELECT id, unreadCount, isMuted FROM sessions WHERE hidden = 0 LIMIT 500")
     fun observeUnreadData(): Flow<List<UnreadDataRow>>
 
     @Query("UPDATE sessions SET unreadCount = :count WHERE id = :sessionId")
@@ -213,7 +214,7 @@ interface SessionDao {
     @Query("DELETE FROM sessions WHERE id = :sessionId")
     suspend fun deleteById(sessionId: String)
 
-    @Query("SELECT id FROM sessions WHERE id LIKE 'private_%' || :suffix")
+    @Query("SELECT id FROM sessions WHERE id LIKE 'private\\_%\\_' || :suffix ESCAPE '\\' LIMIT 500")
     suspend fun findPrivateSessionIdsBySuffix(suffix: String): List<String>
 }
 
@@ -221,12 +222,6 @@ interface SessionDao {
 interface SessionStatsDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: SessionStatsEntity)
-
-    @Update
-    suspend fun update(entity: SessionStatsEntity)
-
-    @Query("SELECT * FROM session_stats WHERE sessionId = :sessionId")
-    suspend fun getById(sessionId: String): SessionStatsEntity?
 
     @Query("UPDATE session_stats SET inputTokens = :inputTokens, outputTokens = :outputTokens, cacheReadTokens = :cacheReadTokens, cacheWriteTokens = :cacheWriteTokens, estimatedCostUsd = :costUsd WHERE sessionId = :sessionId")
     suspend fun updateTokenUsage(sessionId: String, inputTokens: Int, outputTokens: Int, cacheReadTokens: Int, cacheWriteTokens: Int, costUsd: Double?)
@@ -240,12 +235,6 @@ interface SessionStatsDao {
 
 @Dao
 interface SessionCompressionDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(entity: SessionCompressionEntity)
-
-    @Update
-    suspend fun update(entity: SessionCompressionEntity)
-
     @Query("SELECT compressedSummary FROM session_compression WHERE sessionId = :sessionId")
     suspend fun getSummaryById(sessionId: String): String?
 

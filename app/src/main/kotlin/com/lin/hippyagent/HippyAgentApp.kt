@@ -214,6 +214,7 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
             val notificationService = get<HippyAgentNotificationService>()
             val notifiedIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
             approvalManager.pendingApprovals.collect { pendingList ->
+                notifiedIds.retainAll(pendingList.map { it.requestId }.toSet())
                 for (pending in pendingList) {
                     if (notifiedIds.add(pending.requestId) && !isAppInForeground) {
                         val severity = when (pending.riskLevel) {

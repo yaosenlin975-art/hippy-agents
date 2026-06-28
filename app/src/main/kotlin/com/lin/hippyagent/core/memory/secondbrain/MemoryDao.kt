@@ -69,8 +69,8 @@ interface MemoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFts(entry: MemoryFts)
 
-    @Query("DELETE FROM memories_fts WHERE rowid = :rowId")
-    suspend fun deleteFtsByRowId(rowId: Long)
+    @Query("DELETE FROM memories_fts WHERE memory_id = :memoryId")
+    suspend fun deleteFtsByMemoryId(memoryId: String)
 
     @Query("""
         SELECT m.* FROM memories m
@@ -79,8 +79,9 @@ interface MemoryDao {
         AND m.agent_id = :agentId
         AND m.dismissed = 0
         ORDER BY m.updated_at DESC
+        LIMIT :limit
     """)
-    suspend fun searchByExactPhrase(query: String, agentId: String): List<MemoryEntity>
+    suspend fun searchByExactPhrase(query: String, agentId: String, limit: Int): List<MemoryEntity>
 
     @Query("""
         SELECT m.* FROM memories m
@@ -89,15 +90,16 @@ interface MemoryDao {
         AND m.agent_id = :agentId
         AND m.dismissed = 0
         ORDER BY m.updated_at DESC
+        LIMIT :limit
     """)
-    suspend fun searchByPhrasePrefix(query: String, agentId: String): List<MemoryEntity>
+    suspend fun searchByPhrasePrefix(query: String, agentId: String, limit: Int): List<MemoryEntity>
 
     // ========== 合并/冲突候选 ==========
 
     @Query("""
         SELECT * FROM memories
         WHERE type = :type AND dismissed = 0
-        AND (summary LIKE :term1 OR summary LIKE :term2 OR summary LIKE :term3)
+        AND (summary LIKE :term1 ESCAPE '\' OR summary LIKE :term2 ESCAPE '\' OR summary LIKE :term3 ESCAPE '\')
         ORDER BY updated_at DESC
         LIMIT 5
     """)
@@ -111,7 +113,7 @@ interface MemoryDao {
     @Query("""
         SELECT * FROM memories
         WHERE type = :type AND dismissed = 0
-        AND (summary LIKE :term1 OR summary LIKE :term2 OR summary LIKE :term3)
+        AND (summary LIKE :term1 ESCAPE '\' OR summary LIKE :term2 ESCAPE '\' OR summary LIKE :term3 ESCAPE '\')
         ORDER BY updated_at DESC
         LIMIT 5
     """)
@@ -198,7 +200,7 @@ interface MemoryDao {
     @Query("""
         SELECT * FROM memories
         WHERE dismissed = 0
-        AND summary LIKE :query
+        AND summary LIKE :query ESCAPE '\'
         ORDER BY updated_at DESC
         LIMIT :limit
     """)
@@ -208,15 +210,6 @@ interface MemoryDao {
 
     @Query("SELECT type, COUNT(*) as count FROM memories WHERE dismissed = 0 GROUP BY type")
     suspend fun countByType(): List<TypeCount>
-
-    @Query("SELECT value FROM memory_meta WHERE key = 'profile'")
-    suspend fun getProfileSummary(): String?
-
-    @Query("SELECT value FROM memory_meta WHERE key = 'active'")
-    suspend fun getActiveSummary(): String?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertMeta(meta: MemoryMeta)
 }
 
 /**
@@ -228,21 +221,12 @@ data class TypeCount(
 )
 
 /**
- * Memory Meta（存储 profile_summary / active_summary）
- */
-@Entity(tableName = "memory_meta")
-data class MemoryMeta(
-    @PrimaryKey val key: String,
-    val value: String
-)
-
-/**
  * Memory Database（Room 数据库）
  * 独立于 AppDatabase，避免主库 migration 复杂度
  */
 @Database(
-    entities = [MemoryEntity::class, MemoryFts::class, MemoryMeta::class],
-    version = 4,
+    entities = [MemoryEntity::class, MemoryFts::class],
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(MemoryConverters::class)
@@ -257,6 +241,7 @@ abstract class MemoryDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE memories ADD COLUMN is_upload_related INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE memories ADD COLUMN expires_at INTEGER")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_is_upload_related_dismissed_expires_at ON memories(is_upload_related, dismissed, expires_at)")
             }
         }
 
@@ -271,6 +256,18 @@ abstract class MemoryDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP TABLE IF EXISTS memories_fts")
                 db.execSQL("CREATE VIRTUAL TABLE memories_fts USING fts4(memory_id, summary, detail)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_type_dismissed ON memories(type, dismissed)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_dismissed_updated_at ON memories(dismissed, updated_at)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_scope_evidence_kind_dismissed_last_seen_at ON memories(scope, evidence_kind, dismissed, last_seen_at)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_last_seen_at ON memories(last_seen_at)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_updated_at ON memories(updated_at)")
+                db.execSQL("INSERT INTO memories_fts(rowid, memory_id, summary, detail) SELECT rowid, id, summary, detail FROM memories")
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS memory_meta")
             }
         }
 
@@ -281,7 +278,7 @@ abstract class MemoryDatabase : RoomDatabase() {
                     MemoryDatabase::class.java,
                     dbPath
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .enableMultiInstanceInvalidation()
                     .build()
                     .also { INSTANCE = it }

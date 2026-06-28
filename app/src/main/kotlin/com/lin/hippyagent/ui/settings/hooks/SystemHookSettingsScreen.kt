@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@Immutable
 data class HookUiState(
     val hookStatuses: Map<SystemEventType, HookStatus> = emptyMap(),
     val silentEnabled: Boolean = false,

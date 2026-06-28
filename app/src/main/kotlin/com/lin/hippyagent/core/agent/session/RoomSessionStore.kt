@@ -23,6 +23,10 @@ class RoomSessionStore(
             ignoreUnknownKeys = true
             encodeDefaults = true
         }
+
+        private fun escapeLike(input: String): String {
+            return input.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        }
     }
 
     override suspend fun createSession(agentId: String, title: String, sessionId: String?): Result<Session> =
@@ -196,7 +200,7 @@ class RoomSessionStore(
 
     override suspend fun searchSessions(query: String): Result<List<Session>> =
         runCatching {
-            sessionDao.searchByTitle("%$query%").map { it.toSession() }
+            sessionDao.searchByTitle("%${escapeLike(query)}%", 100, 0).map { it.toSession() }
         }
 
     override suspend fun addTagToSession(sessionId: String, tag: String): Result<Unit> =
@@ -313,7 +317,7 @@ class RoomSessionStore(
 
     override suspend fun searchAllMessages(query: String, limit: Int): Result<List<MessageSearchResult>> =
         runCatching {
-            messageDao.searchAll("%$query%", limit).map { row ->
+            messageDao.searchAll("%${escapeLike(query)}%", limit).map { row ->
                 MessageSearchResult(
                     sessionId = row.sessionId,
                     sessionName = row.sessionName,
@@ -373,7 +377,7 @@ class RoomSessionStore(
 
     override suspend fun deleteSessionWithPrivateChats(sessionId: String): Result<Unit> =
         runCatching {
-            val privateChatIds = sessionDao.findPrivateSessionIdsBySuffix("_$sessionId")
+            val privateChatIds = sessionDao.findPrivateSessionIdsBySuffix(escapeLike(sessionId))
             database.withTransaction {
                 for (privateId in privateChatIds) {
                     sessionStatsDao.deleteById(privateId)

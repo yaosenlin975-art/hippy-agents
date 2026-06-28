@@ -51,7 +51,10 @@ class HippyJobWorker(
     }
 
     private fun launchJob(entity: HippyJobEntity) {
-        val token = entity.lockToken ?: "missing-token-${entity.id}"
+        val token = entity.lockToken ?: run {
+            Timber.w("Job ${entity.id} claimed without lockToken, skipping launch")
+            return
+        }
         val jobScope = scope.launch(Dispatchers.Default) {
             try {
                 val handler = handlers[entity.name]
@@ -63,12 +66,10 @@ class HippyJobWorker(
                     data = parseDataJson(entity.dataJson),
                     attemptsMade = entity.attemptsMade,
                     updateProgress = { progress ->
-                        scope.launch {
-                            dao.updateProgress(entity.id, HippyJobJson.mapToJson(progress))
-                        }
+                        dao.updateProgress(entity.id, HippyJobJson.mapToJson(progress))
                     },
                     updateTokens = { input, output ->
-                        scope.launch { dao.updateTokens(entity.id, input, output) }
+                        dao.updateTokens(entity.id, input, output)
                     }
                 )
 

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.map
 // 文件级 DataStore 扩展，避免与 ToolGuardConfig.kt 中的私有 dataStore 冲突
 private val Context.permissionDataStore: DataStore<Preferences> by preferencesDataStore(name = "permission_settings")
 
+private const val ONCE_APPROVED_MAX = 10_000
+
 /**
  * PermissionManager（移植自 Mercury Agent 权限系统）
  * 
@@ -256,6 +258,9 @@ class PermissionManager(
 
     suspend fun approveCustomToolPermission(permKeys: List<String>, persistent: Boolean) {
         onceApprovedCustomPerms.addAll(permKeys)
+        if (onceApprovedCustomPerms.size > ONCE_APPROVED_MAX) {
+            onceApprovedCustomPerms.clear()
+        }
         if (persistent) {
             dataStore.edit { prefs ->
                 for (perm in permKeys) {

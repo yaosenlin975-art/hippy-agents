@@ -3,15 +3,11 @@ package com.lin.hippyagent.core.task
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
 
 @Dao
 interface HippyJobDao {
     @Insert
     suspend fun insert(job: HippyJobEntity): Long
-
-    @Update
-    suspend fun update(job: HippyJobEntity)
 
     @Query("SELECT * FROM hippy_jobs WHERE id = :id")
     suspend fun getById(id: Long): HippyJobEntity?
@@ -42,9 +38,13 @@ interface HippyJobDao {
     @Query("UPDATE hippy_jobs SET status = 'WAITING', delayUntil = NULL WHERE status = 'DELAYED' AND delayUntil IS NOT NULL AND delayUntil <= :now")
     suspend fun promoteDelayed(now: Long): Int
 
-    @Query("UPDATE hippy_jobs SET status = 'WAITING', lockToken = NULL, lockUntil = NULL, stalledCounter = :stalled, updatedAt = :now WHERE id = :id")
+    @Query("UPDATE hippy_jobs SET status = 'WAITING', lockToken = NULL, lockUntil = NULL, stalledCounter = :stalled, updatedAt = :now WHERE id = :id AND status = 'ACTIVE'")
     suspend fun requeueAsWaiting(id: Long, stalled: Int, now: Long = System.currentTimeMillis())
 
+    /**
+     * 查询 stalled 任务。默认 limit=100，stalled 任务超过 100 时需调用方循环处理。
+     * StallDetector 当前单次调用，若 stalled 任务 >100 则剩余任务需等下次检测周期。
+     */
     @Query("SELECT * FROM hippy_jobs WHERE status = 'ACTIVE' AND lockUntil IS NOT NULL AND lockUntil < :now LIMIT :limit OFFSET :offset")
     suspend fun findStalled(now: Long, limit: Int = 100, offset: Int = 0): List<HippyJobEntity>
 
@@ -77,9 +77,6 @@ interface HippyJobDao {
 
     @Query("SELECT * FROM hippy_jobs WHERE parentJobId = :parentId LIMIT :limit OFFSET :offset")
     suspend fun getChildren(parentId: Long, limit: Int = 100, offset: Int = 0): List<HippyJobEntity>
-
-    @Query("SELECT * FROM hippy_jobs WHERE status IN ('WAITING','ACTIVE','DELAYED') ORDER BY priority ASC, createdAt ASC LIMIT :limit OFFSET :offset")
-    suspend fun getPendingJobs(limit: Int = 100, offset: Int = 0): List<HippyJobEntity>
 
     @Insert
     suspend fun insertInbox(entity: HippyInboxEntity)

@@ -495,7 +495,7 @@ fun SkillsManagementSheet(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
-                                            text = "v${skillInfo.version}",
+                                            text = stringResource(R.string.skill_version_format, skillInfo.version),
                                             fontSize = 10.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                             modifier = Modifier.padding(top = 2.dp)
@@ -598,7 +598,7 @@ fun SkillDetailDialog(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(skill.displayNameOrName(), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text("v${skill.version}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.skill_version_format, skill.version), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         text = {
@@ -740,7 +740,7 @@ fun LoadFromPoolSheet(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        text = "v${skill.version}",
+                                        text = stringResource(R.string.skill_version_format, skill.version),
                                         fontSize = 10.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                         modifier = Modifier.padding(top = 2.dp)

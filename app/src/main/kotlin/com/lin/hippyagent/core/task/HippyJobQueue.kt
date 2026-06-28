@@ -1,11 +1,16 @@
 package com.lin.hippyagent.core.task
 
+import androidx.room.withTransaction
+import com.lin.hippyagent.core.agent.session.AppDatabase
 import timber.log.Timber
 import java.util.UUID
 import kotlin.math.min
 import kotlin.random.Random
 
-class HippyJobQueue(private val dao: HippyJobDao) {
+class HippyJobQueue(
+    private val dao: HippyJobDao,
+    private val database: AppDatabase
+) {
 
     suspend fun submit(
         name: String,
@@ -25,8 +30,11 @@ class HippyJobQueue(private val dao: HippyJobDao) {
             }
         }
 
-        val depth = if (opts.parentJobId != null) {
-            val parent = dao.getById(opts.parentJobId) ?: throw IllegalArgumentException("Parent job not found")
+        val parent = if (opts.parentJobId != null) {
+            dao.getById(opts.parentJobId) ?: throw IllegalArgumentException("Parent job not found")
+        } else null
+
+        val depth = if (parent != null) {
             if (parent.depth >= MAX_SPAWN_DEPTH) {
                 throw IllegalArgumentException("Exceeded max spawn depth $MAX_SPAWN_DEPTH")
             }
@@ -54,13 +62,16 @@ class HippyJobQueue(private val dao: HippyJobDao) {
             onChildFail = opts.onChildFail
         )
 
-        val id = dao.insert(entity)
-
-        if (opts.parentJobId != null) {
-            val parent = dao.getById(opts.parentJobId)
-            if (parent != null && parent.status != HippyJobStatus.WAITING_CHILDREN) {
-                dao.updateStatus(opts.parentJobId, HippyJobStatus.WAITING_CHILDREN)
+        val id = if (parent != null) {
+            database.withTransaction {
+                val newId = dao.insert(entity)
+                if (parent.status != HippyJobStatus.WAITING_CHILDREN) {
+                    dao.updateStatus(opts.parentJobId!!, HippyJobStatus.WAITING_CHILDREN)
+                }
+                newId
             }
+        } else {
+            dao.insert(entity)
         }
 
         return dao.getById(id) ?: entity
@@ -125,7 +136,19 @@ class HippyJobQueue(private val dao: HippyJobDao) {
         job.parentJobId?.let { parentId ->
             when (job.onChildFail) {
                 ChildFailPolicy.FAIL_PARENT -> {
-                    dao.markAsFailed(parentId, "Child job $jobId failed: $errorText")
+                    val payload = mapOf(
+                        "type" to "child_failed",
+                        "child_id" to jobId,
+                        "job_name" to job.name,
+                        "error" to errorText
+                    )
+                    dao.insertInbox(
+                        HippyInboxEntity(
+                            jobId = parentId,
+                            sender = "minions",
+                            payloadJson = HippyJobJson.mapToJson(payload)
+                        )
+                    )
                 }
                 ChildFailPolicy.REMOVE_DEP -> {
                     dao.clearParentDependency(jobId)
@@ -166,7 +189,7 @@ class HippyJobQueue(private val dao: HippyJobDao) {
     private fun calculateBackoff(type: BackoffType, baseDelay: Long, jitter: Float, attempt: Int): Long {
         val delay = when (type) {
             BackoffType.FIXED -> baseDelay
-            BackoffType.EXPONENTIAL -> baseDelay * (1L shl min(attempt - 1, 5))
+            BackoffType.EXPONENTIAL -> baseDelay * (1L shl min(attempt - 1, 5).coerceAtLeast(0))
         }
         val jitterRange = (delay * jitter).toLong()
         return delay + Random.nextLong(-jitterRange, jitterRange + 1)

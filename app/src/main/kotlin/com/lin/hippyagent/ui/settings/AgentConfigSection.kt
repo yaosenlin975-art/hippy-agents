@@ -430,7 +430,7 @@ fun AgentConfigSection(
                                                 )
                                                 Spacer(Modifier.width(12.dp))
                                                 Column(modifier = Modifier.weight(1f)) {
-                                                    Text("memories", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                                    Text(stringResource(R.string.agent_memories_section), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                                     Text(
                                                         context.getString(R.string.agent_file_count, memoryFiles.size),
                                                         fontSize = 11.sp,

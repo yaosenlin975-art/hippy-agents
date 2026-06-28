@@ -44,7 +44,4 @@ interface GroupDao {
 
     @Query("UPDATE agent_groups SET agentIds = :agentIds WHERE groupId = :groupId")
     suspend fun updateAgentIds(groupId: String, agentIds: String)
-
-    @Query("UPDATE agent_groups SET mentionOnlyAgentIds = :mentionOnlyAgentIds WHERE groupId = :groupId")
-    suspend fun updateMentionOnlyAgentIds(groupId: String, mentionOnlyAgentIds: String)
 }

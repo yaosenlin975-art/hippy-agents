@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.settings
+package com.lin.hippyagent.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -61,7 +61,7 @@ fun ModelConfigDialog(
                 OutlinedTextField(
                     value = maxTokensStr,
                     onValueChange = { if (it.all { c -> c.isDigit() }) maxTokensStr = it },
-                    label = { Text("Max Tokens") },
+                    label = { Text(stringResource(R.string.model_max_tokens)) },
                     placeholder = { Text(stringResource(R.string.placeholder_max_tokens)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -70,13 +70,13 @@ fun ModelConfigDialog(
                 OutlinedTextField(
                     value = contextWindowStr,
                     onValueChange = { if (it.all { c -> c.isDigit() }) contextWindowStr = it },
-                    label = { Text("Context Window") },
+                    label = { Text(stringResource(R.string.model_context_window)) },
                     placeholder = { Text(stringResource(R.string.placeholder_context_window)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text("Temperature: %.2f".format(temperature), modifier = Modifier.fillMaxWidth())
+                Text(stringResource(R.string.model_temperature_format, temperature), modifier = Modifier.fillMaxWidth())
                 Slider(
                     value = temperature,
                     onValueChange = { temperature = it },
@@ -84,7 +84,7 @@ fun ModelConfigDialog(
                     steps = 20
                 )
 
-                Text("Top P: %.2f".format(topP), modifier = Modifier.fillMaxWidth())
+                Text(stringResource(R.string.model_top_p_format, topP), modifier = Modifier.fillMaxWidth())
                 Slider(
                     value = topP,
                     onValueChange = { topP = it },

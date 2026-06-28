@@ -24,8 +24,6 @@ import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.data.repository.AgentRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -51,6 +49,7 @@ class AgentFactory(
     private val agentRegistry: com.lin.hippyagent.core.agent.AgentRegistry? = null,
     private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null,
     private val sessionManager: com.lin.hippyagent.core.agent.AgentSessionManager? = null,
+    private val applicationScope: CoroutineScope,
 ) {
     /** 最大同时存活的 Agent 实例数 */
     companion object {
@@ -61,21 +60,23 @@ class AgentFactory(
      * LRU 缓存 — accessOrder=true，最近访问的排在尾部，头部是最久未使用的。
      * 超过 MAX_AGENT_INSTANCES 时自动驱逐最久未用的 Agent。
      */
-    private val agentInstances = object : LinkedHashMap<String, Agent>(16, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Agent>): Boolean {
-            if (size > MAX_AGENT_INSTANCES) {
-                // 驱逐最久未用的 Agent，先调用 destroy 清理资源
-                try {
-                    eldest.value.destroy()
-                    Timber.i("LRU evicted agent: ${eldest.key}")
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to destroy evicted agent: ${eldest.key}")
+    private val agentInstances = java.util.Collections.synchronizedMap(
+        object : LinkedHashMap<String, Agent>(16, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Agent>): Boolean {
+                if (size > MAX_AGENT_INSTANCES) {
+                    // 驱逐最久未用的 Agent，先调用 destroy 清理资源
+                    try {
+                        eldest.value.destroy()
+                        Timber.i("LRU evicted agent: ${eldest.key}")
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to destroy evicted agent: ${eldest.key}")
+                    }
+                    return true
                 }
-                return true
+                return false
             }
-            return false
         }
-    }
+    )
 
     private val failoverEngine = FailoverEngine(
         authProfileManager = authProfileManager
@@ -124,12 +125,14 @@ class AgentFactory(
             sessionManager = sessionManager
         )
 
-        agentInstances[profile.agentId] = agent
+        synchronized(agentInstances) {
+            agentInstances[profile.agentId] = agent
+        }
         agentRegistry?.register(profile)
 
         if (profile.running.remeLightMemoryConfig.rebuildMemoryIndexOnStart) {
             (commonMemoryRepo as? com.lin.hippyagent.core.memory.commonmemory.RoomMemoryRepositoryImpl)?.let { repo ->
-                CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                applicationScope.launch {
                     runCatching { repo.rebuildFtsIndex() }
                         .onFailure { Timber.w(it, "rebuildFtsIndex failed") }
                 }
@@ -139,7 +142,6 @@ class AgentFactory(
         agent.addMiddleware(DanglingToolCallMiddleware())
         agent.addMiddleware(ClarificationMiddleware())
         agent.addMiddleware(MemoryMiddleware())
-        agent.addMiddleware(com.lin.hippyagent.core.agent.middleware.LoopDetectionMiddleware())
 
         skillLifecycleManager?.activateSkills(profile.skills)
 
@@ -167,7 +169,7 @@ class AgentFactory(
      * 以保证新配置（特别是用户刚在 AgentSkillScreen 勾选启用/禁用的技能）立即生效
      */
     suspend fun getAgent(agentId: String): Agent? {
-        agentInstances[agentId]?.let { cached ->
+        synchronized(agentInstances) { agentInstances[agentId] }?.let { cached ->
             try {
                 val freshProfiles = repository.loadAgentProfiles().first()
                 val freshProfile = freshProfiles[agentId]
@@ -211,12 +213,12 @@ class AgentFactory(
     }
 
     fun removeAgent(agentId: String) {
-        val agent = agentInstances.remove(agentId)
+        val agent = synchronized(agentInstances) { agentInstances.remove(agentId) }
         agentRegistry?.unregister(agentId)
         agent?.destroy()
     }
 
-    fun getAllAgents(): List<Agent> = agentInstances.values.toList()
+    fun getAllAgents(): List<Agent> = synchronized(agentInstances) { agentInstances.values.toList() }
 
     /**
      * 从磁盘重新加载指定 Agent 的 profile 并重建实例。
@@ -229,7 +231,7 @@ class AgentFactory(
         val profiles = repository.loadAgentProfiles().first()
         val profile = profiles[agentId] ?: return null
         // 移除旧实例并销毁
-        val oldAgent = agentInstances.remove(agentId)
+        val oldAgent = synchronized(agentInstances) { agentInstances.remove(agentId) }
         oldAgent?.destroy()
         // 用新 profile 创建
         return try {
@@ -246,7 +248,8 @@ class AgentFactory(
     suspend fun loadAllAgents(): List<Agent> {
         val profiles = repository.loadAgentProfiles().first()
         for ((agentId, profile) in profiles) {
-            if (!agentInstances.containsKey(agentId)) {
+            val exists = synchronized(agentInstances) { agentInstances.containsKey(agentId) }
+            if (!exists) {
                 try {
                     createAgent(profile)
                 } catch (e: Exception) {
@@ -254,7 +257,7 @@ class AgentFactory(
                 }
             }
         }
-        return agentInstances.values.toList()
+        return synchronized(agentInstances) { agentInstances.values.toList() }
     }
 }
 

@@ -21,7 +21,6 @@ sealed class Screen(val route: String) {
     object ACP : Screen("agent/{agentId}/acp") {
         fun createRoute(agentId: String) = "agent/$agentId/acp"
     }
-    object CreateGroup : Screen("create-group")
     object GroupSettings : Screen("group/{groupId}/settings") {
         fun createRoute(groupId: String) = "group/$groupId/settings"
     }

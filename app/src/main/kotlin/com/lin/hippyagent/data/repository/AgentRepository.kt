@@ -113,7 +113,10 @@ class AgentRepository(
             val tempFile = File(profilesDir, "${profile.agentId}.json.tmp")
 
             tempFile.writeText(json.encodeToString(profile))
-            tempFile.renameTo(profileFile)
+            if (!tempFile.renameTo(profileFile)) {
+                tempFile.copyTo(profileFile, overwrite = true)
+                tempFile.delete()
+            }
 
             val currentProfiles = profilesStateFlow.value.toMutableMap()
             currentProfiles[profile.agentId] = profile
@@ -304,40 +307,36 @@ class AgentRepository(
         val skillJsonFile = java.io.File(workspaceDir, "skill.json")
         try {
             val existing = if (skillJsonFile.exists()) {
-                org.json.JSONObject(skillJsonFile.readText())
+                json.parseToJsonElement(skillJsonFile.readText()).let { it as? JsonObject } ?: JsonObject(emptyMap())
             } else {
-                org.json.JSONObject()
+                JsonObject(emptyMap())
             }
-            existing.put("schema_version", "workspace-skill-manifest.v1")
-            existing.put("version", System.currentTimeMillis())
 
-            val skillsObj = existing.optJSONObject("skills") ?: org.json.JSONObject()
-            // 先清除所有技能的 enabled 状态
-            val keys = skillsObj.keys()
-            while (keys.hasNext()) {
-                val key = keys.next()
-                val entry = skillsObj.optJSONObject(key)
-                if (entry != null) {
-                    entry.put("enabled", skills.contains(key))
-                    skillsObj.put(key, entry)
-                }
-            }
-            // 添加新技能
+            val skillsObj = (existing["skills"] as? JsonObject) ?: JsonObject(emptyMap())
+            val updatedSkills = skillsObj.toMutableMap().mapValues { (key, v) ->
+                val entry = (v as? JsonObject) ?: JsonObject(emptyMap())
+                JsonObject(entry.toMutableMap() + ("enabled" to JsonPrimitive(key in skills)))
+            }.toMutableMap()
+
             for (skillId in skills) {
-                if (!skillsObj.has(skillId)) {
-                    val newEntry = org.json.JSONObject().apply {
-                        put("enabled", true)
-                        put("channels", org.json.JSONArray().put("all"))
-                        put("source", "pool")
-                        put("metadata", org.json.JSONObject())
-                        put("updated_at", java.time.Instant.now().toString())
-                        put("config", org.json.JSONObject())
-                    }
-                    skillsObj.put(skillId, newEntry)
+                if (skillId !in updatedSkills) {
+                    updatedSkills[skillId] = JsonObject(mapOf(
+                        "enabled" to JsonPrimitive(true),
+                        "channels" to JsonArray(listOf(JsonPrimitive("all"))),
+                        "source" to JsonPrimitive("pool"),
+                        "metadata" to JsonObject(emptyMap()),
+                        "updated_at" to JsonPrimitive(java.time.Instant.now().toString()),
+                        "config" to JsonObject(emptyMap())
+                    ))
                 }
             }
-            existing.put("skills", skillsObj)
-            skillJsonFile.writeText(existing.toString(2))
+
+            val result = JsonObject(existing.toMutableMap() + mapOf(
+                "schema_version" to JsonPrimitive("workspace-skill-manifest.v1"),
+                "version" to JsonPrimitive(System.currentTimeMillis()),
+                "skills" to JsonObject(updatedSkills)
+            ))
+            skillJsonFile.writeText(json.encodeToString(JsonObject.serializer(), result))
             Timber.i("Saved skills to skill.json for agent $agentId: $skills")
         } catch (e: Exception) {
             Timber.w(e, "Failed to write skill.json for agent $agentId")
@@ -360,18 +359,13 @@ class AgentRepository(
             return profilesStateFlow.value[agentId]?.skills ?: emptyList()
         }
         return try {
-            val json = org.json.JSONObject(skillJsonFile.readText())
-            val skillsObj = json.optJSONObject("skills") ?: return emptyList()
-            val enabledSkills = mutableListOf<String>()
-            val keys = skillsObj.keys()
-            while (keys.hasNext()) {
-                val key = keys.next()
-                val entry = skillsObj.optJSONObject(key)
-                if (entry != null && entry.optBoolean("enabled", true)) {
-                    enabledSkills.add(key)
-                }
+            val root = json.parseToJsonElement(skillJsonFile.readText()).let { it as? JsonObject } ?: return emptyList()
+            val skillsObj = (root["skills"] as? JsonObject) ?: return emptyList()
+            skillsObj.entries.mapNotNull { (key, v) ->
+                val entry = v as? JsonObject ?: return@mapNotNull null
+                val enabled = (entry["enabled"] as? JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: true
+                if (enabled) key else null
             }
-            enabledSkills
         } catch (e: Exception) {
             Timber.w(e, "Failed to read skill.json for agent $agentId, falling back to profile")
             profilesStateFlow.value[agentId]?.skills ?: emptyList()
@@ -579,7 +573,10 @@ class AgentRepository(
             val tempFile = File(workspaceDir, "$filename.tmp")
 
             tempFile.writeText(content)
-            tempFile.renameTo(file)
+            if (!tempFile.renameTo(file)) {
+                tempFile.copyTo(file, overwrite = true)
+                tempFile.delete()
+            }
 
             if (filename == "PROFILE.md") {
                 syncNameFromProfileMd(agentId, content)

@@ -206,21 +206,16 @@ fun ChatScreen(
 
     // 获取当前智能体的可用技能列表（用于附件栏技能选择器）
     val skillManager = org.koin.compose.koinInject<SkillManager>()
+    val agentRepository = org.koin.compose.koinInject<com.lin.hippyagent.data.repository.AgentRepository>()
     var agentSkills by remember(agentId) { mutableStateOf<List<com.lin.hippyagent.core.skill.SkillInfo>>(emptyList()) }
     // 所有智能体配置的缓存（群聊中用于查头像和名字）
     var agentProfiles by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var agentAvatarUrls by remember { mutableStateOf<Map<String, String?>>(emptyMap()) }
     var disabledAgentIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     LaunchedEffect(agentId) {
-        val agentRepository = try {
-            org.koin.java.KoinJavaComponent.getKoin().get<com.lin.hippyagent.data.repository.AgentRepository>()
-        } catch (_: Exception) { null }
-
-        val profiles = if (agentRepository != null) {
-            try {
-                agentRepository.loadAgentProfiles().first()
-            } catch (_: Exception) { emptyMap<String, com.lin.hippyagent.core.agent.AgentProfile>() }
-        } else emptyMap<String, com.lin.hippyagent.core.agent.AgentProfile>()
+        val profiles = try {
+            agentRepository.loadAgentProfiles().first()
+        } catch (_: Exception) { emptyMap<String, com.lin.hippyagent.core.agent.AgentProfile>() }
 
         // 缓存 agentId → name 映射
         agentProfiles = profiles.mapValues { (_, v) -> v.name.ifBlank { v.agentId } }
@@ -502,7 +497,7 @@ fun ChatScreen(
                     IconButton(onClick = { planViewModel.togglePlanMode() }) {
                         Icon(
                             Icons.Default.Checklist,
-                            contentDescription = "Plan",
+                            contentDescription = stringResource(R.string.chat_plan),
                             tint = if (planEnabled) MaterialTheme.colorScheme.primary
                                    else MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -860,7 +855,7 @@ fun ChatScreen(
             title = { Text(stringResource(R.string.chat_forward_to)) },
             text = {
                 LazyColumn {
-                    items(agentProfiles.entries.toList()) { (agentId, name) ->
+                    items(agentProfiles.entries.toList(), key = { it.key }) { (agentId, name) ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()

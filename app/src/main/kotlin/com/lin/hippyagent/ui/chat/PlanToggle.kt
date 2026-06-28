@@ -14,9 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lin.hippyagent.R
 
 @Composable
 fun PlanToggle(
@@ -30,14 +32,14 @@ fun PlanToggle(
     ) {
         Icon(
             imageVector = Icons.Default.Checklist,
-            contentDescription = "Plan",
+            contentDescription = stringResource(R.string.chat_plan),
             modifier = Modifier.size(20.dp),
             tint = if (enabled) MaterialTheme.colorScheme.primary
                    else MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Plan",
+            text = stringResource(R.string.chat_plan),
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             color = if (enabled) MaterialTheme.colorScheme.primary

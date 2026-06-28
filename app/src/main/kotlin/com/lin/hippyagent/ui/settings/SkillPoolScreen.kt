@@ -263,7 +263,7 @@ fun SkillPoolScreen(
                                             Spacer(Modifier.width(4.dp))
                                             Icon(
                                                 Icons.Default.WarningAmber,
-                                                contentDescription = "低分警告",
+                                                contentDescription = stringResource(R.string.skill_low_score_warning),
                                                 tint = MaterialTheme.colorScheme.error,
                                                 modifier = Modifier.size(16.dp)
                                             )
@@ -272,13 +272,13 @@ fun SkillPoolScreen(
                                             Spacer(Modifier.width(4.dp))
                                             Icon(
                                                 Icons.Default.Archive,
-                                                contentDescription = "已归档",
+                                                contentDescription = stringResource(R.string.skill_archived),
                                                 tint = MaterialTheme.colorScheme.outline,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                             Spacer(Modifier.width(2.dp))
                                             Text(
-                                                text = "已归档",
+                                                text = stringResource(R.string.skill_archived),
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.outline
                                             )

@@ -14,7 +14,7 @@ HippyAgent 不只是一个聊天机器人。它能**看到你的屏幕、理解�
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?logo=kotlin)](https://kotlinlang.org/)
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-1.7-4285F4?logo=jetpackcompose)](https://developer.android.com/compose)
 [![Platform](https://img.shields.io/badge/Platform-Android-34A853?logo=android)](https://www.android.com/)
-[![Min SDK](https://img.shields.io/badge/Min%20SDK-28-34A853)]()
+[![Min SDK](https://img.shields.io/badge/Min%20SDK-26-34A853)]()
 
 ---
 
@@ -465,8 +465,8 @@ hippy-agent/
 |------|------|
 | [`docs/design.md`](docs/design.md) | 完整功能设计文档（界面模块 + 系统机制） |
 | [`docs/competitive-analysis.md`](docs/competitive-analysis.md) | 与 OpenClaw / Hermes / QwenPaw / gbrain / X-OmniClaw 的横向对比 |
-| [`docs/designs/`](docs/designs/) | 12 篇专项设计方案（提及机制 / 浏览器自动化 / 群聊 Hook 等） |
-| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | 更新日志 |
+| [`docs/designs/`](docs/designs/) | 18 篇专项设计方案（提及机制 / 浏览器自动化 / 群聊 Hook 等） |
+| [`CHANGELOG.md`](CHANGELOG.md) | 更新日志 |
 | [`docs/DefaultRules.md`](docs/DefaultRules.md) | 默认规则体系 |
 
 ---

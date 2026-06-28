@@ -1937,5 +1937,15 @@
     <string name="onboarding_step_privacy_desc">All data is stored locally by default and will not be uploaded to the cloud</string>
     <string name="onboarding_step_complete_title">Ready</string>
     <string name="onboarding_step_complete_desc">Start your agent journey</string>
+    <!-- C1 UI fix: extract hardcoded strings -->
+    <string name="chat_plan">Plan</string>
+    <string name="skill_low_score_warning">Low score warning</string>
+    <string name="skill_archived">Archived</string>
+    <string name="api_key_label">API Key</string>
+    <string name="model_max_tokens">Max Tokens</string>
+    <string name="model_context_window">Context Window</string>
+    <string name="model_temperature_format">Temperature: %1$.2f</string>
+    <string name="model_top_p_format">Top P: %1$.2f</string>
+    <string name="skill_version_format">v%1$s</string>
 </resources>
 

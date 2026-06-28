@@ -182,7 +182,7 @@ private fun PlanContent(plan: PlanState) {
         LazyColumn(
             modifier = Modifier.height(300.dp)
         ) {
-            itemsIndexed(plan.subtasks) { index, subtask ->
+            itemsIndexed(plan.subtasks, key = { _, s -> s.id }) { index, subtask ->
                 SubTaskItem(index = index + 1, subtask = subtask)
             }
         }

@@ -13,8 +13,9 @@ interface InsightsDao {
         FROM sessions s
         LEFT JOIN session_stats st ON s.id = st.sessionId
         WHERE (st.finishedAt >= :cutoff OR (st.finishedAt IS NULL AND s.createdAt >= :cutoff))
+        LIMIT :limit
     """)
-    suspend fun getSessionsForInsights(cutoff: Long): List<InsightsSessionRow>
+    suspend fun getSessionsForInsights(cutoff: Long, limit: Int = 1000): List<InsightsSessionRow>
 
     @Query("""
         SELECT m.toolCallsJson
@@ -24,8 +25,9 @@ interface InsightsDao {
         AND m.toolCallsJson IS NOT NULL
         AND m.toolCallsJson != '[]'
         AND m.toolCallsJson != ''
+        LIMIT :limit
     """)
-    suspend fun getToolUsageForInsights(cutoff: Long): List<ToolUsageRow>
+    suspend fun getToolUsageForInsights(cutoff: Long, limit: Int = 5000): List<ToolUsageRow>
 
     @Query("""
         SELECT CAST(strftime('%H', datetime(COALESCE(st.finishedAt, s.createdAt)/1000, 'unixepoch', 'localtime')) AS INTEGER) as hour,
@@ -36,8 +38,9 @@ interface InsightsDao {
         WHERE (st.finishedAt >= :cutoff OR (st.finishedAt IS NULL AND s.createdAt >= :cutoff))
         GROUP BY hour
         ORDER BY hour
+        LIMIT :limit
     """)
-    suspend fun getHourlyActivity(cutoff: Long): List<HourlyActivityRow>
+    suspend fun getHourlyActivity(cutoff: Long, limit: Int = 24): List<HourlyActivityRow>
 
     @Query("""
         SELECT CAST(strftime('%w', datetime(COALESCE(st.finishedAt, s.createdAt)/1000, 'unixepoch', 'localtime')) AS INTEGER) as weekday,
@@ -48,8 +51,9 @@ interface InsightsDao {
         WHERE (st.finishedAt >= :cutoff OR (st.finishedAt IS NULL AND s.createdAt >= :cutoff))
         GROUP BY weekday
         ORDER BY weekday
+        LIMIT :limit
     """)
-    suspend fun getWeeklyActivity(cutoff: Long): List<WeeklyActivityRow>
+    suspend fun getWeeklyActivity(cutoff: Long, limit: Int = 7): List<WeeklyActivityRow>
 
     @Query("""
         SELECT strftime('%Y-%m-%d', datetime(COALESCE(st.finishedAt, s.createdAt)/1000, 'unixepoch', 'localtime')) as date,
@@ -62,8 +66,9 @@ interface InsightsDao {
         WHERE (st.finishedAt >= :cutoff OR (st.finishedAt IS NULL AND s.createdAt >= :cutoff))
         GROUP BY date
         ORDER BY date
+        LIMIT :limit
     """)
-    suspend fun getDailyTokenUsage(cutoff: Long): List<DailyTokenUsageRow>
+    suspend fun getDailyTokenUsage(cutoff: Long, limit: Int = 366): List<DailyTokenUsageRow>
 
     @Query("""
         SELECT agentId, COUNT(*) as sessionCount
@@ -71,8 +76,9 @@ interface InsightsDao {
         WHERE createdAt >= :cutoff
         GROUP BY agentId
         ORDER BY sessionCount DESC
+        LIMIT :limit
     """)
-    suspend fun getAgentSessionCounts(cutoff: Long): List<AgentSessionCountRow>
+    suspend fun getAgentSessionCounts(cutoff: Long, limit: Int = 100): List<AgentSessionCountRow>
 }
 
 data class InsightsSessionRow(

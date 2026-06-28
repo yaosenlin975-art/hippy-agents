@@ -206,7 +206,7 @@ private fun AddApiKeyDialog(
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it },
-                    label = { Text("API Key") },
+                    label = { Text(stringResource(R.string.api_key_label)) },
                     visualTransformation = if (showKey) VisualTransformation.None
                     else PasswordVisualTransformation(),
                     trailingIcon = {

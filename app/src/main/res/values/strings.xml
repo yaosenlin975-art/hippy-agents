@@ -1948,5 +1948,15 @@
     <string name="onboarding_step_privacy_desc">所有数据默认存储在本地，不会上传到云端</string>
     <string name="onboarding_step_complete_title">准备就绪</string>
     <string name="onboarding_step_complete_desc">开始你的智能体之旅</string>
+    <!-- C1 UI 修复：硬编码字符串提取 -->
+    <string name="chat_plan">计划</string>
+    <string name="skill_low_score_warning">低分警告</string>
+    <string name="skill_archived">已归档</string>
+    <string name="api_key_label">API Key</string>
+    <string name="model_max_tokens">Max Tokens</string>
+    <string name="model_context_window">Context Window</string>
+    <string name="model_temperature_format">Temperature: %1$.2f</string>
+    <string name="model_top_p_format">Top P: %1$.2f</string>
+    <string name="skill_version_format">v%1$s</string>
 </resources>
 

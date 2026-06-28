@@ -30,7 +30,7 @@ object HippyJobJson {
 
     private fun anyToJsonElement(value: Any): JsonElement = when (value) {
         is String -> JsonPrimitive(value)
-        is Int -> JsonPrimitive(value)
+        is Int -> JsonPrimitive(value.toLong())
         is Long -> JsonPrimitive(value)
         is Double -> JsonPrimitive(value)
         is Float -> JsonPrimitive(value)

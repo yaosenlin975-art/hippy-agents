@@ -404,7 +404,7 @@
 - **输入规则**：各平台 API 请求
 - **输出结果**：QrPollResult（Waiting/Scanned/Confirmed/Expired）
 
-## 技能与插件件
+## 技能与插件
 
 ### 技能池界面
 
@@ -421,7 +421,7 @@
 
 - **功能描述**：浏览和安装在线技能，支持多市场搜索、安装队列、分页加载、Provider 可用性检测
 - **交互逻辑**
-  1. 多市场源切换：三个 Provider（LobeHub / Skills.sh / ClawHub）以 FilterChip 展示，不可用时 disabled + Tooltip 显示原因；`MarketProvider.available()` 返回 `(Boolean, String?)` 检测 CLI 环境
+  1. 多市场源切换：四个 Provider（LobeHub / Skills.sh / SkillHub / ClawHub）以 FilterChip 展示，不可用时 disabled + Tooltip 显示原因；`MarketProvider.available()` 返回 `(Boolean, String?)` 检测 CLI 环境
   2. 搜索：输入关键词后并行搜索已选 Provider（`coroutineScope { selectedKeys.map { async { provider.search() } }.awaitAll() }`），单个 Provider 失败返回 `MarketSearchError` 不中断其他；搜索结果合并展示
   3. 分页：每个 Provider 独立分页（`cursors: Map<String, Int>`），LazyColumn 底部 LoadMoreItem（Loading 或"加载更多"按钮）
   4. 排序：SortType 枚举（HOT / NEW / RATING / INSTALLS），`displayNameRes` 引用 strings.xml 多语言资源
@@ -512,7 +512,7 @@
   3. **审批 Tab**：占位界面，显示"暂无审批请求"；审批请求的实际查看在 ChatScreen inline 卡片 + 系统通知栏（详见「Task 审批服务」）
   4. **任务 Tab**：复用 TaskListViewModel 列表，按状态显示 TaskEntity；点击任务项 → TaskDetailScreen
   5. **路由**：`Screen.Inbox` 改为 `inbox?tab={tab}`（tab=events|approvals|tasks），由 `initialTab` 形参传入 `InboxTab` 枚举
-  6. **导航隐藏**：原 `settings_task_center` / `settings_notification_center` 在 SettingsScreen 的点击回调改为 `navController.navigate(Screen.Inbox.createRoute("tasks"/"events"))`
+  6. **导航隐藏**：原 `settings_task_center` / `settings_notification_center` 在 SettingsScreen 的点击回调改为 `navController.navigate(Screen.Inbox.createRoute("tasks"/"events"))`（2026-06 已进一步移除入口，详见模式系统增强章节）
   7. **深链接保留**：`Screen.TaskList` / `Screen.NotificationCenter` 路由仍在 `AppNavigation` 注册，composable 块改为 `LaunchedEffect` 立即 popUpTo 后跳 Inbox 对应 Tab
 - **输入规则**：InboxViewModel（事件）、TaskListViewModel（任务）— 审批 Tab 当前无数据源
 - **输出结果**：用户从底部导航 Inbox 入口或从 Settings 旧入口进入，都能落到对应 Tab；深链接（任务详情、通知、TaskList）正常跳转
@@ -688,7 +688,7 @@
 - **功能描述**：使用分析统计 + Standing Orders 常驻指令展示
 - **交互逻辑**
   1. 时间筛选（7/30/90天）、概览卡片、Token 消耗统计、工具/技能排行、活动模式
-  2. ~~Standing Orders 常驻指令卡片：展示所有已注册的常驻指令（soul/profile/rules/agents/heartbeat/global_rules）及优先级~~（常驻指令栏已移除，已废弃 2026-05）
+  2. ~~Standing Orders 常驻指令卡片：展示所有已注册的常驻指令（soul/profile/rules/agents/heartbeat/global_rules）及优先级~~（常驻指令栏已移除，已废弃 2026-05；仅 UI 卡片移除，系统层 StandingOrdersManager 仍正常运行，详见系统章节）
   3. 工具排行栏显示英文工具名（原始 toolName），不再使用中文显示名
   4. 说明核心文件在对话开始时注入一次，后续轮次跳过未修改内容以节省 Token
 - **输入规则**：时间范围选择
@@ -750,6 +750,22 @@
 - **输入规则**：无
 - **输出结果**：工具详情展示
 
+### 界面交互展示页面
+
+- **功能描述**：纯交互展示的 HTML 原型页面，用于无功能逻辑的界面流程演示
+- **交互逻辑**
+  1. 以手机框架形式展示所有界面，同一时间只显示一个界面
+  2. 通过点击交互进行界面跳转，保持原有导航逻辑
+  3. 主页 4 Tab（会收件箱/洞察/设置）底部导航切
+  4. 设置页分组卡片展开/折叠，点击跳转子页面
+  5. Agent 配置卡片提供 12 个子配置入口
+  6. 聊天界面支持会话抽屉、模型切换、计划面板、菜单等抽屉弹窗；ChatScreen/GroupChatScreen 共享 Hook（rememberChatSessionState/rememberChatTtsState/rememberChatAutoScrollState），inputText 收归 ChatInputViewModel 消除双源真相
+  7. 所有子页面通过返回按钮回退到上一级
+  8. 新建按钮弹出 CreateDrawer（聊群组/分组/智能体）
+  9. 包含 40+ 个界面的完整交互流程
+- **输入规则**：点击交互
+- **输出结果**：界面跳转与展示
+
 ## 引导
 
 ### 启动初始化界
@@ -772,24 +788,6 @@
   5. 首页（step 0）显示"已有 API Key? 直接配置 →"按钮，点击跳转到模型供应商界面
 - **输入规则**：引导步骤操作
 - **输出结果**：引导完成，进入主界面
-
-## 调试与诊断
-
-### 界面交互展示页面
-
-- **功能描述**：纯交互展示的 HTML 原型页面，用于无功能逻辑的界面流程演示
-- **交互逻辑**
-  1. 以手机框架形式展示所有界面，同一时间只显示一个界面
-  2. 通过点击交互进行界面跳转，保持原有导航逻辑
-  3. 主页 4 Tab（会收件箱/洞察/设置）底部导航切
-  4. 设置页分组卡片展开/折叠，点击跳转子页面
-  5. Agent 配置卡片提供 12 个子配置入口
-  6. 聊天界面支持会话抽屉、模型切换、计划面板、菜单等抽屉弹窗；ChatScreen/GroupChatScreen 共享 Hook（rememberChatSessionState/rememberChatTtsState/rememberChatAutoScrollState），inputText 收归 ChatInputViewModel 消除双源真相
-  7. 所有子页面通过返回按钮回退到上一级
-  8. 新建按钮弹出 CreateDrawer（聊群组/分组/智能体）
-  9. 包含 40+ 个界面的完整交互流程
-- **输入规则**：点击交互
-- **输出结果**：界面跳转与展示
 
 ---
 
@@ -832,14 +830,15 @@
   3. 迁移逻辑在 `HippyAgentApp.migrateLegacyPrefs()` 中执行，仅在应用启动时运行一次
   4. 已迁移的 SharedPreferences 通过 `_migrated` 标记位避免重复迁移
   5. 数据库文件迁移：新文件不存在且旧文件存在时才执行 rename
+  6. 迁移后主库实际文件名为 `hippy.db`（DatabaseModule.kt 中注册），记忆库为 `commonmemory.db`
 - **输入规则**：旧版数据文件/SharedPreferences
 - **输出结果**：数据迁移到新名称，应用正常读取
 
 ### 全量工具注入
 
-- **功能描述**：Agent 启动时直接注入所有已启用工具（技能工具 + 默认可见工具），不再有 onDemand 概念。已删除动态注入系统（OnDemandToolResolver、ToolRouter、GreetingDetector）
+- **功能描述**：Agent 启动时直接注入所有已启用工具（技能工具 + 默认可见工具），不再有 onDemand 概念。实际存在两类工具：默认可见工具 + deferred 工具（通过 ToolSearchTool 按需发现后注入）。已删除动态注入系统（OnDemandToolResolver、ToolRouter、GreetingDetector）
 - **交互逻辑**
-  1. ToolRegistry.register() 不再接受 onDemand 参数，所有注册工具默认可见
+  1. ToolRegistry.register() 不再接受 onDemand 参数，使用 deferred 参数控制工具可见性（deferred=true 的工具需通过 ToolSearchTool 发现后注入）
   2. ToolDefinition 不再包含 isOnDemand 字段
   3. getDefinitionsForAgent() 不再需要 onDemandFilter 参数
   4. Agent 不再调用 resolveOnDemandFilter()，不再有 forceOnDemandTools 字段
@@ -883,8 +882,8 @@
   6. 循环检测：检测重复工具调用模式，自动中断
   7. 自动继续：当模型输出 `[CONTINUE]` 标记时自动继续
 - **关键机制**
-  - Per-Session 互斥锁：同一会话同时只处理一条消息；互斥锁在 finally 块中先 unlock 再 updateSessionState(IDLE)，避免 status=IDLE 但 mutex 仍锁定的竞态窗口
-  - Per-Session Job 跟踪：sessionJobs（ConcurrentHashMap<String, Job>）跟踪每个会话的协程 Job，支持 stopSession 精准取消单个会话、stop 取消所有会话；processMessage/processMessageStream 入口注册 Job，finally 块移除；destroy 时清空所有 Job
+  - Per-Session 互斥锁：同一会话同时只处理一条消息；Agent 使用 sessionMutex.tryLock()，失败抛 IllegalStateException，成功后在 finally 块 unlock；上层 MessageQueueManager 处理排队重试；finally 块中先 unlock 再 updateSessionState(IDLE)，避免 status=IDLE 但 mutex 仍锁定的竞态窗口
+  - Per-Session Job 跟踪：sessionContexts（ConcurrentHashMap<String, SessionContext>）跟踪每个会话的协程 Job（SessionContext 内含 job: Job? 字段），支持 stopSession 精准取消单个会话、stop 取消所有会话；processMessage/processMessageStream 入口注册 Job，finally 块移除；destroy 时清空所有 Job
   - 对象池复用：StringBuilder、ToolCallInfo 列表
   - 上下文压缩：Token 超限时自动压缩历史消息
   - 故障转移：主模型失败时自动切换到回退模型
@@ -965,13 +964,14 @@
      - **分发**：通过 `SystemEventDispatcher`（Koin 单例）回调到 App 层
   4. `SystemEventDispatcher.onEvent()` 获取默认 Agent，调用 `processMessage` 注入事件提示词
   5. Agent 根据事件类型和内容决定是否响应以及如何响应
-- **支持的 Hook（6 个）**
+- **支持的 Hook（7 个）**
   - **SmsEventHook**：监听 `SMS_RECEIVED_ACTION`，提取发送者、正文、时间戳（需 `RECEIVE_SMS` 权限）
   - **CallEventHook**：监听 `PHONE_STATE_CHANGED`，区分来电 RINGING 和挂断 IDLE（需 `READ_PHONE_STATE` 权限）
   - **BatteryEventHook**：监听 `BATTERY_LOW` / `POWER_CONNECTED` / `POWER_DISCONNECTED`，触发低电量/充电状态事件
   - **ScreenEventHook**：监听 `ACTION_SCREEN_ON/OFF`，触发屏幕亮灭事件
   - **AppInstallEventHook**：监听 `ACTION_PACKAGE_ADDED/REMOVED/REPLACED`，跟踪应用安装/卸载
   - **ClipboardEventHook**：通过 `ClipboardManager.OnPrimaryClipChangedListener` 监听剪贴板变化
+  - **NotificationEventHook**：监听通知事件，当前为 stub 实现（监听 `PACKAGE_ADDED/REMOVED`，完整通知监听需 NotificationListenerService）
 - **输入规则**：无（全自动系统事件监听，无需用户触发）
 - **输出结果**：事件转换后的提示词发送到默认 Agent 的 `processMessage`
 - **关键机制**
@@ -1032,7 +1032,7 @@
   6. MessageDao 管理 Message 实体（CRUD、按会话查询）
   7. InsightsDao 通过 LEFT JOIN session_stats 聚合洞察统计
   8. RoomSessionStore 构造注入三个 DAO，createSession 事务插入 sessions + session_stats，toSession 从 SessionFullRow 映射
-- **关键机制**：Room Migration（v1-v20）、FTS 搜索、索引优化、deleteMessage 按 ID 删除消息（MessageDao.deleteById）、SessionFullRow 三表 JOIN 投影、外键级联删除保证数据一致性
+- **关键机制**：Room Migration（v1-v24）、FTS 搜索、索引优化、deleteMessage 按 ID 删除消息（MessageDao.deleteById）、SessionFullRow 三表 JOIN 投影、外键级联删除保证数据一致性
 
 ### 计划系统
 
@@ -1358,7 +1358,7 @@
 - **功能描述**：技能商店后端架构，MarketProvider 模式消除三市场重复代码，SkillManager Facade 拆分以降低职责过重
 - **流程**
   1. MarketProvider 接口定义：`key / label / source` 属性 + `available(): AvailabilityResult` + `search(query, page, pageSize): Result<SearchResult>` + `install(identifier): Result<String>` + `getDetail(identifier): Result<StoreSkillItem?>`（默认返回 null，Skills.sh/ClawHub 覆盖实现通过 CLI info 命令获取描述和作者）
-  2. 三个 Provider 实现：`LobeHubProvider` / `SkillsShProvider` / `ClawHubProvider`，各封装 CLI 命令和输出解析；Skills.sh 和 ClawHub 实现 `getDetail` 分别调用 `npx skills info` 和 `npx clawhub info`，解析 Description/Author 字段
+  2. 四个 Provider 实现：`LobeHubProvider` / `SkillsShProvider` / `SkillHubProvider` / `ClawHubProvider`，各封装 CLI 命令和输出解析；Skills.sh 和 ClawHub 实现 `getDetail` 分别调用 `npx skills info` 和 `npx clawhub info`，解析 Description/Author 字段
   3. SkillStoreService 精简为 Provider 驱动（198 行 → ~80 行）：`searchAll` 通过 `coroutineScope { async }` 并行搜索，错误隔离（单 Provider 失败返回 `MarketSearchError` 不中断其他）
   4. SkillManager Facade 拆分（454 行 → ~100 行 Facade + 3 子模块）：
      - `SkillIndexManager`：索引加载/保存/重建、清单解析、Frontmatter 解析（含 LRU 缓存）；`EXCLUDED_DIRS` 集中定义系统排除目录（`_config` 等），`listSkills()`/`rebuildIndex()`/`getSkill()` 统一引用，防止系统目录被误识别为技能
@@ -1410,7 +1410,7 @@
   13. determineRespondingAgents 过滤已删除智能体（agentFactory.getAgent 非空检查）
   14. @提及过滤已删除智能体（agentProfilesMap 检查）
   15. AgentGroupManager.removeAgent 调用 AgentGroup.removeAgentId 从 _agentIds 中移除，GroupMemberListTool 的 agentNamesProvider 动态读取 _agentIds.value，确保 get_group_members 不返回已删除智能体
-- **关键机制**：统一 groupId session 消除幽灵会话、contextMessageFilter 过滤其他 Agent 内部 TOOL 消息、updateMessageSenderId 替代消息复制、systemPromptSuffix 注入群组规则、denyList 工具限制、denyList 生命周期管理、双层上下文过滤（群聊消息过+ session TOOL 消息过滤）、ContextManager 自动压缩替代硬截断、_messages 使用 MutableStateFlow.update 原子更新（消除 Mutex 锁，避免与 agentMutexes 死锁）、activeCount try/finally 统一递减、@提及跳过 LLM 决策和 ping-pong 检测、广播消息兜底（targetAgents 为空时回退到全部智能体）、LLM 终止后移至处理后条件触发、Mention Chain 异步传播（MentionChainManager 防环 + 队列入队 + groupScope.launch 异步触发避免死锁；异步传播时 activeCount 递增，完成后递减，确保 isActive 状态准确反映所有异步处理进度）、串行循环后 drainQueues（串行 for 循环处理完所有 Agent 后，执行 drainQueues 处理异步 @传播期间入队的遗留消息，确保先回复的 Agent 的 @mention 能被后回复的 Agent 正确感知）、GroupMemberListTool onDemand 注册 + forceOnDemandTools 群聊强制注入 + 群聊结束注销、群聊 UI 轮询监听 group.isActive StateFlow（轮询持续到 isActive 变为 false，确保异步 @传播产生的消息也能实时刷新到 UI）、广播消息串行回复（hasExplicitMentions 为 true 时并行 supervisorScope+async，为 false 时串行 for 循环逐个处理，避免智能体"人格分裂"——并行时各 Agent 看不到彼此回复导致重复问候）、CancellationException 正确重抛（catch 块先捕获 CancellationException 并 throw，再 catch Exception，保证协程取消机制正常）
+- **关键机制**：统一 groupId session 消除幽灵会话、contextMessageFilter 过滤其他 Agent 内部 TOOL 消息、updateMessageSenderId 替代消息复制、systemPromptSuffix 注入群组规则、denyList 工具限制、denyList 生命周期管理、双层上下文过滤（群聊消息过+ session TOOL 消息过滤）、ContextManager 自动压缩替代硬截断、_messages 使用 MutableStateFlow.update 原子更新（消除 Mutex 锁，避免与 agentMutexes 死锁）、activeCount try/finally 统一递减、@提及跳过 LLM 决策和 ping-pong 检测、广播消息兜底（targetAgents 为空时回退到全部智能体）、LLM 终止后移至处理后条件触发、Mention Chain 异步传播（MentionChainManager 防环 + 队列入队 + groupScope.launch 异步触发避免死锁；异步传播时 activeCount 递增，完成后递减，确保 isActive 状态准确反映所有异步处理进度）、串行循环后 drainQueues（串行 for 循环处理完所有 Agent 后，执行 drainQueues 处理异步 @传播期间入队的遗留消息，确保先回复的 Agent 的 @mention 能被后回复的 Agent 正确感知）、GroupMemberListTool 群聊启动时通过 agent.registerTool 动态注册 + 群聊结束注销、群聊 UI 轮询监听 group.isActive StateFlow（轮询持续到 isActive 变为 false，确保异步 @传播产生的消息也能实时刷新到 UI）、广播消息串行回复（hasExplicitMentions 为 true 时并行 supervisorScope+async，为 false 时串行 for 循环逐个处理，避免智能体"人格分裂"——并行时各 Agent 看不到彼此回复导致重复问候）、CancellationException 正确重抛（catch 块先捕获 CancellationException 并 throw，再 catch Exception，保证协程取消机制正常）
 - **合并能力**（从 GroupChatOrchestrator 迁移，通过 AgentGroupConfig 可选启用）
   - **LLM 发言者选择**（`selectNextSpeakerWithLLM()`）：调用 LLMSpeakerSelector 选择下一个发言的智能体，支SpeakerSelected/Finish/Error/Continue 四种结果；启用后覆盖路由结果，仅发送给 LLM 选中的智能体；当有显式 @提及时跳过
   - **Ping-pong 检*（`detectPingPong()`）：基于 GroupCollaborationProtocol.shouldStopPingPong()，检测最近消息是否无新任问题/决策，判定无意义来回对话并自动终
@@ -1705,7 +1705,7 @@
   6. silentMode=true 时后台静默执行，不通知用户，不创建新会话（直接使用 channelId 作为 sessionId）
   7. App 重启后 loadHistory 自动重新调度所有 enabled 的定时任务
   8. parseCronToDelay 支持 */N 格式（如 */5 * * * * 每5分钟、0 */2 * * * 每2小时）
-  9. CronTool 注册为 onDemand=false，始终注入 LLM tools schema
+  9. CronTool 默认注册（可见），始终注入 LLM tools schema
 - **自然语言解析**
   1. NaturalLanguageCronParser 将中文自然语言时间描述解析为标准 cron 表达式
   2. CronTool 新增 `natural_language` 可选参数，当 `schedule` 为空时自动解析
@@ -1727,7 +1727,7 @@
 - **流程**
   1. 短期记忆：当前对话上下文
   2. 长期记忆：文件存储 + 向量检索
-  3. Second Brain：Room + FTS5 全文搜索
+  3. Second Brain（commonmemory.db v4）：Room + FTS4 全文搜索
 - **关键机制**：分层记忆架构
 
 ### Second Brain 记忆系统
@@ -1742,7 +1742,7 @@
   6. 证据类型：对话、工具输出、用户反馈
 - **关键机制**
   - Room 持久化（memories + memories_fts 虚拟表）
-  - FTS5 全文搜索
+  - FTS4 全文搜索
   - 置信度/重要性评分
   - 修剪策略（低重要性 + 长期未使用优先修剪）
 
@@ -1890,7 +1890,7 @@
   1. MigrationManager 注册迁移规则
   2. 检测版本变化
   3. 执行迁移脚本
-  4. Room Migration 处理数据库结构变更（v1-v17）
+  4. Room Migration 处理数据库结构变更（v1-v24）
 - **关键机制**：版本检测、迁移注解
 
 ### 备份恢复
@@ -2391,7 +2391,7 @@
   1. `SettingsScreen.kt`：从"通用 / 模型与AI / 系统与权限"任一分组的 `items` 列表中移除 Notifications / Assignment 图标项
   2. `SettingsScreen.kt` `onClick(key)` 移除 `R.string.notifications` / `R.string.task_center` 分支
   3. `MainScreen.kt`：移除 `onNavigateToNotification = { navController.navigate(Screen.Notification.route) }` 回调
-  4. `Screen.kt` 保留 `Screen.Notification` / `Screen.TaskList` 等对象定义（防止 deep link 失效或外部代码引用），仅不再注册导航路径
+  4. `Screen.kt` 保留 `Screen.Notification` / `Screen.TaskList` 等对象定义（防止 deep link 失效或外部代码引用），路由仍在 AppNavigation 注册，但 composable 块改为重定向到 Inbox 对应 Tab
 - **输入规则**：无
 - **输出结果**：设置界面更精简；任务/通知统一从收件箱入口进入
 - **关键机制**：导航对象保留以便未来 deep link 复用；收件箱的 events / tasks Tab 完全承担原通知中心/任务中心职责
@@ -2525,9 +2525,9 @@
 
 ### web_fetch 工具默认可见
 
-- **功能描述**：web_fetch 工具从 onDemand 改为默认可见，减少路由开销
+- **功能描述**：web_fetch 工具默认可见，减少路由开销
 - **交互逻辑**
-  1. ToolInitializer 注册 web_fetch 时设置 onDemand=false
+  1. ToolInitializer 默认注册 web_fetch（可见）
   2. web_fetch 不再需要通过 tool_search 发现，直接出现在 LLM 工具列表中
 - **输入规则**：无
 - **输出结果**：web_fetch 始终对 Agent 可见

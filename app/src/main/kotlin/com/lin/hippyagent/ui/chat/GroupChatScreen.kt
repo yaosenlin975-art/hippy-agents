@@ -124,14 +124,12 @@ fun GroupChatScreen(
         onDispose { sessionState.cleanup() }
     }
 
-    val agentRepository = remember {
-        try { org.koin.java.KoinJavaComponent.getKoin().get<com.lin.hippyagent.data.repository.AgentRepository>() } catch (_: Exception) { null }
-    }
+    val agentRepository = org.koin.compose.koinInject<com.lin.hippyagent.data.repository.AgentRepository>()
     LaunchedEffect(agentRepository) {
-        agentRepository?.loadAgentProfiles()?.first()
+        agentRepository.loadAgentProfiles().first()
     }
     val agentProfiles by remember(agentRepository) {
-        agentRepository?.getProfiles() ?: kotlinx.coroutines.flow.MutableStateFlow(emptyMap())
+        agentRepository.getProfiles()
     }.collectAsStateWithLifecycle(initialValue = emptyMap())
     val agentProfileNames = remember(agentProfiles) {
         agentProfiles.mapValues { (_, v) -> v.name.ifBlank { v.agentId } }
@@ -142,7 +140,7 @@ fun GroupChatScreen(
 
     val groupMembers by viewModel.observeGroupMembers(sessionId).collectAsStateWithLifecycle(initialValue = emptyMap())
 
-    val agentStatusManager = org.koin.java.KoinJavaComponent.getKoin().get<AgentStatusManager>()
+    val agentStatusManager = org.koin.compose.koinInject<AgentStatusManager>()
     val allStatuses by agentStatusManager.allStatuses.collectAsStateWithLifecycle()
 
     val workingAgentIds by remember(allStatuses) {

@@ -29,5 +29,6 @@ class MemoryMiddleware : AgentMiddleware {
             """[^.!?]*\b(?:upload(?:ed|ing)?(?:\s+\w+){0,3}\s+(?:file|files?|document|documents?|attachment|attachments?)|file\s+upload|/mnt/user-data/uploads/|<uploaded_files>|上传(?:了|过)?(?:\s*\w+){0,3}\s*(?:文件|附件|文档))[^.!?]*[.!?]?\s*""",
             RegexOption.IGNORE_CASE
         )
+        private val MULTI_SPACE_RE = Regex("  +")
     }
 }

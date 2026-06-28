@@ -58,7 +58,7 @@ fun ToolDetailScreen(
                     Text(stringResource(R.string.tools_params), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
 
-                items(toolDefinition.parameters.entries.toList()) { (paramName, param) ->
+                items(toolDefinition.parameters.entries.toList(), key = { it.key }) { (paramName, param) ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(paramName, fontWeight = FontWeight.Medium, fontSize = 14.sp)

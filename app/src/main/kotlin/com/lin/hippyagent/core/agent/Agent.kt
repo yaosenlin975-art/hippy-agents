@@ -51,7 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -1020,16 +1020,18 @@ class Agent(
             sessionManager?.createSession(sessionId, profile.agentId, channelId)
             sessionManager?.updateActivity(sessionId)
 
-            toolRegistry.deferredToolRegistry.clear()
-            for (def in toolRegistry.getDeferredToolNames()) {
-                val toolDef = toolRegistry.getToolDefinition(def) ?: continue
-                toolRegistry.deferredToolRegistry.register(
-                    com.lin.hippyagent.core.model.ModelToolDefinition(
-                        name = toolDef.name,
-                        description = toolDef.description,
-                        parameters = buildToolParameterSchema(toolDef.parameters)
+            synchronized(toolRegistry.deferredToolRegistry) {
+                toolRegistry.deferredToolRegistry.clear()
+                for (def in toolRegistry.getDeferredToolNames()) {
+                    val toolDef = toolRegistry.getToolDefinition(def) ?: continue
+                    toolRegistry.deferredToolRegistry.register(
+                        com.lin.hippyagent.core.model.ModelToolDefinition(
+                            name = toolDef.name,
+                            description = toolDef.description,
+                            parameters = buildToolParameterSchema(toolDef.parameters)
+                        )
                     )
-                )
+                }
             }
             var apiCallCount = 0
             var estimatedInputTokens = 0L
@@ -2245,10 +2247,14 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         private val MODEL_VISION_REGEX = Regex("(?i)(vision|vl|gemini|gpt-4o|gpt-5|claude-3|claude-4|qwen-vl|llava|deepseek-vl|flash-image)")
 
         private val toolSchemaCache = java.util.concurrent.ConcurrentHashMap<Map<String, ToolParameter>, Map<String, Any>>()
+        private const val TOOL_SCHEMA_CACHE_MAX = 1000
 
         private fun buildToolParameterSchema(params: Map<String, ToolParameter>): Map<String, Any> {
             if (params.isEmpty()) {
                 return mapOf("type" to "object")
+            }
+            if (toolSchemaCache.size >= TOOL_SCHEMA_CACHE_MAX) {
+                toolSchemaCache.clear()
             }
             return toolSchemaCache.getOrPut(params) {
                 val properties = params.mapValues { (_, param) ->
@@ -2479,6 +2485,7 @@ Do not stop with plans or code fences alone when tools are still needed.</system
      * 调用后 Agent 不应再被使用。
      */
     fun destroy() {
+        memoryExtractionScope.cancel()
         sessionContexts.values.forEach { it.job?.cancel() }
         sessionContexts.clear()
         _state.update { AgentState(agentId = profile.agentId) }

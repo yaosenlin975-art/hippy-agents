@@ -51,34 +51,6 @@ class MainActivity : ComponentActivity() {
             return perms.toTypedArray()
         }
 
-    /**
-     * 危险权限 — 不再首次启动时请求，改为工具执行时按需请求
-     */
-    private val dangerousPermissions: Array<String>
-        get() {
-            val perms = mutableListOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.READ_CALENDAR,
-                Manifest.permission.WRITE_CALENDAR,
-                Manifest.permission.READ_SMS,
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.CALL_PHONE,
-                Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.CAMERA,
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                perms.add(Manifest.permission.BLUETOOTH_CONNECT)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                perms.add(Manifest.permission.READ_MEDIA_IMAGES)
-                perms.add(Manifest.permission.READ_MEDIA_VIDEO)
-                perms.add(Manifest.permission.READ_MEDIA_AUDIO)
-            }
-            return perms.toTypedArray()
-        }
-
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             val denied = results.filter { !it.value }.keys
@@ -114,17 +86,6 @@ class MainActivity : ComponentActivity() {
             permissionLauncher.launch(notGranted.toTypedArray())
         } else {
             timber.log.Timber.i("所有基础权限已授予，无需请求")
-        }
-    }
-
-    private fun requestDangerousPermissions() {
-        val notGranted = dangerousPermissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (notGranted.isNotEmpty()) {
-            permissionLauncher.launch(notGranted.toTypedArray())
-        } else {
-            timber.log.Timber.i("所有危险权限已授予，无需请求")
         }
     }
 

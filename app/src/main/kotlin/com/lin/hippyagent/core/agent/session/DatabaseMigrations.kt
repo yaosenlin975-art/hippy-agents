@@ -212,15 +212,9 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_graph_relations_sourceEntityId ON graph_relations(sourceEntityId)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_graph_relations_targetEntityId ON graph_relations(targetEntityId)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_graph_relations_source_target_type ON graph_relations(sourceEntityId, targetEntityId, relationType)")
-        db.execSQL("CREATE TABLE IF NOT EXISTS memories (id TEXT NOT NULL, user_key TEXT NOT NULL, type TEXT NOT NULL, summary TEXT NOT NULL, detail TEXT, scope TEXT NOT NULL, evidence_kind TEXT NOT NULL, confidence REAL NOT NULL, importance REAL NOT NULL, durability REAL NOT NULL, evidence_count INTEGER NOT NULL, dismissed INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, last_seen_at INTEGER NOT NULL, last_used_at INTEGER, PRIMARY KEY(id))")
-        db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts4(content='memories', summary, detail)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_type_dismissed ON memories(type, dismissed)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_dismissed_updated_at ON memories(dismissed, updated_at)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_scope_evidence_dismissed_last_seen ON memories(scope, evidence_kind, dismissed, last_seen_at)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_last_seen_at ON memories(last_seen_at)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_memories_updated_at ON memories(updated_at)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_task_queue_status_priority_createdAt ON task_queue(status, priority, createdAt)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS index_task_queue_status_completedAt ON task_queue(status, completedAt)")
+        db.execSQL("DROP TABLE IF EXISTS memories")
+        db.execSQL("DROP TABLE IF EXISTS memories_fts")
+        db.execSQL("DROP TABLE IF EXISTS task_queue")
     }
 }
 

@@ -119,16 +119,10 @@ fun DreamScreen(
     val curatorStats by viewModel.curatorStats.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
-    val curatorEngine = remember {
-        try {
-            org.koin.java.KoinJavaComponent.getKoin().get<CuratorEngine>()
-        } catch (_: Exception) {
-            null
-        }
-    }
+    val curatorEngine = org.koin.compose.koinInject<CuratorEngine>()
 
     LaunchedEffect(curatorEngine) {
-        curatorEngine?.let { viewModel.loadCuratorData(it) }
+        viewModel.loadCuratorData(curatorEngine)
     }
 
     Scaffold(
