@@ -47,6 +47,7 @@ import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.core.tools.ToolResult
 import com.lin.hippyagent.core.trace.SpanCollector
+import com.lin.hippyagent.core.trace.SpanContext
 import com.lin.hippyagent.core.trace.SpanType
 import com.lin.hippyagent.core.trace.TraceContextElement
 import kotlinx.coroutines.cancel
@@ -2055,7 +2056,31 @@ _你刚醒来。该搞清楚自己是谁了。_
                 workspace = java.io.File(storageManager.getWorkingDir(), "workspaces/${profile.agentId}")
             )
 
-            val result = toolRegistry.executeTool(toolCallObj, toolCtx)
+            val traceCtx = coroutineContext[TraceContextElement]
+            val toolSpan = if (traceCtx != null) {
+                SpanCollector.startSpan(
+                    type = SpanType.TOOL_CALL,
+                    traceId = traceCtx.traceId,
+                    parentSpanId = traceCtx.parentSpanId,
+                    props = mapOf(
+                        "toolName" to toolCall.function.name,
+                        "args" to toolCall.function.arguments
+                    )
+                )
+            } else {
+                SpanContext.NoOp
+            }
+            val result = try {
+                val r = toolRegistry.executeTool(toolCallObj, toolCtx)
+                SpanCollector.end(toolSpan, extraProps = mapOf(
+                    "result" to (r.output ?: r.error ?: ""),
+                    "retryCount" to 0
+                ))
+                r
+            } catch (e: Exception) {
+                SpanCollector.end(toolSpan, error = e.message)
+                throw e
+            }
 
             updateSessionState(sessionId) {
                 it.copy(toolCallCount = it.toolCallCount + 1)
