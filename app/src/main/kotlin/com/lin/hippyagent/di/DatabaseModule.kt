@@ -42,6 +42,8 @@ val databaseModule = module {
             .build()
     }
 
+    single { get<AppDatabase>().traceSpanDao() }
+
     single<SessionStore> {
         val db = get<AppDatabase>()
         RoomSessionStore(sessionDao = db.sessionDao(), sessionStatsDao = db.sessionStatsDao(), sessionCompressionDao = db.sessionCompressionDao(), messageDao = db.messageDao(), database = db)
