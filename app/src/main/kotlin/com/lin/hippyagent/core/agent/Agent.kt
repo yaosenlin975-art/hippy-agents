@@ -46,6 +46,9 @@ import com.lin.hippyagent.core.tools.ToolContext
 import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.core.tools.ToolResult
+import com.lin.hippyagent.core.trace.SpanCollector
+import com.lin.hippyagent.core.trace.SpanType
+import com.lin.hippyagent.core.trace.TraceContextElement
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -60,9 +63,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -71,6 +76,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -643,7 +649,7 @@ class Agent(
             toolCalls = effectiveToolCalls
         ))
 
-        val toolResults = coroutineScope {
+        val toolResults = supervisorScope {
             effectiveToolCalls.map { toolCall ->
                 async(Dispatchers.IO) {
                     toolCall to executeToolCall(toolCall, sessionId, channelId)
@@ -732,6 +738,37 @@ class Agent(
     }
 
     suspend fun processMessage(
+        sessionId: String,
+        channelId: String,
+        content: String,
+        overrideModel: String? = null,
+        skipUserMessage: Boolean = false,
+        overrideProviderId: String? = null,
+        systemPromptSuffix: String? = null,
+        forceEscalate: Boolean = false,
+    ): Result<Unit> {
+        val traceId = UUID.randomUUID().toString()
+        val traceSpan = SpanCollector.startSpan(
+            type = SpanType.AGENT_LOOP,
+            traceId = traceId,
+            parentSpanId = null,
+            props = mapOf(
+                "agentId" to profile.agentId,
+                "modelId" to (overrideModel ?: profile.modelName),
+                "userMessage" to content.take(200),
+                "iterationCount" to 0
+            )
+        )
+        return withContext(TraceContextElement(traceId, null)) {
+            doProcessMessage(
+                sessionId, channelId, content, overrideModel, skipUserMessage, overrideProviderId, systemPromptSuffix, forceEscalate
+            )
+        }.also { result ->
+            SpanCollector.end(traceSpan, error = if (result.isFailure) result.exceptionOrNull()?.message else null)
+        }
+    }
+
+    private suspend fun doProcessMessage(
         sessionId: String,
         channelId: String,
         content: String,
@@ -1403,6 +1440,26 @@ class Agent(
                     agentId = profile.agentId
                 )
             }
+        }
+    }.let { original ->
+        val traceId = UUID.randomUUID().toString()
+        val traceSpan = SpanCollector.startSpan(
+            type = SpanType.AGENT_LOOP,
+            traceId = traceId,
+            parentSpanId = null,
+            props = mapOf(
+                "agentId" to profile.agentId,
+                "modelId" to (overrideModel ?: profile.modelName),
+                "userMessage" to content.take(200),
+                "iterationCount" to 0
+            )
+        )
+        flow {
+            withContext(TraceContextElement(traceId, null)) {
+                original.collect { emit(it) }
+            }
+        }.onCompletion { e ->
+            SpanCollector.end(traceSpan, error = e?.message)
         }
     }
 
