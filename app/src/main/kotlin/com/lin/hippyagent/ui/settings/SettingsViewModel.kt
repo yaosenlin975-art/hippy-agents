@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+private val NAME_LINE_REGEX = Regex("""(- \*\*名字[：:]\*\*\s*).*""", RegexOption.MULTILINE)
+
 @Immutable
 data class SettingsUiState(
     val agents: List<AgentProfile> = emptyList(),
