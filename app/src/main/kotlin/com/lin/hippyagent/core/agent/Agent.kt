@@ -12,6 +12,7 @@ import com.lin.hippyagent.core.agent.session.SessionMessage
 import com.lin.hippyagent.core.agent.session.SessionToolCall
 import com.lin.hippyagent.core.agent.session.ToolCallStatus
 import com.lin.hippyagent.core.agent.session.SessionStore
+import com.lin.hippyagent.core.agent.tools.LlmToolRouter
 import com.lin.hippyagent.core.bootstrap.BootstrapHook
 import com.lin.hippyagent.core.channel.ChannelMessage
 import com.lin.hippyagent.core.channel.ChannelManager
@@ -237,6 +238,7 @@ class Agent(
     private val networkMonitor = NetworkMonitor(context)
     private val offlineMessageQueue = com.lin.hippyagent.core.network.OfflineMessageQueue(context)
     private val rateLimiter = LlmRateLimiter(profile.running)
+    private val llmToolRouter by lazy { LlmToolRouter() }
     private val _state = MutableStateFlow(AgentState(agentId = profile.agentId))
     val state: StateFlow<AgentState> = _state.asStateFlow()
 
@@ -546,7 +548,7 @@ class Agent(
         val promptResult = buildPrompt(sessionId, systemPromptSuffix = systemPromptSuffix, isEscalated = escalatedThisTurn, effectiveModelName = effectiveModel)
         val messages = promptResult.messages
 
-        val toolDefinitions = toolRegistry.getDefinitionsForAgent(
+        val fullToolDefinitions = toolRegistry.getDefinitionsForAgent(
             agentId = profile.agentId
         ).map { def ->
             com.lin.hippyagent.core.model.ModelToolDefinition(
@@ -554,6 +556,20 @@ class Agent(
                 description = def.description,
                 parameters = buildToolParameterSchema(def.parameters)
             )
+        }
+
+        // T1-1 LlmToolRouter：首轮路由裁剪工具子集，缓存到 PreparedContext 供本轮流式/非流式两处复用
+        val toolDefinitions = if (profile.running.llmToolRouterEnabled && fullToolDefinitions.isNotEmpty()) {
+            val routed = llmToolRouter.routeTools(
+                userMessage = userMessage,
+                availableTools = fullToolDefinitions,
+                routingClient = effectiveClient,
+                modelName = profile.modelName
+            )
+            Timber.d("LlmToolRouter: source=${routed.source}, selected=${routed.selectedTools.size}/${fullToolDefinitions.size}")
+            routed.selectedTools
+        } else {
+            fullToolDefinitions
         }
 
         return PreparedContext(
