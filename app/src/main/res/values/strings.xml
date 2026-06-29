@@ -1922,6 +1922,17 @@
     <!-- 端侧模型 -->
     <string name="ondevice_no_gguf">该模型没有可用的 GGUF 文件</string>
     <string name="ondevice_download_failed_msg">下载失败: %1$s</string>
+    <!-- 端侧模型管理分区（ModelProviderScreen） -->
+    <string name="ondevice_models_section">端侧模型（本地推理，无需网络）</string>
+    <string name="ondevice_models_desc">端侧模型在本地运行，可离线使用，但能力弱于云端</string>
+    <string name="ondevice_download">下载</string>
+    <string name="ondevice_load">加载</string>
+    <string name="ondevice_unload">卸载</string>
+    <string name="ondevice_delete">删除</string>
+    <string name="ondevice_loaded">已加载</string>
+    <string name="ondevice_downloaded">已下载</string>
+    <string name="ondevice_not_downloaded">未下载</string>
+    <string name="ondevice_add_custom_model">下载自定义模型（HF URL）</string>
     <!-- ACP 客户端 -->
     <string name="acp_discovered_agents">发现 %1$d 个智能体</string>
     <!-- 智能体配置 -->

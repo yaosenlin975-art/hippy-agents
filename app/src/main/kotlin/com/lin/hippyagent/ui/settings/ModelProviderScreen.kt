@@ -86,7 +86,7 @@ fun ModelProviderScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(providers, key = { it.id }) { provider ->
+            items(providers.filter { !it.isVirtual }, key = { it.id }) { provider ->
                 ProviderCard(
                     provider = provider,
                     onToggle = { enabled ->
@@ -94,6 +94,14 @@ fun ModelProviderScreen(
                     },
                     onDelete = { onDeleteProvider(provider.id) },
                     onClick = { onProviderClick(provider.id) }
+                )
+            }
+
+            // B1/B2/B3/B4：端侧模型分区
+            item(key = "ondevice_section") {
+                OnDeviceModelsSection(
+                    onDeviceProviders = providers.filter { it.isVirtual },
+                    onAddCustomModel = { /* TODO: 打开自定义 HF URL 下载对话框 */ }
                 )
             }
 
@@ -330,4 +338,74 @@ private fun AddProviderDialog(
             }
         }
     )
+}
+
+@Composable
+private fun OnDeviceModelsSection(
+    onDeviceProviders: List<ModelProvider>,
+    onAddCustomModel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.15f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(R.string.ondevice_models_section),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = stringResource(R.string.ondevice_models_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            if (onDeviceProviders.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.ondevice_not_downloaded),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                onDeviceProviders.forEach { provider ->
+                    OnDeviceModelCard(provider = provider)
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+            TextButton(onClick = onAddCustomModel) {
+                Text(stringResource(R.string.ondevice_add_custom_model))
+            }
+        }
+    }
+}
+
+@Composable
+private fun OnDeviceModelCard(provider: ModelProvider, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = provider.name,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = provider.models.firstOrNull()?.displayName ?: provider.id,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = stringResource(R.string.ondevice_downloaded),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
 }
