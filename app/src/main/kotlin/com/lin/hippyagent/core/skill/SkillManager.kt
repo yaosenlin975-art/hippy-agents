@@ -15,7 +15,11 @@ class SkillManager(
     internal val installer = SkillInstaller(context, skillsDir, skillScanner, indexManager)
     internal val configManager = SkillConfigManager(skillsDir)
 
-    fun loadIndex() = indexManager.loadIndex()
+    /**
+     * 加载 skill 索引: 走 mtime 指纹校验, 指纹变化自动重扫.
+     * 替换原直接转调 loadIndex() 的逻辑, 让运行时新增/修改 skill 自动被发现.
+     */
+    fun loadIndex() = indexManager.loadIndexWithFingerprintCheck()
     fun saveIndex(index: SkillIndex) = indexManager.saveIndex(index)
     fun rebuildIndex() = indexManager.rebuildIndex()
     fun getManifest(skillId: String) = indexManager.getManifest(skillId)
