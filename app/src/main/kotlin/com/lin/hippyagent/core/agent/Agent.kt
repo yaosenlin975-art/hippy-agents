@@ -2581,8 +2581,14 @@ _你刚醒来。该搞清楚自己是谁了。_
         }
         try {
             val result = try {
+                // B4：摘要优先用 summaryModel（端侧），失败降级到主模型
+                val summaryModelName = profile.summaryModelName.takeIf { it.isNotEmpty() }
+                    ?: profile.modelName
+                val summaryModelProvider = profile.summaryModelProvider.takeIf { it.isNotEmpty() }
+                    ?: profile.modelProvider
+
                 val request = ModelCallRequest(
-                    model = stripModelPrefix(profile.modelName),
+                    model = stripModelPrefix(summaryModelName),
                     messages = listOf(
                         ModelMessage(role = "system", content = COMPACT_SYSTEM_PROMPT),
                         ModelMessage(role = "user", content = compactionPrompt)
@@ -2591,7 +2597,26 @@ _你刚醒来。该搞清楚自己是谁了。_
                     maxTokens = 2048
                 )
 
-                val resp = callLlmWithRetryAndRateLimit(request)
+                // B4：若 summaryModelProvider 是端侧，先确保引擎加载
+                if (summaryModelProvider.startsWith("ondevice-")) {
+                    onDeviceModelManager?.ensureEngineLoaded(summaryModelName)
+                }
+                val summaryClient = resolveModelClient(summaryModelProvider)
+
+                val resp = try {
+                    callLlmWithRetryAndRateLimit(request, summaryClient)
+                } catch (e: Exception) {
+                    // B4：summaryModel 失败，降级到主模型
+                    if (summaryModelName != profile.modelName) {
+                        Timber.w(e, "Summary model failed, falling back to primary model")
+                        callLlmWithRetryAndRateLimit(
+                            request.copy(model = stripModelPrefix(profile.modelName)),
+                            modelClient
+                        )
+                    } else {
+                        throw e
+                    }
+                }
                 val summary = resp.choices.firstOrNull()?.message?.content
                     ?: throw IllegalStateException("Compression LLM returned no content")
 
