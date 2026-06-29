@@ -3,6 +3,7 @@ package com.lin.hippyagent.core.skill.store.provider
 import com.lin.hippyagent.core.linux.LinuxManager
 import com.lin.hippyagent.core.skill.store.SkillSource
 import com.lin.hippyagent.core.skill.store.StoreSkillItem
+import com.lin.hippyagent.core.util.UrlSafetyChecker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -50,6 +51,10 @@ class SkillHubProvider(
                         append(params.joinToString("&"))
                     }
                 }
+                val checkResult = UrlSafetyChecker.check(url)
+                if (!checkResult.allowed) {
+                    throw SecurityException("URL 安全检查失败: ${checkResult.message}")
+                }
                 val request = Request.Builder()
                     .url(url)
                     .header("User-Agent", USER_AGENT)
@@ -80,6 +85,10 @@ class SkillHubProvider(
         withContext(Dispatchers.IO) {
             runCatching {
                 val url = "https://skillhub.cn/skills/$identifier"
+                val checkResult = UrlSafetyChecker.check(url)
+                if (!checkResult.allowed) {
+                    throw SecurityException("URL 安全检查失败: ${checkResult.message}")
+                }
                 val request = Request.Builder()
                     .url(url)
                     .header("User-Agent", USER_AGENT)
