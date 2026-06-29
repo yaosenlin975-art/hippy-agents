@@ -11,6 +11,7 @@ import com.lin.hippyagent.core.memory.search.PostFusionReranker
 import com.lin.hippyagent.core.memory.search.ScoredItem
 import com.lin.hippyagent.core.memory.search.SearchOptions
 import com.lin.hippyagent.core.memory.commonmemory.SearchIntent
+import com.lin.hippyagent.core.security.injection.InjectionDetector
 
 /**
  * RoomMemoryRepositoryImpl（MemoryRepository 的 Room 实现）
@@ -37,6 +38,27 @@ class RoomMemoryRepositoryImpl(
 
     private val reranker by lazy { LightweightReranker() }
 
+    private fun wrapIfUntrusted(entry: CommonMemoryEntry): CommonMemoryEntry {
+        if (!entry.untrusted || entry.summary.contains(UNTRUSTED_MEMORY_RECALL_TAG)) return entry
+        val wrapped = InjectionDetector.wrapUntrusted(
+            entry.summary,
+            InjectionDetector.DetectionResult(
+                detected = true,
+                ruleId = entry.untrustedRuleId ?: "UNKNOWN",
+                matchedPattern = "",
+                matchedSnippet = entry.summary.take(100),
+                source = InjectionDetector.DetectionResult.Source.MEMORY_RECALL
+            )
+        )
+        return entry.copy(summary = wrapped)
+    }
+
+    private fun sanitizeUntrustedEntries(entries: List<CommonMemoryEntry>): List<CommonMemoryEntry> =
+        entries.map { wrapIfUntrusted(it) }
+
+    private fun sanitizeUntrustedPairs(pairs: List<Pair<CommonMemoryEntry, Float>>): List<Pair<CommonMemoryEntry, Float>> =
+        pairs.map { (entry, score) -> wrapIfUntrusted(entry) to score }
+
     companion object {
         private val WHITESPACE_REGEX = Regex("\\s+")
         private val NON_ALPHANUM_REGEX = Regex("[^a-z0-9\\u4e00-\\u9fff]+")
@@ -48,6 +70,8 @@ class RoomMemoryRepositoryImpl(
             "需要" to "不需要",
             "偏好" to "不偏好"
         )
+
+        private val UNTRUSTED_MEMORY_RECALL_TAG = "source=\"MEMORY_RECALL\""
 
         private fun escapeLike(input: String): String {
             return input.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
@@ -85,35 +109,40 @@ class RoomMemoryRepositoryImpl(
 
     override suspend fun searchFts(query: String, limit: Int): List<CommonMemoryEntry> {
         val ftsQuery = ChineseTokenizer.segmentForSearch(query)
-        if (ftsQuery.isBlank()) {
-            return dao.findActive().map { it.toCommonMemoryEntry() }
+        val results = if (ftsQuery.isBlank()) {
+            dao.findActive().map { it.toCommonMemoryEntry() }
+        } else {
+            dao.searchFts(ftsQuery, limit).map { it.toCommonMemoryEntry() }
         }
-        return dao.searchFts(ftsQuery, limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(results)
     }
 
     override suspend fun searchFtsByAgentId(query: String, agentId: String, limit: Int): List<CommonMemoryEntry> {
         val ftsQuery = ChineseTokenizer.segmentForSearch(query)
-        if (ftsQuery.isBlank()) {
-            return dao.findActiveByAgentId(agentId).map { it.toCommonMemoryEntry() }
+        val results = if (ftsQuery.isBlank()) {
+            dao.findActiveByAgentId(agentId).map { it.toCommonMemoryEntry() }
+        } else {
+            dao.searchFtsByAgentId(ftsQuery, agentId, limit).map { it.toCommonMemoryEntry() }
         }
-        return dao.searchFtsByAgentId(ftsQuery, agentId, limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(results)
     }
 
     override suspend fun searchHybrid(query: String, limit: Int): List<Pair<CommonMemoryEntry, Float>> {
-        return hybridSearchEngine.search(query, SearchOptions(finalTopK = limit))
+        return sanitizeUntrustedPairs(hybridSearchEngine.search(query, SearchOptions(finalTopK = limit)))
     }
 
     override suspend fun searchHybridByAgentId(query: String, agentId: String, limit: Int): List<Pair<CommonMemoryEntry, Float>> {
-        return hybridSearchEngine.search(query, agentId, SearchOptions(finalTopK = limit))
+        return sanitizeUntrustedPairs(hybridSearchEngine.search(query, agentId, SearchOptions(finalTopK = limit)))
     }
 
     override suspend fun search(query: String, agentId: String, intent: SearchIntent, limit: Int): List<Pair<CommonMemoryEntry, Float>> {
-        return when (intent) {
+        val results = when (intent) {
             SearchIntent.PRECISE -> searchPrecise(query, agentId, limit)
             SearchIntent.RECENT -> searchRecent(query, agentId, limit)
             SearchIntent.BALANCED -> searchBalanced(query, agentId, limit)
             SearchIntent.BROAD -> searchBroad(query, agentId, limit)
         }
+        return sanitizeUntrustedPairs(results)
     }
 
     private suspend fun searchPrecise(query: String, agentId: String, limit: Int): List<Pair<CommonMemoryEntry, Float>> {
@@ -165,23 +194,23 @@ class RoomMemoryRepositoryImpl(
     }
 
     override suspend fun findByType(type: BrainMemoryType, limit: Int): List<CommonMemoryEntry> {
-        return dao.findByType(type.value, limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findByType(type.value, limit).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun findByTypeAndAgentId(type: BrainMemoryType, agentId: String, limit: Int): List<CommonMemoryEntry> {
-        return dao.findByTypeAndAgentId(type.value, agentId, limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findByTypeAndAgentId(type.value, agentId, limit).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun findActive(limit: Int): List<CommonMemoryEntry> {
-        return dao.findActive().take(limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findActive().take(limit).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun findAll(limit: Int): List<CommonMemoryEntry> {
-        return dao.findAll().take(limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findAll().take(limit).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun findActiveByAgentId(agentId: String, limit: Int): List<CommonMemoryEntry> {
-        return dao.findActiveByAgentId(agentId).take(limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findActiveByAgentId(agentId).take(limit).map { it.toCommonMemoryEntry() })
     }
 
     // ============ 合并/冲突 ============
@@ -257,11 +286,11 @@ class RoomMemoryRepositoryImpl(
     }
 
     override suspend fun findExpiredUploadFacts(nowMs: Long): List<CommonMemoryEntry> {
-        return dao.findExpiredUploadFacts(nowMs).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.findExpiredUploadFacts(nowMs).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun searchBySummary(query: String, limit: Int): List<CommonMemoryEntry> {
-        return dao.searchBySummary("%${escapeLike(query)}%", limit).map { it.toCommonMemoryEntry() }
+        return sanitizeUntrustedEntries(dao.searchBySummary("%${escapeLike(query)}%", limit).map { it.toCommonMemoryEntry() })
     }
 
     override suspend fun hardDelete(id: String) {
