@@ -273,7 +273,8 @@ class RoomSessionStore(
         compressedSummary = compressedSummary,
         groupId = groupId,
         interrupted = interrupted,
-        isHidden = hidden
+        isHidden = hidden,
+        privacyMode = privacyMode
     )
 
     private fun MessageEntity.toSessionMessage() = SessionMessage(

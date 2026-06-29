@@ -29,7 +29,8 @@ data class Session(
     val groupId: String? = null,
     val interrupted: Boolean = false,
     val lastError: String? = null,
-    val isHidden: Boolean = false
+    val isHidden: Boolean = false,
+    val privacyMode: Boolean = false
 )
 
 data class SessionMessage(
