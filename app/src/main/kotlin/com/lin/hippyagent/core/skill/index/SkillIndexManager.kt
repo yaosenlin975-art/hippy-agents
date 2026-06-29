@@ -19,6 +19,9 @@ class SkillIndexManager(
     @Volatile
     private var cachedIndex: SkillIndex? = null
 
+    @Volatile
+    private var lastFingerprint: Long = 0L  // 上次计算的目录指纹, 0L 表示未初始化
+
     private val frontmatterFieldPatterns = object : LinkedHashMap<String, Regex>(16, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Regex>) = size > 50
     }
@@ -39,6 +42,64 @@ class SkillIndexManager(
 
     fun invalidate() {
         cachedIndex = null
+        lastFingerprint = 0L  // 重置指纹, 下次 loadIndexWithFingerprintCheck 必重扫
+    }
+
+    /**
+     * 计算用户 skill 目录的 mtime 指纹.
+     *
+     * 采样项:
+     * - skillsDir 顶层 lastModified()
+     * - 各子目录 (排除 EXCLUDED_DIRS) 的 name + lastModified()
+     * - 各 SKILL.md / manifest.json 的 lastModified()
+     *
+     * 任意一项变化 (新增/删除/修改 skill) 都会导致指纹变化.
+     * 单次会话内文件系统 mtime 稳定, 指纹不变, 走缓存.
+     *
+     * 算法: FNV-1a 64-bit, 纯算术无正则无外部依赖.
+     */
+    private fun computeUserDirsFingerprint(): Long {
+        var hash = 1125899906842597L  // FNV-1a 64-bit offset basis
+        val prime = 1099511628211L    // FNV-1a prime
+
+        // skillsDir 顶层
+        hash = (hash xor skillsDir.lastModified()) * prime
+
+        // 各子目录 (复用 listSkillDirs 的过滤逻辑)
+        listSkillDirs().sortedBy { it.name }.forEach { dir ->
+            hash = (hash xor dir.name.hashCode().toLong()) * prime
+            hash = (hash xor dir.lastModified()) * prime
+            val skillMd = dir.resolve("SKILL.md")
+            if (skillMd.exists()) {
+                hash = (hash xor skillMd.lastModified()) * prime
+            }
+            val manifest = dir.resolve("manifest.json")
+            if (manifest.exists()) {
+                hash = (hash xor manifest.lastModified()) * prime
+            }
+        }
+        return hash
+    }
+
+    /**
+     * 带指纹校验的 loadIndex.
+     * - 指纹未变 + 缓存命中 → 返回缓存 (单次会话内 fast path)
+     * - 指纹变化 → invalidate + 全量重扫
+     *
+     * 用途: 运行时新增/修改 skill 文件后, 下次 loadIndex 自动重扫, 无需重启 App.
+     */
+    fun loadIndexWithFingerprintCheck(): SkillIndex {
+        val currentFingerprint = runCatching { computeUserDirsFingerprint() }.getOrElse {
+            Timber.w(it, "computeUserDirsFingerprint failed, fallback to plain loadIndex")
+            return loadIndex()
+        }
+        if (currentFingerprint == lastFingerprint && cachedIndex != null) {
+            return cachedIndex!!
+        }
+        Timber.i("Skill dir fingerprint changed: $lastFingerprint -> $currentFingerprint, rebuilding index")
+        lastFingerprint = currentFingerprint
+        cachedIndex = null
+        return rebuildIndex()
     }
 
     fun loadIndex(): SkillIndex {
