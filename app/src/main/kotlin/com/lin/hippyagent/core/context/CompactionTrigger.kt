@@ -54,3 +54,25 @@ class ContextRatioTrigger(
         const val DEFAULT_RATIO = 0.75f
     }
 }
+
+/**
+ * 对话轮次保留触发器.
+ *
+ * 当 recentTurnCount (用户对话轮次) 达到硬保留阈值,
+ * 且 messageCount (内部迭代数) 远超对话轮次 (说明工具日志膨胀) 时,
+ * 触发"仅压缩工具日志, 不动用户消息"的精细压缩.
+ *
+ * 复用闲置的 CompactionContext.recentTurnCount 字段.
+ */
+class DialogTurnPreservationTrigger(
+    private val threshold: Int = ConversationMemoryPolicy.HARD_KEEP_RECENT_DIALOG_TURNS
+) : CompactionTrigger {
+    override val name: String = "dialog_turn_preservation"
+
+    override fun shouldCompact(context: CompactionContext): Boolean {
+        // 工具日志膨胀判定: messageCount > recentTurnCount * 4
+        // 即内部工具迭代数远超用户对话轮次, 此时用户消息不应被动
+        return context.recentTurnCount >= threshold &&
+               context.messageCount > context.recentTurnCount * 4
+    }
+}
