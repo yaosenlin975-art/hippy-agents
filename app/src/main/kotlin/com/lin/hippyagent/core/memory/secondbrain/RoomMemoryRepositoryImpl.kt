@@ -4,8 +4,10 @@ import androidx.room.*
 import com.lin.hippyagent.core.memory.ChineseTokenizer
 import com.lin.hippyagent.core.memory.SymbolicRetriever
 import com.lin.hippyagent.core.memory.ReflectionRetriever
+import com.lin.hippyagent.core.memory.search.GraphRetriever
 import com.lin.hippyagent.core.memory.search.HybridSearchEngine
 import com.lin.hippyagent.core.memory.search.LightweightReranker
+import com.lin.hippyagent.core.memory.search.PostFusionReranker
 import com.lin.hippyagent.core.memory.search.ScoredItem
 import com.lin.hippyagent.core.memory.search.SearchOptions
 import com.lin.hippyagent.core.memory.commonmemory.SearchIntent
@@ -20,11 +22,17 @@ class RoomMemoryRepositoryImpl(
     private val userKey: String = "user:owner",
     private val symbolicRetriever: SymbolicRetriever? = null,
     private val reflectionRetriever: ReflectionRetriever? = null,
-    private val database: MemoryDatabase? = null
+    private val database: MemoryDatabase? = null,
+    private val graphRetriever: GraphRetriever? = null,
+    private val postFusionReranker: PostFusionReranker? = null
 ) : MemoryRepository {
 
     private val hybridSearchEngine by lazy {
-        HybridSearchEngine(memoryRepository = this)
+        HybridSearchEngine(
+            memoryRepository = this,
+            graphRetriever = graphRetriever,
+            postFusionReranker = postFusionReranker
+        )
     }
 
     private val reranker by lazy { LightweightReranker() }
