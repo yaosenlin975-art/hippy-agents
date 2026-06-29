@@ -4,6 +4,7 @@ import com.lin.hippyagent.core.agent.session.GraphEntityDao
 import com.lin.hippyagent.core.agent.session.GraphEntityEntity
 import com.lin.hippyagent.core.agent.session.GraphRelationDao
 import com.lin.hippyagent.core.agent.session.GraphRelationEntity
+import com.lin.hippyagent.core.security.memory.MemoryContentGuard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -34,6 +35,15 @@ class KnowledgeGraphStore(
 ) {
     suspend fun addEntity(entity: GraphEntity): Result<GraphEntity> = withContext(Dispatchers.IO) {
         runCatching {
+            val guardResult = MemoryContentGuard.check(entity.name)
+            val enhancedEntity = if (guardResult.untrusted) {
+                entity.copy(properties = entity.properties + mapOf(
+                    "untrusted" to "true",
+                    "untrusted_rule_id" to (guardResult.ruleId ?: ""),
+                    "untrusted_reason" to (guardResult.reason ?: "")
+                ))
+            } else entity
+
             val existing = entityDao.getByNameAndType(entity.name, entity.type.name)
             if (existing != null) {
                 val merged = mergeProperties(existing, entity)
@@ -46,7 +56,7 @@ class KnowledgeGraphStore(
                         id = entity.id,
                         name = entity.name,
                         type = entity.type.name,
-                        properties = serializeProperties(entity.properties),
+                        properties = serializeProperties(enhancedEntity.properties),
                         source = "",
                         createdAt = now,
                         updatedAt = now
