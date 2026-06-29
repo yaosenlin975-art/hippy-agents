@@ -6,6 +6,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import com.lin.hippyagent.core.util.UrlSafetyChecker
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -78,6 +79,10 @@ class MCPClient(
             Timber.i("MCP client connected: $name")
         } else if (transport == "streamable_http" || transport == "sse") {
             val baseUrl = config["baseUrl"] ?: config["url"] ?: throw IllegalArgumentException("baseUrl required")
+            val checkResult = UrlSafetyChecker.check(baseUrl)
+            if (!checkResult.allowed) {
+                throw SecurityException("MCP server URL 安全检查失败: ${checkResult.message}")
+            }
             Timber.i("MCP client connected via $transport: $name -> $baseUrl")
         }
     }
@@ -129,8 +134,12 @@ class MCPClient(
         return reader?.readLine() ?: ""
     }
 
-    private fun sendStreamableHttp(json: String): String {
+    private suspend fun sendStreamableHttp(json: String): String {
         val baseUrl = config["baseUrl"] ?: config["url"] ?: ""
+        val checkResult = UrlSafetyChecker.check(baseUrl)
+        if (!checkResult.allowed) {
+            throw SecurityException("MCP server URL 安全检查失败: ${checkResult.message}")
+        }
         val url = if (baseUrl.endsWith("/mcp")) baseUrl else "${baseUrl.trimEnd('/')}/mcp"
 
         val body = json.toRequestBody("application/json".toMediaType())
@@ -147,8 +156,12 @@ class MCPClient(
         return response.body?.string() ?: ""
     }
 
-    private fun sendSse(json: String): String {
+    private suspend fun sendSse(json: String): String {
         val baseUrl = config["baseUrl"] ?: config["url"] ?: ""
+        val checkResult = UrlSafetyChecker.check(baseUrl)
+        if (!checkResult.allowed) {
+            throw SecurityException("MCP server URL 安全检查失败: ${checkResult.message}")
+        }
         val url = if (baseUrl.endsWith("/mcp")) baseUrl else "${baseUrl.trimEnd('/')}/mcp"
 
         val body = json.toRequestBody("application/json".toMediaType())
