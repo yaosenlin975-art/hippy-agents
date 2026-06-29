@@ -69,6 +69,9 @@ interface GraphEntityDao {
 
     @Query("SELECT * FROM graph_entities LIMIT :limit OFFSET :offset")
     suspend fun getAll(limit: Int = 100, offset: Int = 0): List<GraphEntityEntity>
+
+    @Query("SELECT * FROM graph_entities WHERE properties LIKE :pattern LIMIT 1")
+    suspend fun findByPropertiesLike(pattern: String): GraphEntityEntity?
 }
 
 @Dao
@@ -87,4 +90,7 @@ interface GraphRelationDao {
 
     @Query("SELECT * FROM graph_relations LIMIT :limit OFFSET :offset")
     suspend fun getAll(limit: Int = 100, offset: Int = 0): List<GraphRelationEntity>
+
+    @Query("SELECT COUNT(*) FROM graph_relations WHERE targetEntityId = :entityId")
+    suspend fun countByTargetEntity(entityId: String): Int
 }
