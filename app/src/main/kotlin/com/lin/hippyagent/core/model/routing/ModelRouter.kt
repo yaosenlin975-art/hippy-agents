@@ -170,8 +170,8 @@ class ModelRouter(
 
         return when (target) {
             RouteTarget.ONDEVICE -> {
-                val onDeviceId = config.onDeviceModel
-                if (onDeviceId != null && isOnDeviceModelReady(onDeviceId)) {
+                val onDeviceId = config.onDeviceModel!!
+                if (isOnDeviceModelReady(onDeviceId)) {
                     RoutingDecision(
                         selectedModel = onDeviceId,
                         usedLightModel = true,
