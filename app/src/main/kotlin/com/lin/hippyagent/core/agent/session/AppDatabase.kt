@@ -15,6 +15,8 @@ import com.lin.hippyagent.core.task.HippyJobEntity
 import com.lin.hippyagent.core.task.HippyInboxEntity
 import com.lin.hippyagent.data.TraceSpanDao
 import com.lin.hippyagent.data.TraceSpanEntity
+import com.lin.hippyagent.core.memory.volunteer.VolunteerEventDao
+import com.lin.hippyagent.core.memory.volunteer.VolunteerEventEntity
 
 @Database(
     entities = [
@@ -35,9 +37,10 @@ import com.lin.hippyagent.data.TraceSpanEntity
         NotificationEvent::class,
         TaskEntity::class,
         ToolApprovalRule::class,
-        TraceSpanEntity::class
+        TraceSpanEntity::class,
+        VolunteerEventEntity::class
     ],
-    version = 25,
+    version = 26,
     exportSchema = true
 )
 @TypeConverters(NotificationTypeConverters::class, TaskTypeConverters::class)
@@ -60,4 +63,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun toolApprovalRuleDao(): ToolApprovalRuleDao
     abstract fun traceSpanDao(): TraceSpanDao
+    abstract fun volunteerEventDao(): VolunteerEventDao
 }

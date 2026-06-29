@@ -485,6 +485,25 @@ val MIGRATION_24_25 = object : Migration(24, 25) {
     }
 }
 
+val MIGRATION_25_26 = object : Migration(25, 26) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS volunteer_events (
+                id TEXT NOT NULL PRIMARY KEY,
+                trigger_entity TEXT NOT NULL,
+                memory_id TEXT NOT NULL,
+                confidence REAL NOT NULL,
+                created_at INTEGER NOT NULL,
+                session_id TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_volunteer_events_trigger_entity_created_at ON volunteer_events(trigger_entity, created_at)")
+        database.execSQL("CREATE INDEX IF NOT EXISTS index_volunteer_events_memory_id ON volunteer_events(memory_id)")
+    }
+}
+
 val ALL_MIGRATIONS = listOf(
     MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
     MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9,
@@ -497,5 +516,6 @@ val ALL_MIGRATIONS = listOf(
     MIGRATION_21_22,
     MIGRATION_22_23,
     MIGRATION_23_24,
-    MIGRATION_24_25
+    MIGRATION_24_25,
+    MIGRATION_25_26
 )
