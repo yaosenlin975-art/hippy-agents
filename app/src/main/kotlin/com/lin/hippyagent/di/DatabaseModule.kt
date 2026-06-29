@@ -32,7 +32,9 @@ val databaseModule = module {
         RoomMemoryRepositoryImpl(
             dao = db.memoryDao(),
             symbolicRetriever = SymbolicRetriever(memoryDao = db.memoryDao()),
-            database = db
+            database = db,
+            graphRetriever = getOrNull(),
+            postFusionReranker = getOrNull()
         )
     }
 
@@ -125,4 +127,28 @@ val databaseModule = module {
     single { com.lin.hippyagent.core.knowledge.SlugResolver(knowledgeGraphStore = get()) }
 
     single { com.lin.hippyagent.core.knowledge.LinkExtractor(slugResolver = get(), knowledgeGraphStore = get()) }
+
+    single {
+        val db = get<AppDatabase>()
+        com.lin.hippyagent.core.memory.search.GraphBacklinkCounter(
+            entityDao = db.graphEntityDao(),
+            relationDao = db.graphRelationDao()
+        )
+    }
+
+    single { com.lin.hippyagent.core.memory.volunteer.AliasResolver(knowledgeGraphStore = get()) }
+
+    single {
+        com.lin.hippyagent.core.memory.search.GraphRetriever(
+            knowledgeGraphStore = get(),
+            entityExtractor = com.lin.hippyagent.core.knowledge.EntityExtractor()
+        )
+    }
+
+    single {
+        com.lin.hippyagent.core.memory.search.PostFusionReranker(
+            graphBacklinkCounter = get(),
+            aliasResolver = get()
+        )
+    }
 }
