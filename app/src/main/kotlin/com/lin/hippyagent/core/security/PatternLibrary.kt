@@ -128,4 +128,7 @@ object PatternLibrary {
         "JB_009" to Regex("""无(限制|约束|规则)模式"""),
         "JB_010" to Regex("""假装(你|你)没有(任何)?(规则|限制|约束)""")
     )
+
+    // ===== 敏感金额模式 =====
+    val AMOUNT_PATTERN: Regex = Regex("""\d+[.,]\d{2}""")
 }

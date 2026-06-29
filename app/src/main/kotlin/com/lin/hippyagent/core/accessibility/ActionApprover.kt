@@ -1,16 +1,14 @@
-﻿package com.lin.hippyagent.core.accessibility
+package com.lin.hippyagent.core.accessibility
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.lin.hippyagent.core.security.PatternLibrary
+import com.lin.hippyagent.core.security.RiskLevel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
-
-enum class RiskLevel {
-    LOW, MEDIUM, HIGH, BLOCKED
-}
 
 data class ApprovalRequest(
     val action: String,
@@ -64,9 +62,14 @@ class ActionApprover(private val context: Context) {
 
     suspend fun approve(request: ApprovalRequest): Boolean {
         when (request.riskLevel) {
+            RiskLevel.SAFE -> return true
             RiskLevel.LOW -> return true
             RiskLevel.BLOCKED -> {
                 Timber.w("Action blocked: ${request.action} on ${request.packageName}")
+                return false
+            }
+            RiskLevel.CRITICAL -> {
+                Timber.w("Action blocked (critical): ${request.action} on ${request.packageName}")
                 return false
             }
             RiskLevel.MEDIUM -> {
@@ -108,23 +111,12 @@ class ActionApprover(private val context: Context) {
         return packageName in blocked
     }
 
-    private fun containsSensitiveContent(text: String): Boolean {
-        val patterns = listOf(
-            Regex("""(?i)(密码|password|passwd|pin|验证码|captcha)"""),
-            Regex("""(?i)(支付|付款|转账|transfer|payment)"""),
-            Regex("""(?i)(删除|清空|卸载|delete|remove|uninstall|clear)""")
-        )
-        return patterns.any { it.containsMatchIn(text) }
-    }
+    private fun containsSensitiveContent(text: String): Boolean =
+        PatternLibrary.SENSITIVE_INPUT_PATTERNS.any { it.containsMatchIn(text) }
 
-    private fun looksSensitive(text: String): Boolean {
-        val patterns = listOf(
-            Regex("""(?i)(密码|password|pin|验证码)"""),
-            Regex("""\d+[.,]\d{2}"""),
-            Regex("""(?i)(支付|转账|付款)""")
-        )
-        return patterns.any { it.containsMatchIn(text) }
-    }
+    private fun looksSensitive(text: String): Boolean =
+        PatternLibrary.SENSITIVE_INPUT_PATTERNS.any { it.containsMatchIn(text) } ||
+            PatternLibrary.AMOUNT_PATTERN.containsMatchIn(text)
 
     private fun isSessionApproved(request: ApprovalRequest): Boolean {
         val key = sessionKey(request.action, request.packageName)
