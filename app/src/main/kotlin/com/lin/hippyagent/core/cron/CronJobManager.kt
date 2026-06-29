@@ -6,9 +6,12 @@ import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -393,6 +396,34 @@ class CronJobWorker(
     private val cronJobManager: CronJobManager
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
+        // T1-2: 息屏唤醒协调 - 在执行实际任务前确保屏幕就绪
+        val screenWakeCoordinator = runCatching {
+            org.koin.core.context.GlobalContext.getOrNull()
+                ?.get<com.lin.hippyagent.core.scheduler.wake.ScreenWakeCoordinator>()
+        }.getOrNull()
+
+        if (screenWakeCoordinator == null) {
+            // ScreenWakeCoordinator 未注册 (如 Koin 未初始化), 降级直接执行
+            return executeActualCronWork()
+        }
+
+        val dispatchToken = "$id:${System.currentTimeMillis()}"
+        // 用 suspendCancellableCoroutine 把回调式 ensureAwake 桥接为 suspend
+        // (spec 第 3.2.5 节: "可用 suspendCoroutine 桥接 Handler 回调")
+        suspendCancellableCoroutine<Unit> { cont ->
+            screenWakeCoordinator.ensureAwake(dispatchToken) {
+                // 回调在 main 线程 (Handler.postDelayed), 通过 resume 切回协程
+                if (cont.isActive) {
+                    cont.resume(Unit)
+                }
+            }
+        }
+        // 此处已回到 doWork 协程 (CoroutineWorker 默认 Dispatchers.Default), 直接执行
+        return executeActualCronWork()
+    }
+
+    /** 原 doWork 主体抽出的私有方法, 执行实际 cron 任务. */
+    private suspend fun executeActualCronWork(): Result {
         val jobId = inputData.getString("job_id") ?: return Result.failure()
         val jobName = inputData.getString("job_name") ?: jobId
         val agentId = inputData.getString("agent_id") ?: return Result.failure()
