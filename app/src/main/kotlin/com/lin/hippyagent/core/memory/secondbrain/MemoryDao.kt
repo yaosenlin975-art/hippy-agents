@@ -226,7 +226,7 @@ data class TypeCount(
  */
 @Database(
     entities = [MemoryEntity::class, MemoryFts::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(MemoryConverters::class)
@@ -271,6 +271,14 @@ abstract class MemoryDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE memories ADD COLUMN untrusted INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE memories ADD COLUMN untrusted_reason TEXT")
+                database.execSQL("ALTER TABLE memories ADD COLUMN untrusted_rule_id TEXT")
+            }
+        }
+
         fun getInstance(context: Context, dbPath: String = "commonmemory.db"): MemoryDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -278,7 +286,7 @@ abstract class MemoryDatabase : RoomDatabase() {
                     MemoryDatabase::class.java,
                     dbPath
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .enableMultiInstanceInvalidation()
                     .build()
                     .also { INSTANCE = it }

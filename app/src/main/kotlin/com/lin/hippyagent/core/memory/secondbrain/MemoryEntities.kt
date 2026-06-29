@@ -55,7 +55,11 @@ data class MemoryEntity(
 
     @ColumnInfo(name = "last_seen_at") val lastSeenAt: Long,
 
-    @ColumnInfo(name = "last_used_at") val lastUsedAt: Long?
+    @ColumnInfo(name = "last_used_at") val lastUsedAt: Long?,
+
+    @ColumnInfo(name = "untrusted") val untrusted: Boolean = false,
+    @ColumnInfo(name = "untrusted_reason") val untrustedReason: String? = null,
+    @ColumnInfo(name = "untrusted_rule_id") val untrustedRuleId: String? = null
 )
 
 /**
