@@ -70,10 +70,10 @@ class SlugResolver(
     }
 }
 
+enum class ResolutionType { EXACT, FUZZY, CREATED_NEW }
+
 data class ResolvedSlug(
     val entityId: String,
     val canonicalName: String,
     val resolutionType: ResolutionType
-) {
-    enum class ResolutionType { EXACT, FUZZY, CREATED_NEW }
-}
+)
