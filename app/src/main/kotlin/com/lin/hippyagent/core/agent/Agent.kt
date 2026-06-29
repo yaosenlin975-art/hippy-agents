@@ -894,7 +894,7 @@ class Agent(
                 }
                 var effectiveMessages = runBeforeModel(sessionId, messages, iteration)
 
-                val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient)
+                val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient, hasTools = toolDefinitions.isNotEmpty())
                 val routedModel = routed.modelName
                 val routingClient = routed.client
 
@@ -1208,7 +1208,7 @@ class Agent(
                 }
                 var effectiveMessages = runBeforeModel(sessionId, messages, iteration)
 
-                val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient, isStream = true)
+                val routed = resolveRoutedModel(sessionId, content, overrideModel, escalatedThisTurn, effectiveClient, isStream = true, hasTools = toolDefinitions.isNotEmpty())
                 val routedModel = routed.modelName
                 val routingClient = routed.client
 
@@ -2446,7 +2446,8 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         overrideModel: String?,
         escalatedThisTurn: Boolean,
         effectiveClient: ModelClient,
-        isStream: Boolean = false
+        isStream: Boolean = false,
+        hasTools: Boolean = false
     ): RoutedModelResult {
         val tag = if (isStream) "(stream)" else ""
         val routedModel = if (overrideModel == null && modelRouter != null) {
@@ -2458,13 +2459,17 @@ Do not stop with plans or code fences alone when tools are still needed.</system
                 val sessionSt = _state.value.getSessionState(sessionId)
                 val routingConfig = com.lin.hippyagent.core.model.routing.RoutingConfig(
                     lightModel = profile.modelName,
-                    heavyModel = if (profile.complexModelName.isNotEmpty()) profile.complexModelName else profile.modelName
+                    heavyModel = if (profile.complexModelName.isNotEmpty()) profile.complexModelName else profile.modelName,
+                    onDeviceModel = profile.fallbackModelName.takeIf {
+                        it.isNotEmpty() && profile.fallbackModelProvider.startsWith("ondevice-")
+                    }
                 )
-                val routing = modelRouter.selectModel(
+                val routing = modelRouter.selectModelWithOnDevice(
                     message = content,
                     config = routingConfig,
                     toolCallCount = sessionSt.toolCallCount,
-                    historyTokenEstimate = historyTokens
+                    historyTokenEstimate = historyTokens,
+                    hasTools = hasTools
                 )
                 if (routing.usedLightModel) {
                     Timber.d("ModelRouter$tag: using LIGHT model ${routing.selectedModel} (score=${routing.score})")
@@ -2486,6 +2491,16 @@ Do not stop with plans or code fences alone when tools are still needed.</system
             if (complexClient !== effectiveClient) {
                 Timber.d("ModelRouter$tag: switching client to complexModelProvider=${profile.complexModelProvider}")
                 routingClient = complexClient
+            }
+        } else if (overrideModel == null && modelRouter != null
+            && profile.fallbackModelProvider.startsWith("ondevice-")
+            && profile.fallbackModelName.isNotEmpty()
+            && routedModel == stripModelPrefix(profile.fallbackModelName)
+        ) {
+            val onDeviceClient = resolveModelClient(profile.fallbackModelProvider)
+            if (onDeviceClient !== effectiveClient) {
+                Timber.d("ModelRouter$tag: switching client to onDevice provider=${profile.fallbackModelProvider}")
+                routingClient = onDeviceClient
             }
         }
 
