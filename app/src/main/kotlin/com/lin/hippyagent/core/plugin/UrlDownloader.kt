@@ -1,6 +1,7 @@
-﻿package com.lin.hippyagent.core.plugin
+package com.lin.hippyagent.core.plugin
 
 import android.content.Context
+import com.lin.hippyagent.core.util.UrlSafetyChecker
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -12,6 +13,11 @@ object UrlDownloader {
 
     suspend fun downloadFile(url: String, destination: File): Result<File> = runCatching {
         Timber.d("Downloading file from $url to ${destination.absolutePath}")
+
+        val checkResult = UrlSafetyChecker.check(url)
+        if (!checkResult.allowed) {
+            throw SecurityException("URL 安全检查失败: ${checkResult.message}")
+        }
 
         val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
         try {
