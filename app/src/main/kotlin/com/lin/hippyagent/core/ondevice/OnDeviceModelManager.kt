@@ -246,6 +246,17 @@ class OnDeviceModelManager(
         }
     }
 
+    /**
+     * 确保指定模型已加载。若未加载则加载。
+     * 用于 B1 离线兜底/B3 隐私模式触发时确保端侧引擎就绪。
+     *
+     * @param modelId 模型 ID
+     */
+    suspend fun ensureEngineLoaded(modelId: String) {
+        if (getEngineState(modelId) == EngineState.LOADED) return
+        loadEngine(modelId, backend = BackendPreference.AUTO)
+    }
+
     suspend fun unloadEngine() = engineMutex.withLock {
         doUnloadEngine()
     }
