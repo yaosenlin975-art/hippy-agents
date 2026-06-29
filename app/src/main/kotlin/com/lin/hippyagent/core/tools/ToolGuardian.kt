@@ -6,6 +6,8 @@ import androidx.core.content.ContextCompat
 import com.lin.hippyagent.core.security.GuardFinding
 import com.lin.hippyagent.core.security.GuardSeverity
 import com.lin.hippyagent.core.security.GuardThreatCategory
+import com.lin.hippyagent.core.security.PatternLibrary
+import com.lin.hippyagent.core.security.RiskLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -21,13 +23,11 @@ class ToolGuardian(
         val findings: List<GuardFinding> = emptyList()
     )
 
-    enum class RiskLevel { SAFE, LOW, MEDIUM, HIGH, CRITICAL }
+    private val shellEvasionPatterns = PatternLibrary.SHELL_EVASION_PATTERNS
 
-    private val shellEvasionPatterns = SHELL_EVASION_PATTERNS
+    private val shellObfuscationIndicators = PatternLibrary.SHELL_OBFUSCATION_INDICATORS
 
-    private val shellObfuscationIndicators = SHELL_OBFUSCATION_INDICATORS
-
-    private val dangerousPatterns = DANGEROUS_PATTERNS
+    private val dangerousPatterns = PatternLibrary.DANGEROUS_COMMAND_PATTERNS
 
     private val dangerousPaths = listOf(
         "/etc/passwd",
@@ -59,7 +59,7 @@ class ToolGuardian(
         "com.google.android.packageinstaller"
     )
 
-    private val sensitiveInputPatterns = SENSITIVE_INPUT_PATTERNS
+    private val sensitiveInputPatterns = PatternLibrary.SENSITIVE_INPUT_PATTERNS
 
     private val permissionToolMap = mapOf(
         "read_contacts" to android.Manifest.permission.READ_CONTACTS,
@@ -459,75 +459,4 @@ class ToolGuardian(
         matchedPattern = matchedPattern, snippet = snippet,
         guardian = "ToolGuardian"
     )
-
-    companion object {
-        private val SHELL_EVASION_PATTERNS = listOf(
-            Regex("""\\x[0-9a-fA-F]{2}"""),
-            Regex("""\\u[0-9a-fA-F]{4}"""),
-            Regex("""\$\{.*\}"""),
-            Regex("""\$\([^)]+\)"""),
-            Regex("""`[^`]+`"""),
-            Regex("""(?i)base64\s+--decode"""),
-            Regex("""(?i)xxd\s+-r"""),
-            Regex("""(?i)printf\s+\\x"""),
-            Regex("""(?i)echo\s+-e\s+\\x"""),
-            Regex("""(?i)eval\s+["']"""),
-            Regex("""(?i)exec\s+["']"""),
-            Regex("""(?i)python[23]?\s+-c"""),
-            Regex("""(?i)perl\s+-e"""),
-            Regex("""(?i)ruby\s+-e"""),
-            Regex("""(?i)env\s+-[iS]"""),
-            Regex("""(?i)/dev/tcp/"""),
-            Regex("""(?i)nc\s+-[elp]"""),
-            Regex("""(?i)curl\s+.*\|\s*sh"""),
-            Regex("""(?i)wget\s+.*\|\s*sh"""),
-            Regex("""(?i)chmod\s+\+x"""),
-            Regex("""(?i)chown\s+root"""),
-            Regex("""(?i)nohup\s+"""),
-            Regex("""(?i)setsid\s+"""),
-            Regex(""";\s*rm\s+-rf"""),
-            Regex("""\|\s*rm\s+-rf"""),
-            Regex("""&&\s*rm\s+-rf"""),
-            Regex("""(?i)su\s+-c"""),
-            Regex("""(?i)sudo\s+"""),
-            Regex("""(?i)mount\s+-o\s+remount"""),
-            Regex("""(?i)iptables\s+"""),
-            Regex("""(?i)insmod\s+"""),
-            Regex("""(?i)rmmod\s+""")
-        )
-
-        private val SHELL_OBFUSCATION_INDICATORS = listOf(
-            Regex("""\$\{IFS\}"""),
-            Regex("""\$\{PATH\:"""),
-            Regex("""''"""),
-            Regex("""(?i)\bcat\b\s+.*\bcat\b"""),
-            Regex("""(?i)head\s+-c\s+\d+\s+"""),
-            Regex("""(?i)tail\s+-c\s+\d+\s+"""),
-            Regex("""(?i)rev\s+"""),
-            Regex("""(?i)tr\s+""")
-        )
-
-        private val DANGEROUS_PATTERNS = listOf(
-            Regex("rm\\s+-rf\\s+/"),
-            Regex("dd\\s+if="),
-            Regex("mkfs"),
-            Regex("chmod\\s+777\\s+/"),
-            Regex("chown\\s+root"),
-            Regex("sudo\\s+"),
-            Regex("su\\s+-"),
-            Regex("curl.*\\|.*sh"),
-            Regex("wget.*\\|.*sh"),
-            Regex("DROP\\s+TABLE", RegexOption.IGNORE_CASE),
-            Regex("DELETE\\s+FROM", RegexOption.IGNORE_CASE),
-            Regex("INSERT\\s+INTO", RegexOption.IGNORE_CASE),
-            Regex("\\$\\(.*\\)"),
-            Regex("`.*`"),
-        )
-
-        private val SENSITIVE_INPUT_PATTERNS = listOf(
-            Regex("""(?i)(密码|password|passwd|pin|验证码|captcha)"""),
-            Regex("""(?i)(支付|付款|转账|transfer|payment)"""),
-            Regex("""(?i)(删除|清空|卸载|delete|remove|uninstall|clear)""")
-        )
-    }
 }
