@@ -136,6 +136,7 @@ interface SessionStore {
     suspend fun markSessionInterrupted(sessionId: String): Result<Unit>
     suspend fun markSessionResumed(sessionId: String): Result<Unit>
     suspend fun hideSession(sessionId: String): Result<Unit>
+    suspend fun updatePrivacyMode(sessionId: String, privacyMode: Boolean): Result<Unit>
 
     /**
      * 删除会话及其关联的 chat_with_agent 私聊会话。
@@ -579,6 +580,14 @@ class LocalSessionStore : SessionStore {
         return runCatching {
             val session = sessions[sessionId] ?: throw IllegalStateException("Session not found")
             sessions[sessionId] = session.copy(isHidden = true)
+            notifySessionsChanged()
+        }
+    }
+
+    override suspend fun updatePrivacyMode(sessionId: String, privacyMode: Boolean): Result<Unit> {
+        return runCatching {
+            val session = sessions[sessionId] ?: throw IllegalStateException("Session not found")
+            sessions[sessionId] = session.copy(privacyMode = privacyMode)
             notifySessionsChanged()
         }
     }

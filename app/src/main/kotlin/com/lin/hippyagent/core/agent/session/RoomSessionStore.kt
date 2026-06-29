@@ -376,6 +376,9 @@ class RoomSessionStore(
     override suspend fun hideSession(sessionId: String): Result<Unit> =
         runCatching { sessionDao.updateHidden(sessionId, true) }
 
+    override suspend fun updatePrivacyMode(sessionId: String, privacyMode: Boolean): Result<Unit> =
+        runCatching { sessionDao.updatePrivacyMode(sessionId, privacyMode) }
+
     override suspend fun deleteSessionWithPrivateChats(sessionId: String): Result<Unit> =
         runCatching {
             val privateChatIds = sessionDao.findPrivateSessionIdsBySuffix(escapeLike(sessionId))

@@ -133,7 +133,11 @@ data class ChatUiState(
     val autoDecidedModeTurnId: String? = null,
     val selectedModeLocked: Boolean = false,
     /** Auto/Work 模式正在 LLM 决策中 (决策完成前显示「决策中」状态) */
-    val isModeDeciding: Boolean = false
+    val isModeDeciding: Boolean = false,
+    /** B3 隐私模式：强制所有 LLM 调用走端侧模型 */
+    val privacyMode: Boolean = false,
+    /** 端侧模型是否已加载（用于控制隐私模式开关可用性） */
+    val onDeviceModelReady: Boolean = false
 )
 
 @Immutable
@@ -264,6 +268,16 @@ class ChatViewModel(
     init {
         loadAvailableModels()
         startApprovalObserver()
+        observeOnDeviceModelReady()
+    }
+
+    private fun observeOnDeviceModelReady() {
+        val manager = onDeviceModelManager ?: return
+        viewModelScope.launch {
+            manager.currentEngineModelId.collect { modelId ->
+                _uiState.update { it.copy(onDeviceModelReady = modelId != null) }
+            }
+        }
     }
 
     private fun startApprovalObserver() {
@@ -409,6 +423,7 @@ class ChatViewModel(
                         } else {
                             _uiState.update { it.copy(sessionTitle = session.title) }
                         }
+                        _uiState.update { it.copy(privacyMode = session.privacyMode) }
                         if (session.title != context.getString(R.string.chat_new_session)) {
                             hasDerivedTitle = true
                         }
@@ -802,7 +817,7 @@ class ChatViewModel(
                 .onSuccess { session ->
                     loadedSession = session
                     if (session != null) {
-                        _uiState.update { it.copy(sessionTitle = session.title) }
+                        _uiState.update { it.copy(sessionTitle = session.title, privacyMode = session.privacyMode) }
                         hasDerivedTitle = session.title != context.getString(R.string.chat_new_session)
                     }
                 }
@@ -1674,6 +1689,15 @@ class ChatViewModel(
             viewModelScope.launch {
                 sessionStore.updateSessionModel(sessionId, modelName)
             }
+        }
+    }
+
+    fun togglePrivacyMode(enabled: Boolean) {
+        val sid = _uiState.value.sessionId
+        if (sid.isEmpty()) return
+        viewModelScope.launch {
+            sessionStore.updatePrivacyMode(sid, enabled)
+            _uiState.update { it.copy(privacyMode = enabled) }
         }
     }
 

@@ -58,6 +58,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
@@ -159,6 +160,7 @@ fun ChatScreen(
     var expandTrigger by remember { mutableIntStateOf(0) }
     var showQueueSheet by remember { mutableStateOf(false) }
     val queueItems by viewModel.messageQueueItems.collectAsStateWithLifecycle()
+    var showPrivacyMenu by remember { mutableStateOf(false) }
 
     // ── STT 语音输入 ──
     val sttService: com.lin.hippyagent.core.voice.STTService = org.koin.compose.koinInject()
@@ -505,6 +507,21 @@ fun ChatScreen(
                     }
                     IconButton(onClick = { activePanel = ActivePanel.SEARCH }) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                    }
+                    IconButton(onClick = { showPrivacyMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.privacy_mode))
+                    }
+                    androidx.compose.material3.DropdownMenu(
+                        expanded = showPrivacyMenu,
+                        onDismissRequest = { showPrivacyMenu = false }
+                    ) {
+                        PrivacyModeToggle(
+                            privacyMode = uiState.privacyMode,
+                            onToggle = { enabled ->
+                                viewModel.togglePrivacyMode(enabled)
+                            },
+                            onDeviceModelReady = uiState.onDeviceModelReady
+                        )
                     }
                 }
             )
@@ -1631,4 +1648,41 @@ private fun sanitizeMarkdown(content: String): String {
         result = result + "\n```"
     }
     return result
+}
+
+@Composable
+private fun PrivacyModeToggle(
+    privacyMode: Boolean,
+    onToggle: (Boolean) -> Unit,
+    onDeviceModelReady: Boolean
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.privacy_mode),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = stringResource(R.string.privacy_mode_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(
+                checked = privacyMode,
+                onCheckedChange = onToggle,
+                enabled = onDeviceModelReady
+            )
+        }
+        if (!onDeviceModelReady && privacyMode) {
+            Text(
+                text = stringResource(R.string.privacy_mode_model_not_ready),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
 }

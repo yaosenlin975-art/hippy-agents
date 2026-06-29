@@ -1950,6 +1950,10 @@
     <string name="onboarding_step_complete_desc">开始你的智能体之旅</string>
     <!-- C1 UI 修复：硬编码字符串提取 -->
     <string name="chat_plan">计划</string>
+    <!-- B3 隐私模式 -->
+    <string name="privacy_mode">隐私模式</string>
+    <string name="privacy_mode_desc">开启后所有对话在本地处理，不会发送到云端。需要先下载并加载端侧模型。端侧模型能力有限，复杂任务可能无法完成。</string>
+    <string name="privacy_mode_model_not_ready">端侧模型未加载，请先在设置中下载并加载端侧模型</string>
     <string name="skill_low_score_warning">低分警告</string>
     <string name="skill_archived">已归档</string>
     <string name="api_key_label">API Key</string>
