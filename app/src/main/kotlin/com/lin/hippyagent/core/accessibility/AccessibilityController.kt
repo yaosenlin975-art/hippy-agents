@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
+import com.lin.hippyagent.core.security.RiskLevel
 import kotlinx.serialization.json.Json
 
 class AccessibilityController(

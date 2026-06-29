@@ -98,6 +98,7 @@ import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
+import com.lin.hippyagent.core.security.RiskLevel
 import com.lin.hippyagent.core.skill.SkillManager
 import java.io.File
 import com.lin.hippyagent.ui.chat.PlanProgressChip
@@ -806,9 +807,9 @@ fun ChatScreen(
                     Text(stringResource(R.string.chat_action_label, approval.action), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     approval.target?.let { Text(stringResource(R.string.chat_target_label, it), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     Text(stringResource(R.string.chat_risk_level_label, when (approval.riskLevel) {
-                        com.lin.hippyagent.core.accessibility.RiskLevel.LOW -> stringResource(R.string.risk_low)
-                        com.lin.hippyagent.core.accessibility.RiskLevel.MEDIUM -> stringResource(R.string.risk_medium)
-                        com.lin.hippyagent.core.accessibility.RiskLevel.HIGH -> stringResource(R.string.risk_high)
+                        RiskLevel.LOW -> stringResource(R.string.risk_low)
+                        RiskLevel.MEDIUM -> stringResource(R.string.risk_medium)
+                        RiskLevel.HIGH -> stringResource(R.string.risk_high)
                         else -> stringResource(R.string.risk_blocked)
                     }), fontSize = 13.sp, color = MaterialTheme.colorScheme.tertiary)
                 }

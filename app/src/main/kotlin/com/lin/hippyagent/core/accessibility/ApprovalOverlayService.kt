@@ -17,6 +17,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
+import com.lin.hippyagent.core.security.RiskLevel
 import com.lin.hippyagent.ui.MainActivity
 import com.lin.hippyagent.R
 import kotlinx.coroutines.CoroutineScope

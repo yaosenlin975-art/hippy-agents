@@ -1,7 +1,8 @@
-﻿package com.lin.hippyagent.core.accessibility
+package com.lin.hippyagent.core.accessibility
 
 import android.content.Context
 import android.util.Log
+import com.lin.hippyagent.core.security.RiskLevel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

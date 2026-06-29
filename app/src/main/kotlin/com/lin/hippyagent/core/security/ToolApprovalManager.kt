@@ -7,7 +7,7 @@ import com.lin.hippyagent.core.agent.task.TaskDao
 import com.lin.hippyagent.core.agent.task.TaskEntity
 import com.lin.hippyagent.core.agent.task.TaskStatus
 import com.lin.hippyagent.core.agent.task.TaskStep
-import com.lin.hippyagent.core.tools.ToolGuardian
+import com.lin.hippyagent.core.security.RiskLevel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +30,7 @@ data class PendingToolApproval(
     val requestId: String,
     val toolName: String,
     val arguments: Map<String, Any>,
-    val riskLevel: ToolGuardian.RiskLevel,
+    val riskLevel: RiskLevel,
     val findings: List<GuardFinding>,
     val sessionId: String?,
     val agentId: String,
@@ -105,7 +105,7 @@ class ToolApprovalManager(
     suspend fun requestApproval(
         toolName: String,
         arguments: Map<String, Any>,
-        riskLevel: ToolGuardian.RiskLevel,
+        riskLevel: RiskLevel,
         findings: List<GuardFinding>,
         sessionId: String?,
         agentId: String

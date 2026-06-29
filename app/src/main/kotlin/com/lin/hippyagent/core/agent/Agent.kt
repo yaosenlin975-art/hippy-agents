@@ -41,6 +41,7 @@ import com.lin.hippyagent.core.network.NetworkMonitor
 import com.lin.hippyagent.core.storage.StorageManager
 import com.lin.hippyagent.core.pool.StringBuilderPool
 import com.lin.hippyagent.core.pool.ToolCallInfoListPool
+import com.lin.hippyagent.core.security.RiskLevel
 import com.lin.hippyagent.core.tools.ToolCall
 import com.lin.hippyagent.core.tools.ToolContext
 import com.lin.hippyagent.core.tools.ToolParameter
@@ -2105,7 +2106,7 @@ _你刚醒来。该搞清楚自己是谁了。_
                     )
                 }
 
-                if (securityCheck.riskLevel >= com.lin.hippyagent.core.tools.ToolGuardian.RiskLevel.HIGH) {
+                if (securityCheck.riskLevel >= RiskLevel.HIGH) {
                     if (approvalManager != null) {
                         val existingRule = approvalManager.checkRule(toolCall.function.name, resolvedArguments)
                         val action = when {

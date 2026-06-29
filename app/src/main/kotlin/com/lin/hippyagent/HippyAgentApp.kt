@@ -7,8 +7,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import com.lin.hippyagent.core.accessibility.ActionApprover
+import com.lin.hippyagent.core.security.RiskLevel
 import com.lin.hippyagent.core.security.ToolApprovalManager
-import com.lin.hippyagent.core.tools.ToolGuardian
 import com.lin.hippyagent.core.memory.dream.DreamMemoryProcessor
 import com.lin.hippyagent.core.memory.commonmemory.MemoryDatabase
 import com.lin.hippyagent.core.memory.commonmemory.MemoryRepository
@@ -246,8 +246,8 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
                 for (pending in pendingList) {
                     if (notifiedIds.add(pending.requestId) && !isAppInForeground) {
                         val severity = when (pending.riskLevel) {
-                            ToolGuardian.RiskLevel.CRITICAL -> "critical"
-                            ToolGuardian.RiskLevel.HIGH -> "high"
+                            RiskLevel.CRITICAL -> "critical"
+                            RiskLevel.HIGH -> "high"
                             else -> "medium"
                         }
                         val findingsSummary = pending.findings.take(3).joinToString(", ") { it.title }
