@@ -37,6 +37,7 @@ import com.lin.hippyagent.core.model.FailoverEngine
 import com.lin.hippyagent.core.model.FailoverError
 import com.lin.hippyagent.core.model.FailoverAction
 import com.lin.hippyagent.core.model.AuthProfileManager
+import com.lin.hippyagent.core.model.ContextWindowGuard
 import com.lin.hippyagent.core.network.NetworkMonitor
 import com.lin.hippyagent.core.storage.StorageManager
 import com.lin.hippyagent.core.pool.StringBuilderPool
@@ -1983,7 +1984,11 @@ _你刚醒来。该搞清楚自己是谁了。_
                     stripModelPrefix(it.name) == modelName || it.name == modelName
                 }
                 if (match?.contextWindow != null) {
-                    return match.contextWindow
+                    val guardResult = ContextWindowGuard.check(match.contextWindow)
+                    ContextWindowGuard.warnIfNecessary(guardResult, profile.modelName)
+                    return guardResult.effectiveContextWindow.takeIf {
+                        guardResult.decision != ContextWindowGuard.GuardDecision.BLOCK
+                    }
                 }
             }
         } catch (_: Exception) {}
