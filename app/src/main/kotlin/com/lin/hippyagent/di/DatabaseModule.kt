@@ -151,4 +151,22 @@ val databaseModule = module {
             aliasResolver = get()
         )
     }
+
+    single { get<AppDatabase>().volunteerEventDao() }
+
+    single {
+        com.lin.hippyagent.core.memory.volunteer.EntitySalienceExtractor(
+            chineseTokenizer = com.lin.hippyagent.core.memory.ChineseTokenizer
+        )
+    }
+
+    single { com.lin.hippyagent.core.memory.volunteer.CandidateScorer() }
+
+    single {
+        com.lin.hippyagent.core.memory.volunteer.VolunteerContextInjector(
+            memoryRepository = get(),
+            entitySalienceExtractor = get(),
+            candidateScorer = get()
+        )
+    }
 }
