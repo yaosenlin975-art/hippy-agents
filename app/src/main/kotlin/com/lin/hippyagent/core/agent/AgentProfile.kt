@@ -56,6 +56,13 @@ data class AgentProfile(
     @SerialName("vlm_model_provider")
     val vlmModelProvider: String = "",
 
+    /** B4：摘要/压缩专用模型 — 默认指向端侧模型以降低云端成本 */
+    @SerialName("summary_model_name")
+    val summaryModelName: String = "",
+
+    @SerialName("summary_model_provider")
+    val summaryModelProvider: String = "",
+
     @SerialName("is_default")
     val isDefault: Boolean = false,
 
