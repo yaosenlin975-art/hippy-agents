@@ -41,7 +41,12 @@ import com.lin.hippyagent.core.network.NetworkMonitor
 import com.lin.hippyagent.core.storage.StorageManager
 import com.lin.hippyagent.core.pool.StringBuilderPool
 import com.lin.hippyagent.core.pool.ToolCallInfoListPool
+import com.lin.hippyagent.core.security.InputGuard
 import com.lin.hippyagent.core.security.RiskLevel
+import com.lin.hippyagent.core.security.SecuritySpanReporter
+import com.lin.hippyagent.core.security.injection.InjectionDetector
+import com.lin.hippyagent.core.security.output.OutputValidator
+import com.lin.hippyagent.core.security.pii.PiiMasker
 import com.lin.hippyagent.core.tools.ToolCall
 import com.lin.hippyagent.core.tools.ToolContext
 import com.lin.hippyagent.core.tools.ToolParameter
@@ -576,7 +581,9 @@ class Agent(
         isLastIteration: Boolean,
         escalatedThisTurn: Boolean,
         turnFailureTracker: com.lin.hippyagent.core.model.routing.TurnFailureTracker,
-        thinkingDurationMs: Long = 0L
+        thinkingDurationMs: Long = 0L,
+        inputGuard: InputGuard? = null,
+        traceId: String? = null
     ): ToolCallResult {
         val allowedToolNames = toolRegistry.getDefinitionsForAgent(
             agentId = profile.agentId
@@ -686,9 +693,30 @@ class Agent(
             }
             sessionStore.addMessage(sessionId, MessageRole.TOOL, resultContent, toolName = toolCall.function.name, senderId = profile.agentId)
             Timber.d("Tool result: toolCallId=${toolCall.id}, name=${toolCall.function.name}, content=${resultContent.take(50)}")
+            val llmToolContent = if (inputGuard != null && traceId != null) {
+                val guardedToolOutput = inputGuard.guard(resultContent, InjectionDetector.DetectionResult.Source.TOOL_OUTPUT)
+                for (detection in guardedToolOutput.detections) {
+                    SecuritySpanReporter.report(
+                        type = when (detection.type) {
+                            InputGuard.Detection.DetectionType.PII_MASKED -> SecuritySpanReporter.SecurityEventType.PII_MASKED
+                            InputGuard.Detection.DetectionType.INJECTION_DETECTED -> SecuritySpanReporter.SecurityEventType.INJECTION_DETECTED
+                            InputGuard.Detection.DetectionType.JAILBREAK_DETECTED -> SecuritySpanReporter.SecurityEventType.JAILBREAK_DETECTED
+                        },
+                        severity = detection.severity,
+                        traceId = traceId,
+                        source = detection.source.name,
+                        ruleId = detection.ruleId,
+                        matchedSnippet = detection.matchedSnippet,
+                        blocked = detection.blocked
+                    )
+                }
+                guardedToolOutput.processedText
+            } else {
+                resultContent
+            }
             messages.add(ModelMessage(
                 role = "tool",
-                content = resultContent,
+                content = llmToolContent,
                 toolCallId = toolCall.id
             ))
             if (toolResult?.needsPermissionApproval == true) {
@@ -787,11 +815,35 @@ class Agent(
         sessionManager?.updateActivity(sessionId)
         updateSessionState(sessionId) { it.copy(status = AgentStatus.THINKING, isThinking = true, usedFallbackModel = null) }
 
+        val traceId = coroutineContext[TraceContextElement]?.traceId ?: UUID.randomUUID().toString()
+        val piiMasker = PiiMasker()
+        val inputGuard = InputGuard(piiMasker, traceId)
+        val outputValidator = OutputValidator(piiMasker)
+        var consecutiveValidationFailures = 0
+
         var capturedMessages: MutableList<ModelMessage>? = null
         return runCatching {
             Timber.d("Agent ${profile.agentId} processing message: $content")
 
-            val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel, forceEscalate)
+            val guardedInput = inputGuard.guard(content, InjectionDetector.DetectionResult.Source.USER_INPUT)
+            for (detection in guardedInput.detections) {
+                SecuritySpanReporter.report(
+                    type = when (detection.type) {
+                        InputGuard.Detection.DetectionType.PII_MASKED -> SecuritySpanReporter.SecurityEventType.PII_MASKED
+                        InputGuard.Detection.DetectionType.INJECTION_DETECTED -> SecuritySpanReporter.SecurityEventType.INJECTION_DETECTED
+                        InputGuard.Detection.DetectionType.JAILBREAK_DETECTED -> SecuritySpanReporter.SecurityEventType.JAILBREAK_DETECTED
+                    },
+                    severity = detection.severity,
+                    traceId = traceId,
+                    source = detection.source.name,
+                    ruleId = detection.ruleId,
+                    matchedSnippet = detection.matchedSnippet,
+                    blocked = detection.blocked
+                )
+            }
+            val guardedContent = guardedInput.processedText
+
+            val ctx = prepareMessageContext(sessionId, channelId, guardedContent, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel, forceEscalate)
                 ?: return Result.failure(NetworkUnavailableException("网络连接不可用，消息已缓存"))
 
             val effectiveClient = ctx.effectiveClient
@@ -860,6 +912,25 @@ class Agent(
                         cacheWriteTokens = usage.cacheWriteTokens
                     )
                 }
+
+                val registeredToolNames = toolDefinitions.map { it.name }.toSet()
+                val validationResult = outputValidator.validate(resp, registeredToolNames)
+                if (!validationResult.valid) {
+                    consecutiveValidationFailures++
+                    SecuritySpanReporter.report(
+                        type = SecuritySpanReporter.SecurityEventType.OUTPUT_VALIDATION_FAILED,
+                        severity = RiskLevel.HIGH,
+                        traceId = traceId,
+                        source = "LLM_OUTPUT",
+                        blocked = true,
+                        ruleId = validationResult.errors.joinToString(";")
+                    )
+                    if (consecutiveValidationFailures >= 3) {
+                        throw RuntimeException("连续 3 次 LLM 输出校验失败，终止")
+                    }
+                    return@repeat
+                }
+                consecutiveValidationFailures = 0
 
                 val choice = resp.choices.firstOrNull()
                     ?: throw IllegalStateException("No choices in response")
@@ -962,7 +1033,9 @@ class Agent(
                         messages = messages,
                         isLastIteration = isLastIteration,
                         escalatedThisTurn = escalatedThisTurn,
-                        turnFailureTracker = turnFailureTracker
+                        turnFailureTracker = turnFailureTracker,
+                        inputGuard = inputGuard,
+                        traceId = traceId
                     )
                     escalatedThisTurn = tcResult.escalatedThisTurn
                     // 后台补判：tool 调用 > 1 次 → 自动切复杂任务模型 (本轮剩余使用)
@@ -987,6 +1060,7 @@ class Agent(
                 }
             }
         }.also { result ->
+            piiMasker.clear()
             sessionContexts[sessionId]?.job = null
             val currentState = _state.value.getSessionState(sessionId)
             if (currentState.status == AgentStatus.STOPPED) {
