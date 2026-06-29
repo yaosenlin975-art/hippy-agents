@@ -798,7 +798,12 @@ class Agent(
             val toolDefinitions = ctx.toolDefinitions
             var escalatedThisTurn = ctx.escalatedThisTurn
 
-            val loopDetector = LoopDetector()
+            val loopDetector = com.lin.hippyagent.core.agent.loop.ToolLoopDetection().also { detector ->
+                // 注册默认轮询类工具
+                com.lin.hippyagent.core.agent.loop.ToolLoopDetection.DEFAULT_POLL_TOOLS.forEach {
+                    detector.registerPollTool(it)
+                }
+            }
             var autoContinueExtraCount = 0
             val turnFailureTracker = com.lin.hippyagent.core.model.routing.TurnFailureTracker()
 
@@ -857,7 +862,16 @@ class Agent(
                 val choice = resp.choices.firstOrNull()
                     ?: throw IllegalStateException("No choices in response")
 
-                when (val loopResult = checkLoopAndInterrupt(iteration, loopDetector, turnFailureTracker, choice.message.toolCalls?.map { it.function.name }, choice.message.content)) {
+                val nonStreamToolArgs = choice.message.toolCalls?.joinToString("|") { it.function.arguments ?: "" } ?: ""
+                when (val loopResult = checkLoopAndInterrupt(
+                    iteration = iteration,
+                    loopDetector = loopDetector,
+                    turnFailureTracker = turnFailureTracker,
+                    toolCallNames = choice.message.toolCalls?.map { it.function.name },
+                    textContent = choice.message.content,
+                    toolCallArgsJson = nonStreamToolArgs,
+                    resultText = ""
+                )) {
                     is LoopCheckResult.Warn -> {
                         if (loopResult.shouldEscalate) {
                             escalatedThisTurn = true
@@ -1075,7 +1089,12 @@ class Agent(
             var estimatedInputTokens = 0L
             var estimatedOutputTokens = 0L
             var iterationExhausted = false
-            val loopDetector = LoopDetector()
+            val loopDetector = com.lin.hippyagent.core.agent.loop.ToolLoopDetection().also { detector ->
+                // 注册默认轮询类工具
+                com.lin.hippyagent.core.agent.loop.ToolLoopDetection.DEFAULT_POLL_TOOLS.forEach {
+                    detector.registerPollTool(it)
+                }
+            }
             var autoContinueExtraCount = 0
             val turnFailureTracker = com.lin.hippyagent.core.model.routing.TurnFailureTracker()
             repeat(profile.running.maxIters) { iteration ->
@@ -1218,7 +1237,17 @@ class Agent(
                     else -> {}
                 }
 
-                when (val loopResult = checkLoopAndInterrupt(iteration, loopDetector, turnFailureTracker, reusableToolCallList.map { it.function.name }, fullContent.toString(), isStream = true)) {
+                val streamToolArgs = reusableToolCallList.joinToString("|") { it.function.arguments ?: "" }
+                when (val loopResult = checkLoopAndInterrupt(
+                    iteration = iteration,
+                    loopDetector = loopDetector,
+                    turnFailureTracker = turnFailureTracker,
+                    toolCallNames = reusableToolCallList.map { it.function.name },
+                    textContent = fullContent.toString(),
+                    toolCallArgsJson = streamToolArgs,
+                    resultText = "",
+                    isStream = true
+                )) {
                     is LoopCheckResult.Warn -> {
                         if (loopResult.shouldEscalate) {
                             escalatedThisTurn = true
@@ -2359,30 +2388,36 @@ Do not stop with plans or code fences alone when tools are still needed.</system
 
     private fun checkLoopAndInterrupt(
         iteration: Int,
-        loopDetector: LoopDetector,
+        loopDetector: com.lin.hippyagent.core.agent.loop.ToolLoopDetection,
         turnFailureTracker: com.lin.hippyagent.core.model.routing.TurnFailureTracker,
         toolCallNames: List<String>?,
         textContent: String,
+        toolCallArgsJson: String = "",
+        resultText: String = "",
         isStream: Boolean = false
     ): LoopCheckResult {
-        val signature = buildIterationSignature(toolCallNames)
         val tag = if (isStream) "(stream)" else ""
-        when (loopDetector.checkAndRecord(signature)) {
-            LoopDetector.LoopLevel.WARN -> {
-                Timber.w("Loop warning${tag} for agent ${profile.agentId} at iteration $iteration")
+        val detection = loopDetector.checkAndRecord(
+            toolName = toolCallNames?.firstOrNull() ?: "unknown",
+            paramsJson = toolCallArgsJson,
+            resultText = resultText
+        )
+        when (detection.level) {
+            com.lin.hippyagent.core.agent.loop.ToolLoopDetection.LoopLevel.WARN -> {
+                Timber.w("Loop warning${tag} for agent ${profile.agentId} at iteration $iteration: ${detection.message}")
                 val escalated = turnFailureTracker.noteFailure(
                     com.lin.hippyagent.core.model.routing.TurnFailureTracker.FailureSignal.REPEAT_LOOP
                 )
                 return LoopCheckResult.Warn(shouldEscalate = escalated && profile.complexModelName.isNotEmpty())
             }
-            LoopDetector.LoopLevel.HARD -> {
-                Timber.w("Loop hard limit${tag} for agent ${profile.agentId} at iteration $iteration")
+            com.lin.hippyagent.core.agent.loop.ToolLoopDetection.LoopLevel.CRITICAL -> {
+                Timber.w("Loop hard limit${tag} for agent ${profile.agentId} at iteration $iteration: ${detection.message}")
                 return LoopCheckResult.Hard(
                     partialReply = textContent.ifEmpty { "" },
                     hasToolCalls = !toolCallNames.isNullOrEmpty()
                 )
             }
-            LoopDetector.LoopLevel.NONE -> {}
+            com.lin.hippyagent.core.agent.loop.ToolLoopDetection.LoopLevel.NONE -> {}
         }
         return LoopCheckResult.None
     }
@@ -2645,47 +2680,4 @@ Do not stop with plans or code fences alone when tools are still needed.</system
         Timber.i("Agent ${profile.agentId} destroyed and resources released")
     }
 
-    private fun buildIterationSignature(
-        toolNames: List<String>?
-    ): String {
-        val toolPart = toolNames?.sorted()?.joinToString(",") ?: ""
-        return toolPart
-    }
-}
-
-private class LoopDetector(
-    private val windowSize: Int = 10,
-    private val warnThreshold: Int = 3,
-    private val hardLimit: Int = 5,
-    private val maxConsecutiveWarns: Int = 3
-) {
-    private val recentSignatures = ArrayDeque<String>(windowSize)
-    private var consecutiveWarnCount = 0
-
-    enum class LoopLevel { NONE, WARN, HARD }
-
-    fun checkAndRecord(signature: String): LoopLevel {
-        recentSignatures.addLast(signature)
-        if (recentSignatures.size > windowSize) {
-            recentSignatures.removeFirst()
-        }
-        if (recentSignatures.size < warnThreshold) {
-            consecutiveWarnCount = 0
-            return LoopLevel.NONE
-        }
-        val first = recentSignatures.first()
-        val repeatCount = recentSignatures.count { it == first }
-        return when {
-            repeatCount >= hardLimit && consecutiveWarnCount >= maxConsecutiveWarns -> LoopLevel.HARD
-            repeatCount >= warnThreshold -> {
-                consecutiveWarnCount++
-                if (consecutiveWarnCount >= maxConsecutiveWarns) LoopLevel.HARD
-                else LoopLevel.WARN
-            }
-            else -> {
-                consecutiveWarnCount = 0
-                LoopLevel.NONE
-            }
-        }
-    }
 }
