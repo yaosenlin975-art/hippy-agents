@@ -271,6 +271,36 @@ class ContextManager(
     }
 
     /**
+     * T1-4: 按 ConversationMemoryPolicy 划分硬保留区 vs 可压缩区.
+     *
+     * - 硬保留区: 最近 N 个用户对话轮次 (含其后的 assistant/tool 消息), 不参与压缩
+     * - 可压缩区: 硬保留区之前的所有消息, 可被 LLM 压缩
+     *
+     * @param messages 已 pruneToolResults 后的消息列表
+     * @return Pair(可压缩区, 硬保留区)
+     */
+    private fun partitionByDialogPolicy(
+        messages: List<SessionMessage>
+    ): Pair<List<SessionMessage>, List<SessionMessage>> {
+        // 统计用户对话轮次
+        val userIndices = messages.mapIndexedNotNull { i, m ->
+            if (m.role == MessageRole.USER) i else null
+        }
+        val totalTurns = userIndices.size
+        if (totalTurns == 0) return messages to emptyList()
+
+        val keepCount = ConversationMemoryPolicy.rememberableTurns(totalTurns)
+        // 不足 keepCount 轮, 全部保留, 无可压缩区
+        if (totalTurns <= keepCount) return emptyList<SessionMessage>() to messages
+
+        // 取最近 keepCount 轮的起始 user 消息索引, 该索引及之后的全部硬保留
+        val keepStartUserIdx = userIndices[userIndices.size - keepCount]
+        val toKeep = messages.drop(keepStartUserIdx)
+        val toCompress = messages.take(keepStartUserIdx)
+        return toCompress to toKeep
+    }
+
+    /**
      * 分割消息 - 确定哪些需要压缩，哪些保留
      * P2 增强: 语义重要性评分辅助分割决策
      * P1-4 增强: tool_use/tool_result 对齐保护，防止截断后出现孤立的 tool 消息
