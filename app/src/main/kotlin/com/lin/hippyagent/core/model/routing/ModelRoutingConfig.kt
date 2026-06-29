@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.model.routing
+package com.lin.hippyagent.core.model.routing
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -70,6 +70,14 @@ data class RoutingConfig(
     @SerialName("fallback_endpoint")
     val fallbackEndpoint: ModelEndpointConfig? = null,
 
+    /** B2：端侧模型 ID（如 "gemma3-1b-it"），为 null 时不启用端侧路由 */
+    @SerialName("on_device_model")
+    val onDeviceModel: String? = null,
+
+    /** B2：端侧模型 endpoint 配置 */
+    @SerialName("on_device_endpoint")
+    val onDeviceEndpoint: ModelEndpointConfig? = null,
+
     @SerialName("threshold")
     val threshold: Float = 0.35f,
 
@@ -119,6 +127,7 @@ data class ModelRoutingConfig(
                 routing.lightModel -> routing.lightEndpoint
                 routing.heavyModel -> routing.heavyEndpoint
                 routing.fallbackModel -> routing.fallbackEndpoint
+                routing.onDeviceModel -> routing.onDeviceEndpoint
                 else -> null
             }
     }
