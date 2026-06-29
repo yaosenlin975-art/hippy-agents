@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.lin.hippyagent.R
+import com.lin.hippyagent.core.model.ContextWindowGuard
 import com.lin.hippyagent.core.model.ModelConfig
 import java.util.UUID
 
@@ -38,6 +40,7 @@ fun ModelConfigDialog(
     var contextWindowStr by remember { mutableStateOf((model?.contextWindow ?: 16384).toString()) }
     var temperature by remember { mutableFloatStateOf(model?.temperature ?: 0.7f) }
     var topP by remember { mutableFloatStateOf(model?.topP ?: 1.0f) }
+    var contextWindowError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -69,12 +72,26 @@ fun ModelConfigDialog(
 
                 OutlinedTextField(
                     value = contextWindowStr,
-                    onValueChange = { if (it.all { c -> c.isDigit() }) contextWindowStr = it },
+                    onValueChange = {
+                        if (it.all { c -> c.isDigit() }) {
+                            contextWindowStr = it
+                            contextWindowError = null
+                        }
+                    },
                     label = { Text(stringResource(R.string.model_context_window)) },
                     placeholder = { Text(stringResource(R.string.placeholder_context_window)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                contextWindowError?.let { error ->
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Text(stringResource(R.string.model_temperature_format, temperature), modifier = Modifier.fillMaxWidth())
                 Slider(
@@ -96,18 +113,24 @@ fun ModelConfigDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(
-                        ModelConfig(
-                            id = model?.id ?: UUID.randomUUID().toString(),
-                            providerId = providerId,
-                            name = name,
-                            displayName = displayName,
-                            maxTokens = maxTokensStr.toIntOrNull() ?: 4096,
-                            contextWindow = contextWindowStr.toIntOrNull() ?: 16384,
-                            temperature = temperature,
-                            topP = topP
+                    val contextWindow = contextWindowStr.toIntOrNull() ?: 16384
+                    val guardResult = ContextWindowGuard.check(contextWindow)
+                    if (guardResult.decision != ContextWindowGuard.GuardDecision.BLOCK) {
+                        onConfirm(
+                            ModelConfig(
+                                id = model?.id ?: UUID.randomUUID().toString(),
+                                providerId = providerId,
+                                name = name,
+                                displayName = displayName,
+                                maxTokens = maxTokensStr.toIntOrNull() ?: 4096,
+                                contextWindow = contextWindow,
+                                temperature = temperature,
+                                topP = topP
+                            )
                         )
-                    )
+                    } else {
+                        contextWindowError = guardResult.message
+                    }
                 },
                 enabled = name.isNotBlank()
             ) {
