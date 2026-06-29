@@ -26,7 +26,9 @@ data class MemoryCandidate(
 class MemoryExtractor(
     private val llmClient: ModelClient,
     private val modelName: String,
-    private val memoryRepo: MemoryRepository
+    private val memoryRepo: MemoryRepository,
+    private val knowledgeGraphStore: com.lin.hippyagent.core.knowledge.KnowledgeGraphStore? = null,
+    private val linkExtractor: com.lin.hippyagent.core.knowledge.LinkExtractor? = null
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -219,6 +221,27 @@ type 可选值: identity, preference, goal, project, habit, decision, constraint
                 expiresAt = if (isUploadRelatedFact(candidate.summary)) System.currentTimeMillis() + UPLOAD_FACT_TTL_MS else null
             )
             memoryRepo.insert(entry)
+
+            // T2-3 集成：为记忆创建图谱实体并抽取链接
+            if (knowledgeGraphStore != null && linkExtractor != null) {
+                val kgs = knowledgeGraphStore
+                val le = linkExtractor
+                runCatching {
+                    val memoryGraphEntity = com.lin.hippyagent.core.knowledge.GraphEntity(
+                        id = com.lin.hippyagent.core.pool.FastId.next(),
+                        type = com.lin.hippyagent.core.knowledge.EntityType.CONCEPT,
+                        name = entry.summary.take(60),
+                        properties = mapOf("memoryId" to entry.id, "source" to "memory_extractor"),
+                        confidence = entry.confidence
+                    )
+                    kgs.addEntity(memoryGraphEntity)
+                    val linkText = entry.summary + (entry.detail?.let { " $it" } ?: "")
+                    le.extractAndLink(memoryGraphEntity.id, linkText)
+                }.onFailure { e ->
+                    Timber.w(e, "MemoryExtractor: link extraction failed for ${entry.id}")
+                }
+            }
+
             Timber.d("MemoryExtractor: inserted new memory [${candidate.type.value}] ${candidate.summary.take(40)}")
         }
     }
