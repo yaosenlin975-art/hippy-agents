@@ -20,6 +20,8 @@ class VolunteerContextInjector(
     private val memoryRepository: MemoryRepository,
     private val entitySalienceExtractor: EntitySalienceExtractor,
     private val candidateScorer: CandidateScorer,
+    private val volunteerEventDao: VolunteerEventDao? = null,
+    private val sessionIdProvider: () -> String = { "" },
     private val minConfidence: Double = 0.7,
     private val maxPages: Int = 3,
     private val cap: Int = 5,
@@ -65,6 +67,27 @@ class VolunteerContextInjector(
                             summary = memory.summary,
                             confidence = confidence,
                             triggerEntity = name
+                        )
+                    )
+                }
+            }
+        }
+
+        // 写入事件日志（可选，runCatching 兜底）
+        val dao = volunteerEventDao
+        if (dao != null && volunteered.isNotEmpty()) {
+            val now = System.currentTimeMillis()
+            val sid = sessionIdProvider()
+            volunteered.forEach { v ->
+                runCatching {
+                    dao.insert(
+                        VolunteerEventEntity(
+                            id = com.lin.hippyagent.core.pool.FastId.next(),
+                            triggerEntity = v.triggerEntity,
+                            memoryId = v.memoryId,
+                            confidence = v.confidence,
+                            createdAt = now,
+                            sessionId = sid
                         )
                     )
                 }

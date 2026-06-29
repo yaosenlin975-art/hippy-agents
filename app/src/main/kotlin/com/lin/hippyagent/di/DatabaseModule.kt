@@ -166,7 +166,8 @@ val databaseModule = module {
         com.lin.hippyagent.core.memory.volunteer.VolunteerContextInjector(
             memoryRepository = get(),
             entitySalienceExtractor = get(),
-            candidateScorer = get()
+            candidateScorer = get(),
+            volunteerEventDao = getOrNull()
         )
     }
 }
