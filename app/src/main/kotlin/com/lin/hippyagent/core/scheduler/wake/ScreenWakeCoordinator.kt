@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import com.lin.hippyagent.ui.ScheduledTaskWakeActivity
 import timber.log.Timber
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap

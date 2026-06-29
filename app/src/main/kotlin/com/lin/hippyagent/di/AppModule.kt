@@ -356,6 +356,19 @@ val appModule = module {
         )
     }
 
+    single<com.lin.hippyagent.core.scheduler.wake.WakeLockManager> {
+        com.lin.hippyagent.core.scheduler.wake.WakeLockManager(
+            context = androidContext()
+        )
+    }
+
+    single<com.lin.hippyagent.core.scheduler.wake.ScreenWakeCoordinator> {
+        com.lin.hippyagent.core.scheduler.wake.ScreenWakeCoordinator(
+            context = androidContext(),
+            wakeLockManager = get()
+        )
+    }
+
     single<com.lin.hippyagent.core.model.health.ModelProviderHealthService> {
         com.lin.hippyagent.core.model.health.ModelProviderHealthService(
             providerStore = get()
