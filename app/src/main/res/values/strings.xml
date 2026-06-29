@@ -1933,6 +1933,14 @@
     <string name="ondevice_downloaded">已下载</string>
     <string name="ondevice_not_downloaded">未下载</string>
     <string name="ondevice_add_custom_model">下载自定义模型（HF URL）</string>
+    <!-- 端侧路由配置（ModelProviderScreen） -->
+    <string name="ondevice_routing_section">端侧路由配置</string>
+    <string name="ondevice_routing_enable">启用端侧路由（B2）</string>
+    <string name="ondevice_routing_enable_desc">简单任务自动走端侧，复杂任务走云端</string>
+    <string name="ondevice_offline_fallback_enable">启用离线兜底（B1）</string>
+    <string name="ondevice_offline_fallback_enable_desc">网络不可达时自动切换到端侧模型</string>
+    <string name="ondevice_select_model">端侧模型</string>
+    <string name="ondevice_router_model">路由判断模型（云端小模型）</string>
     <!-- ACP 客户端 -->
     <string name="acp_discovered_agents">发现 %1$d 个智能体</string>
     <!-- 智能体配置 -->

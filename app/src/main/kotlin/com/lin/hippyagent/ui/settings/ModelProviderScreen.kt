@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -102,6 +104,14 @@ fun ModelProviderScreen(
                 OnDeviceModelsSection(
                     onDeviceProviders = providers.filter { it.isVirtual },
                     onAddCustomModel = { /* TODO: 打开自定义 HF URL 下载对话框 */ }
+                )
+            }
+
+            // B1/B2：端侧路由配置区
+            item(key = "ondevice_routing_section") {
+                OnDeviceRoutingConfigSection(
+                    onDeviceProviders = providers.filter { it.isVirtual },
+                    cloudProviders = providers.filter { !it.isVirtual }
                 )
             }
 
@@ -407,5 +417,147 @@ private fun OnDeviceModelCard(provider: ModelProvider, modifier: Modifier = Modi
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary
         )
+    }
+}
+
+@Composable
+private fun OnDeviceRoutingConfigSection(
+    onDeviceProviders: List<ModelProvider>,
+    cloudProviders: List<ModelProvider>,
+    modifier: Modifier = Modifier
+) {
+    var onDeviceRoutingEnabled by remember { mutableStateOf(false) }
+    var offlineFallbackEnabled by remember { mutableStateOf(false) }
+    var selectedOnDeviceModel by remember { mutableStateOf("") }
+    var selectedRouterModel by remember { mutableStateOf("") }
+    var onDeviceExpanded by remember { mutableStateOf(false) }
+    var routerExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.15f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(R.string.ondevice_routing_section),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // B2：端侧路由开关
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.ondevice_routing_enable),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.ondevice_routing_enable_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = onDeviceRoutingEnabled,
+                    onCheckedChange = { onDeviceRoutingEnabled = it }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // B1：离线兜底开关
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.ondevice_offline_fallback_enable),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.ondevice_offline_fallback_enable_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = offlineFallbackEnabled,
+                    onCheckedChange = { offlineFallbackEnabled = it }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 端侧模型选择
+            Text(
+                text = stringResource(R.string.ondevice_select_model),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Box {
+                OutlinedTextField(
+                    value = selectedOnDeviceModel,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth().clickable { onDeviceExpanded = true },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (onDeviceExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    }
+                )
+                DropdownMenu(
+                    expanded = onDeviceExpanded,
+                    onDismissRequest = { onDeviceExpanded = false }
+                ) {
+                    onDeviceProviders.forEach { provider ->
+                        DropdownMenuItem(
+                            text = { Text(provider.name) },
+                            onClick = {
+                                selectedOnDeviceModel = provider.id
+                                onDeviceExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 路由判断模型选择（云端小模型）
+            Text(
+                text = stringResource(R.string.ondevice_router_model),
+                style = MaterialTheme.typography.bodySmall
+            )
+            Box {
+                OutlinedTextField(
+                    value = selectedRouterModel,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth().clickable { routerExpanded = true },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (routerExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    }
+                )
+                DropdownMenu(
+                    expanded = routerExpanded,
+                    onDismissRequest = { routerExpanded = false }
+                ) {
+                    cloudProviders.forEach { provider ->
+                        DropdownMenuItem(
+                            text = { Text(provider.name) },
+                            onClick = {
+                                selectedRouterModel = provider.id
+                                routerExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
