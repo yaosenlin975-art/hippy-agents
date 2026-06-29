@@ -24,6 +24,9 @@ data class CommonMemoryEntry(
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val lastSeenAt: Long = System.currentTimeMillis(),
-    val lastUsedAt: Long? = null
+    val lastUsedAt: Long? = null,
+    val untrusted: Boolean = false,
+    val untrustedReason: String? = null,
+    val untrustedRuleId: String? = null
 )
 

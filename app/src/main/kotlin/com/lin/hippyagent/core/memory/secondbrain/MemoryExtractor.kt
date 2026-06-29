@@ -3,6 +3,7 @@ package com.lin.hippyagent.core.memory.commonmemory
 import com.lin.hippyagent.core.model.ModelCallRequest
 import com.lin.hippyagent.core.model.ModelClient
 import com.lin.hippyagent.core.model.ModelMessage
+import com.lin.hippyagent.core.security.memory.MemoryContentGuard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -207,6 +208,8 @@ type 可选值: identity, preference, goal, project, habit, decision, constraint
                 return
             }
 
+            val guardResult = MemoryContentGuard.check(candidate.summary)
+
             val entry = CommonMemoryEntry(
                 id = com.lin.hippyagent.core.pool.FastId.next(),
                 type = candidate.type,
@@ -218,7 +221,10 @@ type 可选值: identity, preference, goal, project, habit, decision, constraint
                 importance = candidate.importance,
                 durability = candidate.durability,
                 isUploadRelated = isUploadRelatedFact(candidate.summary),
-                expiresAt = if (isUploadRelatedFact(candidate.summary)) System.currentTimeMillis() + UPLOAD_FACT_TTL_MS else null
+                expiresAt = if (isUploadRelatedFact(candidate.summary)) System.currentTimeMillis() + UPLOAD_FACT_TTL_MS else null,
+                untrusted = guardResult.untrusted,
+                untrustedReason = guardResult.reason,
+                untrustedRuleId = guardResult.ruleId
             )
             memoryRepo.insert(entry)
 

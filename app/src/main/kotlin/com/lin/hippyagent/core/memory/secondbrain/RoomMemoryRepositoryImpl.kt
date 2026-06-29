@@ -381,7 +381,10 @@ fun CommonMemoryEntry.toEntity(): MemoryEntity {
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         lastSeenAt = this.lastSeenAt,
-        lastUsedAt = this.lastUsedAt
+        lastUsedAt = this.lastUsedAt,
+        untrusted = this.untrusted,
+        untrustedReason = this.untrustedReason,
+        untrustedRuleId = this.untrustedRuleId
     )
 }
 
@@ -404,7 +407,10 @@ fun MemoryEntity.toCommonMemoryEntry(): CommonMemoryEntry {
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         lastSeenAt = this.lastSeenAt,
-        lastUsedAt = this.lastUsedAt
+        lastUsedAt = this.lastUsedAt,
+        untrusted = this.untrusted,
+        untrustedReason = this.untrustedReason,
+        untrustedRuleId = this.untrustedRuleId
     )
 }
 
