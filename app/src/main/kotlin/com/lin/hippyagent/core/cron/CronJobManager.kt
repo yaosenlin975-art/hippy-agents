@@ -99,6 +99,30 @@ class CronJobManager(
         jobsSnapshot = jobs.toList()
     }
 
+    /**
+     * 全量重注册所有 enabled 的 cron 任务.
+     * 用于 App 升级后 (MY_PACKAGE_REPLACED) 恢复被系统清除的定时任务.
+     *
+     * 流程: 遍历内存 jobs → 取消 unique work → 重新 scheduleJob
+     * 幂等: scheduleJob 内部用 enqueueUniqueWork(REPLACE), 重复调用安全.
+     *
+     * 协程合规: suspend + mutex.withLock, 不阻塞调用方.
+     */
+    suspend fun rescheduleAll() = mutex.withLock {
+        Timber.i("Rescheduling ${jobs.size} cron jobs after package replace")
+        for (job in jobs) {
+            runCatching {
+                workManager.cancelUniqueWork(job.id)
+                if (job.enabled) {
+                    scheduleJob(job)
+                }
+            }.onFailure { e ->
+                Timber.e(e, "Failed to reschedule cron job ${job.id}")
+            }
+        }
+        Timber.i("Reschedule complete")
+    }
+
     fun getJobs(): List<CronJob> = jobsSnapshot
 
     fun getEnabledJobs(): List<CronJob> = jobsSnapshot.filter { it.enabled }
