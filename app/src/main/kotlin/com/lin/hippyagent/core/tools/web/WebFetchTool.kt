@@ -7,12 +7,15 @@ import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolResult
+import com.lin.hippyagent.core.util.PinnedDns
+import com.lin.hippyagent.core.util.UrlSafetyChecker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import timber.log.Timber
+import java.net.URL
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
@@ -28,11 +31,14 @@ class WebFetchTool(private val context: Context) : Tool() {
         )
     )
 
+    private val pinnedDns = PinnedDns()
+
     private val client = OkHttpClient.Builder()
+        .dns(pinnedDns)
+        .followRedirects(false)
+        .followSslRedirects(false)
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-        .followRedirects(true)
-        .followSslRedirects(true)
         .build()
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
@@ -44,6 +50,15 @@ class WebFetchTool(private val context: Context) : Tool() {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             return ToolResult(callId, false, error = "URL must start with http:// or https://")
         }
+
+        // SSRF 检查（WebView 路径无法 PinnedDns，但首重+第二重检查覆盖绝大部分场景）
+        if (renderJs) {
+            val checkResult = UrlSafetyChecker.check(url)
+            if (!checkResult.allowed) {
+                return ToolResult(callId, false, error = "URL 安全检查失败: ${checkResult.message}")
+            }
+        }
+        // 非 renderJs 路径的 SSRF 检查在 fetchWithOkHttp 内逐跳执行
 
         return try {
             if (renderJs) {
@@ -58,44 +73,84 @@ class WebFetchTool(private val context: Context) : Tool() {
 
     private suspend fun fetchWithOkHttp(url: String, extractLinks: Boolean, callId: String): ToolResult {
         return withContext(Dispatchers.IO) {
-            val request = Request.Builder()
-                .url(url)
-                .header("User-Agent", DESKTOP_UA)
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
-                .build()
+            var currentUrl = url
+            var redirects = 0
+            val maxRedirects = 5
 
-            val response = client.newCall(request).execute()
-            val body = response.body?.string()
+            while (true) {
+                val checkResult = UrlSafetyChecker.check(currentUrl)
+                if (!checkResult.allowed) {
+                    return@withContext ToolResult(callId, false, error = "URL 安全检查失败: ${checkResult.message}")
+                }
 
-            if (body == null) {
-                return@withContext ToolResult(callId, false, error = "Empty response (HTTP ${response.code})")
-            }
+                val host = try {
+                    URL(currentUrl).host
+                } catch (e: Exception) {
+                    return@withContext ToolResult(callId, false, error = "无效 URL: ${e.message}")
+                }
+                pinnedDns.pin(host, checkResult.resolvedIps)
 
-            if (!response.isSuccessful) {
-                return@withContext ToolResult(callId, false, error = "HTTP ${response.code}: ${response.message}")
-            }
+                val request = Request.Builder()
+                    .url(currentUrl)
+                    .header("User-Agent", DESKTOP_UA)
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                    .header("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+                    .build()
 
-            val contentType = response.header("Content-Type", "") ?: ""
-            val result = when {
-                contentType.contains("json", ignoreCase = true) -> body
-                contentType.contains("text/plain", ignoreCase = true) -> body
-                else -> {
-                    val text = extractTextFromHtml(body)
-                    if (extractLinks) {
-                        val links = extractLinksFromHtml(body)
-                        if (links.isNotEmpty()) {
-                            "$text\n\n--- 页面链接 ---\n${links.joinToString("\n")}"
+                val response = try {
+                    client.newCall(request).execute()
+                } catch (e: Exception) {
+                    return@withContext ToolResult(callId, false, error = "请求失败: ${e.message}")
+                }
+
+                if (response.code in 301..399) {
+                    response.close()
+                    redirects++
+                    if (redirects > maxRedirects) {
+                        return@withContext ToolResult(callId, false, error = "超过最大重定向次数 $maxRedirects")
+                    }
+                    val location = response.header("Location")
+                        ?: return@withContext ToolResult(callId, false, error = "重定向无 Location 头")
+                    currentUrl = try {
+                        URL(URL(currentUrl), location).toString()
+                    } catch (e: Exception) {
+                        return@withContext ToolResult(callId, false, error = "重定向 URL 解析失败: ${e.message}")
+                    }
+                    continue
+                }
+
+                val body = response.body?.string()
+                if (body == null) {
+                    return@withContext ToolResult(callId, false, error = "Empty response (HTTP ${response.code})")
+                }
+                if (!response.isSuccessful) {
+                    return@withContext ToolResult(callId, false, error = "HTTP ${response.code}: ${response.message}")
+                }
+
+                val contentType = response.header("Content-Type", "") ?: ""
+                val result = when {
+                    contentType.contains("json", ignoreCase = true) -> body
+                    contentType.contains("text/plain", ignoreCase = true) -> body
+                    else -> {
+                        val text = extractTextFromHtml(body)
+                        if (extractLinks) {
+                            val links = extractLinksFromHtml(body)
+                            if (links.isNotEmpty()) {
+                                "$text\n\n--- 页面链接 ---\n${links.joinToString("\n")}"
+                            } else {
+                                text
+                            }
                         } else {
                             text
                         }
-                    } else {
-                        text
                     }
                 }
+
+                return@withContext ToolResult(callId, true, output = result)
             }
 
-            ToolResult(callId, true, output = result)
+            @Suppress("UNREACHABLE_CODE")
+            ToolResult(callId, false, error = "unreachable")
         }
     }
 
