@@ -121,4 +121,8 @@ val databaseModule = module {
             flowStepDao = db.flowStepDao()
         )
     }
+
+    single { com.lin.hippyagent.core.knowledge.SlugResolver(knowledgeGraphStore = get()) }
+
+    single { com.lin.hippyagent.core.knowledge.LinkExtractor(slugResolver = get(), knowledgeGraphStore = get()) }
 }

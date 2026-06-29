@@ -49,6 +49,8 @@ class AgentFactory(
     private val agentRegistry: com.lin.hippyagent.core.agent.AgentRegistry? = null,
     private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null,
     private val sessionManager: com.lin.hippyagent.core.agent.AgentSessionManager? = null,
+    private val knowledgeGraphStore: com.lin.hippyagent.core.knowledge.KnowledgeGraphStore? = null,
+    private val linkExtractor: com.lin.hippyagent.core.knowledge.LinkExtractor? = null,
     private val applicationScope: CoroutineScope,
 ) {
     /** 最大同时存活的 Agent 实例数 */
@@ -98,7 +100,9 @@ class AgentFactory(
             MemoryExtractor(
                 llmClient = modelClient,
                 modelName = profile.modelName,
-                memoryRepo = repo
+                memoryRepo = repo,
+                knowledgeGraphStore = knowledgeGraphStore,
+                linkExtractor = linkExtractor
             )
         }
 

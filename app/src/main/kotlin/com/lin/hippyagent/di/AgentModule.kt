@@ -96,6 +96,8 @@ val agentModule = module {
             approvalManager = getOrNull<com.lin.hippyagent.core.security.ToolApprovalManager>(),
             onDeviceModelManager = getOrNull<com.lin.hippyagent.core.ondevice.OnDeviceModelManager>(),
             sessionManager = getOrNull<AgentSessionManager>(),
+            knowledgeGraphStore = getOrNull<com.lin.hippyagent.core.knowledge.KnowledgeGraphStore>(),
+            linkExtractor = getOrNull<com.lin.hippyagent.core.knowledge.LinkExtractor>(),
             applicationScope = get<kotlinx.coroutines.CoroutineScope>(org.koin.core.qualifier.named("applicationScope"))
         )
     }
