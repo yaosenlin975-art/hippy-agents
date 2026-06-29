@@ -17,6 +17,7 @@ data class PromptContext(
     val customInstructions: String? = null,
     val globalRules: String? = null,
     val commonMemoryEntries: List<Pair<CommonMemoryEntry, Float>>? = null,
+    val volunteeredMemories: List<com.lin.hippyagent.core.memory.volunteer.VolunteeredMemory>? = null,
     val skills: List<SkillInfo> = emptyList(),
     val resolvedSkills: List<com.lin.hippyagent.core.skill.ResolvedSkill> = emptyList(),
     val skillCatalogText: String? = null,
@@ -55,6 +56,7 @@ class PromptBuilder(
         buildCitationsSection(context, builder)
         buildCustomInstructionsSection(context, builder)
         buildCommonMemorySection(context, builder)
+        buildVolunteeredMemoriesSection(context, builder)
         buildPlanContextSection(context, builder)
         buildBootstrapSection(context, builder)
         buildCriticalRemindersSection(context, builder)
@@ -284,6 +286,19 @@ class PromptBuilder(
             }
         }
         builder.appendLine("</common_memory>")
+        builder.appendLine()
+    }
+
+    private fun buildVolunteeredMemoriesSection(context: PromptContext, builder: StringBuilder) {
+        val volunteered = context.volunteeredMemories ?: return
+        if (volunteered.isEmpty()) return
+
+        builder.appendLine("<volunteered_memories>")
+        builder.appendLine("以下是根据当前对话主动召回的相关记忆，供参考：")
+        volunteered.forEachIndexed { index, mem ->
+            builder.appendLine("${index + 1}. [置信度 ${"%.2f".format(mem.confidence)}] ${mem.summary}")
+        }
+        builder.appendLine("</volunteered_memories>")
         builder.appendLine()
     }
 
