@@ -87,6 +87,7 @@
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" /><!-- 新增: App 升级后重注册 cron -->
             </intent-filter>
         </receiver>
 
