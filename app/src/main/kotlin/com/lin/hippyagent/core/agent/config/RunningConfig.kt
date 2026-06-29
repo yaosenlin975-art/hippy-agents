@@ -72,7 +72,10 @@ data class RunningConfig(
     val shellCommandTimeoutMs: Long = 60000,
 
     @SerialName("context_compaction_config")
-    val contextCompactionConfig: ContextCompactionConfig = ContextCompactionConfig()
+    val contextCompactionConfig: ContextCompactionConfig = ContextCompactionConfig(),
+
+    @SerialName("llm_tool_router_enabled")
+    val llmToolRouterEnabled: Boolean = true,
 )
 
 @Serializable
