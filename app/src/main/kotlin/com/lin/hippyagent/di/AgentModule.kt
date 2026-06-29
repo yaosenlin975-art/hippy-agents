@@ -96,6 +96,7 @@ val agentModule = module {
             toolGuardian = getOrNull<ToolGuardian>(),
             approvalManager = getOrNull<com.lin.hippyagent.core.security.ToolApprovalManager>(),
             onDeviceModelManager = getOrNull<com.lin.hippyagent.core.ondevice.OnDeviceModelManager>(),
+            networkMonitor = getOrNull<com.lin.hippyagent.core.network.NetworkMonitor>(),
             sessionManager = getOrNull<AgentSessionManager>(),
             knowledgeGraphStore = getOrNull<com.lin.hippyagent.core.knowledge.KnowledgeGraphStore>(),
             linkExtractor = getOrNull<com.lin.hippyagent.core.knowledge.LinkExtractor>(),

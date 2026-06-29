@@ -49,6 +49,7 @@ class AgentFactory(
     private val approvalManager: com.lin.hippyagent.core.security.ToolApprovalManager? = null,
     private val agentRegistry: com.lin.hippyagent.core.agent.AgentRegistry? = null,
     private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null,
+    private val networkMonitor: com.lin.hippyagent.core.network.NetworkMonitor? = null,
     private val sessionManager: com.lin.hippyagent.core.agent.AgentSessionManager? = null,
     private val knowledgeGraphStore: com.lin.hippyagent.core.knowledge.KnowledgeGraphStore? = null,
     private val linkExtractor: com.lin.hippyagent.core.knowledge.LinkExtractor? = null,
@@ -82,7 +83,9 @@ class AgentFactory(
     )
 
     private val failoverEngine = FailoverEngine(
-        authProfileManager = authProfileManager
+        authProfileManager = authProfileManager,
+        networkMonitor = networkMonitor,
+        onDeviceModelManager = onDeviceModelManager
     )
 
     suspend fun createAgent(profile: AgentProfile): Agent {
