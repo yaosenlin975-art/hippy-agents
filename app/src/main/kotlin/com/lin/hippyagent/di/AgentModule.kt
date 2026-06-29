@@ -89,6 +89,7 @@ val agentModule = module {
             modelProviderStore = getOrNull<ModelProviderStore>(),
             secureStorage = getOrNull<SecureStorage>(),
             commonMemoryRepo = getOrNull<com.lin.hippyagent.core.memory.commonmemory.MemoryRepository>(),
+            volunteerContextInjector = getOrNull<com.lin.hippyagent.core.memory.volunteer.VolunteerContextInjector>(),
             tokenUsageManager = getOrNull<com.lin.hippyagent.core.model.TokenUsageManager>(),
             skillLifecycleManager = getOrNull<SkillLifecycleManager>(),        
             configStorage = getOrNull<ConfigStorage>(),

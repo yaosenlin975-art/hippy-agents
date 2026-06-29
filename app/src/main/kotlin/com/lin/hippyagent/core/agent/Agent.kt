@@ -181,6 +181,7 @@ class Agent(
     private val secureStorage: com.lin.hippyagent.core.storage.SecureStorage? = null,
     private val memoryExtractor: com.lin.hippyagent.core.memory.commonmemory.MemoryExtractor? = null,
     private val commonMemoryRepo: com.lin.hippyagent.core.memory.commonmemory.MemoryRepository? = null,
+    private val volunteerContextInjector: com.lin.hippyagent.core.memory.volunteer.VolunteerContextInjector? = null,
     private val tokenUsageManager: com.lin.hippyagent.core.model.TokenUsageManager? = null,
     private val modelRouter: com.lin.hippyagent.core.model.routing.ModelRouter? = null,
     private val configStorage: com.lin.hippyagent.core.storage.ConfigStorage? = null,
@@ -1634,6 +1635,20 @@ _你刚醒来。该搞清楚自己是谁了。_
             )
         )
 
+        // T2-2 Volunteer 主动注入
+        val volunteeredMemories = runCatching {
+            if (volunteerContextInjector != null && sessionMessages.isNotEmpty()) {
+                val window = sessionMessages.takeLast(10).map { msg ->
+                    com.lin.hippyagent.core.memory.volunteer.WindowTurn(
+                        role = if (msg.role == MessageRole.USER) "user" else "assistant",
+                        text = msg.content,
+                        timestamp = msg.timestamp.toEpochMilli()
+                    )
+                }
+                volunteerContextInjector.volunteer(window)
+            } else emptyList()
+        }.getOrDefault(emptyList())
+
         val promptContext = PromptContext(
             workingDir = workingDir,
             agentId = profile.agentId,
@@ -1641,6 +1656,7 @@ _你刚醒来。该搞清楚自己是谁了。_
             coreFiles = profile.coreFiles,
             globalRules = configStorage?.getString("global_rules")?.takeIf { it.isNotBlank() },
             commonMemoryEntries = commonMemoryEntries,
+            volunteeredMemories = volunteeredMemories,
             skills = buildSkillInfoList(workingDir),
             resolvedSkills = resolveTriggeredSkills(sessionMessages),
             skillCatalogText = if (profile.skills.isNotEmpty()) skillCatalog.buildProgressiveCatalogText(profile.skills) else null,
