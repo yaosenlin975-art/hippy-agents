@@ -22,30 +22,30 @@ class EntitySalienceExtractor(
 
         // 1. @handles 检测（中英文通用）
         for (match in HANDLES_REGEX.findAll(text)) {
-            candidates.add(EntityCandidate(match.groupValues[1], Source.HANDLE))
+            candidates.add(EntityCandidate(match.groupValues[1], EntityCandidate.Source.HANDLE))
         }
 
         // 2. 命名实体词典（城市/国家）
         for (city in EntityPatterns.CITIES) {
             if (text.contains(city)) {
-                candidates.add(EntityCandidate(city, Source.DICT_LOCATION))
+                candidates.add(EntityCandidate(city, EntityCandidate.Source.DICT_LOCATION))
             }
         }
         for (country in EntityPatterns.COUNTRIES) {
             if (text.contains(country)) {
-                candidates.add(EntityCandidate(country, Source.DICT_LOCATION))
+                candidates.add(EntityCandidate(country, EntityCandidate.Source.DICT_LOCATION))
             }
         }
 
         // 3. 技术关键词 + 概念关键词
         for (keyword in EntityPatterns.TECHNOLOGY_KEYWORDS) {
             if (text.contains(keyword, ignoreCase = true)) {
-                candidates.add(EntityCandidate(keyword, Source.DICT_TECH))
+                candidates.add(EntityCandidate(keyword, EntityCandidate.Source.DICT_TECH))
             }
         }
         for (keyword in EntityPatterns.CONCEPT_KEYWORDS) {
             if (text.contains(keyword, ignoreCase = true)) {
-                candidates.add(EntityCandidate(keyword, Source.DICT_CONCEPT))
+                candidates.add(EntityCandidate(keyword, EntityCandidate.Source.DICT_CONCEPT))
             }
         }
 
@@ -53,7 +53,7 @@ class EntitySalienceExtractor(
         val segments = chineseTokenizer.segmentToString(text)
         for (seg in segments.split(" ")) {
             if (seg.length >= 2 && seg !in STOPWORDS && seg !in COMMON_WORDS) {
-                candidates.add(EntityCandidate(seg, Source.SEGMENT))
+                candidates.add(EntityCandidate(seg, EntityCandidate.Source.SEGMENT))
             }
         }
 
