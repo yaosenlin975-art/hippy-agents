@@ -132,20 +132,44 @@ class LiteRTLMEngine(
         val eng = engine ?: throw IllegalStateException("Engine not initialized")
         val conv = eng.createConversation(buildConversationConfig(request))
         try {
-            val lastUserMsg = request.messages.lastOrNull { it.role == "user" }
-                ?: throw IllegalArgumentException("No user message in request")
+            // 修复缺陷 1：遍历所有消息按角色发送，维持多轮上下文
+            // 最后一条 user 消息用 sendMessageAsync 流式发送，历史 user 消息用 sendMessage 同步累积上下文
+            // 注意：LiteRT-LM Conversation API 无 addResponse，assistant 消息跳过
+            val nonSystemMsgs = request.messages.filter { it.role != "system" }
+            val lastUserIdx = nonSystemMsgs.indexOfLast { it.role == "user" }
+            require(lastUserIdx >= 0) { "No user message in request" }
             val requestId = UUID.randomUUID().toString()
-            conv.sendMessageAsync(lastUserMsg.content)
-                .collect { chunk ->
-                    emit(ModelStreamChunk(
-                        id = requestId,
-                        choices = listOf(ModelStreamChoice(
-                            index = 0,
-                            delta = ModelMessage(role = "assistant", content = chunk.toString()),
-                            finishReason = null
-                        ))
-                    ))
+
+            for ((idx, msg) in nonSystemMsgs.withIndex()) {
+                when (msg.role) {
+                    "user" -> {
+                        if (idx == lastUserIdx) {
+                            // 最后一条 user 消息：流式发送
+                            conv.sendMessageAsync(msg.content)
+                                .collect { chunk ->
+                                    emit(ModelStreamChunk(
+                                        id = requestId,
+                                        choices = listOf(ModelStreamChoice(
+                                            index = 0,
+                                            delta = ModelMessage(role = "assistant", content = chunk.toString()),
+                                            finishReason = null
+                                        ))
+                                    ))
+                                }
+                        } else {
+                            // 历史 user 消息：同步发送，累积上下文
+                            conv.sendMessage(msg.content)
+                        }
+                    }
+                    "assistant" -> {
+                        // LiteRT-LM 无 addResponse，跳过历史 assistant 回复
+                    }
+                    "tool" -> {
+                        // 工具结果作为 user 消息注入（端侧模型不理解 tool 角色）
+                        conv.sendMessage("[工具结果] ${msg.content}")
+                    }
                 }
+            }
             emit(ModelStreamChunk(
                 id = requestId,
                 choices = listOf(ModelStreamChoice(
