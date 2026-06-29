@@ -40,7 +40,7 @@ import com.lin.hippyagent.core.memory.volunteer.VolunteerEventEntity
         TraceSpanEntity::class,
         VolunteerEventEntity::class
     ],
-    version = 26,
+    version = 27,
     exportSchema = true
 )
 @TypeConverters(NotificationTypeConverters::class, TaskTypeConverters::class)

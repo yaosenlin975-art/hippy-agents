@@ -38,7 +38,8 @@ data class SessionEntity(
     val isMuted: Boolean = false,
     val groupId: String? = null,
     val interrupted: Boolean = false,
-    @ColumnInfo(defaultValue = "0") val hidden: Boolean = false
+    @ColumnInfo(defaultValue = "0") val hidden: Boolean = false,
+    @ColumnInfo(defaultValue = "0") val privacyMode: Boolean = false
 )
 
 @Entity(
@@ -91,6 +92,7 @@ data class SessionFullRow(
     val groupId: String?,
     val interrupted: Boolean,
     val hidden: Boolean,
+    val privacyMode: Boolean,
     val inputTokens: Int,
     val outputTokens: Int,
     val cacheReadTokens: Int,
@@ -210,6 +212,9 @@ interface SessionDao {
 
     @Query("UPDATE sessions SET hidden = :hidden WHERE id = :sessionId")
     suspend fun updateHidden(sessionId: String, hidden: Boolean)
+
+    @Query("UPDATE sessions SET privacyMode = :privacyMode WHERE id = :sessionId")
+    suspend fun updatePrivacyMode(sessionId: String, privacyMode: Boolean)
 
     @Query("DELETE FROM sessions WHERE id = :sessionId")
     suspend fun deleteById(sessionId: String)
