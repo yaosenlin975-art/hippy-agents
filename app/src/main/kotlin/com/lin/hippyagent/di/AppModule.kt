@@ -356,6 +356,12 @@ val appModule = module {
         )
     }
 
+    single<com.lin.hippyagent.core.model.health.ModelProviderHealthService> {
+        com.lin.hippyagent.core.model.health.ModelProviderHealthService(
+            providerStore = get()
+        )
+    }
+
     single {
         com.lin.hippyagent.core.notification.NotificationAggregator()
     }

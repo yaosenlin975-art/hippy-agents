@@ -161,6 +161,11 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
 
         TraceRetentionWorker.schedule(this)
 
+        // T3-3: 注册 LLM Provider 健康探测周期任务 (15 分钟一次)
+        runCatching {
+            scheduleProviderHealthCheck()
+        }.onFailure { Timber.e(it, "Failed to schedule provider health check") }
+
         // ══════ 阶段 2：有序关键初始化（串行，确保依赖满足） ══════
         appScope.launch {
             try {
@@ -371,7 +376,25 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
         }
     }
 
-
+    private fun scheduleProviderHealthCheck() {
+        val workManager = androidx.work.WorkManager.getInstance(this)
+        val request = androidx.work.PeriodicWorkRequestBuilder<
+            com.lin.hippyagent.core.model.health.ModelProviderHealthWorker
+            >(
+            com.lin.hippyagent.core.model.health.ModelProviderHealthWorker.REPEAT_INTERVAL_MINUTES,
+            java.util.concurrent.TimeUnit.MINUTES
+        ).setConstraints(
+            androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build()
+        ).build()
+        workManager.enqueueUniquePeriodicWork(
+            com.lin.hippyagent.core.model.health.ModelProviderHealthWorker.WORK_NAME,
+            androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
+        Timber.i("Provider health check scheduled: interval=${com.lin.hippyagent.core.model.health.ModelProviderHealthWorker.REPEAT_INTERVAL_MINUTES}min")
+    }
 }
 
 
