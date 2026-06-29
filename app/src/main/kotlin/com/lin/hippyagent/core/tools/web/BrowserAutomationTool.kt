@@ -4,6 +4,7 @@ import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolResult
+import com.lin.hippyagent.core.util.UrlSafetyChecker
 import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -132,6 +133,11 @@ class BrowserAutomationTool(
     private suspend fun handleNavigate(args: Map<String, Any>, callId: String): ToolResult {
         val url = getRequiredArgument(args, "url")
         Timber.d("Browser navigate: $url")
+
+        val checkResult = UrlSafetyChecker.check(url)
+        if (!checkResult.allowed) {
+            return ToolResult(callId, false, error = "URL 安全检查失败: ${checkResult.message}")
+        }
 
         val navResult = webViewController.navigate(url)
         if (!navResult.success) {
