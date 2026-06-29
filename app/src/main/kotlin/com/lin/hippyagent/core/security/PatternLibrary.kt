@@ -131,4 +131,39 @@ object PatternLibrary {
 
     // ===== 敏感金额模式 =====
     val AMOUNT_PATTERN: Regex = Regex("""\d+[.,]\d{2}""")
+
+    // ===== CommandSandbox 补充危险命令（非 DANGEROUS_COMMAND_PATTERNS 重复）=====
+    val SANDBOX_EXTRA_DANGEROUS: List<Regex> = listOf(
+        Regex("""rm\s+-rf\s+\*"""),
+        Regex("""mkfs\.\w+\s+/dev/"""),
+        Regex("""dd\s+if=.*of=/dev/"""),
+        Regex(""">\s*/dev/sd"""),
+        Regex("""chmod\s+-R\s+777\s+/"""),
+        Regex("""fork\s+bomb"""),
+        Regex(""":\(\)\s*\{\s*:\|:\s*&\s*\}"""),
+        Regex("""curl\s+.*\|\s*bash"""),
+        Regex("""wget\s+.*\|\s*bash"""),
+        Regex("""shred\s+"""),
+        Regex("""wipefs\s+"""),
+        Regex("""fdisk\s+/dev/"""),
+        Regex("""modprobe\s+"""),
+        Regex("""nc\s+-[elp]\s+"""),
+        Regex("""/dev/tcp/"""),
+        Regex("""iptables\s+"""),
+        Regex("""mount\s+-o\s+remount"""),
+        Regex("""insmod\s+"""),
+        Regex("""rmmod\s+""")
+    )
+
+    val SANDBOX_DANGEROUS_PARAMS: List<Regex> = listOf(
+        Regex("""\.\./\.\./\.\."""),
+        Regex("""/etc/passwd"""),
+        Regex("""/etc/shadow"""),
+        Regex("""base64\s+--decode"""),
+        Regex("""xxd\s+-r"""),
+        Regex("""printf\s+\\x"""),
+        Regex("""export\s+PATH="""),
+        Regex("""unset\s+PATH"""),
+        Regex("""\$\{[^}]+\}""")
+    )
 }
