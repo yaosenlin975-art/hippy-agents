@@ -47,7 +47,9 @@ data class RoutingDecision(
  */
 class ModelRouter(
     private val classifier: RuleClassifier = RuleClassifier(),
-    private val providerRegistry: ProviderRegistry? = null
+    private val providerRegistry: ProviderRegistry? = null,
+    private val llmTaskRouter: LlmTaskRouter? = null,
+    private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null
 ) {
 
     /**
@@ -120,6 +122,87 @@ class ModelRouter(
             reasons = reasons,
             usedFallback = usedFallback
         )
+    }
+
+    /**
+     * B2 混合路由：规则层 + LLM 层 + 端侧路由。
+     *
+     * 1. 规则层先判断 → ONDEVICE/CLOUD/UNCERTAIN
+     * 2. UNCERTAIN 时，若 LlmTaskRouter 可用，交给 LLM 层
+     * 3. LLM 层失败或不可用，默认 CLOUD（安全）
+     *
+     * @param message 用户消息
+     * @param config 路由配置（含 onDeviceModel）
+     * @param toolCallCount 工具调用计数
+     * @param historyTokenEstimate 历史 token 估算
+     * @param hasMultimodal 是否含多模态内容
+     * @return 路由决策
+     */
+    suspend fun selectModelWithOnDevice(
+        message: String,
+        config: RoutingConfig,
+        toolCallCount: Int = 0,
+        historyTokenEstimate: Int = 0,
+        hasMultimodal: Boolean = false,
+        hasTools: Boolean = false
+    ): RoutingDecision {
+        // 若未配置端侧模型，降级到原有 selectModel
+        if (config.onDeviceModel == null) {
+            return selectModel(message, config, toolCallCount, historyTokenEstimate, hasMultimodal)
+        }
+
+        val complexity = MessageComplexityExtractor.extract(message, toolCallCount, historyTokenEstimate, hasMultimodal)
+        val routeDecision = classifier.classifyRoute(complexity)
+
+        val target = when (routeDecision.target) {
+            RouteTarget.ONDEVICE -> RouteTarget.ONDEVICE
+            RouteTarget.CLOUD -> RouteTarget.CLOUD
+            RouteTarget.UNCERTAIN -> {
+                // LLM 层判断
+                if (llmTaskRouter != null) {
+                    val llmDecision = llmTaskRouter.route(message, hasTools)
+                    llmDecision.target
+                } else {
+                    RouteTarget.CLOUD
+                }
+            }
+        }
+
+        return when (target) {
+            RouteTarget.ONDEVICE -> {
+                val onDeviceId = config.onDeviceModel
+                if (onDeviceId != null && isOnDeviceModelReady(onDeviceId)) {
+                    RoutingDecision(
+                        selectedModel = onDeviceId,
+                        usedLightModel = true,
+                        score = routeDecision.confidence,
+                        reasons = listOf("B2 端侧路由: ${routeDecision.reason}"),
+                        usedFallback = false
+                    )
+                } else {
+                    // 端侧不可用，降级到云端 light
+                    RoutingDecision(
+                        selectedModel = config.lightModel,
+                        usedLightModel = true,
+                        score = routeDecision.confidence,
+                        reasons = listOf("B2 端侧不可用，降级云端 light: ${routeDecision.reason}"),
+                        usedFallback = true
+                    )
+                }
+            }
+            RouteTarget.CLOUD -> {
+                // 云端内部再走 light/heavy 路由（复用原有逻辑）
+                selectModel(message, config, toolCallCount, historyTokenEstimate, hasMultimodal)
+            }
+            RouteTarget.UNCERTAIN -> {
+                // 不会到这里（已在上面处理）
+                selectModel(message, config, toolCallCount, historyTokenEstimate, hasMultimodal)
+            }
+        }
+    }
+
+    private fun isOnDeviceModelReady(modelId: String): Boolean {
+        return onDeviceModelManager?.getEngineState(modelId) == com.lin.hippyagent.core.ondevice.EngineState.LOADED
     }
 }
 
