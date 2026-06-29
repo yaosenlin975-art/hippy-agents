@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.model
+package com.lin.hippyagent.core.model
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,7 @@ enum class FailoverReason {
     PROVIDER_ERROR,
     NETWORK_TIMEOUT,
     CONTENT_FILTERED,
+    NETWORK_UNAVAILABLE,
     UNKNOWN
 }
 
@@ -63,7 +64,9 @@ enum class FailoverAction {
 
 class FailoverEngine(
     private val config: FailoverConfig = FailoverConfig(),
-    private val authProfileManager: AuthProfileManager? = null
+    private val authProfileManager: AuthProfileManager? = null,
+    private val networkMonitor: com.lin.hippyagent.core.network.NetworkMonitor? = null,
+    private val onDeviceModelManager: com.lin.hippyagent.core.ondevice.OnDeviceModelManager? = null
 ) {
     private val _lastError = MutableStateFlow<FailoverError?>(null)
     val lastError: StateFlow<FailoverError?> = _lastError.asStateFlow()
@@ -243,6 +246,29 @@ class FailoverEngine(
                 )
             }
 
+            FailoverReason.NETWORK_UNAVAILABLE -> {
+                val fallbackProvider = config.fallbackProvider
+                if (fallbackProvider != null && fallbackProvider.startsWith("ondevice-")) {
+                    FailoverDecision(
+                        action = FailoverAction.SWITCH_PROVIDER,
+                        nextProvider = fallbackProvider,
+                        reason = "网络不可达，切换到端侧 fallback: $fallbackProvider"
+                    )
+                } else if (config.fallbackModel != null) {
+                    FailoverDecision(
+                        action = FailoverAction.SWITCH_MODEL,
+                        nextModel = config.fallbackModel,
+                        retryDelayMs = 0,
+                        reason = "网络不可达，切换到 fallback 模型: ${config.fallbackModel}"
+                    )
+                } else {
+                    FailoverDecision(
+                        action = FailoverAction.SURFACE_TO_USER,
+                        reason = "网络不可达且无端侧 fallback 配置"
+                    )
+                }
+            }
+
             FailoverReason.UNKNOWN -> {
                 FailoverDecision(
                     action = FailoverAction.RETRY_SAME,
@@ -259,6 +285,24 @@ class FailoverEngine(
     ): Result<String> {
         var localRetryCount = 0
         _retryCount.value = 0
+
+        // B1：调用前检查网络状态，若本地网络不可达且配置了端侧 fallback，直接切换
+        if (networkMonitor != null && !networkMonitor.isOnline()) {
+            val failoverError = FailoverError(
+                message = "本地网络不可达",
+                reason = FailoverReason.NETWORK_UNAVAILABLE
+            )
+            val decision = decide(failoverError, currentProfileId, 0)
+            Timber.w("Failover (precheck): ${decision.action} - ${decision.reason}")
+            if (decision.action == FailoverAction.SWITCH_PROVIDER &&
+                decision.nextProvider?.startsWith("ondevice-") == true) {
+                val modelId = decision.nextProvider.removePrefix("ondevice-")
+                onDeviceModelManager?.ensureEngineLoaded(modelId)
+            }
+            if (decision.action == FailoverAction.SURFACE_TO_USER) {
+                return Result.failure(failoverError)
+            }
+        }
 
         while (localRetryCount <= config.maxRetries) {
             try {
