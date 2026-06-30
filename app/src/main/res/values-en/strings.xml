@@ -1973,5 +1973,11 @@
     <string name="shortcut_create_cron_short">New Cron</string>
     <string name="shortcut_create_cron_long">Create Cron Job</string>
     <string name="shortcut_create_cron_disabled">Cron unavailable</string>
+    <!-- 桌面小组件（Chunk 5） -->
+    <string name="widget_today_todo_title">Today\'s Todos</string>
+    <string name="widget_quick_ask_title">Quick Ask</string>
+    <string name="widget_quick_ask_hint">Tap to ask Agent</string>
+    <string name="widget_quick_ask_button">Ask Agent</string>
+    <string name="widget_agent_status_title">Agent Status</string>
 </resources>
 

@@ -1892,5 +1892,11 @@
     <string name="shortcut_create_cron_short">新規Cron</string>
     <string name="shortcut_create_cron_long">Cronジョブ作成</string>
     <string name="shortcut_create_cron_disabled">Cron利用不可</string>
+    <!-- 桌面小组件（Chunk 5） -->
+    <string name="widget_today_todo_title">今日のToDo</string>
+    <string name="widget_quick_ask_title">クイック質問</string>
+    <string name="widget_quick_ask_hint">タップしてAgentに質問</string>
+    <string name="widget_quick_ask_button">Agentに質問</string>
+    <string name="widget_agent_status_title">Agent状態</string>
 </resources>
 

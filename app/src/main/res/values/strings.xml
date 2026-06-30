@@ -2007,5 +2007,11 @@
     <string name="shortcut_create_cron_short">新建定时</string>
     <string name="shortcut_create_cron_long">新建定时任务</string>
     <string name="shortcut_create_cron_disabled">定时任务不可用</string>
+    <!-- 桌面小组件（Chunk 5） -->
+    <string name="widget_today_todo_title">今日待办</string>
+    <string name="widget_quick_ask_title">快速提问</string>
+    <string name="widget_quick_ask_hint">点击提问 Agent</string>
+    <string name="widget_quick_ask_button">问 Agent</string>
+    <string name="widget_agent_status_title">Agent 状态</string>
 </resources>
 

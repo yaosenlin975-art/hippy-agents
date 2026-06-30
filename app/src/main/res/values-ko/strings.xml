@@ -1892,5 +1892,11 @@
     <string name="shortcut_create_cron_short">새 Cron</string>
     <string name="shortcut_create_cron_long">Cron 작업 생성</string>
     <string name="shortcut_create_cron_disabled">Cron 사용 불가</string>
+    <!-- 桌面小组件（Chunk 5） -->
+    <string name="widget_today_todo_title">오늘의 할일</string>
+    <string name="widget_quick_ask_title">빠른 질문</string>
+    <string name="widget_quick_ask_hint">탭하여 Agent에게 질문</string>
+    <string name="widget_quick_ask_button">Agent에게 질문</string>
+    <string name="widget_agent_status_title">Agent 상태</string>
 </resources>
 
