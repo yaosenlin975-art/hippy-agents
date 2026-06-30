@@ -1841,6 +1841,10 @@
     <string name="companion_status_listening">屏内替身 · 聆听中...</string>
     <string name="companion_status_processing">屏内替身 · 处理中...</string>
     <string name="companion_status_executing">屏内替身 · 执行中...</string>
+    <!-- QS Tile -->
+    <string name="tile_agent_label">Agent</string>
+    <string name="tile_recording_label">녹화</string>
+    <string name="tile_companion_label">Companion</string>
     <!-- 环境变量页面 -->
     <string name="env_vars_title">环境变量</string>
     <string name="env_var_name">变量名</string>

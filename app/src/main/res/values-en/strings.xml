@@ -1901,6 +1901,10 @@
     <string name="companion_status_listening">Companion · Listening...</string>
     <string name="companion_status_processing">Companion · Processing...</string>
     <string name="companion_status_executing">Companion · Executing...</string>
+    <!-- QS Tile -->
+    <string name="tile_agent_label">Agent</string>
+    <string name="tile_recording_label">Record</string>
+    <string name="tile_companion_label">Companion</string>
     <!-- 环境变量页面 -->
     <string name="env_vars_title">Environment variables</string>
     <string name="env_var_name">Variable name</string>
