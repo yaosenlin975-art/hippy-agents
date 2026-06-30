@@ -1896,6 +1896,7 @@
     <!-- 通知弹窗 -->
     <string name="notification_overlay_channel">Notification overlay</string>
     <string name="notification_overlay_service">Notification overlay service</string>
+    <string name="notification_reply_label">Reply to Agent...</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">Companion · Ready</string>
     <string name="companion_status_listening">Companion · Listening...</string>

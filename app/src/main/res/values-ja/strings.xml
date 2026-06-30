@@ -1836,6 +1836,7 @@
     <!-- 通知弹窗 -->
     <string name="notification_overlay_channel">通知弹窗</string>
     <string name="notification_overlay_service">通知弹窗服务</string>
+    <string name="notification_reply_label">Agentに返信...</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">屏内替身 · 就绪</string>
     <string name="companion_status_listening">屏内替身 · 聆听中...</string>

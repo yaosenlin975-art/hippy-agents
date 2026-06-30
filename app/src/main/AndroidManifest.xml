@@ -183,6 +183,14 @@
             android:name=".core.accessibility.PermissionActionReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".ui.notification.NotificationReplyReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.lin.hippyagent.action.REPLY" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
