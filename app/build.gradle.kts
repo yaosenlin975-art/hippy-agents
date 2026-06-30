@@ -32,6 +32,10 @@ android {
         // 将版本名写入 BuildConfig 确保应用内可读取最新值
         buildConfigField("String", "VERSION_NAME", "\"$versionName\"")
 
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
