@@ -33,9 +33,13 @@ class PhoneControlAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
-        // 录制桥接（在转发 ScreenEventBus 之前）
+        // 录制桥接（在转发 ScreenEventBus 之前）：经 Controller 转发到 BehaviorRecorder + bookmarkSession
         if (com.lin.hippyagent.core.behavior.BehaviorRecorder.uiState.value.isRecording) {
-            com.lin.hippyagent.core.behavior.BehaviorRecorder.onAccessibilityEvent(event)
+            runCatching {
+                org.koin.core.context.GlobalContext.getOrNull()
+                    ?.get<com.lin.hippyagent.core.behavior.BehaviorRecordingController>()
+                    ?.onAccessibilityEvent(event)
+            }
         }
         val screenEventBus = screenEventBus ?: return
         val screenEvent = when (event.eventType) {
