@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.service
+package com.lin.hippyagent.core.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -25,6 +25,12 @@ class AgentForegroundService : Service() {
         const val ACTION_STOP = "com.lin.hippyagent.action.STOP_AGENT"
         const val EXTRA_AGENT_ID = "agent_id"
 
+        /** 前台服务运行状态。onCreate 置 true，onDestroy 置 false。供 TileService / Widget 查询。 */
+        @Volatile
+        @JvmStatic
+        var isRunning: Boolean = false
+            private set
+
         fun start(context: Context, agentId: String) {
             val intent = Intent(context, AgentForegroundService::class.java).apply {
                 action = ACTION_START
@@ -43,6 +49,11 @@ class AgentForegroundService : Service() {
             }
             context.startService(intent)
         }
+
+        /** 切换运行状态：运行中→停止，停止→启动（用 default agentId） */
+        fun toggle(context: Context, agentId: String = "default") {
+            if (isRunning) stop(context) else start(context, agentId)
+        }
     }
 
     private var runningAgentId: String? = null
@@ -50,6 +61,7 @@ class AgentForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        isRunning = true
         Timber.i("AgentForegroundService created")
     }
 
@@ -73,6 +85,7 @@ class AgentForegroundService : Service() {
 
     override fun onDestroy() {
         runningAgentId = null
+        isRunning = false
         super.onDestroy()
         Timber.i("AgentForegroundService destroyed")
     }
