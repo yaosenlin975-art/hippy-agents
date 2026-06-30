@@ -552,4 +552,4 @@ val appModule = module {
             }
         }
     }
-} + agentModule + securityModule + toolModule + channelModule + databaseModule + viewModelModule + linuxModule + privilegeModule
+} + agentModule + securityModule + toolModule + channelModule + databaseModule + viewModelModule + linuxModule + privilegeModule + deeplinkModule
