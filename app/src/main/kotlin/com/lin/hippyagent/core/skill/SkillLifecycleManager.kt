@@ -26,7 +26,11 @@ class SkillLifecycleManager(
     private val activeSkillTools = ConcurrentHashMap<String, MutableList<String>>()
 
     fun activateSkill(skillId: String) {
-        if (activeSkillTools.containsKey(skillId)) return
+        if (activeSkillTools.containsKey(skillId)) {
+            // 已激活，但仍更新最近使用排名
+            skillManager.getManifest(skillId)?.let { pushShortcut(skillId, it.name) }
+            return
+        }
 
         val manifest = skillManager.getManifest(skillId) ?: return
         val tools = createToolsForSkill(skillId, manifest)
@@ -39,7 +43,14 @@ class SkillLifecycleManager(
 
         toolRegistry.revealTools(registeredNames)
         activeSkillTools[skillId] = registeredNames
+        pushShortcut(skillId, manifest.name)
         Timber.d("Skill activated: $skillId, registered tools: $registeredNames")
+    }
+
+    private fun pushShortcut(skillId: String, skillName: String) {
+        runCatching {
+            AgentShortcuts.pushRecentSkill(context, skillId, skillName)
+        }.onFailure { Timber.w(it, "SkillLifecycleManager: pushShortcut failed for $skillId") }
     }
 
     fun deactivateSkill(skillId: String) {
