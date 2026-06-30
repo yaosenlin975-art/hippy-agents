@@ -201,6 +201,10 @@ dependencies {
     // LiteRT-LM (端侧模型推理)
     implementation("com.google.ai.edge.litertlm:litertlm-android:0.12.0")
 
+    // Shizuku SDK（可选能力增强层：非 root 设备执行 dumpsys/am start/pm/settings）
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
