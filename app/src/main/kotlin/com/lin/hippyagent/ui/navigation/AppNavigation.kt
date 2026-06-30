@@ -33,7 +33,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun AppNavigation(
     modifier: Modifier = Modifier,
-    deepLinkSessionId: String? = null
+    deepLinkSessionId: String? = null,
+    agentAction: String? = null,
+    agentPrompt: String? = null,
+    quickAsk: Boolean = false
 ) {
     val navController = rememberNavController()
 
@@ -42,6 +45,17 @@ fun AppNavigation(
     remember {
         deepLinkSessionId?.let { sessionId ->
             navController.navigate(Screen.Chat.createRoute(sessionId, com.lin.hippyagent.data.repository.AgentRepository.DEFAULT_AGENT_ID))
+        }
+    }
+
+    LaunchedEffect(agentAction, agentPrompt, quickAsk) {
+        if (agentAction != null) {
+            // 从系统入口点（Shortcuts/Tile/Widget 等）进入时，确保回到 Sessions 主界面。
+            // prompt/quickAsk 的实际注入由后续 Chunk 处理（需扩展 Chat 路由 schema）。
+            navController.navigate(Screen.Sessions.route) {
+                popUpTo(Screen.Sessions.route) { inclusive = false }
+                launchSingleTop = true
+            }
         }
     }
 

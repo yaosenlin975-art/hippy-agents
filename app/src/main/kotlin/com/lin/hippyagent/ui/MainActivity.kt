@@ -1,6 +1,7 @@
 package com.lin.hippyagent.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.lin.hippyagent.core.agent.mode.ModeOnboarding
 import com.lin.hippyagent.core.notification.InAppMessageBubbleHost
+import com.lin.hippyagent.ui.entry.AgentEntryRouter
 import com.lin.hippyagent.ui.navigation.AppNavigation
 import com.lin.hippyagent.ui.theme.HippyTheme
 import org.koin.android.ext.android.get
@@ -66,16 +68,30 @@ class MainActivity : ComponentActivity() {
         requestBasicPermissions()
         get<ModeOnboarding>().showIfNeeded(this)
         val deepLinkSessionId = intent.getStringExtra("deep_link_session_id")
+        val agentAction = intent.getStringExtra(AgentEntryRouter.EXTRA_AGENT_ACTION)
+        val agentPrompt = intent.getStringExtra(AgentEntryRouter.EXTRA_PROMPT)
+        val quickAsk = intent.getBooleanExtra(AgentEntryRouter.EXTRA_QUICK_ASK, false)
         setContent {
             HippyTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AppNavigation(deepLinkSessionId = deepLinkSessionId)
+                        AppNavigation(
+                            deepLinkSessionId = deepLinkSessionId,
+                            agentAction = agentAction,
+                            agentPrompt = agentPrompt,
+                            quickAsk = quickAsk
+                        )
                         InAppMessageBubbleHost(context = LocalContext.current)
                     }
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        recreate()
     }
 
     private fun requestBasicPermissions() {
