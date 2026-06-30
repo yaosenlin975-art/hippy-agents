@@ -26,8 +26,11 @@ class ShizukuSystemApiBridge(
     }
 
     override suspend fun availablePrivilege(): SystemApiBridge.PrivilegeLevel {
-        if (shizukuAlive && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-            return SystemApiBridge.PrivilegeLevel.SHIZUKU
+        if (shizukuAlive) {
+            val granted = runCatching {
+                Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+            }.getOrDefault(false)
+            if (granted) return SystemApiBridge.PrivilegeLevel.SHIZUKU
         }
         if (RootProbe.hasRoot()) {
             return SystemApiBridge.PrivilegeLevel.ROOT
