@@ -48,5 +48,24 @@
     "WPS": "cn.wps.moffice_eng",
     "有道词典": "com.youdao.dict",
     "豆瓣": "com.douban.frodo"
+  },
+  "appEmojis": {
+    "com.sankuai.meituan": "🍜",
+    "com.taobao.taobao": "🛒",
+    "com.xunmeng.pinduoduo": "🍊",
+    "com.ss.android.ugc.aweme": "🎵",
+    "com.smile.gifmaker": "🎬",
+    "com.zhihu.android": "💡",
+    "com.xingin.xhs": "📕",
+    "tv.danmaku.bili": "📺",
+    "com.autonavi.minimap": "🗺️",
+    "com.tencent.qqmusic": "🎶",
+    "com.eg.android.AlipayGphone": "💰",
+    "com.baidu.searchbox": "🔍",
+    "com.dianping.v1": "🍜",
+    "com.jingdong.app.mall": "🛍️",
+    "com.tencent.mm": "💬",
+    "com.alibaba.android.rimet": "💼",
+    "com.ss.android.lark": "🐦"
   }
 }
