@@ -59,23 +59,22 @@ class SkillIndexManager(
      * 算法: FNV-1a 64-bit, 纯算术无正则无外部依赖.
      */
     private fun computeUserDirsFingerprint(): Long {
-        var hash = 1125899906842597L  // FNV-1a 64-bit offset basis
-        val prime = 1099511628211L    // FNV-1a prime
+        var hash = FNV_64_OFFSET
 
         // skillsDir 顶层
-        hash = (hash xor skillsDir.lastModified()) * prime
+        hash = (hash xor skillsDir.lastModified()) * FNV_64_PRIME
 
         // 各子目录 (复用 listSkillDirs 的过滤逻辑)
         listSkillDirs().sortedBy { it.name }.forEach { dir ->
-            hash = (hash xor dir.name.hashCode().toLong()) * prime
-            hash = (hash xor dir.lastModified()) * prime
+            hash = (hash xor dir.name.hashCode().toLong()) * FNV_64_PRIME
+            hash = (hash xor dir.lastModified()) * FNV_64_PRIME
             val skillMd = dir.resolve("SKILL.md")
             if (skillMd.exists()) {
-                hash = (hash xor skillMd.lastModified()) * prime
+                hash = (hash xor skillMd.lastModified()) * FNV_64_PRIME
             }
             val manifest = dir.resolve("manifest.json")
             if (manifest.exists()) {
-                hash = (hash xor manifest.lastModified()) * prime
+                hash = (hash xor manifest.lastModified()) * FNV_64_PRIME
             }
         }
         return hash
@@ -162,6 +161,7 @@ class SkillIndexManager(
         }
         val index = SkillIndex(version = System.currentTimeMillis(), skills = entries)
         saveIndex(index)
+        lastFingerprint = runCatching { computeUserDirsFingerprint() }.getOrElse { 0L }
         return index
     }
 
@@ -355,5 +355,7 @@ class SkillIndexManager(
 
     companion object {
         val EXCLUDED_DIRS = setOf("_config")
+        private const val FNV_64_OFFSET = 0xcbf29ce484222325L
+        private const val FNV_64_PRIME = 0x100000001b3L
     }
 }
