@@ -1837,6 +1837,14 @@
     <string name="notification_overlay_channel">通知弹窗</string>
     <string name="notification_overlay_service">通知弹窗服务</string>
     <string name="notification_reply_label">Agent에게 답장...</string>
+    <!-- 前台服务增强通知 -->
+    <string name="notification_foreground_title">HippyAgent 실행 중</string>
+    <string name="notification_foreground_summary">Agent %1$s</string>
+    <string name="notification_foreground_content">모델: %1$s · 작업: %2$s</string>
+    <string name="notification_foreground_line_model">모델: %1$s</string>
+    <string name="notification_foreground_line_task">현재 작업: %1$s</string>
+    <string name="notification_foreground_line_next_cron">다음 예약: %1$s</string>
+    <string name="notification_foreground_line_status">실행 상태: Agent %1$s</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">屏内替身 · 就绪</string>
     <string name="companion_status_listening">屏内替身 · 聆听中...</string>

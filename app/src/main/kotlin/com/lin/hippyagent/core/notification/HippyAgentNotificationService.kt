@@ -11,6 +11,8 @@ import androidx.core.app.RemoteInput
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.MainActivity
 import com.lin.hippyagent.ui.notification.NotificationReplyReceiver
+import kotlinx.coroutines.runBlocking
+import org.koin.core.context.GlobalContext
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
@@ -515,6 +517,71 @@ class HippyAgentNotificationService(
         activeSessionNotifications.remove(sessionId)?.forEach { notificationId ->
             notificationManager.cancel(notificationId)
         }
+    }
+
+    /**
+     * 构建增强版前台服务通知（InboxStyle 展开多行）。
+     *
+     * 数据源（suspend 用 runBlocking 同步桥接）：
+     * - ModelManager.getCurrentProvider().name — 当前模型
+     * - CronJobManager.getEnabledJobs().firstOrNull()?.name — 下个定时任务
+     * - 当前任务 — MissionRunner 无 currentTask 状态暴露，兜底显示 "—"
+     *
+     * 注：runBlocking 仅用于同步桥接（AgentForegroundService.buildNotification 同步调用），
+     * 符合 coding.md "runBlocking(仅同步桥接)" 例外。
+     */
+    fun buildEnhancedForegroundNotification(
+        context: Context,
+        agentId: String
+    ): android.app.Notification {
+        val openIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val modelName = runCatching {
+            runBlocking {
+                GlobalContext.get().get<com.lin.hippyagent.core.model.ModelManager>().getCurrentProvider().name
+            }
+        }.getOrDefault("—")
+
+        val nextCronName = runCatching {
+            GlobalContext.get().get<com.lin.hippyagent.core.cron.CronJobManager>()
+                .getEnabledJobs().firstOrNull()?.name
+        }.getOrDefault(null)
+
+        val currentTask = "—"
+        val title = context.getString(R.string.notification_foreground_title)
+        val lines = buildList {
+            add(context.getString(R.string.notification_foreground_line_model, modelName))
+            add(context.getString(R.string.notification_foreground_line_task, currentTask))
+            if (nextCronName != null) {
+                add(context.getString(R.string.notification_foreground_line_next_cron, nextCronName))
+            }
+            add(context.getString(R.string.notification_foreground_line_status, agentId))
+        }
+
+        return NotificationCompat.Builder(context, CHANNEL_HEARTBEAT)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(context.getString(R.string.notification_foreground_content, modelName, currentTask))
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                    .setBigContentTitle(title)
+                    .setSummaryText(context.getString(R.string.notification_foreground_summary, agentId))
+                    .also { builder -> lines.forEach { builder.addLine(it) } }
+            )
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
     }
 
     companion object {

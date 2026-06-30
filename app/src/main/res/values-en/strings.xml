@@ -1897,6 +1897,14 @@
     <string name="notification_overlay_channel">Notification overlay</string>
     <string name="notification_overlay_service">Notification overlay service</string>
     <string name="notification_reply_label">Reply to Agent...</string>
+    <!-- 前台服务增强通知 -->
+    <string name="notification_foreground_title">HippyAgent Running</string>
+    <string name="notification_foreground_summary">Agent %1$s</string>
+    <string name="notification_foreground_content">Model: %1$s · Task: %2$s</string>
+    <string name="notification_foreground_line_model">Model: %1$s</string>
+    <string name="notification_foreground_line_task">Current task: %1$s</string>
+    <string name="notification_foreground_line_next_cron">Next cron: %1$s</string>
+    <string name="notification_foreground_line_status">Status: Agent %1$s</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">Companion · Ready</string>
     <string name="companion_status_listening">Companion · Listening...</string>
