@@ -12,6 +12,7 @@ import com.lin.hippyagent.core.tools.builtin.ReadPdfTool
 import com.lin.hippyagent.core.tools.builtin.ReadPptxTool
 import com.lin.hippyagent.core.tools.builtin.ReadXlsxTool
 import com.lin.hippyagent.core.tools.builtin.HimalayaTool
+import com.lin.hippyagent.ui.shortcut.AgentShortcuts
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
