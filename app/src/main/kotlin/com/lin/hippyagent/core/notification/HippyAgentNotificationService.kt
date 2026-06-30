@@ -7,8 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.RemoteInput
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.MainActivity
+import com.lin.hippyagent.ui.notification.NotificationReplyReceiver
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
@@ -293,6 +295,36 @@ class HippyAgentNotificationService(
             if (canUseFullScreen) {
                 builder.setFullScreenIntent(fullScreenPendingIntent, true)
             }
+
+            val remoteInput = RemoteInput.Builder(NotificationReplyReceiver.KEY_REPLY_TEXT)
+                .setLabel(context.getString(R.string.notification_reply_label))
+                .setAllowFreeFormInput(true)
+                .build()
+
+            val replyIntent = Intent(context, NotificationReplyReceiver::class.java).apply {
+                action = NotificationReplyReceiver.ACTION_REPLY
+                putExtra(NotificationReplyReceiver.EXTRA_SESSION_ID, sessionId)
+                putExtra(NotificationReplyReceiver.EXTRA_CHANNEL_ID, "agent_message")
+                putExtra(NotificationReplyReceiver.EXTRA_NOTIFICATION_ID, notificationId)
+            }
+            val replyPendingIntent = PendingIntent.getBroadcast(
+                context,
+                notificationId,
+                replyIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+
+            val replyAction = NotificationCompat.Action.Builder(
+                android.R.drawable.ic_menu_send,
+                context.getString(R.string.notification_reply_label),
+                replyPendingIntent
+            )
+                .addRemoteInput(remoteInput)
+                .setAllowGeneratedReplies(true)
+                .build()
+
+            builder.addAction(replyAction)
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
             notificationManager.notify(notificationId, builder.build())
             activeSessionNotifications.getOrPut(sessionId) { ConcurrentHashMap.newKeySet() }.add(notificationId)
