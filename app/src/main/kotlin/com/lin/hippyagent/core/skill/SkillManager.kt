@@ -8,7 +8,7 @@ import java.io.File
 
 class SkillManager(
     context: Context,
-    skillsDir: File = File(context.filesDir, "skills"),
+    val skillsDir: File = File(context.filesDir, "skills"),
     skillScanner: SkillScanner = SkillScanner()
 ) {
     internal val indexManager = SkillIndexManager(skillsDir)
