@@ -32,27 +32,30 @@ object AgentShortcuts {
     /**
      * 推送（或更新）一个最近使用的 Skill 到动态 Shortcuts。
      * 调用时机：[com.lin.hippyagent.core.skill.SkillLifecycleManager.activateSkill] 成功后。
+     *
+     * 线程安全：activateSkill 可能从 AgentFactory/LoadSkillTool/ModeAwareSkillActivator 跨线程调用，
+     * [recentSkillsCache] 是 LinkedHashMap 非线程安全，用 synchronized 包裹缓存读写。
      */
     fun pushRecentSkill(context: Context, skillId: String, skillName: String) {
         runCatching {
-            recentSkillsCache[skillId] = skillName
-
-            val shortcuts = recentSkillsCache.entries
-                .take(MAX_DYNAMIC_SHORTCUTS)
-                .mapIndexed { index, (id, name) ->
-                    ShortcutInfoCompat.Builder(context, "skill_$id")
-                        .setShortLabel(name)
-                        .setLongLabel(name)
-                        .setRank(index)
-                        .setIntent(Intent(context, MainActivity::class.java).apply {
-                            action = Intent.ACTION_VIEW
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                            putExtra(AgentEntryRouter.EXTRA_AGENT_ACTION, AgentEntryRouter.ACTION_OPEN_CHAT)
-                            putExtra(AgentEntryRouter.EXTRA_PROMPT, "使用 Skill: $name")
-                        })
-                        .build()
-                }
-
+            val shortcuts = synchronized(recentSkillsCache) {
+                recentSkillsCache[skillId] = skillName
+                recentSkillsCache.entries
+                    .take(MAX_DYNAMIC_SHORTCUTS)
+                    .mapIndexed { index, (id, name) ->
+                        ShortcutInfoCompat.Builder(context, "skill_$id")
+                            .setShortLabel(name)
+                            .setLongLabel(name)
+                            .setRank(index)
+                            .setIntent(Intent(context, MainActivity::class.java).apply {
+                                action = Intent.ACTION_VIEW
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                putExtra(AgentEntryRouter.EXTRA_AGENT_ACTION, AgentEntryRouter.ACTION_OPEN_CHAT)
+                                putExtra(AgentEntryRouter.EXTRA_PROMPT, "使用 Skill: $name")
+                            })
+                            .build()
+                    }
+            }
             ShortcutManagerCompat.removeAllDynamicShortcuts(context)
             ShortcutManagerCompat.addDynamicShortcuts(context, shortcuts)
             Timber.i("AgentShortcuts: pushed ${shortcuts.size} dynamic shortcuts")
@@ -63,7 +66,7 @@ object AgentShortcuts {
     fun clearAll(context: Context) {
         runCatching {
             ShortcutManagerCompat.removeAllDynamicShortcuts(context)
-            recentSkillsCache.clear()
+            synchronized(recentSkillsCache) { recentSkillsCache.clear() }
         }
     }
 }
