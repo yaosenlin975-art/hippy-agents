@@ -29,11 +29,9 @@ object BehaviorRecorder {
 
     private val events = mutableListOf<RecordedEvent>()
     private val eventsLock = Any()
-    private var application: Application? = null
 
     fun start(application: Application): Boolean {
         if (_uiState.value.isRecording) return true
-        this.application = application
         synchronized(eventsLock) { events.clear() }
         _uiState.value = UiState(isRecording = true)
         Timber.i("BehaviorRecorder: started recording")
@@ -50,24 +48,26 @@ object BehaviorRecorder {
             contentDescription = event.contentDescription?.toString(),
             timestampMs = System.currentTimeMillis()
         )
-        synchronized(eventsLock) { events.add(recorded) }
+        synchronized(eventsLock) {
+            if (events.size >= MAX_RECORDED_EVENTS) {
+                events.removeAt(0)
+            }
+            val previous = events.lastOrNull()
+            val isDuplicate = previous != null &&
+                previous.eventType == recorded.eventType &&
+                previous.packageName == recorded.packageName &&
+                previous.className == recorded.className &&
+                previous.text == recorded.text &&
+                previous.contentDescription == recorded.contentDescription &&
+                (recorded.timestampMs - previous.timestampMs) < DEDUP_WINDOW_MS
+            if (!isDuplicate) {
+                events.add(recorded)
+            }
+        }
         _uiState.value = _uiState.value.copy(
             eventCount = synchronized(eventsLock) { events.size },
             currentPageTitle = recorded.text
         )
-    }
-
-    fun bookmarkCurrentPage(): DeeplinkParser.CapturedIntent? {
-        val app = application ?: return null
-        val currentPkg = events.lastOrNull()?.packageName ?: return null
-        return try {
-            val process = Runtime.getRuntime().exec("dumpsys activity top")
-            val output = process.inputStream.bufferedReader().readText()
-            DeeplinkParser.parseFromDumpsys(output, currentPkg)
-        } catch (e: Exception) {
-            Timber.w(e, "BehaviorRecorder: bookmarkCurrentPage failed")
-            null
-        }
     }
 
     fun stop(): List<RecordedEvent> {
@@ -75,5 +75,10 @@ object BehaviorRecorder {
         val result = synchronized(eventsLock) { events.toList().also { events.clear() } }
         Timber.i("BehaviorRecorder: stopped, recorded ${result.size} events")
         return result
+    }
+
+    companion object {
+        private const val MAX_RECORDED_EVENTS = 200
+        private const val DEDUP_WINDOW_MS = 300L
     }
 }
