@@ -23,6 +23,7 @@ class AgentForegroundService : Service() {
 
         const val ACTION_START = "com.lin.hippyagent.action.START_AGENT"
         const val ACTION_STOP = "com.lin.hippyagent.action.STOP_AGENT"
+        const val ACTION_REFRESH_NOTIFICATION = "com.lin.hippyagent.action.REFRESH_NOTIFICATION"
         const val EXTRA_AGENT_ID = "agent_id"
 
         /** 前台服务运行状态。onCreate 置 true，onDestroy 置 false。供 TileService / Widget 查询。 */
@@ -54,6 +55,17 @@ class AgentForegroundService : Service() {
         fun toggle(context: Context, agentId: String = "default") {
             if (isRunning) stop(context) else start(context, agentId)
         }
+
+        /** 供外部（Tile/Widget）调用的静态刷新入口：通过 startForegroundService 触发 onStartCommand */
+        fun refreshNotification(context: Context) {
+            if (!isRunning) return
+            runCatching {
+                val intent = Intent(context, AgentForegroundService::class.java).apply {
+                    action = ACTION_REFRESH_NOTIFICATION
+                }
+                androidx.core.content.ContextCompat.startForegroundService(context, intent)
+            }
+        }
     }
 
     private var runningAgentId: String? = null
@@ -76,6 +88,10 @@ class AgentForegroundService : Service() {
             ACTION_STOP -> {
                 stopSelf()
                 Timber.i("Agent foreground service stopped")
+            }
+            ACTION_REFRESH_NOTIFICATION -> {
+                refreshNotification()
+                return START_NOT_STICKY
             }
         }
         return START_STICKY
@@ -107,6 +123,17 @@ class AgentForegroundService : Service() {
     }
 
     private fun buildNotification(agentId: String): Notification {
+        return runCatching {
+            val ns = org.koin.core.context.GlobalContext.get()
+                .get<com.lin.hippyagent.core.notification.HippyAgentNotificationService>()
+            ns.buildEnhancedForegroundNotification(this, agentId)
+        }.getOrElse {
+            buildSimpleFallbackNotification(agentId)
+        }
+    }
+
+    /** fallback 简化通知：仅显示运行状态，不查 ModelManager（避免冷启动阻塞） */
+    private fun buildSimpleFallbackNotification(agentId: String): Notification {
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -140,6 +167,21 @@ class AgentForegroundService : Service() {
             .setOngoing(true)
             .setSilent(true)
             .build()
+    }
+
+    /**
+     * 主动刷新前台通知（供 Tile/Widget 触发状态变化后调用）。
+     *
+     * 协程合规：直接调 NotificationManager.notify（同步），不进协程。
+     */
+    fun refreshNotification() {
+        if (!isRunning) return
+        val agentId = runningAgentId ?: "default"
+        val notification = buildNotification(agentId)
+        runCatching {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.notify(NOTIFICATION_ID, notification)
+        }.onFailure { Timber.w(it, "refreshNotification failed") }
     }
 }
 
