@@ -77,8 +77,6 @@ object BehaviorRecorder {
         return result
     }
 
-    companion object {
-        private const val MAX_RECORDED_EVENTS = 200
-        private const val DEDUP_WINDOW_MS = 300L
-    }
+    private const val MAX_RECORDED_EVENTS = 200
+    private const val DEDUP_WINDOW_MS = 300L
 }

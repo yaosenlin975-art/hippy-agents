@@ -355,7 +355,7 @@ class SkillIndexManager(
 
     companion object {
         val EXCLUDED_DIRS = setOf("_config")
-        private const val FNV_64_OFFSET = 0xcbf29ce484222325L
+        private val FNV_64_OFFSET: Long = 0xcbf29ce484222325UL.toLong()
         private const val FNV_64_PRIME = 0x100000001b3L
     }
 }
