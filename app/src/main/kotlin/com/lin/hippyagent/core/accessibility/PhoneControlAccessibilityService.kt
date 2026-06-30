@@ -33,6 +33,10 @@ class PhoneControlAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
+        // 录制桥接（在转发 ScreenEventBus 之前）
+        if (com.lin.hippyagent.core.behavior.BehaviorRecorder.uiState.value.isRecording) {
+            com.lin.hippyagent.core.behavior.BehaviorRecorder.onAccessibilityEvent(event)
+        }
         val screenEventBus = screenEventBus ?: return
         val screenEvent = when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ->
