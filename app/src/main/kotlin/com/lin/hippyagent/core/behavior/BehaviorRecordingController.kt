@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 import com.lin.hippyagent.core.accessibility.PhoneControlAccessibilityService
 import com.lin.hippyagent.core.deeplink.DeeplinkBookmarkSession
 import com.lin.hippyagent.core.privilege.SystemApiBridge
+import com.lin.hippyagent.core.skill.SkillManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,7 +29,8 @@ enum class RecordingState { IDLE, RECORDING, FINALIZING }
 class BehaviorRecordingController(
     private val application: Application,
     private val bridge: SystemApiBridge,
-    private val bookmarkSession: DeeplinkBookmarkSession
+    private val bookmarkSession: DeeplinkBookmarkSession,
+    private val skillManager: SkillManager
 ) {
     private val _uiState = MutableStateFlow(RecordingUiState())
     val uiState: StateFlow<RecordingUiState> = _uiState.asStateFlow()
@@ -71,6 +73,13 @@ class BehaviorRecordingController(
         _uiState.value = _uiState.value.copy(state = RecordingState.FINALIZING)
         bookmarkSession.stop()
         val snapshot = BehaviorRecorder.stop()
+        if (snapshot.isNotEmpty()) {
+            val appAlias = snapshot.first().packageName.substringAfterLast(".").ifBlank { "App" }
+            controllerScope.launch(Dispatchers.IO) {
+                runCatching { BehaviorSkillWriter.writeSkill(snapshot, appAlias, skillManager) }
+                    .onFailure { Timber.e(it, "writeSkill failed") }
+            }
+        }
         _uiState.value = RecordingUiState()
         return snapshot
     }

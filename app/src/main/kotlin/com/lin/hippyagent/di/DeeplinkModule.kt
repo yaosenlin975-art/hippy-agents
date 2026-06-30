@@ -14,5 +14,5 @@ val deeplinkModule = module {
     single { DeeplinkLauncher(androidContext(), get()) }
     single { DeeplinkSkillExporter(get<SkillManager>()) }
     single { DeeplinkBookmarkSession(get(), get(), get()) }
-    single { BehaviorRecordingController(androidContext() as android.app.Application, get(), get()) }
+    single { BehaviorRecordingController(androidContext() as android.app.Application, get(), get(), get()) }
 }
