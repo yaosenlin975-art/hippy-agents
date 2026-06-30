@@ -1958,5 +1958,15 @@
     <string name="trace_full_llm_content">Full LLM Content Storage</string>
     <string name="trace_clear_all">Clear All Traces Now</string>
     <string name="trace_open_list">View Trace Records</string>
+    <!-- App Shortcuts -->
+    <string name="shortcut_ask_agent_short">Ask Agent</string>
+    <string name="shortcut_ask_agent_long">Quick Ask Agent</string>
+    <string name="shortcut_ask_agent_disabled">Ask Agent unavailable</string>
+    <string name="shortcut_start_recording_short">Record</string>
+    <string name="shortcut_start_recording_long">Start Behavior Recording</string>
+    <string name="shortcut_start_recording_disabled">Recording not enabled</string>
+    <string name="shortcut_create_cron_short">New Cron</string>
+    <string name="shortcut_create_cron_long">Create Cron Job</string>
+    <string name="shortcut_create_cron_disabled">Cron unavailable</string>
 </resources>
 

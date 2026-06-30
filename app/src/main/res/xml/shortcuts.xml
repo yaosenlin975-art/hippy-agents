@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="shortcut_ask_agent"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_ask_agent_short"
+        android:shortcutLongLabel="@string/shortcut_ask_agent_long"
+        android:shortcutDisabledMessage="@string/shortcut_ask_agent_disabled">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.lin.hippyagent"
+            android:targetClass="com.lin.hippyagent.ui.MainActivity">
+            <extra android:name="extra_agent_action" android:value="open_chat" />
+            <extra android:name="extra_quick_ask" android:value="true" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="shortcut_start_recording"
+        android:enabled="false"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_start_recording_short"
+        android:shortcutLongLabel="@string/shortcut_start_recording_long"
+        android:shortcutDisabledMessage="@string/shortcut_start_recording_disabled">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.lin.hippyagent"
+            android:targetClass="com.lin.hippyagent.ui.MainActivity">
+            <extra android:name="extra_agent_action" android:value="start_recording" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="shortcut_create_cron"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_create_cron_short"
+        android:shortcutLongLabel="@string/shortcut_create_cron_long"
+        android:shortcutDisabledMessage="@string/shortcut_create_cron_disabled">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.lin.hippyagent"
+            android:targetClass="com.lin.hippyagent.ui.MainActivity">
+            <extra android:name="extra_agent_action" android:value="create_cron" />
+        </intent>
+    </shortcut>
+</shortcuts>

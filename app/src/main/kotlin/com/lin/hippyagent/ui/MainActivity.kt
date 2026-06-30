@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.lin.hippyagent.core.agent.mode.ModeOnboarding
 import com.lin.hippyagent.core.notification.InAppMessageBubbleHost
+import com.lin.hippyagent.ui.entry.AgentAction
 import com.lin.hippyagent.ui.entry.AgentEntryRouter
 import com.lin.hippyagent.ui.navigation.AppNavigation
 import com.lin.hippyagent.ui.theme.HippyTheme
@@ -71,6 +72,10 @@ class MainActivity : ComponentActivity() {
         val agentAction = intent.getStringExtra(AgentEntryRouter.EXTRA_AGENT_ACTION)
         val agentPrompt = intent.getStringExtra(AgentEntryRouter.EXTRA_PROMPT)
         val quickAsk = intent.getBooleanExtra(AgentEntryRouter.EXTRA_QUICK_ASK, false)
+        when (agentAction) {
+            "start_recording" -> AgentEntryRouter.route(this, AgentAction.StartRecording)
+            "stop_recording" -> AgentEntryRouter.route(this, AgentAction.StopRecording)
+        }
         setContent {
             HippyTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {

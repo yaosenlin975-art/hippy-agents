@@ -1877,5 +1877,15 @@
     <string name="onboarding_step_privacy_desc">所有数据默认存储在本地，不会上传到云端</string>
     <string name="onboarding_step_complete_title">准备就绪</string>
     <string name="onboarding_step_complete_desc">开始你的智能体之旅</string>
+    <!-- App Shortcuts -->
+    <string name="shortcut_ask_agent_short">Agent에게 질문</string>
+    <string name="shortcut_ask_agent_long">Agent 빠른 질문</string>
+    <string name="shortcut_ask_agent_disabled">Agent 질문 불가</string>
+    <string name="shortcut_start_recording_short">녹화 시작</string>
+    <string name="shortcut_start_recording_long">행동 녹화 시작</string>
+    <string name="shortcut_start_recording_disabled">녹화 기능 비활성</string>
+    <string name="shortcut_create_cron_short">새 Cron</string>
+    <string name="shortcut_create_cron_long">Cron 작업 생성</string>
+    <string name="shortcut_create_cron_disabled">Cron 사용 불가</string>
 </resources>
 
