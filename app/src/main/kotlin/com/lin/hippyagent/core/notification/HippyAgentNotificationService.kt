@@ -11,7 +11,7 @@ import androidx.core.app.RemoteInput
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.MainActivity
 import com.lin.hippyagent.ui.notification.NotificationReplyReceiver
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
@@ -276,7 +276,7 @@ class HippyAgentNotificationService(
             } else true
 
             val messagingStyle = NotificationCompat.MessagingStyle(
-                    androidx.core.app.Person.Builder().setName("我").build()
+                    androidx.core.app.Person.Builder().setName(context.getString(R.string.notification_person_self)).build()
                 )
                 .addMessage(NotificationCompat.MessagingStyle.Message(
                     truncated,
@@ -522,15 +522,16 @@ class HippyAgentNotificationService(
     /**
      * 构建增强版前台服务通知（InboxStyle 展开多行）。
      *
-     * 数据源（suspend 用 runBlocking 同步桥接）：
-     * - ModelManager.getCurrentProvider().name — 当前模型
+     * 数据源（suspend，由 AgentForegroundService 通过 applicationScope 异步调用）：
+     * - ModelProviderStore.providers.first() — 当前模型（默认 provider 优先，否则取首个）
+     *   注：ModelManager 是孤儿类未在 Koin 注册，改用 ModelProviderStore
      * - CronJobManager.getEnabledJobs().firstOrNull()?.name — 下个定时任务
      * - 当前任务 — MissionRunner 无 currentTask 状态暴露，兜底显示 "—"
      *
-     * 注：runBlocking 仅用于同步桥接（AgentForegroundService.buildNotification 同步调用），
-     * 符合 coding.md "runBlocking(仅同步桥接)" 例外。
+     * 协程合规（coding.md）：suspend 函数，不再用 runBlocking 阻塞主线程；
+     * channel 复用 AgentForegroundService.CHANNEL_ID（IMPORTANCE_LOW），避免 CHANNEL_HEARTBEAT 发声震动。
      */
-    fun buildEnhancedForegroundNotification(
+    suspend fun buildEnhancedForegroundNotification(
         context: Context,
         agentId: String
     ): android.app.Notification {
@@ -545,9 +546,8 @@ class HippyAgentNotificationService(
         )
 
         val modelName = runCatching {
-            runBlocking {
-                GlobalContext.get().get<com.lin.hippyagent.core.model.ModelManager>().getCurrentProvider().name
-            }
+            val providers = GlobalContext.get().get<com.lin.hippyagent.core.model.ModelProviderStore>().providers.first()
+            (providers.find { it.isDefault } ?: providers.firstOrNull())?.name ?: "—"
         }.getOrDefault("—")
 
         val nextCronName = runCatching {
@@ -566,7 +566,7 @@ class HippyAgentNotificationService(
             add(context.getString(R.string.notification_foreground_line_status, agentId))
         }
 
-        return NotificationCompat.Builder(context, CHANNEL_HEARTBEAT)
+        return NotificationCompat.Builder(context, com.lin.hippyagent.core.service.AgentForegroundService.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(context.getString(R.string.notification_foreground_content, modelName, currentTask))

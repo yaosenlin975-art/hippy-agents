@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -15,10 +16,21 @@ class ModelProviderStore(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val key = stringPreferencesKey("providers")
+    private val routingKey = stringPreferencesKey("on_device_routing")
 
     val providers: Flow<List<ModelProvider>> = context.modelProviderDataStore.data.map { prefs ->
         prefs[key]?.let { json.decodeFromString<List<ModelProvider>>(it) }?.takeIf { it.isNotEmpty() }
             ?: DEFAULT_MODEL_PROVIDERS
+    }
+
+    val onDeviceRoutingConfig: Flow<OnDeviceRoutingConfig> = context.modelProviderDataStore.data.map { prefs ->
+        prefs[routingKey]?.let { json.decodeFromString<OnDeviceRoutingConfig>(it) } ?: OnDeviceRoutingConfig()
+    }
+
+    suspend fun updateOnDeviceRoutingConfig(config: OnDeviceRoutingConfig) {
+        context.modelProviderDataStore.edit { prefs ->
+            prefs[routingKey] = json.encodeToString(config)
+        }
     }
 
     /**
@@ -68,4 +80,12 @@ class ModelProviderStore(private val context: Context) {
         }
     }
 }
+
+@Serializable
+data class OnDeviceRoutingConfig(
+    val onDeviceRoutingEnabled: Boolean = false,
+    val offlineFallbackEnabled: Boolean = false,
+    val selectedOnDeviceModel: String = "",
+    val selectedRouterModel: String = ""
+)
 

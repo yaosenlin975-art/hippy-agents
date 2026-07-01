@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 
 /**
  * 端侧模型 tool_call 解析器。
@@ -98,7 +99,10 @@ object OnDeviceToolCallParser {
         val obj = json.parseToJsonElement(jsonStr).jsonObject
         val name = obj["name"]?.jsonPrimitive?.content ?: return null
         val arguments = obj["arguments"]?.let { argEl ->
-            (argEl as? JsonObject) ?: JsonObject(emptyMap())
+            (argEl as? JsonObject) ?: run {
+                Timber.w("arguments is not JsonObject: ${argEl::class.simpleName}")
+                JsonObject(emptyMap())
+            }
         } ?: JsonObject(emptyMap())
         OnDeviceToolCall(name = name, arguments = arguments)
     } catch (e: Exception) {

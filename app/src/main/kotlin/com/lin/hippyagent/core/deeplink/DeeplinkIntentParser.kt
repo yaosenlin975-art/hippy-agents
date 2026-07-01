@@ -1,7 +1,5 @@
 package com.lin.hippyagent.core.deeplink
 
-import java.util.concurrent.ConcurrentHashMap
-
 /**
  * dumpsys 输出的 Intent 解析器。
  * 正则全部放 companion object 或顶层 private val，遵循 coding.md 规则。
@@ -23,8 +21,10 @@ object DeeplinkIntentParser {
     }
 
     private fun extractHistBlock(output: String, shortClass: String): String? {
-        val histRegex = HIST_PATTERN.getOrPut(shortClass) {
-            Regex("""Hist.*$shortClass""")
+        val histRegex = synchronized(HIST_PATTERN) {
+            HIST_PATTERN.getOrPut(shortClass) {
+                Regex("Hist.*${Regex.escape(shortClass)}")
+            }
         }
         val match = histRegex.find(output) ?: return null
         val start = match.range.first
@@ -49,7 +49,11 @@ object DeeplinkIntentParser {
         return result
     }
 
-    private val HIST_PATTERN = ConcurrentHashMap<String, Regex>()
+    private val HIST_PATTERN = java.util.Collections.synchronizedMap(
+        object : LinkedHashMap<String, Regex>(16, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Regex>): Boolean = size > 100
+        }
+    )
     private val INTENT_OPEN = Regex("""Intent\s*\{""")
     private val FIELD_ACTION = Regex("""act=([^\s}]+)""")
     private val FIELD_DATA = Regex("""dat=([^\s}]+)""")

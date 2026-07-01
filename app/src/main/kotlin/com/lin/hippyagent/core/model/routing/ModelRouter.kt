@@ -170,7 +170,7 @@ class ModelRouter(
 
         return when (target) {
             RouteTarget.ONDEVICE -> {
-                val onDeviceId = config.onDeviceModel!!
+                val onDeviceId = requireNotNull(config.onDeviceModel)
                 if (isOnDeviceModelReady(onDeviceId)) {
                     RoutingDecision(
                         selectedModel = onDeviceId,

@@ -1905,6 +1905,10 @@
     <string name="notification_foreground_line_task">Current task: %1$s</string>
     <string name="notification_foreground_line_next_cron">Next cron: %1$s</string>
     <string name="notification_foreground_line_status">Status: Agent %1$s</string>
+    <string name="notification_fallback_title">Hippy</string>
+    <string name="notification_fallback_content">Agent %1$s running</string>
+    <string name="notification_fallback_stop">Stop</string>
+    <string name="notification_person_self">Me</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">Companion · Ready</string>
     <string name="companion_status_listening">Companion · Listening...</string>
@@ -1912,8 +1916,11 @@
     <string name="companion_status_executing">Companion · Executing...</string>
     <!-- QS Tile -->
     <string name="tile_agent_label">Agent</string>
+    <string name="tile_agent_running_label">Running</string>
     <string name="tile_recording_label">Record</string>
+    <string name="tile_recording_active_label">Recording</string>
     <string name="tile_companion_label">Companion</string>
+    <string name="tile_companion_active_label">Companion Active</string>
     <!-- 环境变量页面 -->
     <string name="env_vars_title">Environment variables</string>
     <string name="env_var_name">Variable name</string>
@@ -1982,10 +1989,16 @@
     <string name="shortcut_create_cron_long">Create Cron Job</string>
     <string name="shortcut_create_cron_disabled">Cron unavailable</string>
     <!-- 桌面小组件（Chunk 5） -->
-    <string name="widget_today_todo_title">Today\'s Todos</string>
+    <string name="widget_today_todo_title">Cron Jobs</string>
     <string name="widget_quick_ask_title">Quick Ask</string>
     <string name="widget_quick_ask_hint">Tap to ask Agent</string>
     <string name="widget_quick_ask_button">Ask Agent</string>
     <string name="widget_agent_status_title">Agent Status</string>
+    <string name="widget_status_running">Status: Running</string>
+    <string name="widget_status_idle">Status: Idle</string>
+    <string name="widget_model_label">Model: %1$s</string>
+    <string name="widget_skill_label">Recent Skill: %1$s</string>
+    <string name="widget_task_label">Current Task: %1$s</string>
+    <string name="shortcut_skill_prompt">Use Skill: %1$s</string>
 </resources>
 

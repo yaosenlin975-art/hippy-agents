@@ -57,7 +57,7 @@ class CompanionTileService : TileService() {
         runCatching {
             val tile = qsTile ?: return@runCatching
             tile.state = if (isActive) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-            tile.label = if (isActive) "Companion 中" else "Companion"
+            tile.label = if (isActive) getString(com.lin.hippyagent.R.string.tile_companion_active_label) else getString(com.lin.hippyagent.R.string.tile_companion_label)
             tile.updateTile()
         }.onFailure { Timber.w(it, "CompanionTileService.refreshTile failed") }
     }

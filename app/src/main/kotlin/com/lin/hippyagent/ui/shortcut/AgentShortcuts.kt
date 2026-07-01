@@ -51,13 +51,13 @@ object AgentShortcuts {
                                 action = Intent.ACTION_VIEW
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
                                 putExtra(AgentEntryRouter.EXTRA_AGENT_ACTION, AgentEntryRouter.ACTION_OPEN_CHAT)
-                                putExtra(AgentEntryRouter.EXTRA_PROMPT, "使用 Skill: $name")
+                                putExtra(AgentEntryRouter.EXTRA_PROMPT, context.getString(com.lin.hippyagent.R.string.shortcut_skill_prompt, name))
                             })
                             .build()
                     }
             }
-            ShortcutManagerCompat.removeAllDynamicShortcuts(context)
-            ShortcutManagerCompat.addDynamicShortcuts(context, shortcuts)
+            // 用 setDynamicShortcuts 一次替换（原子操作），避免 removeAll + add 期间长按图标列表为空
+            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
             Timber.i("AgentShortcuts: pushed ${shortcuts.size} dynamic shortcuts")
         }.onFailure { Timber.e(it, "AgentShortcuts.pushRecentSkill failed") }
     }

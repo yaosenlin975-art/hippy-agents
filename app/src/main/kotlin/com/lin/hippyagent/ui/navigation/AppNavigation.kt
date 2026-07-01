@@ -36,7 +36,8 @@ fun AppNavigation(
     deepLinkSessionId: String? = null,
     agentAction: String? = null,
     agentPrompt: String? = null,
-    quickAsk: Boolean = false
+    quickAsk: Boolean = false,
+    entryToken: Int = 0
 ) {
     val navController = rememberNavController()
 
@@ -48,10 +49,34 @@ fun AppNavigation(
         }
     }
 
-    LaunchedEffect(agentAction, agentPrompt, quickAsk) {
-        if (agentAction != null) {
-            // 从系统入口点（Shortcuts/Tile/Widget 等）进入时，确保回到 Sessions 主界面。
-            // prompt/quickAsk 的实际注入由后续 Chunk 处理（需扩展 Chat 路由 schema）。
+    // SessionStore 在 Composable 顶部注入（koinInject 是 @Composable，不能在 LaunchedEffect suspend lambda 内调用）
+    val sessionStore: com.lin.hippyagent.core.agent.session.SessionStore = org.koin.compose.koinInject()
+
+    // 消费系统入口点（Shortcuts/Tile/Widget）传递的 agentAction + agentPrompt：
+    // - open_chat / create_cron + 非空 prompt：创建新会话 + 跳转 Chat + savedStateHandle 传 prefill（由 Chat composable 消费）
+    // - 非 open_chat/create_cron 的 action（或两者无 prompt）：回到 Sessions 主界面
+    LaunchedEffect(entryToken) {
+        if (agentAction == null) return@LaunchedEffect
+        val needPrefill = (agentAction == com.lin.hippyagent.ui.entry.AgentEntryRouter.ACTION_OPEN_CHAT || agentAction == com.lin.hippyagent.ui.entry.AgentEntryRouter.ACTION_CREATE_CRON) && !agentPrompt.isNullOrBlank()
+        if (needPrefill) {
+            val agentId = com.lin.hippyagent.core.agent.AgentSelectionHolder.currentAgentId.value
+                ?: com.lin.hippyagent.data.repository.AgentRepository.DEFAULT_AGENT_ID
+            val title = navController.context.getString(com.lin.hippyagent.R.string.chat_new_session)
+            val result = sessionStore.createSession(agentId, title)
+            result.onSuccess { session ->
+                navController.navigate(Screen.Chat.createRoute(session.id, agentId)) {
+                    popUpTo(Screen.Sessions.route) { inclusive = false }
+                    launchSingleTop = true
+                }
+                navController.currentBackStackEntry?.savedStateHandle?.set("prefill_prompt", agentPrompt)
+            }.onFailure {
+                // 创建会话失败时退回 Sessions 主界面，避免用户卡在空白
+                navController.navigate(Screen.Sessions.route) {
+                    popUpTo(Screen.Sessions.route) { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
+        } else {
             navController.navigate(Screen.Sessions.route) {
                 popUpTo(Screen.Sessions.route) { inclusive = false }
                 launchSingleTop = true
@@ -225,12 +250,22 @@ fun AppNavigation(
                     val chatVm: com.lin.hippyagent.ui.chat.ChatViewModel = org.koin.androidx.compose.koinViewModel()
                     val permVm: com.lin.hippyagent.ui.chat.PermissionViewModel = org.koin.androidx.compose.koinViewModel()
                     val planVm: com.lin.hippyagent.ui.chat.PlanViewModel = org.koin.androidx.compose.koinViewModel()
+                    val inputVm: com.lin.hippyagent.ui.chat.ChatInputViewModel = org.koin.androidx.compose.koinViewModel()
                     chatVm.attachSubViewModels(permVm, planVm)
+                    // 消费系统入口点（Shortcuts/Tile/Widget）传递的 prefill_prompt：预填 Chat 输入框
+                    LaunchedEffect(sessionId) {
+                        backStackEntry.savedStateHandle.get<String?>("prefill_prompt")?.let { prefill ->
+                            if (prefill.isNotBlank()) {
+                                inputVm.onInputTextChanged(prefill)
+                                backStackEntry.savedStateHandle.remove<String?>("prefill_prompt")
+                            }
+                        }
+                    }
                     com.lin.hippyagent.ui.chat.ChatScreen(
                         viewModel = chatVm,
                         permissionViewModel = permVm,
                         planViewModel = planVm,
-                        inputViewModel = org.koin.androidx.compose.koinViewModel(),
+                        inputViewModel = inputVm,
                         sessionId = sessionId,
                         agentId = agentId,
                         onBackClick = {
@@ -273,7 +308,9 @@ fun AppNavigation(
                     onBackClick = { navController.popBackStack(Screen.Sessions.route, inclusive = false) },
                     onProviderClick = { providerId ->
                         navController.navigate(Screen.ProviderDetail.createRoute(providerId))
-                    }
+                    },
+                    onDeviceRouting = uiState.onDeviceRouting,
+                    onUpdateOnDeviceRouting = viewModel::updateOnDeviceRouting
                 )
             }
 

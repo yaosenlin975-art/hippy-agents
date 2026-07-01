@@ -55,11 +55,15 @@ class ShizukuSystemApiBridge(
                 val remoteProcess: IRemoteProcess = service.newProcess(
                     arrayOf("sh", "-c", cmd), null, null
                 )
-                val stdout = readRemoteStream(remoteProcess.inputStream)
-                val stderr = readRemoteStream(remoteProcess.errorStream)
-                val exitCode = remoteProcess.waitFor()
-                if (exitCode == 0) stdout
-                else throw IllegalStateException("exit=$exitCode stderr=$stderr")
+                try {
+                    val stdout = readRemoteStream(remoteProcess.inputStream)
+                    val stderr = readRemoteStream(remoteProcess.errorStream)
+                    val exitCode = remoteProcess.waitFor()
+                    if (exitCode == 0) stdout
+                    else throw IllegalStateException("exit=$exitCode stderr=$stderr")
+                } finally {
+                    runCatching { remoteProcess.destroy() }
+                }
             }
         } ?: Result.failure(IllegalStateException("Shizuku execute timeout after ${timeoutMs}ms"))
     }
@@ -76,11 +80,15 @@ class ShizukuSystemApiBridge(
         return withTimeoutOrNull(timeoutMs) {
             runCatching {
                 val process = Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
-                val stdout = BufferedReader(InputStreamReader(process.inputStream)).use { it.readText() }
-                val stderr = BufferedReader(InputStreamReader(process.errorStream)).use { it.readText() }
-                val exitCode = process.waitFor()
-                if (exitCode == 0) stdout
-                else throw IllegalStateException("exit=$exitCode stderr=$stderr")
+                try {
+                    val stdout = BufferedReader(InputStreamReader(process.inputStream)).use { it.readText() }
+                    val stderr = BufferedReader(InputStreamReader(process.errorStream)).use { it.readText() }
+                    val exitCode = process.waitFor()
+                    if (exitCode == 0) stdout
+                    else throw IllegalStateException("exit=$exitCode stderr=$stderr")
+                } finally {
+                    runCatching { process.destroy() }
+                }
             }
         } ?: Result.failure(IllegalStateException("Root execute timeout after ${timeoutMs}ms"))
     }

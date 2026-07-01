@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.model.ModelProvider
+import com.lin.hippyagent.core.model.OnDeviceRoutingConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,9 +61,13 @@ fun ModelProviderScreen(
     onDeleteProvider: (String) -> Unit,
     onBackClick: () -> Unit,
     onProviderClick: (String) -> Unit,
+    onDeviceRouting: OnDeviceRoutingConfig,
+    onUpdateOnDeviceRouting: (OnDeviceRoutingConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
+    val realProviders = remember(providers) { providers.filter { !it.isVirtual } }
+    val onDeviceProviders = remember(providers) { providers.filter { it.isVirtual } }
 
     Scaffold(
         topBar = {
@@ -88,7 +93,7 @@ fun ModelProviderScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(providers.filter { !it.isVirtual }, key = { it.id }) { provider ->
+            items(realProviders, key = { it.id }) { provider ->
                 ProviderCard(
                     provider = provider,
                     onToggle = { enabled ->
@@ -102,7 +107,7 @@ fun ModelProviderScreen(
             // B1/B2/B3/B4：端侧模型分区
             item(key = "ondevice_section") {
                 OnDeviceModelsSection(
-                    onDeviceProviders = providers.filter { it.isVirtual },
+                    onDeviceProviders = onDeviceProviders,
                     onAddCustomModel = { /* TODO: 打开自定义 HF URL 下载对话框 */ }
                 )
             }
@@ -110,8 +115,10 @@ fun ModelProviderScreen(
             // B1/B2：端侧路由配置区
             item(key = "ondevice_routing_section") {
                 OnDeviceRoutingConfigSection(
-                    onDeviceProviders = providers.filter { it.isVirtual },
-                    cloudProviders = providers.filter { !it.isVirtual }
+                    onDeviceProviders = onDeviceProviders,
+                    cloudProviders = realProviders,
+                    config = onDeviceRouting,
+                    onUpdate = onUpdateOnDeviceRouting
                 )
             }
 
@@ -424,12 +431,10 @@ private fun OnDeviceModelCard(provider: ModelProvider, modifier: Modifier = Modi
 private fun OnDeviceRoutingConfigSection(
     onDeviceProviders: List<ModelProvider>,
     cloudProviders: List<ModelProvider>,
+    config: OnDeviceRoutingConfig,
+    onUpdate: (OnDeviceRoutingConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var onDeviceRoutingEnabled by remember { mutableStateOf(false) }
-    var offlineFallbackEnabled by remember { mutableStateOf(false) }
-    var selectedOnDeviceModel by remember { mutableStateOf("") }
-    var selectedRouterModel by remember { mutableStateOf("") }
     var onDeviceExpanded by remember { mutableStateOf(false) }
     var routerExpanded by remember { mutableStateOf(false) }
 
@@ -461,8 +466,8 @@ private fun OnDeviceRoutingConfigSection(
                     )
                 }
                 Switch(
-                    checked = onDeviceRoutingEnabled,
-                    onCheckedChange = { onDeviceRoutingEnabled = it }
+                    checked = config.onDeviceRoutingEnabled,
+                    onCheckedChange = { onUpdate(config.copy(onDeviceRoutingEnabled = it)) }
                 )
             }
 
@@ -482,8 +487,8 @@ private fun OnDeviceRoutingConfigSection(
                     )
                 }
                 Switch(
-                    checked = offlineFallbackEnabled,
-                    onCheckedChange = { offlineFallbackEnabled = it }
+                    checked = config.offlineFallbackEnabled,
+                    onCheckedChange = { onUpdate(config.copy(offlineFallbackEnabled = it)) }
                 )
             }
 
@@ -496,7 +501,7 @@ private fun OnDeviceRoutingConfigSection(
             )
             Box {
                 OutlinedTextField(
-                    value = selectedOnDeviceModel,
+                    value = config.selectedOnDeviceModel,
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth().clickable { onDeviceExpanded = true },
@@ -515,7 +520,7 @@ private fun OnDeviceRoutingConfigSection(
                         DropdownMenuItem(
                             text = { Text(provider.name) },
                             onClick = {
-                                selectedOnDeviceModel = provider.id
+                                onUpdate(config.copy(selectedOnDeviceModel = provider.id))
                                 onDeviceExpanded = false
                             }
                         )
@@ -532,7 +537,7 @@ private fun OnDeviceRoutingConfigSection(
             )
             Box {
                 OutlinedTextField(
-                    value = selectedRouterModel,
+                    value = config.selectedRouterModel,
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth().clickable { routerExpanded = true },
@@ -551,7 +556,7 @@ private fun OnDeviceRoutingConfigSection(
                         DropdownMenuItem(
                             text = { Text(provider.name) },
                             onClick = {
-                                selectedRouterModel = provider.id
+                                onUpdate(config.copy(selectedRouterModel = provider.id))
                                 routerExpanded = false
                             }
                         )

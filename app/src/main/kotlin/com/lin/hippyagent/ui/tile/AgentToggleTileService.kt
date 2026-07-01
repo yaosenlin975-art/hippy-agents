@@ -29,16 +29,18 @@ class AgentToggleTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
+        // 乐观翻转：onClick 后立即显示新状态（AgentForegroundService.toggle 异步，isRunning 不会立即更新）
+        val optimisticRunning = !AgentForegroundService.isRunning
+        refreshTile(optimisticRunning)
         AgentEntryRouter.route(this, AgentAction.ToggleAgent)
-        refreshTile()
     }
 
-    private fun refreshTile() {
+    private fun refreshTile(optimisticRunning: Boolean? = null) {
         runCatching {
             val tile = qsTile ?: return@runCatching
-            val running = AgentForegroundService.isRunning
+            val running = optimisticRunning ?: AgentForegroundService.isRunning
             tile.state = if (running) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-            tile.label = if (running) "运行中" else "Agent"
+            tile.label = if (running) getString(com.lin.hippyagent.R.string.tile_agent_running_label) else getString(com.lin.hippyagent.R.string.tile_agent_label)
             tile.updateTile()
         }.onFailure { Timber.w(it, "AgentToggleTileService.refreshTile failed") }
     }

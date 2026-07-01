@@ -24,6 +24,10 @@ object DeeplinkBookmarkStore {
     }
 
     fun add(bookmark: DeeplinkBookmark) {
+        if (prefs == null) {
+            Timber.w("DeeplinkBookmarkStore not initialized")
+            return
+        }
         val current = getAll().toMutableList()
         val exists = current.any {
             it.packageName == bookmark.packageName &&

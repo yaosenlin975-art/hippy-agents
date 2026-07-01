@@ -45,21 +45,28 @@ class DeeplinkLauncher(
 
     private fun parseFlags(flg: String): Int {
         return flg.split("|").mapNotNull { token ->
-            token.trim().toIntOrNull(16) ?: runCatching {
-                Intent::class.java.getField(token.trim()).getInt(null)
+            val trimmed = token.trim()
+            trimmed.removePrefix("0x").removePrefix("0X").toIntOrNull(16) ?: runCatching {
+                Intent::class.java.getField(trimmed).getInt(null)
             }.getOrNull()
         }.fold(0) { acc, flag -> acc or flag }
     }
 
     companion object {
+        private fun shellEscape(s: String): String = s
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("$", "\\$")
+            .replace("`", "\\`")
+
         fun buildAmCommand(spec: CapturedIntentSpec): String = buildString {
             append("am start")
-            spec.action?.let { append(" -a $it") }
-            spec.dataUri?.let { append(" -d $it") }
-            spec.component?.let { append(" -n $it") }
-            spec.flags?.let { append(" -f $it") }
+            spec.action?.let { append(" -a \"").append(shellEscape(it)).append("\"") }
+            spec.dataUri?.let { append(" -d \"").append(shellEscape(it)).append("\"") }
+            spec.component?.let { append(" -n \"").append(shellEscape(it)).append("\"") }
+            spec.flags?.let { append(" -f \"").append(shellEscape(it)).append("\"") }
             for ((key, value) in spec.extras) {
-                append(" --es \"$key\" \"$value\"")
+                append(" --es \"").append(shellEscape(key)).append("\" \"").append(shellEscape(value)).append("\"")
             }
         }
     }

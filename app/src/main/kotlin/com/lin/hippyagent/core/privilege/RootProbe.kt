@@ -3,6 +3,7 @@ package com.lin.hippyagent.core.privilege
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -22,8 +23,13 @@ object RootProbe {
         }
         val result = runCatching {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            process.waitFor() == 0 && output.contains("uid=0")
+            try {
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                val exited = process.waitFor(3, TimeUnit.SECONDS)
+                exited && process.exitValue() == 0 && output.contains("uid=0")
+            } finally {
+                runCatching { process.destroy() }
+            }
         }.getOrElse {
             Timber.d("RootProbe: su not available")
             false

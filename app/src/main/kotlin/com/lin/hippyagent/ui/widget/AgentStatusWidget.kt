@@ -54,7 +54,7 @@ class AgentStatusWidget : AppWidgetProvider() {
         val running = AgentForegroundService.isRunning
         views.setTextViewText(
             R.id.widget_status_row,
-            if (running) "状态：运行中" else "状态：空闲"
+            context.getString(if (running) R.string.widget_status_running else R.string.widget_status_idle)
         )
 
         // 当前模型（ModelProviderStore.providers Flow.first() suspend 取默认 provider）
@@ -62,20 +62,22 @@ class AgentStatusWidget : AppWidgetProvider() {
             val providers = GlobalContext.get().get<ModelProviderStore>().providers.first()
             (providers.find { it.isDefault } ?: providers.firstOrNull())?.name ?: "unknown"
         }.getOrDefault("unknown")
-        views.setTextViewText(R.id.widget_model_row, "模型：$modelName")
+        views.setTextViewText(R.id.widget_model_row, context.getString(R.string.widget_model_label, modelName))
 
-        // 最近 Skill（SkillManager.loadIndex 同步）
-        val lastSkill = runCatching {
-            GlobalContext.get().get<SkillManager>().loadIndex()
-                .skills.values.firstOrNull()?.name
+        // 当前激活 Skill（SkillLifecycleManager.getActiveSkillIds() 返回当前激活的 Skill 集合，比 loadIndex().skills.firstOrNull 更准确）
+        val activeSkillName = runCatching {
+            val skillManager = GlobalContext.get().get<SkillManager>()
+            val activeId = GlobalContext.get().get<com.lin.hippyagent.core.skill.SkillLifecycleManager>()
+                .getActiveSkillIds().firstOrNull()
+            activeId?.let { skillManager.getManifest(it)?.name }
         }.getOrDefault(null)
         views.setTextViewText(
             R.id.widget_skill_row,
-            "最近 Skill：${lastSkill ?: "—"}"
+            context.getString(R.string.widget_skill_label, activeSkillName ?: "—")
         )
 
         // 当前任务（MissionRunner 无状态暴露，兜底显示）
-        views.setTextViewText(R.id.widget_task_row, "当前任务：—")
+        views.setTextViewText(R.id.widget_task_row, context.getString(R.string.widget_task_label, "—"))
 
         return views
     }

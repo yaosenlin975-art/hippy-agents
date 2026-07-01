@@ -11,12 +11,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.lin.hippyagent.core.agent.mode.ModeOnboarding
 import com.lin.hippyagent.core.notification.InAppMessageBubbleHost
-import com.lin.hippyagent.ui.entry.AgentAction
 import com.lin.hippyagent.ui.entry.AgentEntryRouter
 import com.lin.hippyagent.ui.navigation.AppNavigation
 import com.lin.hippyagent.ui.theme.HippyTheme
@@ -64,27 +64,31 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    // 用 mutableStateOf 暴露 agent 入口参数，onNewIntent 时更新触发 Compose 重组（替代 recreate，避免丢失非 rememberSaveable 状态）
+    private val agentActionState = mutableStateOf<String?>(null)
+    private val agentPromptState = mutableStateOf<String?>(null)
+    private val quickAskState = mutableStateOf(false)
+    // 入口 token：每次 onNewIntent 递增，强制 AppNavigation 的 LaunchedEffect 重新触发（避免相同 extra 重复点击不响应）
+    private val entryTokenState = mutableStateOf(0)
+    // deep_link_session_id：onNewIntent 传入新值时刷新，触发 AppNavigation 重组跳转目标会话
+    private val deepLinkSessionIdState = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestBasicPermissions()
         get<ModeOnboarding>().showIfNeeded(this)
-        val deepLinkSessionId = intent.getStringExtra("deep_link_session_id")
-        val agentAction = intent.getStringExtra(AgentEntryRouter.EXTRA_AGENT_ACTION)
-        val agentPrompt = intent.getStringExtra(AgentEntryRouter.EXTRA_PROMPT)
-        val quickAsk = intent.getBooleanExtra(AgentEntryRouter.EXTRA_QUICK_ASK, false)
-        when (agentAction) {
-            "start_recording" -> AgentEntryRouter.route(this, AgentAction.StartRecording)
-            "stop_recording" -> AgentEntryRouter.route(this, AgentAction.StopRecording)
-        }
+        applyAgentEntryIntent(intent)
+        applyDeepLinkSessionId(intent)
         setContent {
             HippyTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         AppNavigation(
-                            deepLinkSessionId = deepLinkSessionId,
-                            agentAction = agentAction,
-                            agentPrompt = agentPrompt,
-                            quickAsk = quickAsk
+                            deepLinkSessionId = deepLinkSessionIdState.value,
+                            agentAction = agentActionState.value,
+                            agentPrompt = agentPromptState.value,
+                            quickAsk = quickAskState.value,
+                            entryToken = entryTokenState.value
                         )
                         InAppMessageBubbleHost(context = LocalContext.current)
                     }
@@ -96,7 +100,23 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        recreate()
+        applyAgentEntryIntent(intent)
+        applyDeepLinkSessionId(intent)
+    }
+
+    private fun applyAgentEntryIntent(intent: Intent) {
+        val agentAction = intent.getStringExtra(AgentEntryRouter.EXTRA_AGENT_ACTION)
+        val agentPrompt = intent.getStringExtra(AgentEntryRouter.EXTRA_PROMPT)
+        val quickAsk = intent.getBooleanExtra(AgentEntryRouter.EXTRA_QUICK_ASK, false)
+        agentActionState.value = agentAction
+        agentPromptState.value = agentPrompt
+        quickAskState.value = quickAsk
+        entryTokenState.value = entryTokenState.value + 1
+        // open_chat / create_cron 由 AppNavigation 的 LaunchedEffect 消费（避免 AgentEntryRouter 循环启动 MainActivity）
+    }
+
+    private fun applyDeepLinkSessionId(intent: Intent) {
+        deepLinkSessionIdState.value = intent.getStringExtra("deep_link_session_id")
     }
 
     private fun requestBasicPermissions() {

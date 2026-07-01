@@ -12,6 +12,10 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.MainActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.koin.core.context.GlobalContext
+import org.koin.core.qualifier.named
 import timber.log.Timber
 
 class AgentForegroundService : Service() {
@@ -82,15 +86,22 @@ class AgentForegroundService : Service() {
             ACTION_START -> {
                 val agentId = intent.getStringExtra(EXTRA_AGENT_ID) ?: return START_NOT_STICKY
                 runningAgentId = agentId
-                startForeground(NOTIFICATION_ID, buildNotification(agentId))
+                // 同步路径：用 fallback 立即 startForeground（避免主线程阻塞 / ANR）
+                startForeground(NOTIFICATION_ID, buildSimpleFallbackNotification(agentId))
+                // 异步刷新为 enhanced 通知（含 model / cron 多行）
+                launchRefreshEnhanced(agentId)
                 Timber.i("Agent foreground service started for: $agentId")
             }
             ACTION_STOP -> {
                 stopSelf()
                 Timber.i("Agent foreground service stopped")
+                return START_NOT_STICKY
             }
             ACTION_REFRESH_NOTIFICATION -> {
-                refreshNotification()
+                val agentId = runningAgentId ?: "default"
+                // 维持前台状态（避免 race：refreshNotification 期间服务被降级）
+                startForeground(NOTIFICATION_ID, buildSimpleFallbackNotification(agentId))
+                launchRefreshEnhanced(agentId)
                 return START_NOT_STICKY
             }
         }
@@ -122,14 +133,24 @@ class AgentForegroundService : Service() {
         }
     }
 
-    private fun buildNotification(agentId: String): Notification {
-        return runCatching {
-            val ns = org.koin.core.context.GlobalContext.get()
-                .get<com.lin.hippyagent.core.notification.HippyAgentNotificationService>()
-            ns.buildEnhancedForegroundNotification(this, agentId)
-        }.getOrElse {
-            buildSimpleFallbackNotification(agentId)
-        }
+    /**
+     * 异步刷新为 enhanced 通知（含 model / cron 多行）。
+     *
+     * 协程合规（coding.md）：复用 Koin 注册的 applicationScope，不自建 CoroutineScope；
+     * buildEnhancedForegroundNotification 内部已改为 suspend，主线程不阻塞。
+     */
+    private fun launchRefreshEnhanced(agentId: String) {
+        runCatching {
+            val appScope = GlobalContext.get().get<CoroutineScope>(named("applicationScope"))
+            appScope.launch {
+                runCatching {
+                    val ns = GlobalContext.get().get<com.lin.hippyagent.core.notification.HippyAgentNotificationService>()
+                    val notification = ns.buildEnhancedForegroundNotification(this@AgentForegroundService, agentId)
+                    val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    nm.notify(NOTIFICATION_ID, notification)
+                }.onFailure { Timber.w(it, "launchRefreshEnhanced failed") }
+            }
+        }.onFailure { Timber.w(it, "applicationScope not resolved") }
     }
 
     /** fallback 简化通知：仅显示运行状态，不查 ModelManager（避免冷启动阻塞） */
@@ -155,13 +176,13 @@ class AgentForegroundService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Hippy")
-            .setContentText("Agent $agentId 正在运行")
+            .setContentTitle(getString(R.string.notification_fallback_title))
+            .setContentText(getString(R.string.notification_fallback_content, agentId))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pendingIntent)
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
-                "停止",
+                getString(R.string.notification_fallback_stop),
                 stopPendingIntent
             )
             .setOngoing(true)
@@ -172,16 +193,13 @@ class AgentForegroundService : Service() {
     /**
      * 主动刷新前台通知（供 Tile/Widget 触发状态变化后调用）。
      *
-     * 协程合规：直接调 NotificationManager.notify（同步），不进协程。
+     * 协程合规：fire-and-forget，由 applicationScope 异步刷新 enhanced；
+     * 主线程立即返回，避免阻塞调用方（Tile/Widget onUpdate 在主线程）。
      */
     fun refreshNotification() {
         if (!isRunning) return
         val agentId = runningAgentId ?: "default"
-        val notification = buildNotification(agentId)
-        runCatching {
-            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            nm.notify(NOTIFICATION_ID, notification)
-        }.onFailure { Timber.w(it, "refreshNotification failed") }
+        launchRefreshEnhanced(agentId)
     }
 }
 

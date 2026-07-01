@@ -7,6 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import com.lin.hippyagent.core.accessibility.ActionApprover
+import com.lin.hippyagent.core.deeplink.DeeplinkBookmarkStore
 import com.lin.hippyagent.core.security.RiskLevel
 import com.lin.hippyagent.core.security.ToolApprovalManager
 import com.lin.hippyagent.core.memory.dream.DreamMemoryProcessor
@@ -112,6 +113,7 @@ class HippyAgentApp : Application(), Configuration.Provider, KoinComponent {
         super.onCreate()
 
         migrateLegacyPrefs()
+        DeeplinkBookmarkStore.initialize(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

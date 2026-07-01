@@ -4,9 +4,9 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
-import com.lin.hippyagent.core.behavior.BehaviorRecorder
-import com.lin.hippyagent.ui.entry.AgentAction
-import com.lin.hippyagent.ui.entry.AgentEntryRouter
+import com.lin.hippyagent.core.behavior.BehaviorRecordingController
+import com.lin.hippyagent.core.behavior.RecordingState
+import com.lin.hippyagent.ui.floatwindow.BehaviorRecordingFloatWindow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -14,10 +14,14 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.core.context.GlobalContext
 import timber.log.Timber
 
 /**
  * QS Tile：启停行为录制。
+ *
+ * Plan G 入口点：调用 BehaviorRecordingController.start()/stop() 控制 BehaviorRecorder + DeeplinkBookmarkSession，
+ * 并通过 BehaviorRecordingFloatWindow 显示录制浮窗（收藏当前页 / 停止按钮）。
  *
  * 协程合规（coding.md）：用 MainScope()（TileService 生命周期短，等价 applicationScope 短生命周期版）；
  * onStartListening 启动 collect，onStopListening cancel scope；
@@ -35,7 +39,7 @@ class RecordingTileService : TileService() {
         super.onStartListening()
         collectJob?.cancel()
         collectJob = scope.launch(Dispatchers.Main) {
-            BehaviorRecorder.uiState.map { it.isRecording }.collect { isRecording ->
+            controller().uiState.map { it.state == RecordingState.RECORDING }.collect { isRecording ->
                 refreshTile(isRecording)
             }
         }
@@ -49,9 +53,19 @@ class RecordingTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val isRecording = BehaviorRecorder.uiState.value.isRecording
-        val action = if (isRecording) AgentAction.StopRecording else AgentAction.StartRecording
-        AgentEntryRouter.route(this, action)
+        val controller = controller()
+        val isRecording = controller.uiState.value.state == RecordingState.RECORDING
+        if (isRecording) {
+            controller.stop()
+            BehaviorRecordingFloatWindow.dismiss()
+        } else {
+            val started = controller.start()
+            if (started) {
+                BehaviorRecordingFloatWindow.show(applicationContext, controller)
+            } else {
+                Timber.w("RecordingTileService.onClick: controller.start() failed (accessibility not running?)")
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -59,11 +73,13 @@ class RecordingTileService : TileService() {
         super.onDestroy()
     }
 
+    private fun controller(): BehaviorRecordingController = GlobalContext.get().get()
+
     private fun refreshTile(isRecording: Boolean) {
         runCatching {
             val tile = qsTile ?: return@runCatching
             tile.state = if (isRecording) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-            tile.label = if (isRecording) "录制中" else "录制"
+            tile.label = if (isRecording) getString(com.lin.hippyagent.R.string.tile_recording_active_label) else getString(com.lin.hippyagent.R.string.tile_recording_label)
             tile.updateTile()
         }.onFailure { Timber.w(it, "RecordingTileService.refreshTile failed") }
     }

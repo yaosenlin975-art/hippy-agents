@@ -297,7 +297,9 @@ class FailoverEngine(
             if (decision.action == FailoverAction.SWITCH_PROVIDER &&
                 decision.nextProvider?.startsWith("ondevice-") == true) {
                 val modelId = decision.nextProvider.removePrefix("ondevice-")
-                onDeviceModelManager?.ensureEngineLoaded(modelId)
+                runCatching { onDeviceModelManager?.ensureEngineLoaded(modelId) }
+                    .onFailure { return Result.failure(failoverError) }
+                return Result.failure(failoverError)
             }
             if (decision.action == FailoverAction.SURFACE_TO_USER) {
                 return Result.failure(failoverError)

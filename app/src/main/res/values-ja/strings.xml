@@ -1845,6 +1845,10 @@
     <string name="notification_foreground_line_task">現在のタスク：%1$s</string>
     <string name="notification_foreground_line_next_cron">次の定期実行：%1$s</string>
     <string name="notification_foreground_line_status">実行状態：Agent %1$s</string>
+    <string name="notification_fallback_title">Hippy</string>
+    <string name="notification_fallback_content">Agent %1$s 実行中</string>
+    <string name="notification_fallback_stop">停止</string>
+    <string name="notification_person_self">私</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">屏内替身 · 就绪</string>
     <string name="companion_status_listening">屏内替身 · 聆听中...</string>
@@ -1852,8 +1856,11 @@
     <string name="companion_status_executing">屏内替身 · 执行中...</string>
     <!-- QS Tile -->
     <string name="tile_agent_label">Agent</string>
+    <string name="tile_agent_running_label">実行中</string>
     <string name="tile_recording_label">録画</string>
+    <string name="tile_recording_active_label">録画中</string>
     <string name="tile_companion_label">Companion</string>
+    <string name="tile_companion_active_label">Companion中</string>
     <!-- 环境变量页面 -->
     <string name="env_vars_title">环境变量</string>
     <string name="env_var_name">变量名</string>
@@ -1901,10 +1908,16 @@
     <string name="shortcut_create_cron_long">Cronジョブ作成</string>
     <string name="shortcut_create_cron_disabled">Cron利用不可</string>
     <!-- 桌面小组件（Chunk 5） -->
-    <string name="widget_today_todo_title">今日のToDo</string>
+    <string name="widget_today_todo_title">Cron タスク</string>
     <string name="widget_quick_ask_title">クイック質問</string>
     <string name="widget_quick_ask_hint">タップしてAgentに質問</string>
     <string name="widget_quick_ask_button">Agentに質問</string>
     <string name="widget_agent_status_title">Agent状態</string>
+    <string name="widget_status_running">状態：実行中</string>
+    <string name="widget_status_idle">状態：待機</string>
+    <string name="widget_model_label">モデル：%1$s</string>
+    <string name="widget_skill_label">最近の Skill：%1$s</string>
+    <string name="widget_task_label">現在のタスク：%1$s</string>
+    <string name="shortcut_skill_prompt">Skill を使う: %1$s</string>
 </resources>
 

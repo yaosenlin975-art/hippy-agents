@@ -29,7 +29,6 @@ class LlmTaskRouter(
     data class LlmTaskRouterConfig(
         val enabled: Boolean = true,
         val routerModelName: String,
-        val maxRetries: Int = 1,
         val timeoutMs: Long = 5000
     )
 

@@ -2607,7 +2607,7 @@ _你刚醒来。该搞清楚自己是谁了。_
                     callLlmWithRetryAndRateLimit(request, summaryClient)
                 } catch (e: Exception) {
                     // B4：summaryModel 失败，降级到主模型
-                    if (summaryModelName != profile.modelName) {
+                    if (summaryModelName != profile.modelName || summaryModelProvider != profile.modelProvider) {
                         Timber.w(e, "Summary model failed, falling back to primary model")
                         callLlmWithRetryAndRateLimit(
                             request.copy(model = stripModelPrefix(profile.modelName)),

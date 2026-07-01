@@ -1916,6 +1916,10 @@
     <string name="notification_foreground_line_task">当前任务：%1$s</string>
     <string name="notification_foreground_line_next_cron">下个定时：%1$s</string>
     <string name="notification_foreground_line_status">运行状态：Agent %1$s</string>
+    <string name="notification_fallback_title">Hippy</string>
+    <string name="notification_fallback_content">Agent %1$s 正在运行</string>
+    <string name="notification_fallback_stop">停止</string>
+    <string name="notification_person_self">我</string>
     <!-- 屏内替身 -->
     <string name="companion_status_ready">屏内替身 · 就绪</string>
     <string name="companion_status_listening">屏内替身 · 聆听中...</string>
@@ -1923,8 +1927,11 @@
     <string name="companion_status_executing">屏内替身 · 执行中...</string>
     <!-- QS Tile -->
     <string name="tile_agent_label">Agent</string>
+    <string name="tile_agent_running_label">运行中</string>
     <string name="tile_recording_label">录制</string>
+    <string name="tile_recording_active_label">录制中</string>
     <string name="tile_companion_label">Companion</string>
+    <string name="tile_companion_active_label">Companion 中</string>
     <!-- 环境变量页面 -->
     <string name="env_vars_title">环境变量</string>
     <string name="env_var_name">变量名</string>
@@ -2016,10 +2023,16 @@
     <string name="shortcut_create_cron_long">新建定时任务</string>
     <string name="shortcut_create_cron_disabled">定时任务不可用</string>
     <!-- 桌面小组件（Chunk 5） -->
-    <string name="widget_today_todo_title">今日待办</string>
+    <string name="widget_today_todo_title">Cron 任务</string>
     <string name="widget_quick_ask_title">快速提问</string>
     <string name="widget_quick_ask_hint">点击提问 Agent</string>
     <string name="widget_quick_ask_button">问 Agent</string>
     <string name="widget_agent_status_title">Agent 状态</string>
+    <string name="widget_status_running">状态：运行中</string>
+    <string name="widget_status_idle">状态：空闲</string>
+    <string name="widget_model_label">模型：%1$s</string>
+    <string name="widget_skill_label">最近 Skill：%1$s</string>
+    <string name="widget_task_label">当前任务：%1$s</string>
+    <string name="shortcut_skill_prompt">使用 Skill: %1$s</string>
 </resources>
 

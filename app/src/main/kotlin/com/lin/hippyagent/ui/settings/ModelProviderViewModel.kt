@@ -8,6 +8,7 @@ import com.lin.hippyagent.core.model.ModelClient
 import com.lin.hippyagent.core.model.ModelConfig
 import com.lin.hippyagent.core.model.ModelProvider
 import com.lin.hippyagent.core.model.ModelProviderStore
+import com.lin.hippyagent.core.model.OnDeviceRoutingConfig
 import com.lin.hippyagent.core.model.OllamaModelClient
 import com.lin.hippyagent.core.model.OpenAIModelClient
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ data class ModelProviderUiState(
     val isTestingConnection: Boolean = false,
     val isFetchingModels: Boolean = false,
     val testResult: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val onDeviceRouting: OnDeviceRoutingConfig = OnDeviceRoutingConfig()
 )
 
 class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel() {
@@ -36,6 +38,11 @@ class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel(
             _uiState.update { it.copy(isLoading = true) }
             store.providers.collect { list ->
                 _uiState.update { it.copy(providers = list, isLoading = false) }
+            }
+        }
+        viewModelScope.launch {
+            store.onDeviceRoutingConfig.collect { config ->
+                _uiState.update { it.copy(onDeviceRouting = config) }
             }
         }
     }
@@ -198,6 +205,16 @@ class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel(
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun updateOnDeviceRouting(config: OnDeviceRoutingConfig) {
+        viewModelScope.launch {
+            try {
+                store.updateOnDeviceRoutingConfig(config)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message) }
+            }
+        }
     }
 
     private fun createClient(provider: ModelProvider): ModelClient {

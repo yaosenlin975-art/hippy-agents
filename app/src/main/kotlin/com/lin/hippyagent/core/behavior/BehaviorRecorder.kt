@@ -2,6 +2,7 @@ package com.lin.hippyagent.core.behavior
 
 import android.app.Application
 import android.view.accessibility.AccessibilityEvent
+import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ object BehaviorRecorder {
         val timestampMs: Long
     )
 
+    @Immutable
     data class UiState(
         val isRecording: Boolean = false,
         val eventCount: Int = 0,
@@ -27,7 +29,7 @@ object BehaviorRecorder {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val events = mutableListOf<RecordedEvent>()
+    private val events = ArrayDeque<RecordedEvent>()
     private val eventsLock = Any()
 
     fun start(application: Application): Boolean {
@@ -50,7 +52,7 @@ object BehaviorRecorder {
         )
         synchronized(eventsLock) {
             if (events.size >= MAX_RECORDED_EVENTS) {
-                events.removeAt(0)
+                events.removeFirst()
             }
             val previous = events.lastOrNull()
             val isDuplicate = previous != null &&

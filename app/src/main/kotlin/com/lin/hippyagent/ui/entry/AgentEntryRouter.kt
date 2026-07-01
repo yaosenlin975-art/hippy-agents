@@ -31,7 +31,9 @@ object AgentEntryRouter {
     fun route(context: Context, action: AgentAction) {
         when (action) {
             is AgentAction.OpenChat -> launchChat(context, action.prompt, action.quickAsk)
+            // 当前由 RecordingTileService 直接调用 BehaviorRecordingController，不经此路由；保留以匹配 sealed class 穷尽性
             AgentAction.StartRecording -> triggerRecordingStart(context)
+            // 当前由 RecordingTileService 直接调用 BehaviorRecordingController，不经此路由；保留以匹配 sealed class 穷尽性
             AgentAction.StopRecording -> triggerRecordingStop()
             AgentAction.CreateCron -> launchChatWithPrefill(context, "我想设置一个定时任务...")
             AgentAction.CompanionMode -> triggerCompanionMode(context)

@@ -140,9 +140,6 @@ class RuleClassifier(
         if (complexity.codeBlockCount == 0 && complexity.toolCallDensity == 0f && complexity.cjkTokenEstimate < 100) {
             return RouteDecision(RouteTarget.ONDEVICE, 0.9f, "FORCED_ONDEVICE: 无代码+无工具+短消息")
         }
-        if (complexity.cjkTokenEstimate < 20 && complexity.questionCount <= 0) {
-            return RouteDecision(RouteTarget.ONDEVICE, 0.9f, "FORCED_ONDEVICE: 纯寒暄")
-        }
         if (complexity.technicalTermCount == 0 && complexity.cjkTokenEstimate < 150 && complexity.codeBlockCount == 0) {
             return RouteDecision(RouteTarget.ONDEVICE, 0.9f, "FORCED_ONDEVICE: 简单问答")
         }
