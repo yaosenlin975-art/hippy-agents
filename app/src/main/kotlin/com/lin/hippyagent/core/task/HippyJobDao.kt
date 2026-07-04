@@ -51,7 +51,7 @@ interface HippyJobDao {
     @Query("SELECT * FROM hippy_jobs WHERE status = 'ACTIVE' AND timeoutAt IS NOT NULL AND timeoutAt < :now LIMIT :limit OFFSET :offset")
     suspend fun findTimedOut(now: Long, limit: Int = 100, offset: Int = 0): List<HippyJobEntity>
 
-    @Query("UPDATE hippy_jobs SET status = 'FAILED', errorText = :errorText, finishedAt = :finishedAt, lockToken = NULL, lockUntil = NULL, updatedAt = :now WHERE id = :id")
+    @Query("UPDATE hippy_jobs SET status = 'FAILED', errorText = :errorText, finishedAt = :finishedAt, lockToken = NULL, lockUntil = NULL, updatedAt = :now WHERE id = :id AND status = 'ACTIVE'")
     suspend fun markAsFailed(id: Long, errorText: String, finishedAt: Long = System.currentTimeMillis(), now: Long = System.currentTimeMillis())
 
     @Query("UPDATE hippy_jobs SET status = 'COMPLETED', resultJson = :resultJson, finishedAt = :finishedAt, lockToken = NULL, lockUntil = NULL, updatedAt = :now WHERE id = :id AND lockToken = :lockToken")

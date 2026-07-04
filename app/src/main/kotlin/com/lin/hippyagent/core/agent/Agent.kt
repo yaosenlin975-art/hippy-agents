@@ -1404,6 +1404,7 @@ class Agent(
             sessionManager?.updateActivity(sessionId)
 
             synchronized(toolRegistry.deferredToolRegistry) {
+                // NOTE: This clears the shared singleton. Consider per-agent deferred set to avoid cross-agent interference.
                 toolRegistry.deferredToolRegistry.clear()
                 for (def in toolRegistry.getDeferredToolNames()) {
                     val toolDef = toolRegistry.getToolDefinition(def) ?: continue
@@ -2471,7 +2472,13 @@ _你刚醒来。该搞清楚自己是谁了。_
                             }
                         }
                     } else {
-                        Timber.w("ToolGuardian HIGH+ risk on ${toolCall.function.name}: ${securityCheck.reason} (no approval manager, proceeding)")
+                        Timber.e("ToolGuardian HIGH+ risk BLOCKED (no approval manager): ${toolCall.function.name}, reason: ${securityCheck.reason}")
+                        return ToolResult(
+                            callId = toolCall.id,
+                            success = false,
+                            output = "安全检查未通过（无审批管理器）: ${securityCheck.reason}",
+                            error = "BLOCKED_NO_APPROVAL_MANAGER: ${securityCheck.reason}"
+                        )
                     }
                 }
             }
