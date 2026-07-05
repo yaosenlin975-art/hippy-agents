@@ -2615,3 +2615,71 @@
   3. 替代原有的通用权限错误提示
 - **输入规则**：权限检测结果
 - **输出结果**：用户友好的权限错误提示和操作引导
+﻿
+
+---
+
+# 交互设计优化方案（2026-07-05）
+
+> 基于 evo-meta-evolution + expert-brainstorm 交互审查 + 用户确认方向
+
+## 1. 导航组织（方案 B：扩展侧抽屉）
+
+### 抽屉分组导航
+- **功能描述**：扩展 ChatSessionDrawer 侧抽屉，把 Sessions/Settings/Trace 等入口收纳其中，按"会话 / 智能体 / 设置 / 工具"四组分类
+- **交互逻辑**
+  1. 主界面（ChatScreen）通过左上角菜单按钮或左滑打开 Drawer
+  2. Drawer 顶部显示当前 Agent，下方分 4 组：会话列表、智能体管理、设置、调试工具
+  3. 点击组名展开/折叠子项
+- **输入规则**：左侧抽屉打开手势或菜单按钮点击
+- **输出结果**：所有 48 路由按 4 组组织，新手可建立心智模型
+
+## 2. 技能商店在设置内位置优化（保持位置）
+
+### 技能商店在设置内突出
+- **功能描述**：技能商店保持在 Settings 内不变，但提升位置到顶部"高频"分组，并加视觉强调
+- **交互逻辑**
+  1. SettingsScreen 顶部新增"高频"分组，内含技能商店、模型提供商
+  2. 技能商店入口加图标 + 描述文字
+- **输入规则**：从 Drawer 进入 Settings
+- **输出结果**：技能商店 2 次点击可达且有视觉突出
+
+## 3. 统一审批组件（方案 A：风险分级）
+
+### 风险分层审批 UI
+- **功能描述**：合并 PermissionRequestDialog / InlineApprovalCard / OtherSessionApprovalDialog 为单一审批组件，按 RiskLevel 动态选择展示形态
+- **交互逻辑**
+  1. `RiskLevel.LOW` → InlineApprovalCard（2 按钮，简短说明）
+  2. `RiskLevel.MEDIUM` → ApprovalBottomSheet（3 按钮 + 风险图标 + 自然语言翻译）
+  3. `RiskLevel.HIGH+` → ApprovalDialog（5 按钮 + 命令详情 + 风险可视化色块）
+  4. 跨会话审批复用同一 Sheet
+- **辅助**：新增 `RiskTranslator` 把 shell/exec 命令转成"它想访问 ~/Downloads 下的所有文件"式自然语言
+- **输入规则**：工具调用被 ToolGuardian 拦截且需人工审批
+- **输出结果**：用户按风险等级获得一致体验；高风险操作清晰可视化
+
+## 4. ChatScreen 拆分（方案 A：组件提取）
+
+### ChatScreen 内残留可独立组件提取
+- **功能描述**：把 ChatScreen.kt 中残留的 7 个 Composable 提取到独立文件，单文件保持 <1200 行
+- **拆分项**
+  - `MatchTagChips.kt`：SkillTagChip + MentionTagChip
+  - `FileAttachmentCard.kt`：FileAttachmentCard
+  - `SystemTurnCard.kt`：SystemTurnCard
+  - `PermissionTurnCard.kt`：PermissionTurnCard
+  - `ClarificationTurnCard.kt`：ClarificationTurnCard
+  - `PrivacyModeToggle.kt`：PrivacyModeToggle
+- **交互逻辑**：纯文件移动，不改可见性（同包 internal/private 保留）、不改行为
+- **输入规则**：无（重构）
+- **输出结果**：ChatScreen.kt 主框架 <1200 行，每个组件独立文件可单独维护
+
+## 5. 无障碍与字号主题化（方案 A：semantics + Typography）
+
+### 全局无障碍与字号主题化
+- **功能描述**：批量补 contentDescription + 把硬编码字号抽到 MaterialTheme Typography
+- **交互逻辑**
+  1. 全局扫描所有 Icon/Image 缺 contentDescription 的位置，按内容补语义
+  2. 在 Theme.kt 扩展 Typography 自定义类型，所有 `X.sp` 改为主题引用
+  3. Chip 颜色从硬编码 → `MaterialTheme.colorScheme`
+- **输入规则**：无（重构）
+- **输出结果**：满足 Google Play 无障碍合规；用户字体缩放生效
+

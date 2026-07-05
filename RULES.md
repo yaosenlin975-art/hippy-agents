@@ -1,4 +1,4 @@
-# 执行流程
+﻿# 执行流程
 
 收到任务后严格按以下流程执行，不许跳步、不许自行篡改顺序：
 
@@ -79,3 +79,4 @@ Phase 7 ─ 交付
 | 7 | 建立 修改-审查循环, 代码完成后要用 evo-code-review 进行审查并根据 问题、建议改进、提示 继续修改并审查, 直到审查不出问题为止 |
 | 7.1 | 审查要重点注意性能问题(GC, 内存泄漏, 高耗时操作, 代码复用) 以及新增的功能是否被注册(死代码) |
 | 8 | 所有修改项都完成后打包成apk(不用打包release), 禁止使用build_and_install进行打包 |
+| 9 | 打包完成后必须关闭 OpenJDK 进程（Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force），该进程在后台占大量内存 |
