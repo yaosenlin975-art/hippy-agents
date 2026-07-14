@@ -84,6 +84,16 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = pagerState.currentPage == 0,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    label = { Text(stringResource(R.string.nav_agents), fontSize = 10.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    )
+                )
+                NavigationBarItem(
+                    selected = pagerState.currentPage == 1,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                     icon = { Icon(Icons.Default.Chat, contentDescription = null) },
                     label = { Text(stringResource(R.string.nav_sessions), fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
@@ -138,7 +148,7 @@ fun MainScreen(
                     com.lin.hippyagent.ui.components.CreateDrawer(
                         onNewChat = {
                             showCreateDrawer = false
-                            coroutineScope.launch { pagerState.animateScrollToPage(0) }
+                            coroutineScope.launch { pagerState.animateScrollToPage(1) }
                             sessionsViewModel.createNewSession { session ->
                                 navController.navigate(Screen.Chat.createRoute(session.id, session.agentId))
                             }
@@ -192,7 +202,12 @@ fun MainScreen(
                 Box(modifier = Modifier.fillMaxSize())
             } else {
                 when (page) {
-                    0 -> ConversationListScreen(
+                    0 -> com.lin.hippyagent.ui.agent.AgentListScreen(
+                        onNavigateToCreateAgent = onNavigateToCreateAgent,
+                        onNavigateToAgentConfig = onNavigateToAgentConfig,
+                        onNavigateToChat = onNavigateToChat
+                    )
+                    1 -> ConversationListScreen(
                         viewModel = sessionsViewModel,
                         onNavigateToChat = onNavigateToChat,
                         onNavigateToCreateGroup = onNavigateToCreateGroup,
@@ -203,22 +218,22 @@ fun MainScreen(
                             onCurrentAgentIdChanged(agentId)
                         }
                     )
-                    1 -> {
+                    2 -> {
                         val inboxViewModel: com.lin.hippyagent.ui.inbox.InboxViewModel = org.koin.androidx.compose.koinViewModel()
                         com.lin.hippyagent.ui.inbox.InboxScreen(
                             viewModel = inboxViewModel,
                             onBackClick = {}
                         )
                     }
-                    2 -> {
+                    3 -> {
                         val insightsViewModel: com.lin.hippyagent.ui.insights.InsightsViewModel = org.koin.androidx.compose.koinViewModel()
                         com.lin.hippyagent.ui.insights.InsightsScreen(
                             viewModel = insightsViewModel,
                             onBackClick = {},
-                            refreshTrigger = pagerState.currentPage == 2
+                            refreshTrigger = pagerState.currentPage == 3
                         )
                     }
-                    3 -> SettingsScreen(
+                    4 -> SettingsScreen(
                         viewModel = org.koin.androidx.compose.koinViewModel(),
                         agentId = currentAgentId,
                         onNavigateToRunningConfig = { agentId -> navController.navigate(Screen.RunningConfig.createRoute(agentId)) },
