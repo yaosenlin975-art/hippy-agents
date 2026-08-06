@@ -2,12 +2,12 @@
 
 ## [v0.1.1] — 2026-08-06
 
-> 当日已完成并通过 QA 验收的任务汇总（issue 标识 WS-*）；未闭环任务见下方「待提交 / 待修复」；沙箱至 GitHub 网络不通，所有提交均已本地落地（本地分支 `feat/android-system-integration` ahead 13），推送待网络恢复后执行。
+> 当日已完成并通过 QA 验收的任务汇总（issue 标识 WS-*）；2026-08-06 全部 13 个 issue 已收口 done，无在途/卡死任务；沙箱至 GitHub 网络不通，所有提交均已本地落地（本地分支 `feat/android-system-integration` ahead 19），推送待网络恢复后执行。
 
 ### 🚀 新功能
-- feat(security): 统一审批组件按风险分级落地（WS-4，QA 已验收 ✅）— 新增 `ui/chat/UnifiedApproval.kt`（LOW→inline 卡片 / MEDIUM→ApprovalBottomSheet / HIGH+→ApprovalDialog 5 按钮）、`core/security/RiskTranslator.kt`（命令自然语言翻译 + `estimateRisk`/`estimateToolRisk` 风险估计，40+ 规则）；`PermissionRequestDialog`/`InlineApprovalCard`/`OtherSessionApprovalDialog` 改为统一组件入口，四选项审批逻辑未回退；单测 `RiskTranslatorTest.kt` 28 条全绿
+- feat(security): 统一审批组件按风险分级落地（WS-4，QA 已验收 ✅，代码未入库详见下方「交付完整性提示」）— 新增 `ui/chat/UnifiedApproval.kt`（LOW→inline 卡片 / MEDIUM→ApprovalBottomSheet / HIGH+→ApprovalDialog 5 按钮）、`core/security/RiskTranslator.kt`（命令自然语言翻译 + `estimateRisk`/`estimateToolRisk` 风险估计，40+ 规则）；`PermissionRequestDialog`/`InlineApprovalCard`/`OtherSessionApprovalDialog` 改为统一组件入口，四选项审批逻辑未回退；单测 `RiskTranslatorTest.kt` 28 条全绿
 - feat(i18n): 多语言硬编码中文提取全部批次完成（WS-10，QA 已验收 ✅，提交 5bba9aa / e44b09a / fdb4351 / b2e868e）— 批次 1（24 key × 4 语言，17 文件）+ 批次 2（43 key × 4 语言，16 文件）+ values-en 9 处 emoji 损坏修复（U+FFFD）；QA 验收提出 Critical-1（批次 1 混入 WS-4 审批组件功能重写致提交树不可独立编译）与 Medium-2（19 个死 key），工程师回退为纯字符串提取并清理死 key（b2e868e），干净检出提交树 `:app:compileDebugKotlin` 通过后收口；清理后计数 zh 1916 / en 1878 / ja 1808 / ko 1808；剩余 core 层展示文本中文（StorageManager/TaskStatus）与 en/ja/ko 翻译缺口（en 38 / ja 108 / ko 108）已记录另开 issue
-- feat(a11y): 无障碍与字号主题化批量交付（WS-5，批量部分 QA 已验证）— 硬编码 `.sp` 756→21 处、`MaterialTheme.typography` 引用 0→781；`contentDescription` 补齐 31 处交互图标；Chip 颜色收敛 colorScheme；附带修复 DEF-1 底部导航索引错位、OBS-1 系统字号双重缩放、OBS-2 会话标题硬截断（QA 06:34 复验均通过）；复验新发现 DEF-2（设置页 7 处 Switch 无无障碍标签）+ OBS-3（字号滑块回退口径不一致），状态 `in_progress` 待修（见下方待修复）
+- feat(a11y): 无障碍与字号主题化批量交付（WS-5，QA 已验收 ✅，09:22 收口置 done）— 硬编码 `.sp` 756→21 处、`MaterialTheme.typography` 引用 0→781；`contentDescription` 补齐 31 处交互图标；Chip 颜色收敛 colorScheme；附带修复 DEF-1 底部导航索引错位、OBS-1 系统字号双重缩放、OBS-2 会话标题硬截断（QA 06:34 复验均通过）；QA 复验新发现 DEF-2（设置页 7 处 Switch 无无障碍标签）+ OBS-3（字号滑块回退口径不一致），09:10 修复（提交 d39d480，仅 WS-5 相关 13 文件 +552/-561）：7 处 Switch 补 `Modifier.semantics { contentDescription }`、`readFontScale()` 回退统一 1.0f、删除废弃 `Configuration.fontCoerce`；09:22 QA 终验通过（uiautomator 逐项实测 7 处 Switch 全部生效无 NAF、滑块首屏 100%、1.3x 全量页面走查无截断/重叠），新观察 OBS-4（低，Delete IconButton 按钮节点未合并语义标签，属 Material3 默认行为）留待后续无障碍专项跟进
 - feat(settings): 设置页顶部新增「高频」分组直达技能商店（WS-2，QA 已验收 ✅，提交 603036c）— `SettingsScreen.kt` 顶部新增 `emphasized` 高频分组（技能商店 Store 图标 + 描述 / 模型提供商 Dns 图标 + 描述），设置 Tab 1 次点击直达 `Screen.SkillStore`，现有入口保持兼容；string key × 4 语言
 
 ### 🐛 Bug 修复
@@ -22,12 +22,14 @@
 - docs: design.md 2026-07-05 优化方案更新记录 — 第 1 项导航组织裁决（产品经理：维持底部导航现状，方案 B 作废存档）、第 3 项统一审批组件落地状态、第 5 项无障碍落地状态（WS-1/WS-4/WS-5，2026-08-06 已提交至 git）
 - docs: WS-1 已收口 — QA 终检通过（2026-08-06 06:30 置 done）：design.md 裁决记录/实际方案与代码一致（共享工作树更新已随 a2170cc 提交，推送待网络恢复）
 
-### 📥 已提交待 QA 验收（in_review）
-- [WS-12] 核心引擎单元测试补齐（提交 fdf10ae，09:00 置 in_review）— 新增 14 个测试文件 / 297 条单测全绿（`testDebugUnitTest` 0 失败）：AgentStatus/MessageQueueManager、AgentGroup 群聊纯逻辑（MentionParser/意图检测）、ToolLoopDetection、TaskApprovalService 审批状态机、ChatTurnConverter、CronJobManager 快照、HybridSearchEngine/RRFFuser/LightweightReranker、ToolApprovalManager/RiskTranslator、ToolGuardian 20+ 安全路径；测试暴露并修复 5 处实现缺陷（GroupChatPrompts 模板 `${agent.id}` 失效、ToolGuardian 危险路径双斜杠永不命中（高危误放行）、ToolLoopDetection 轮询/硬阈值、ChatTurnConverter 发送者切换后 TOOL 结果丢失）；覆盖率报告 `docs/ws12-coverage-report.md`（核心纯逻辑层方法触达率 98.4%，JaCoCo 离线用静态分析替代）；已 @QA 待验收
+### ♻️ 重构
+- [WS-7] 四个超千行文件拆分（QA 复验通过 ✅，09:19 置 done）— Agent.kt 3080→487、ChatViewModel.kt 2255→736、ToolCallBlockView.kt 1208→832、AgentTurnCard.kt 1020→635（提交 f831807 / b8fc52a / 6954eaa / 3ef2b85，纯重构行为不变）；QA 08:37 验收不通过（**Critical**：`formatDuration` 重复声明致干净检出无法编译），修复提交 2bd6cd7（删除 ThinkingBlockView 私有版，统一复用 ToolCallShared internal 版，QA 建议方案 2）；09:19 QA 干净检出独立复验通过：`assembleDebug` BUILD SUCCESSFUL + 全量 28 套件 297 单测 0 失败 + 编码修复有效（AgentTurnCard.kt 无 BOM/乱码）
 
-### 🧹 待提交 / 待修复（工作树在途，未闭环）
-- [WS-7] 四个超千行文件拆分（Agent.kt 3080 行 / ChatViewModel.kt 2255 行 / ToolCallBlockView.kt 1208 行 / AgentTurnCard.kt 1020 行）：拆分 4 commit 已提交（f831807 / b8fc52a / 6954eaa / 3ef2b85，均 ≤900 行），但 QA 08:37 验收不通过（**Critical**：`formatDuration` 重复声明致干净检出无法编译）；修复 2bd6cd7（删除 ThinkingBlockView 私有版，统一复用 ToolCallShared internal 版）已提交但交付三步未闭环，状态 `blocked` 待复验重交付；09:00 巡检已第四次派发
-- [WS-5] DEF-2 设置页 7 处 Switch 无障碍标签（`SettingsScreen.kt:454/468/499`、`SharedConfigComponents.kt:245/1062`、`UiSettingsScreen.kt:349`）+ OBS-3 字号滑块回退口径：QA 缺陷清单待修，修复后复验即收口置 done；07:06/08:00 两次派发无回复，09:00 巡检第三次派发
+### 🧪 测试
+- [WS-12] 核心引擎单元测试补齐（QA 验收通过 ✅，09:06 置 done，提交 fdf10ae）— 新增 13 个测试文件 / 297 条单测全绿（`testDebugUnitTest` 0 失败），覆盖 Agent/AgentGroup 群聊纯逻辑/ToolLoopDetection/审批状态机/ChatTurnConverter/CronJobManager 快照/混合检索 RRF+Rerank/ToolApprovalManager+RiskTranslator/ToolGuardian 20+ 安全路径；测试暴露并修复 5 处实现缺陷（GroupChatPrompts 模板 `${agent.id}` 失效、ToolGuardian 危险路径双斜杠永不命中（高危误放行）、ToolLoopDetection 轮询/硬阈值、ChatTurnConverter 发送者切换后 TOOL 结果丢失）；覆盖率报告 `docs/ws12-coverage-report.md`（核心纯逻辑层方法触达率 98.4% ≥ 60%，JaCoCo 离线用静态分析替代，例外已说明）；QA 独立复验 28 套件 297 tests 0 failures；备注：交付评论称 14 个测试文件、commit 实际 13 个，计数偏差不阻塞验收
+
+### ⚠️ 交付完整性提示
+- [WS-4] `ui/chat/UnifiedApproval.kt`（统一审批组件核心交付物，468 行）**从未提交至 git**（全历史 + 全分支零匹配，仅存在于共享工作树 untracked），虽 WS-4 已 QA 验收置 done（04:24），但代码未入库，若工作树清理将丢失；RiskTranslator.kt 已随 fdf10ae 入库，committed InlineApprovalCard/PermissionRequestDialog 未引用 UnifiedApproval。建议补提交或在后续 issue 中确认处置
 
 ## [v0.1.0] — 2026-05-20
 
