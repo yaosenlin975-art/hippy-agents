@@ -630,7 +630,7 @@
   1. 展示可用语言列表（中文、English、日本語、한국어）
   2. 选择语言后重启应用生效
   3. LanguageManager.kt P0 修复：SharedPreferences key 统一为 `hippy_settings/language`
-  4. 多语言适配现状（2026-08-06 实测，随多语言提取批次持续增长）：`values/strings.xml` 1935 条、`values-en/strings.xml` 1882 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1812 条，`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备
+   4. 多语言适配现状（2026-08-06 实测，随多语言提取批次持续增长）：`values/strings.xml` 1916 条、`values-en/strings.xml` 1878 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1808 条（WS-10 全部批次 QA 验收通过后，清理 19 个无引用的死 key 后的已提交计数；工作树另有在途新增 key 未计入），`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备；core 层展示文本（StorageManager 路径显示、TaskStatus 状态名）仍为中文硬编码，已记录另开 issue 跟踪
 - **输入规则**：语言选择
 - **输出结果**：语言切换，界面静态文字多语言适配
 
@@ -2623,7 +2623,7 @@
 
 > 基于 evo-meta-evolution + expert-brainstorm 交互审查 + 用户确认方向
 >
-> **更新记录：2026-08-06 第 1 项「导航组织」裁决为未采纳（方案 B），以实际实现的底部导航方案为准，详见下文裁决记录；第 2 项「技能商店在设置内位置优化」已实施（WS-2，QA 验收通过）；第 3 项「统一审批组件」已实施（WS-4）；第 4 项「ChatScreen 拆分」MatchTagChips 子项已取消（改为 AnnotatedString 内联渲染）；第 5 项「无障碍与字号主题化」已实施第一批量交付（WS-5，复验后回退 in_progress 待修 DEF-2）。同日修复底部导航收件箱/洞察/设置 Tab 索引错位（WS-13，提交 9fc41cd）。**
+> **更新记录：2026-08-06 第 1 项「导航组织」裁决为未采纳（方案 B），以实际实现的底部导航方案为准，详见下文裁决记录；第 2 项「技能商店在设置内位置优化」已实施（WS-2，QA 验收通过）；第 3 项「统一审批组件」已实施（WS-4）；第 4 项「ChatScreen 拆分」MatchTagChips 子项已取消（改为 AnnotatedString 内联渲染）；第 5 项「无障碍与字号主题化」已实施第一批量交付（WS-5，复验后回退 in_progress 待修 DEF-2）。同日修复底部导航收件箱/洞察/设置 Tab 索引错位（WS-13，提交 9fc41cd，QA 验收通过）。08:00 巡检补充：WS-8（`!!` 收敛，fff9ef9）/ WS-10（多语言提取，b2e868e）/ WS-11（空 catch 收敛，a1fe43a）/ WS-13 四任务均经 QA 验收收口置 done；WS-5 仍待修 DEF-2/OBS-3；WS-7 四文件拆分与 WS-12 核心引擎单测仍在途（多次复活派发中）。**
 
 ## 1. 导航组织（方案 B：扩展侧抽屉）【未采纳 — 已被实际底部导航方案替代】
 
