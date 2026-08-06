@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Timer
@@ -83,7 +85,8 @@ import kotlinx.coroutines.launch
 private data class SettingsGroup(
     val nameRes: Int,
     val icon: ImageVector,
-    val items: List<SettingsItem>
+    val items: List<SettingsItem>,
+    val emphasized: Boolean = false
 )
 
 private data class SettingsItem(
@@ -155,6 +158,10 @@ fun SettingsScreen(
 
     val groups = remember {
         listOf(
+            SettingsGroup(R.string.settings_frequent, Icons.Default.Bolt, listOf(
+                SettingsItem(Icons.Default.Store, R.string.settings_skill_store, context.getString(R.string.settings_skill_store_desc), R.string.settings_skill_store),
+                SettingsItem(Icons.Default.Dns, R.string.model_provider, context.getString(R.string.settings_model_provider_desc_new), R.string.model_provider),
+            ), emphasized = true),
             SettingsGroup(R.string.settings_general, Icons.Default.Language, listOf(
                 SettingsItem(Icons.Default.Language, R.string.language, uiState.language, R.string.language),
                 SettingsItem(Icons.Default.Palette, R.string.settings_ui_settings, context.getString(R.string.settings_ui_settings_desc), R.string.settings_ui_settings),
@@ -187,6 +194,7 @@ fun SettingsScreen(
 
     fun onClick(key: Int) {
         when (key) {
+            R.string.settings_skill_store -> onNavigateToStore()
             R.string.language -> onNavigateToLanguage()
             R.string.settings_ui_settings -> onNavigateToUiSettings()
             R.string.settings_global_rules -> onNavigateToGlobalRules()
@@ -325,7 +333,10 @@ fun SettingsScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (group.emphasized) MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.surface
+                        ),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column {
@@ -339,7 +350,8 @@ fun SettingsScreen(
                                 Icon(
                                     group.icon,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    tint = if (group.emphasized) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(Modifier.width(10.dp))

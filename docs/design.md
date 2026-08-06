@@ -2658,6 +2658,8 @@
 
 ## 2. 技能商店在设置内位置优化（保持位置）
 
+> **落地状态：2026-08-06 已实施（WS-2）**，实现文件：`ui/settings/SettingsScreen.kt`（顶部新增「高频」分组，`emphasized = true` 主色调视觉强调；内含技能商店 + 模型提供商，带图标与描述文字）；字符串 key `settings_frequent` / `settings_skill_store` / `settings_skill_store_desc` × 4 语言；导航 `onNavigateToStore` → `Screen.SkillStore` 在 `MainScreen.kt` / `AppNavigation.kt` 已接线。设置页现直达技能商店（1 次点击），现有入口（AgentConfigSection / SkillPoolScreen 右上角）保持兼容。
+
 ### 技能商店在设置内突出
 - **功能描述**：技能商店保持在 Settings 内不变，但提升位置到顶部"高频"分组，并加视觉强调
 - **交互逻辑**
