@@ -2104,4 +2104,22 @@
     <string name="trace_request_label">请求消息:</string>
     <string name="trace_response_label">响应文本:</string>
     <string name="trace_clear">清空</string>
-</resources>
+    <string name="chat_approval_close">关闭</string>
+    <string name="chat_approval_command_detail">命令详情</string>
+    <string name="chat_approval_risk_block">高风险操作</string>
+    <string name="common_agent">智能体</string>
+    <string name="common_agent_avatar">智能体头像</string>
+    <string name="common_disabled">未启用</string>
+    <string name="common_down">下移</string>
+    <string name="common_enabled">已启用</string>
+    <string name="common_hide_key">隐藏密钥</string>
+    <string name="common_mission_cancelled">任务已取消</string>
+    <string name="common_mission_completed">任务完成</string>
+    <string name="common_remove">移除</string>
+    <string name="common_running">运行中</string>
+    <string name="common_service_disabled">无障碍服务未启用</string>
+    <string name="common_service_enabled">无障碍服务已启用</string>
+    <string name="common_show_key">显示密钥</string>
+    <string name="common_stopped">已停止</string>
+    <string name="common_up">上移</string>
+    <string name="risk_critical">严重</string></resources>

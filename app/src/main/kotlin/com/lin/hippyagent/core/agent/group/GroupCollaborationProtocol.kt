@@ -6,7 +6,7 @@ import timber.log.Timber
 const val NO_REPLY = "NO_REPLY"
 
 private val TASK_VERB_PATTERN = Regex("请|帮我|执行|创建|删除|修改|发送|打开|关闭|安装|运行")
-private val QUESTION_WORD_PATTERN = Regex("什么|怎么|如何|为什么|哪里|哪个|谁|when|where|who|what|how|why|is|can|could|would|[?？]")
+private val QUESTION_WORD_PATTERN = Regex("什么|怎么|如何|为什么|哪里|哪个|谁|when|where|who|what|how|why|is|can|could|would|[?？]", RegexOption.IGNORE_CASE)
 
 fun detectNewTask(content: String): Boolean {
     return TASK_VERB_PATTERN.containsMatchIn(content)

@@ -144,15 +144,20 @@ class ChatTurnConverter {
                         var lastSenderId: String? = null
                         while (i < messages.size && messages[i].role != MessageRole.USER && messages[i].role != MessageRole.SYSTEM && messages[i].role != MessageRole.PRIVATE) {
                             val currentSenderId = messages[i].senderId
-                            val shouldSplit = if (messages[i].role == MessageRole.TOOL) false
+                            val isTool = messages[i].role == MessageRole.TOOL
+                            val shouldSplit = if (isTool) false
                                     else if (currentSenderId != null && lastSenderId != null && currentSenderId != lastSenderId) true
                                     else false
                             if (shouldSplit && agentMessages.isNotEmpty()) {
                                 turns.add(buildAgentTurn(agentMessages))
                                 agentMessages.clear()
                             }
-                            agentMessages.add(messages[i])
-                            if (messages[i].role != MessageRole.TOOL && currentSenderId != null) {
+                            if (isTool && agentMessages.none { it.role == MessageRole.ASSISTANT && it.toolCalls.isNotEmpty() }) {
+                                attachToolResultToPreviousTurn(turns, messages[i])
+                            } else {
+                                agentMessages.add(messages[i])
+                            }
+                            if (!isTool && currentSenderId != null) {
                                 lastSenderId = currentSenderId
                             }
                             i++
@@ -309,6 +314,35 @@ class ChatTurnConverter {
             toolCallPool.release(toolCalls)
             elementPool.release(elements)
         }
+    }
+
+    /**
+     * 发送者切换后到达的 TOOL 消息：当前 group 无待处理 toolCall 时，
+     * 回填到最近一个仍待结果的 AgentTurn（保持工具结果与发起方同一 turn）。
+     */
+    private fun attachToolResultToPreviousTurn(turns: MutableList<ChatTurn>, toolMsg: SessionMessage) {
+        val lastIdx = turns.indexOfLast { it is ChatTurn.AgentTurn && it.toolCalls.any { c -> c.result == null } }
+        if (lastIdx < 0) return
+        val turn = turns[lastIdx] as ChatTurn.AgentTurn
+        val targetIdx = turn.toolCalls.indexOfFirst { it.result == null }
+        if (targetIdx < 0) return
+        val targetBlock = turn.toolCalls[targetIdx]
+        val toolMsgTimestamp = toolMsg.timestamp.toEpochMilli()
+        val lastAssistantTs = turn.elements
+            .filterIsInstance<TurnElement.ToolCallSegment>()
+            .firstOrNull { it.block.toolCall.id == targetBlock.toolCall.id }
+            ?.timestamp?.toEpochMilli() ?: 0L
+        val updatedBlock = targetBlock.copy(
+            result = toolMsg,
+            durationMs = if (lastAssistantTs > 0) toolMsgTimestamp - lastAssistantTs else 0L
+        )
+        val newToolCalls = turn.toolCalls.toMutableList().apply { this[targetIdx] = updatedBlock }
+        val newElements = turn.elements.map { el ->
+            if (el is TurnElement.ToolCallSegment && el.block.toolCall.id == targetBlock.toolCall.id) {
+                el.copy(block = updatedBlock)
+            } else el
+        }
+        turns[lastIdx] = turn.copy(toolCalls = newToolCalls, elements = newElements)
     }
 
     private val blockquoteRegex = Regex("(?m)^>\\s?(.+)$")

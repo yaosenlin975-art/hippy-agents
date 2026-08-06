@@ -22,7 +22,7 @@ object GroupChatPrompts {
         sb.appendLine("## 可用的智能体：")
         agents.forEach { agent ->
             val prefix = if (agent.id == excludeAgentId) "[跳过] " else ""
-            sb.appendLine("$prefix- **$agent.id**: ${agent.description}")
+            sb.appendLine("$prefix- **${agent.id}**: ${agent.description}")
         }
         sb.appendLine()
         sb.appendLine("## 对话历史：")

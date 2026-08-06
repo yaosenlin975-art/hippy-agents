@@ -107,7 +107,8 @@ class ToolLoopDetection(
             val pollSig = "POLL:${record.toolName}:${record.paramsHash}:${record.resultHash}"
             val pollCount = recentRecords.count {
                 it.toolName == record.toolName &&
-                it.paramsHash == record.paramsHash
+                it.paramsHash == record.paramsHash &&
+                it.resultHash == record.resultHash
             }
             if (pollCount >= pollNoProgressHardThreshold) {
                 return report(
@@ -130,11 +131,12 @@ class ToolLoopDetection(
         // 3. ping_pong (两工具交替无进展)
         detectPingPong(record)?.let { return it }
 
-        // 4. generic_repeat (同 tool+args 重复)
-        val repeatSig = "REP:${record.toolName}:${record.paramsHash}"
+        // 4. generic_repeat (同 tool+args+result 重复)
+        val repeatSig = "REP:${record.toolName}:${record.paramsHash}:${record.resultHash}"
         val repeatCount = recentRecords.count {
             it.toolName == record.toolName &&
-            it.paramsHash == record.paramsHash
+            it.paramsHash == record.paramsHash &&
+            it.resultHash == record.resultHash
         }
         if (repeatCount >= genericRepeatThreshold) {
             return report(
@@ -166,7 +168,7 @@ class ToolLoopDetection(
         if (!isAlternating) return null
 
         val sig = "PP:${a.toolName}:${a.paramsHash}<->${b.toolName}:${b.paramsHash}"
-        val level = if (recent.size >= pingPongHardThreshold) LoopLevel.CRITICAL else LoopLevel.WARN
+        val level = if (recentRecords.size >= pingPongHardThreshold) LoopLevel.CRITICAL else LoopLevel.WARN
         return report(
             level,
             LoopPattern.PING_PONG,

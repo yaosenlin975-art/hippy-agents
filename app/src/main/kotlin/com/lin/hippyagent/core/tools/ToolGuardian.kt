@@ -369,7 +369,7 @@ class ToolGuardian(
 
             if (!isContentParam) {
                 for (path in dangerousPaths) {
-                    val search = "/$path"
+                    val search = path
                     val normalizedValue = "/${valueStr.replace('\\', '/').trimStart('/')}"
                     if (normalizedValue.contains(search)) {
                         findings.add(finding(
@@ -417,7 +417,7 @@ class ToolGuardian(
         }
         for (path in dangerousPaths) {
             val normalizedCmd = "/${command.replace('\\', '/').trimStart('/')}"
-            if (normalizedCmd.contains("/$path")) {
+            if (normalizedCmd.contains(path)) {
                 findings.add(finding(
                     ruleId = "DANGEROUS_PATH", category = GuardThreatCategory.PATH_TRAVERSAL,
                     severity = GuardSeverity.HIGH, title = "检测到危险路径",
