@@ -2027,10 +2027,6 @@
     <string name="env_name_web_access">Web access (OkHttp + WebView)</string>
     <string name="env_name_curl">cURL (Linux environment)</string>
     <string name="env_name_system_tts">System TTS</string>
-    <string name="risk_critical">Critical</string>
-    <string name="chat_approval_command_detail">Command details</string>
-    <string name="chat_approval_risk_block">High-risk operation</string>
-    <string name="chat_approval_close">Close</string>
     <string name="task_detail_title">Task Details</string>
     <string name="task_steps">Steps</string>
     <string name="task_approval_nodes">Approval Nodes</string>

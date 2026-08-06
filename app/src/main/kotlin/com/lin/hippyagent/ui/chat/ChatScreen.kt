@@ -576,14 +576,12 @@ fun ChatScreen(
                         onClick = { showPlanPanel = true }
                     )
                 }
-                val currentApproval = viewModel.currentSessionApproval.collectAsStateWithLifecycle().value
+                val currentApproval by viewModel.currentSessionApproval.collectAsStateWithLifecycle()
                 if (currentApproval != null) {
                     InlineApprovalCard(
-                        task = currentApproval,
-                        onApprove = { viewModel.onApprove(currentApproval.id) },
-                        onDeny = { viewModel.onDeny(currentApproval.id) },
-                        onApproveAlways = { viewModel.onApprove(currentApproval.id, always = true) },
-                        onDenyAlways = { viewModel.onDeny(currentApproval.id, always = true) },
+                        task = currentApproval!!,
+                        onApprove = { viewModel.onApprove(currentApproval!!.id) },
+                        onDeny = { viewModel.onDeny(currentApproval!!.id) },
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
@@ -856,13 +854,13 @@ fun ChatScreen(
     }
 
     // 其他 session / 无 session 的 task / tool_approval 等待审批 → 弹 Dialog
-    val otherApproval = viewModel.otherSessionApproval.collectAsStateWithLifecycle().value
+    val otherApproval by viewModel.otherSessionApproval.collectAsStateWithLifecycle()
     if (otherApproval != null) {
         OtherSessionApprovalDialog(
-            task = otherApproval,
-            onApprove = { viewModel.onApprove(otherApproval.id) },
-            onDeny = { viewModel.onDeny(otherApproval.id) },
-            onDismiss = { viewModel.onDeny(otherApproval.id) }
+            task = otherApproval!!,
+            onApprove = { viewModel.onApprove(otherApproval!!.id) },
+            onDeny = { viewModel.onDeny(otherApproval!!.id) },
+            onDismiss = { viewModel.onDeny(otherApproval!!.id) }
         )
     }
 

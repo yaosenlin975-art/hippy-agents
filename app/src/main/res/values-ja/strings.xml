@@ -1946,10 +1946,6 @@
     <string name="env_name_web_access">ウェブアクセス（OkHttp + WebView）</string>
     <string name="env_name_curl">cURL（Linux 環境）</string>
     <string name="env_name_system_tts">システム TTS</string>
-    <string name="risk_critical">重大</string>
-    <string name="chat_approval_command_detail">コマンド詳細</string>
-    <string name="chat_approval_risk_block">高リスク操作</string>
-    <string name="chat_approval_close">閉じる</string>
     <string name="task_detail_title">タスク詳細</string>
     <string name="task_steps">実行ステップ</string>
     <string name="task_approval_nodes">承認ノード</string>
