@@ -43,12 +43,6 @@ import com.lin.hippyagent.core.chat.ThinkingBlock
 private const val STREAMING_CURSOR = "▎"
 private const val SUMMARY_PREVIEW_MAX_CHARS = 50
 
-private fun formatDuration(ms: Long): String = when {
-    ms <= 0 -> ""
-    ms < 1000 -> "${ms}ms"
-    else -> "%.1fs".format(ms / 1000.0)
-}
-
 @Composable
 fun ThinkingBlockView(
     block: ThinkingBlock,
