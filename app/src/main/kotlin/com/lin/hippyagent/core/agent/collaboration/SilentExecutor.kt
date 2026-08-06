@@ -1,9 +1,11 @@
-﻿package com.lin.hippyagent.core.agent.collaboration
+package com.lin.hippyagent.core.agent.collaboration
 
 import com.lin.hippyagent.core.agent.Agent
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
 import com.lin.hippyagent.core.agent.session.MessageRole
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import timber.log.Timber
 
 /**

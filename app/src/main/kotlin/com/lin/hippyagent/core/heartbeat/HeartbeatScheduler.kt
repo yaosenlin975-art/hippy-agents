@@ -3,6 +3,8 @@ package com.lin.hippyagent.core.heartbeat
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.config.HeartbeatConfig
 import com.lin.hippyagent.core.agent.session.SessionStore
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import com.lin.hippyagent.core.storage.StorageManager
 import kotlinx.coroutines.*
 import timber.log.Timber

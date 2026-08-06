@@ -1,4 +1,6 @@
 package com.lin.hippyagent
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 
 import android.app.Application
 import androidx.lifecycle.DefaultLifecycleObserver

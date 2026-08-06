@@ -1,6 +1,8 @@
 package com.lin.hippyagent.core.agent.collaboration
 
 import com.lin.hippyagent.core.agent.AgentFactory
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import com.lin.hippyagent.core.chat.ChatTurnConverter
 import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolCall

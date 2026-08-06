@@ -1,6 +1,8 @@
 package com.lin.hippyagent.core.agent.task
 
 import com.lin.hippyagent.core.agent.AgentFactory
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import com.lin.hippyagent.core.task.HippyJobContext
 import com.lin.hippyagent.core.task.HippyJobHandler
 import timber.log.Timber

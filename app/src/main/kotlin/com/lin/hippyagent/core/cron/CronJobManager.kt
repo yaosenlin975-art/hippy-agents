@@ -5,6 +5,8 @@ import androidx.work.*
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine

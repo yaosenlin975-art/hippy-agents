@@ -2,6 +2,8 @@ package com.lin.hippyagent.core.agent.subagent
 
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import com.lin.hippyagent.core.task.HippyJobContext
 import com.lin.hippyagent.core.task.HippyJobHandler
 import timber.log.Timber

@@ -3,6 +3,8 @@ package com.lin.hippyagent.core.skill.builtin
 import android.content.Context
 import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.agent.session.SessionStore
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

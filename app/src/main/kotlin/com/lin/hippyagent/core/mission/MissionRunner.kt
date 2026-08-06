@@ -3,6 +3,8 @@ package com.lin.hippyagent.core.mission
 import com.lin.hippyagent.core.agent.Agent
 import com.lin.hippyagent.core.agent.session.SessionStore
 import com.lin.hippyagent.core.agent.session.MessageRole
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import com.lin.hippyagent.core.notification.HippyAgentNotificationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

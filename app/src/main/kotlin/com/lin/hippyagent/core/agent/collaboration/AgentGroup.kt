@@ -8,6 +8,8 @@ import com.lin.hippyagent.core.agent.group.MentionExchange
 import com.lin.hippyagent.core.agent.group.detectNewTask
 import com.lin.hippyagent.core.agent.group.detectQuestion
 import com.lin.hippyagent.core.agent.mode.ModeOrchestrator
+import com.lin.hippyagent.core.agent.processMessageStream
+import com.lin.hippyagent.core.agent.processMessage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CoroutineScope
