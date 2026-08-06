@@ -102,15 +102,15 @@
     <string name="enabled">已开启</string>
     <string name="disabled">未开启</string>
     <string name="background_run_allowed">Background running allowed</string>
-    <string name="background_run_restricted">⚠️ Restricted �?may be killed by system, tap to unrestrict</string>
+    <string name="background_run_restricted">⚠️ Restricted ⚠️ may be killed by system, tap to unrestrict</string>
     <string name="accessibility_service">Accessibility Service</string>
     <string name="accessibility_enabled">Enabled</string>
-    <string name="accessibility_disabled">Disabled �?some features (e.g. notification listening) need this permission, tap to enable</string>
+    <string name="accessibility_disabled">Disabled ⚠️ some features (e.g. notification listening) need this permission, tap to enable</string>
     <!-- 数据存储 -->
 
     <string name="storage_overview">Storage Overview</string>
     <string name="external_storage">External Storage (Uninstall Protection)</string>
-    <string name="saf_authorized">�?External storage authorized</string>
+    <string name="saf_authorized">✅ External storage authorized</string>
     <string name="saf_not_authorized">⚠️ Data stored in internal storage</string>
     <string name="saf_authorized_desc">Data migrated to external directory. Uninstalling the app will not lose data.</string>
     <string name="saf_not_authorized_desc">Data is stored in the app\'s internal directory. Uninstalling will lose all data (configs, chat history, memories). Authorize an external storage directory is recommended.</string>
@@ -172,7 +172,7 @@
     <string name="chat_select_model">Select Model</string>
     <string name="chat_model_settings">Model Settings</string>
     <string name="chat_search_model_provider">Search models or providers</string>
-    <string name="chat_no_models_hint">No models available. Please configure in Settings �?Model Provider</string>
+    <string name="chat_no_models_hint">No models available. Please configure in Settings → Model Provider</string>
     <string name="chat_selected">Selected</string>
     <string name="chat_tool_permission_title">Tool Permission</string>
     <string name="chat_command_auth_request">Command Authorization</string>
@@ -203,7 +203,7 @@
     <string name="chat_failed">Failed</string>
     <string name="chat_params_label">Parameters:</string>
     <string name="chat_result_label">Result:</string>
-    <string name="chat_waiting_result">�?Waiting for result...</string>
+    <string name="chat_waiting_result">⏳ Waiting for result...</string>
     <string name="chat_running">Running</string>
     <string name="chat_new_file">New file</string>
     <string name="chat_append_content">Append</string>
@@ -259,7 +259,7 @@
     <string name="chat_share_failed">Share failed: %1$s</string>
     <string name="chat_fullscreen_preview">Full screen preview</string>
     <string name="chat_processed">Processed</string>
-    <string name="chat_more_items">�?1$d more items</string>
+    <string name="chat_more_items">…%1$d more items</string>
     <string name="chat_option_selected">Selected: %1$s</string>
     <string name="chat_skipped">Skipped</string>
     <string name="chat_image">Image</string>
@@ -316,7 +316,7 @@
     <string name="chat_step_process">%1$d steps</string>
     <string name="chat_step_process_stats">%1$d steps · 🧠%2$d thoughts · 🔧%3$d tools · 📨%4$d messages · ⏱%5$ds</string>
     <string name="chat_collapse_process">Collapse process</string>
-    <string name="chat_error_label">�?Error</string>
+    <string name="chat_error_label">⚠️ Error</string>
     <string name="chat_api_calls">%1$d requests</string>
     <string name="chat_group_members">Group Members</string>
     <string name="chat_no_members">No members</string>
@@ -492,7 +492,7 @@
     <string name="agent_enable_skill">Enable this skill</string>
     <string name="agent_load_from_pool">Load from skill pool</string>
     <string name="agent_no_skills_in_pool">No skills available to load or update from skill pool</string>
-    <string name="agent_skill_update_available">Update available: %1$s �?v%2$s</string>
+    <string name="agent_skill_update_available">Update available: %1$s → v%2$s</string>
     <string name="agent_new">New</string>
     <string name="agent_update">Update</string>
     <string name="agent_search_tools">Search tools...</string>
@@ -1706,7 +1706,7 @@
     <string name="env_install_verify_failed_msg">Install command executed successfully, but verification failed.\nThis is usually because the proot environment\'s PATH/link cache hasn\'t refreshed.\n\nSuggested actions:\n1. Restart the app and check again (most effective)\n2. Run hash -r in terminal to refresh command cache\n\nVerification details: %1$s</string>
     <string name="env_install_success_verify">Install successful\n%1$s</string>
     <string name="env_install_success_verify_failed">Install successful (version verification failed)</string>
-    <string name="env_installed_with_version">Installed (%1$s) �?%2$s</string>
+    <string name="env_installed_with_version">Installed (%1$s) · %2$s</string>
     <string name="env_storage_available_format">%1$s available / %2$s total</string>
     <string name="env_cores_format">%1$d cores</string>
     <!-- 模型提供商扩展 -->
