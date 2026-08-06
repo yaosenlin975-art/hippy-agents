@@ -16,7 +16,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,24 +30,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -57,7 +46,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,139 +54,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lin.hippyagent.core.agent.session.ToolCallStatus
 import com.lin.hippyagent.core.chat.ToolCallBlock as ChatToolCallBlock
 import com.lin.hippyagent.core.tools.BuiltinToolNames
-import kotlinx.serialization.json.Json
 import kotlinx.coroutines.delay
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonPrimitive
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
-
-/** 共享的 JSON 格式化实例，避免重复创建 */
-private val prettyJson = Json { prettyPrint = true; ignoreUnknownKeys = true }
-
-private val lenientJson = Json { ignoreUnknownKeys = true }
-
-private val WORKSPACE_PATH_REGEX = Regex("""[^\s]*/workspace/(\S+)""")
-private val WORKSPACE_FULL_PATH_REGEX = Regex("""/data/data/com\.lin\.hippyagent/files/workspaces/[^/]+/(.*)""")
-
-/** 判断 arguments 是否有实际内容（非空、非空 JSON 对象 {}） */
-private fun hasActualArguments(arguments: String): Boolean {
-    if (arguments.isBlank()) return false
-    val trimmed = arguments.trim()
-    return trimmed != "{}"
-}
-
-/** 尝试格式化 JSON 字符串，失败时返回原文 */
-private fun tryFormatJson(input: String): String {
-    if (input.isBlank()) return input
-    return try {
-        val element = lenientJson.parseToJsonElement(input)
-        if (element is JsonObject) {
-            element.entries.joinToString("\n") { (key, value) ->
-                val displayValue = when {
-                    value is JsonPrimitive && value.isString -> value.content
-                    else -> value.toString()
-                }
-                "$key: $displayValue"
-            }
-        } else {
-            prettyJson.encodeToString(JsonElement.serializer(), element)
-        }
-    } catch (_: Exception) {
-        input
-    }
-}
-
-/**
- * 将工具结果中的工作区完整文件路径替换为仅文件名
- * 例如：/data/data/com.lin.hippyagent/files/workspace/xxx/MEMORY.md → MEMORY.md
- */
-private fun shortenWorkspacePaths(text: String): String {
-    // 使用非回溯模式：[^\s]+ 确保贪婪不回溯，避免灾难性回溯导致 ANR
-    return text.replace(WORKSPACE_PATH_REGEX) {
-        val path = it.groupValues[1]
-        // 只取最后一段文件名
-        path.substringAfterLast('/')
-    }
-}
-
-/**
- * 工具类型分类 — 根据名称前缀推断类型和显示样式
- */
-private enum class ToolCategory(val icon: ImageVector, val labelResId: Int) {
-    FILE(Icons.Default.Folder, R.string.tool_cat_file),
-    SHELL(Icons.Default.Computer, R.string.tool_cat_terminal),
-    SEARCH(Icons.Default.Search, R.string.tool_cat_search),
-    WEB(Icons.Default.Language, R.string.tool_cat_network),
-    CODE(Icons.Default.Code, R.string.tool_cat_code),
-    MEMORY(Icons.Default.Storage, R.string.tool_cat_memory),
-    UNKNOWN(Icons.Default.Build, R.string.tool_cat_tool);
-
-    companion object {
-        const val AUTO_COLLAPSE_DELAY_MS = 800L
-
-        fun fromName(name: String): ToolCategory = when {
-            name.startsWith("file", ignoreCase = true) ||
-            name.startsWith("read", ignoreCase = true) ||
-            name.startsWith("write", ignoreCase = true) ||
-            name.contains("file", ignoreCase = true) -> FILE
-            name.startsWith("shell", ignoreCase = true) ||
-            name.startsWith("bash", ignoreCase = true) ||
-            name.startsWith("exec", ignoreCase = true) ||
-            name.startsWith("p_root", ignoreCase = true) -> SHELL
-            name.startsWith("search", ignoreCase = true) ||
-            name.startsWith("grep", ignoreCase = true) ||
-            name.startsWith("find", ignoreCase = true) -> SEARCH
-            name.startsWith("web", ignoreCase = true) ||
-            name.startsWith("http", ignoreCase = true) ||
-            name.startsWith("fetch", ignoreCase = true) -> WEB
-            name.startsWith("code", ignoreCase = true) ||
-            name.startsWith("python", ignoreCase = true) ||
-            name.startsWith("compile", ignoreCase = true) -> CODE
-            name.startsWith("memory", ignoreCase = true) ||
-            name.startsWith("remember", ignoreCase = true) ||
-            name.startsWith("recall", ignoreCase = true) -> MEMORY
-            else -> UNKNOWN
-        }
-    }
-}
-
-/** 格式化耗时 */
-private fun formatDuration(ms: Long): String = when {
-    ms <= 0 -> ""
-    ms < 1000 -> "${ms}ms"
-    else -> "%.1fs".format(ms / 1000.0)
-}
-
-/** 从 JSON 参数中提取 key 列表，用作简要参数提示 */
-private fun extractParamKeys(arguments: String): String? {
-    if (arguments.isBlank() || arguments.length < 2) return null
-    return try {
-        val element = kotlinx.serialization.json.Json.parseToJsonElement(arguments)
-        if (element is JsonObject) {
-            val keys = element.keys.toList()
-            if (keys.isEmpty()) null
-            else keys.joinToString(", ")
-        } else null
-    } catch (_: Exception) {
-        null
-    }
-}
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -315,59 +183,13 @@ fun ToolCallBlockView(
 
     // 长按复制菜单
     if (showCopyMenu) {
-        DropdownMenu(
+        ToolCallCopyMenu(
             expanded = showCopyMenu,
-            onDismissRequest = { showCopyMenu = false }
-        ) {
-            if (hasActualArguments(block.toolCall.arguments)) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_params), style = MaterialTheme.typography.bodyMedium) },
-                    onClick = {
-                        try {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_args", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n${block.toolCall.arguments}"))
-                            Toast.makeText(context, context.getString(R.string.chat_params_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {
-                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
-                        }
-                        showCopyMenu = false
-                    },
-                    leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
-                )
-            }
-            if (!resultText.isNullOrBlank()) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_result), style = MaterialTheme.typography.bodyMedium) },
-                    onClick = {
-                        try {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n$resultText"))
-                            Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {
-                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
-                        }
-                        showCopyMenu = false
-                    },
-                    leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_params_and_result), style = MaterialTheme.typography.bodyMedium) },
-                    onClick = {
-                        try {
-                            val header = context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)
-                            val all = "$header\n${context.getString(R.string.chat_copy_all_body, block.toolCall.arguments, resultText)}"
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_all", all))
-                            Toast.makeText(context, context.getString(R.string.chat_params_and_result_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {
-                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
-                        }
-                        showCopyMenu = false
-                    },
-                    leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
-                )
-            }
-        }
+            block = block,
+            resultText = resultText,
+            context = context,
+            onDismiss = { showCopyMenu = false }
+        )
     }
 }
 
@@ -1003,217 +825,6 @@ private fun ToolCallStatusIcon(
         }
         ToolCallStatus.COMPLETED -> {
             Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = if (expanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand), modifier = modifier, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-// ========== Diff 视图相关 ==========
-
-/**
- * Diff 行数据类
- */
-@Immutable
-private data class DiffLine(
-    val type: DiffLineType,
-    val content: String,
-    val lineNumber: Int = 0
-)
-
-private enum class DiffLineType {
-    HEADER,   // --- file 或 +++ file
-    HUNK,     // @@ ... @@
-    REMOVED,  // - 行
-    ADDED,    // + 行
-    CONTEXT   // 上下文行
-}
-
-/**
- * 解析简易 diff 格式（--- / @@ / - / + 前缀）
- */
-private fun parseDiffOutput(text: String): Pair<String, List<DiffLine>> {
-    val lines = text.lines()
-    if (lines.isEmpty()) return "" to emptyList()
-
-    var filePath = ""
-    val diffLines = mutableListOf<DiffLine>()
-
-    for (line in lines) {
-        when {
-            line.startsWith("--- ") -> {
-                filePath = line.removePrefix("--- ").trim()
-                diffLines.add(DiffLine(DiffLineType.HEADER, line))
-            }
-            line.startsWith("+++ ") -> {
-                diffLines.add(DiffLine(DiffLineType.HEADER, line))
-            }
-            line.startsWith("@@ ") -> {
-                diffLines.add(DiffLine(DiffLineType.HUNK, line))
-            }
-            line.startsWith("- ") -> {
-                diffLines.add(DiffLine(DiffLineType.REMOVED, line.removePrefix("- ")))
-            }
-            line.startsWith("+ ") -> {
-                diffLines.add(DiffLine(DiffLineType.ADDED, line.removePrefix("+ ")))
-            }
-            line.startsWith("  ") -> {
-                diffLines.add(DiffLine(DiffLineType.CONTEXT, line.removePrefix("  ")))
-            }
-        }
-    }
-
-    return filePath to diffLines
-}
-
-/** 判断工具是否为文件操作类（write_file / edit_file / append_file） */
-private fun isFileTool(name: String): Boolean {
-    return name.equals("write_file", ignoreCase = true) ||
-           name.equals("edit_file", ignoreCase = true) ||
-           name.equals("append_file", ignoreCase = true)
-}
-
-private fun isSendFileTool(name: String): Boolean {
-    return name.equals("send_file", ignoreCase = true) ||
-           name.equals("send_file_to_user", ignoreCase = true)
-}
-
-private fun isReadTool(name: String): Boolean {
-    return name.equals("read_file", ignoreCase = true)
-}
-
-private fun isDeleteTool(name: String): Boolean {
-    return name.equals("delete_file", ignoreCase = true)
-}
-
-private fun extractFilePath(arguments: String): String? {
-    return try {
-        val element = lenientJson.parseToJsonElement(arguments)
-        if (element is JsonObject) {
-            element["file_path"]?.let { path ->
-                var p = path.jsonPrimitive.content
-                val match = WORKSPACE_FULL_PATH_REGEX.find(p)
-                if (match != null) {
-                    p = "./${match.groupValues[1]}"
-                }
-                p
-            }
-        } else null
-    } catch (_: Exception) {
-        null
-    }
-}
-
-/**
- * 为 write_file / append_file 的非 diff 结果构造伪 diff 文本
- * 使其可以复用 DiffView 渲染
- */
-private fun buildPseudoDiffForResult(toolName: String, resultText: String, context: Context): String? {
-    // 已经是 diff 格式则直接返回
-    if (isDiffOutput(resultText)) return resultText
-    // write_file / append_file 成功时，从结果中提取行数构造摘要
-    val lineCount = resultText.lines().filter { it.isNotBlank() }.size
-    if (lineCount == 0) return null
-    val label = when {
-        toolName.equals("write_file", ignoreCase = true) -> context.getString(R.string.chat_new_file_label)
-        toolName.equals("append_file", ignoreCase = true) -> context.getString(R.string.chat_append_content_label)
-        else -> context.getString(R.string.chat_changes_label)
-    }
-    // 构造简单的伪 diff：全部作为新增行
-    val pseudoLines = resultText.lines()
-        .filter { it.isNotBlank() }
-        .joinToString("\n") { "+ $it" }
-    return "--- /dev/null\n+++ $label\n@@ @@\n$pseudoLines"
-}
-
-/**
- * 判断文本是否为 diff 格式
- */
-private fun isDiffOutput(text: String): Boolean {
-    return text.contains("--- ") && text.contains("@@ ") &&
-           (text.contains("- ") || text.contains("+ "))
-}
-
-/**
- * Diff 视图渲染 — 带行号和颜色标注的变更展示
- */
-@Composable
-private fun DiffView(
-    diffText: String,
-    modifier: Modifier = Modifier
-) {
-    val (filePath, diffLines) = remember(diffText) { parseDiffOutput(diffText) }
-    val displayPath = shortenWorkspacePaths(filePath)
-    if (diffLines.isEmpty()) {
-        Text(text = diffText, style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace,
-             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        return
-    }
-
-    Column(modifier = modifier) {
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Diff 行渲染 — 只显示变化部分（不含 CONTEXT 行）
-        diffLines.filter { it.type != DiffLineType.CONTEXT }.forEach { line ->
-            when (line.type) {
-                DiffLineType.HUNK -> {
-                    Text(
-                        text = line.content,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(vertical = 1.dp)
-                    )
-                }
-                DiffLineType.REMOVED -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFFCDD2).copy(alpha = 0.4f)) // 红色背景
-                            .padding(start = 10.dp, end = 4.dp, top = 1.dp, bottom = 1.dp)
-                    ) {
-                        Text(
-                            text = "-",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.width(10.dp)
-                        )
-                        Text(
-                            text = line.content,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.85f),
-                            textDecoration = TextDecoration.LineThrough // 文字划中线
-                        )
-                    }
-                }
-                DiffLineType.ADDED -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFC8E6C9).copy(alpha = 0.4f)) // 绿色背景
-                            .padding(start = 10.dp, end = 4.dp, top = 1.dp, bottom = 1.dp)
-                    ) {
-                        Text(
-                            text = "+",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50), // Green 500
-                            modifier = Modifier.width(10.dp)
-                        )
-                        Text(
-                            text = line.content,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF388E3C).copy(alpha = 0.85f) // Green 700
-                        )
-                    }
-                }
-                DiffLineType.HEADER -> { /* 已在标题处理 */ }
-                DiffLineType.CONTEXT -> { /* 不显示上下文行 */ }
-            }
         }
     }
 }
