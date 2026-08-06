@@ -165,7 +165,7 @@ fun AppNavigation(
         ) {
             composable(Screen.Sessions.route) {
                 val sessionsViewModel: com.lin.hippyagent.ui.conversation.ConversationListViewModel = org.koin.androidx.compose.koinViewModel()
-                val mainPagerState = rememberPagerState(initialPage = 0) { 4 }
+                val mainPagerState = rememberPagerState(initialPage = 0) { 5 }
                 val sessionsUiState by sessionsViewModel.uiState.collectAsStateWithLifecycle()
 
                 LaunchedEffect(lastActiveAgentId) {
@@ -198,7 +198,7 @@ fun AppNavigation(
                     },
                     onNavigateToAgentConfig = { agentId ->
                         currentAgentId = agentId
-                        coroutineScope.launch { mainPagerState.animateScrollToPage(3) }
+                        coroutineScope.launch { mainPagerState.animateScrollToPage(4) }
                     },
                     showCreateGroupDialog = showCreateGroupDialog,
                     onCreateGroupDialogDismiss = { showCreateGroupDialog = false },

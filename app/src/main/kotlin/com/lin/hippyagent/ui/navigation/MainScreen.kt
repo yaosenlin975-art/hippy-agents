@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
@@ -84,8 +85,8 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = pagerState.currentPage == 0,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
-                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    label = { Text(stringResource(R.string.nav_agents), fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Person, contentDescription = stringResource(R.string.nav_agents)) },
+                    label = { Text(stringResource(R.string.nav_agents), style = MaterialTheme.typography.labelSmall) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -94,19 +95,19 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = pagerState.currentPage == 1,
                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
-                    icon = { Icon(Icons.Default.Chat, contentDescription = null) },
-                    label = { Text(stringResource(R.string.nav_sessions), fontSize = 10.sp) },
+                    icon = { Icon(Icons.Default.Chat, contentDescription = stringResource(R.string.nav_sessions)) },
+                    label = { Text(stringResource(R.string.nav_sessions), style = MaterialTheme.typography.labelSmall) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                     )
                 )
                 NavigationBarItem(
-                    selected = pagerState.currentPage == 1,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
+                    selected = pagerState.currentPage == 2,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     icon = {
                         Box {
-                            Icon(Icons.Default.Inbox, contentDescription = null)
+                            Icon(Icons.Default.Inbox, contentDescription = stringResource(R.string.nav_inbox))
                             val inboxVm: com.lin.hippyagent.ui.inbox.InboxViewModel = org.koin.androidx.compose.koinViewModel()
                             val unread by inboxVm.unreadCount.collectAsStateWithLifecycle()
                             if (unread > 0) {
@@ -120,7 +121,7 @@ fun MainScreen(
                             }
                         }
                     },
-                    label = { Text(stringResource(R.string.nav_inbox), fontSize = 10.sp) },
+                    label = { Text(stringResource(R.string.nav_inbox), style = MaterialTheme.typography.labelSmall) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -170,20 +171,20 @@ fun MainScreen(
                     )
                 }
                 NavigationBarItem(
-                    selected = pagerState.currentPage == 2,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
-                    icon = { Icon(Icons.Default.Analytics, contentDescription = null) },
-                    label = { Text(stringResource(R.string.nav_insights), fontSize = 10.sp) },
+                    selected = pagerState.currentPage == 3,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
+                    icon = { Icon(Icons.Default.Analytics, contentDescription = stringResource(R.string.nav_insights)) },
+                    label = { Text(stringResource(R.string.nav_insights), style = MaterialTheme.typography.labelSmall) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                     )
                 )
                 NavigationBarItem(
-                    selected = pagerState.currentPage == 3,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text(stringResource(R.string.nav_settings), fontSize = 10.sp) },
+                    selected = pagerState.currentPage == 4,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
+                    label = { Text(stringResource(R.string.nav_settings), style = MaterialTheme.typography.labelSmall) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.primary,
                         indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
