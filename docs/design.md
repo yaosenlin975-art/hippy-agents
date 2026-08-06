@@ -630,7 +630,7 @@
   1. 展示可用语言列表（中文、English、日本語、한국어）
   2. 选择语言后重启应用生效
   3. LanguageManager.kt P0 修复：SharedPreferences key 统一为 `hippy_settings/language`
-  4. 多语言适配现状（2026-08-06 实测，随多语言提取批次持续增长）：`values/strings.xml` 1892 条、`values-en/strings.xml` 1839 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1769 条，`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备
+  4. 多语言适配现状（2026-08-06 实测，随多语言提取批次持续增长）：`values/strings.xml` 1935 条、`values-en/strings.xml` 1882 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1812 条，`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备
 - **输入规则**：语言选择
 - **输出结果**：语言切换，界面静态文字多语言适配
 
@@ -2623,7 +2623,7 @@
 
 > 基于 evo-meta-evolution + expert-brainstorm 交互审查 + 用户确认方向
 >
-> **更新记录：2026-08-06 第 1 项「导航组织」裁决为未采纳（方案 B），以实际实现的底部导航方案为准，详见下文裁决记录；第 3 项「统一审批组件」已实施（WS-4）；第 4 项「ChatScreen 拆分」MatchTagChips 子项已取消（改为 AnnotatedString 内联渲染）；第 5 项「无障碍与字号主题化」已实施第一批量交付（WS-5）。**
+> **更新记录：2026-08-06 第 1 项「导航组织」裁决为未采纳（方案 B），以实际实现的底部导航方案为准，详见下文裁决记录；第 2 项「技能商店在设置内位置优化」已实施（WS-2，QA 验收通过）；第 3 项「统一审批组件」已实施（WS-4）；第 4 项「ChatScreen 拆分」MatchTagChips 子项已取消（改为 AnnotatedString 内联渲染）；第 5 项「无障碍与字号主题化」已实施第一批量交付（WS-5，复验后回退 in_progress 待修 DEF-2）。同日修复底部导航收件箱/洞察/设置 Tab 索引错位（WS-13，提交 9fc41cd）。**
 
 ## 1. 导航组织（方案 B：扩展侧抽屉）【未采纳 — 已被实际底部导航方案替代】
 
@@ -2658,7 +2658,7 @@
 
 ## 2. 技能商店在设置内位置优化（保持位置）
 
-> **落地状态：2026-08-06 已实施（WS-2）**，实现文件：`ui/settings/SettingsScreen.kt`（顶部新增「高频」分组，`emphasized = true` 主色调视觉强调；内含技能商店 + 模型提供商，带图标与描述文字）；字符串 key `settings_frequent` / `settings_skill_store` / `settings_skill_store_desc` × 4 语言；导航 `onNavigateToStore` → `Screen.SkillStore` 在 `MainScreen.kt` / `AppNavigation.kt` 已接线。设置页现直达技能商店（1 次点击），现有入口（AgentConfigSection / SkillPoolScreen 右上角）保持兼容。
+> **落地状态：2026-08-06 已实施（WS-2，QA 验收通过置 done）**，实现文件：`ui/settings/SettingsScreen.kt`（顶部新增「高频」分组，`emphasized = true` 主色调视觉强调；内含技能商店 + 模型提供商，带图标与描述文字）；字符串 key `settings_frequent` / `settings_skill_store` / `settings_skill_store_desc` × 4 语言；导航 `onNavigateToStore` → `Screen.SkillStore` 在 `MainScreen.kt` / `AppNavigation.kt` 已接线。设置页现直达技能商店（1 次点击），现有入口（AgentConfigSection / SkillPoolScreen 右上角）保持兼容。
 
 ### 技能商店在设置内突出
 - **功能描述**：技能商店保持在 Settings 内不变，但提升位置到顶部"高频"分组，并加视觉强调
@@ -2709,7 +2709,7 @@
 
 ## 5. 无障碍与字号主题化（方案 A：semantics + Typography）
 
-> **落地状态：2026-08-06 已实施第一批量交付（WS-5）**，QA 实测验收：1.3x 系统字号下主要页面（Agents/会话列表/聊天/创建菜单/Inbox/Insights/引导页）无截断重叠、非装饰性图标均有 contentDescription、`.sp` 非 import 引用 756 → 21 处（剩余均为规范定义/动态字号/演示用途）。实施中修复既有缺陷 DEF-1（底部导航索引错位：`AppNavigation.kt` pager 页数 4→5 + `MainScreen.kt` tab 索引 1/2/3→2/3/4，修复前设置页不可达）、OBS-1（scaledTypography 未设置偏好时回退值 1.0f，避免系统字号双重缩放）、OBS-2（会话标题 `take(5)` 硬截断移除）。设置页 1.3x 走查待 QA 复验后收口。
+> **落地状态：2026-08-06 已实施第一批量交付（WS-5）**，QA 实测验收：1.3x 系统字号下主要页面（Agents/会话列表/聊天/创建菜单/Inbox/Insights/引导页）无截断重叠、非装饰性图标均有 contentDescription、`.sp` 非 import 引用 756 → 21 处（剩余均为规范定义/动态字号/演示用途）。实施中修复既有缺陷 DEF-1（底部导航索引错位：`AppNavigation.kt` pager 页数 4→5 + `MainScreen.kt` tab 索引 1/2/3→2/3/4，修复前设置页不可达）、OBS-1（scaledTypography 未设置偏好时回退值 1.0f，避免系统字号双重缩放）、OBS-2（会话标题 `take(5)` 硬截断移除）。QA 复验（06:34，API 36 模拟器 1.3x）确认 DEF-1/OBS-1/OBS-2 均通过、设置页 1.3x 走查无截断/重叠；复验新发现 **DEF-2 [中]**（设置页 7 处交互 Switch 无无障碍标签，TalkBack 仅读「开关，开/关」：`SettingsScreen.kt:454` 执行跟踪 / `:468` 敏感信息掩码 / `:499` 完整 LLM 内容存储、`SharedConfigComponents.kt:245` 智能体启用 / `:1062` RULES.md·SOUL.md 启用 ×2、`UiSettingsScreen.kt:349` Show Agent Avatar）与 **OBS-3 [低]**（`UiSettingsScreen.kt:80` 字号滑块未设置偏好时回退系统 fontScale，与 `Theme.kt:93` 回退 1.0f 口径不一致，首屏显示值≠生效值且拖动叠加 1.69x）。状态回退 `in_progress`（WS-5）待修 DEF-2 后复验收口。
 
 ### 全局无障碍与字号主题化
 - **功能描述**：批量补 contentDescription + 把硬编码字号抽到 MaterialTheme Typography
