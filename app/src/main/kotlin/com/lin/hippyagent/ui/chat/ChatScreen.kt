@@ -394,8 +394,8 @@ fun ChatScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = uiState.sessionTitle.take(5).ifEmpty { uiState.sessionTitle },
-                                fontSize = 16.sp,
+                                text = uiState.sessionTitle,
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -449,12 +449,12 @@ fun ChatScreen(
                                 Spacer(Modifier.width(3.dp))
                                 Text(
                                     text = "$modelLabel:",
-                                    fontSize = 10.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                 )
                                 Text(
                                     text = modelDisplayName,
-                                    fontSize = 11.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -484,7 +484,7 @@ fun ChatScreen(
                         Spacer(Modifier.width(2.dp))
                         Text(
                             text = "${inputState.offlineQueueSize + uiState.messageQueueSize}",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -556,30 +556,34 @@ fun ChatScreen(
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = stringResource(R.string.chat_iterations_exhausted),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error,
                             fontWeight = FontWeight.Medium
                         )
                     }
                 }
-                if (uiState.activeMission != null) {
+                val activeMission = uiState.activeMission
+                if (activeMission != null) {
                     MissionProgressBar(
-                        mission = uiState.activeMission!!,
+                        mission = activeMission,
                         onCancel = { viewModel.cancelMission() }
                     )
                 }
-                if (currentPlan != null && currentPlan!!.isActive) {
+                val plan = currentPlan
+                if (plan != null && plan.isActive) {
                     PlanProgressChip(
-                        plan = currentPlan!!,
+                        plan = plan,
                         onClick = { showPlanPanel = true }
                     )
                 }
-                val currentApproval by viewModel.currentSessionApproval.collectAsStateWithLifecycle()
+                val currentApproval = viewModel.currentSessionApproval.collectAsStateWithLifecycle().value
                 if (currentApproval != null) {
                     InlineApprovalCard(
-                        task = currentApproval!!,
-                        onApprove = { viewModel.onApprove(currentApproval!!.id) },
-                        onDeny = { viewModel.onDeny(currentApproval!!.id) },
+                        task = currentApproval,
+                        onApprove = { viewModel.onApprove(currentApproval.id) },
+                        onDeny = { viewModel.onDeny(currentApproval.id) },
+                        onApproveAlways = { viewModel.onApprove(currentApproval.id, always = true) },
+                        onDenyAlways = { viewModel.onDeny(currentApproval.id, always = true) },
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
@@ -774,11 +778,12 @@ fun ChatScreen(
     }
 
     // 图片全屏预览
-    if (showFullScreenImage != null) {
-        val imageModel: Any = if (showFullScreenImage!!.startsWith("content://")) {
-            android.net.Uri.parse(showFullScreenImage!!)
+    val fullScreenImage = showFullScreenImage
+    if (fullScreenImage != null) {
+        val imageModel: Any = if (fullScreenImage.startsWith("content://")) {
+            android.net.Uri.parse(fullScreenImage)
         } else {
-            File(showFullScreenImage!!)
+            File(fullScreenImage)
         }
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { showFullScreenImage = null }
@@ -802,9 +807,10 @@ fun ChatScreen(
     }
 
     // Shell 命令授权弹窗（PermissionManager PERMISSION_NEEDED）
-    if (permUiState.pendingPermissionCommand != null) {
+    val pendingCommand = permUiState.pendingPermissionCommand
+    if (pendingCommand != null) {
         PermissionRequestDialog(
-            command = permUiState.pendingPermissionCommand!!,
+            command = pendingCommand,
             onApproveOnce = { permissionViewModel.approvePermissionOnce(uiState.sessionId, uiState.agentId) },
             onApproveAlways = { permissionViewModel.approvePermissionAlways(uiState.sessionId, uiState.agentId) },
             onDenyOnce = { permissionViewModel.denyPermissionOnce(uiState.sessionId, uiState.agentId) },
@@ -812,23 +818,23 @@ fun ChatScreen(
         )
     }
 
-    val accessApproval by permissionViewModel.pendingApprovalRequest.collectAsStateWithLifecycle()
+    val accessApproval = permissionViewModel.pendingApprovalRequest.collectAsStateWithLifecycle().value
     if (accessApproval != null) {
-        val approval = accessApproval!!
+        val approval = accessApproval
         AlertDialog(
             onDismissRequest = { permissionViewModel.respondToApproval(false) },
             title = { Text(stringResource(R.string.chat_auth_request), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(stringResource(R.string.chat_agent_accessibility_request), fontSize = 14.sp)
-                    Text(stringResource(R.string.chat_action_label, approval.action), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    approval.target?.let { Text(stringResource(R.string.chat_target_label, it), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Text(stringResource(R.string.chat_agent_accessibility_request), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.chat_action_label, approval.action), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    approval.target?.let { Text(stringResource(R.string.chat_target_label, it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     Text(stringResource(R.string.chat_risk_level_label, when (approval.riskLevel) {
                         RiskLevel.LOW -> stringResource(R.string.risk_low)
                         RiskLevel.MEDIUM -> stringResource(R.string.risk_medium)
                         RiskLevel.HIGH -> stringResource(R.string.risk_high)
                         else -> stringResource(R.string.risk_blocked)
-                    }), fontSize = 13.sp, color = MaterialTheme.colorScheme.tertiary)
+                    }), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
                 }
             },
             confirmButton = {
@@ -850,13 +856,13 @@ fun ChatScreen(
     }
 
     // 其他 session / 无 session 的 task / tool_approval 等待审批 → 弹 Dialog
-    val otherApproval by viewModel.otherSessionApproval.collectAsStateWithLifecycle()
+    val otherApproval = viewModel.otherSessionApproval.collectAsStateWithLifecycle().value
     if (otherApproval != null) {
         OtherSessionApprovalDialog(
-            task = otherApproval!!,
-            onApprove = { viewModel.onApprove(otherApproval!!.id) },
-            onDeny = { viewModel.onDeny(otherApproval!!.id) },
-            onDismiss = { viewModel.onDeny(otherApproval!!.id) }
+            task = otherApproval,
+            onApprove = { viewModel.onApprove(otherApproval.id) },
+            onDeny = { viewModel.onDeny(otherApproval.id) },
+            onDismiss = { viewModel.onDeny(otherApproval.id) }
         )
     }
 
@@ -913,6 +919,7 @@ internal fun MessageContentWithAttachments(
     agentProfiles: Map<String, String> = emptyMap(),
     metadataJson: String? = null
 ) {
+    val context = LocalContext.current
     val voiceMeta = parseVoiceMetadata(metadataJson)
     if (voiceMeta != null) {
         VoiceBubble(
@@ -927,7 +934,7 @@ internal fun MessageContentWithAttachments(
     val textColor = if (isUser) MaterialTheme.colorScheme.onPrimary
         else MaterialTheme.colorScheme.onSurface
     val chatFontSize = LocalChatFontSize.current
-    val markdownStyle = TextStyle(
+    val markdownStyle = MaterialTheme.typography.bodyLarge.copy(
         color = textColor,
         fontSize = chatFontSize.sp,
         lineHeight = (chatFontSize + 6).sp
@@ -951,7 +958,7 @@ internal fun MessageContentWithAttachments(
 
     if (tagMatches.isEmpty()) {
         MarkdownText(
-            markdown = sanitizeMarkdown(content),
+            markdown = sanitizeMarkdown(content, context),
             style = markdownStyle,
             modifier = modifier
         )
@@ -967,7 +974,7 @@ internal fun MessageContentWithAttachments(
             for (tag in tagMatches) {
                 val textBefore = content.substring(lastEnd, tag.range.first).trim()
                 if (textBefore.isNotEmpty()) {
-                    MarkdownText(markdown = sanitizeMarkdown(textBefore), style = markdownStyle)
+                    MarkdownText(markdown = sanitizeMarkdown(textBefore, context), style = markdownStyle)
                 }
                 val ext = tag.value.substringAfterLast(".", "").lowercase()
                 if (ext in imageExtensions) {
@@ -990,7 +997,7 @@ internal fun MessageContentWithAttachments(
             }
             val textAfter = content.substring(lastEnd).trim()
             if (textAfter.isNotEmpty()) {
-                MarkdownText(markdown = sanitizeMarkdown(textAfter), style = markdownStyle)
+                MarkdownText(markdown = sanitizeMarkdown(textAfter, context), style = markdownStyle)
             }
         }
         return
@@ -1099,9 +1106,9 @@ private fun parseVoiceMetadata(metadataJson: String?): VoiceMetadata? {
     }.getOrNull()
 }
 
-private fun sanitizeMarkdown(content: String): String {
+private fun sanitizeMarkdown(content: String, context: Context): String {
     var result = MARKDOWN_IMAGE_REGEX.replace(content) { matchResult ->
-        val alt = matchResult.groupValues[1].ifBlank { "图片" }
+        val alt = matchResult.groupValues[1].ifBlank { context.getString(R.string.chat_image) }
         val url = matchResult.groupValues[2]
         "[$alt]($url)"
     }

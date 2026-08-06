@@ -400,6 +400,9 @@
     <!-- 设置扩展 -->
 
     <string name="settings_general">일반</string>
+    <string name="settings_frequent">자주 사용</string>
+    <string name="settings_skill_store">스킬 스토어</string>
+    <string name="settings_skill_store_desc">스킬 탐색, 설치 및 관리</string>
     <string name="settings_closed">꺼짐</string>
     <string name="settings_ui_settings">UI 설정</string>
     <string name="settings_ui_settings_desc">비활성 대화 시간 등 UI 환경 설정</string>
@@ -1919,5 +1922,32 @@
     <string name="widget_skill_label">최근 Skill: %1$s</string>
     <string name="widget_task_label">현재 작업: %1$s</string>
     <string name="shortcut_skill_prompt">Skill 사용: %1$s</string>
+    <string name="chat_time_format_md">M월 d일 HH:mm</string>
+    <string name="chat_time_format_ymd">yyyy년 M월 d일 HH:mm</string>
+    <string name="permission_custom_tool_title">도구 권한 요청</string>
+    <string name="permission_shell_title">셸 실행 요청</string>
+    <string name="permission_shell_desc">에이전트가 다음 명령의 실행을 요청합니다</string>
+    <string name="chat_inline_approval_background_task">백그라운드 작업</string>
+    <string name="chat_diff_removed_lines">-%1$d줄 </string>
+    <string name="chat_diff_added_lines">+%1$d줄</string>
+    <string name="chat_clipboard_tool_header">【%1$s】</string>
+    <string name="chat_copy_all_body">인수:\n%1$s\n\n결과:\n%2$s</string>
+    <string name="settings_lang_zh">중국어</string>
+    <string name="settings_lang_en">영어</string>
+    <string name="settings_lang_ja">일본어</string>
+    <string name="settings_lang_ko">한국어</string>
+    <string name="model_connect_success">연결 성공</string>
+    <string name="model_connect_failed">연결 실패: %1$s</string>
+    <string name="model_fetch_empty">모델을 가져오지 못했습니다. API 주소와 키를 확인하세요</string>
+    <string name="model_all_exist">모든 모델이 이미 존재합니다. 업데이트가 필요 없습니다</string>
+    <string name="model_fetch_failed">모델 가져오기 실패: %1$s</string>
+    <string name="about_tech_stack_items">Kotlin 2.0 + Jetpack Compose\nMaterial Design 3\nKoin (의존성 주입)\nkotlinx.serialization (직렬화)\nWorkManager (예약 작업)\nEncryptedSharedPreferences (보안 저장소)\nRoom (데이터베이스)\nDataStore (설정 저장)</string>
+    <string name="skill_run_scoring">평가 실행</string>
+    <string name="env_name_web_access">웹 액세스 (OkHttp + WebView)</string>
+    <string name="env_name_curl">cURL (Linux 환경)</string>
+    <string name="env_name_system_tts">시스템 TTS</string>
+    <string name="risk_critical">심각</string>
+    <string name="chat_approval_command_detail">명령 상세</string>
+    <string name="chat_approval_risk_block">고위험 작업</string>
+    <string name="chat_approval_close">닫기</string>
 </resources>
-

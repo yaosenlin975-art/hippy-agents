@@ -76,7 +76,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.session.ToolCallStatus
 import com.lin.hippyagent.core.chat.ToolCallBlock as ChatToolCallBlock
 import com.lin.hippyagent.core.tools.BuiltinToolNames
@@ -322,11 +321,11 @@ fun ToolCallBlockView(
         ) {
             if (hasActualArguments(block.toolCall.arguments)) {
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_params), fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_params), style = MaterialTheme.typography.bodyMedium) },
                     onClick = {
                         try {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_args", "【${block.toolCall.name}】\n${block.toolCall.arguments}"))
+                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_args", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n${block.toolCall.arguments}"))
                             Toast.makeText(context, context.getString(R.string.chat_params_copied), Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {
                             // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
@@ -338,11 +337,11 @@ fun ToolCallBlockView(
             }
             if (!resultText.isNullOrBlank()) {
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_result), fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_result), style = MaterialTheme.typography.bodyMedium) },
                     onClick = {
                         try {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
+                            clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n$resultText"))
                             Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {
                             // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
@@ -352,10 +351,11 @@ fun ToolCallBlockView(
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
                 )
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chat_copy_params_and_result), fontSize = 14.sp) },
+                    text = { Text(stringResource(R.string.chat_copy_params_and_result), style = MaterialTheme.typography.bodyMedium) },
                     onClick = {
                         try {
-                            val all = "【${block.toolCall.name}】\n参数:\n${block.toolCall.arguments}\n\n结果:\n$resultText"
+                            val header = context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)
+                            val all = "$header\n${context.getString(R.string.chat_copy_all_body, block.toolCall.arguments, resultText)}"
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_all", all))
                             Toast.makeText(context, context.getString(R.string.chat_params_and_result_copied), Toast.LENGTH_SHORT).show()
@@ -404,7 +404,7 @@ private fun ToolCallContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "👁  $fileName",
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = if (isFailed) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurface,
@@ -416,7 +416,7 @@ private fun ToolCallContent(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = formatDuration(block.durationMs),
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         fontFamily = FontFamily.Monospace
                     )
@@ -425,7 +425,7 @@ private fun ToolCallContent(
             if (filePath != null && filePath.contains("/")) {
                 Text(
                     text = filePath,
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     fontStyle = FontStyle.Italic,
                     color = if (isFailed) MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -437,7 +437,7 @@ private fun ToolCallContent(
             if (isFailed && !resultText.isNullOrBlank()) {
                 Text(
                     text = "⚠ $resultText",
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -455,10 +455,9 @@ private fun ToolCallContent(
                         val displayLines = if (lines.size > 50) lines.take(50) + listOf("\n" + context.getString(R.string.chat_lines_omitted, lines.size - 50)) else lines
                         Text(
                             text = displayLines.joinToString("\n"),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 14.sp
                         )
                     }
                 }
@@ -482,7 +481,7 @@ private fun ToolCallContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "📎  $fileName",
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = if (isFailed) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurface,
@@ -494,7 +493,7 @@ private fun ToolCallContent(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = formatDuration(block.durationMs),
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         fontFamily = FontFamily.Monospace
                     )
@@ -509,7 +508,7 @@ private fun ToolCallContent(
                     if (isFailed && !resultText.isNullOrBlank()) {
                         Text(
                             text = "⚠ $resultText",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
@@ -524,7 +523,7 @@ private fun ToolCallContent(
             if (!expanded && attachmentPaths.isNotEmpty()) {
                 Text(
                     text = attachmentPaths.joinToString(", ") { it.substringAfterLast("/") },
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -544,7 +543,7 @@ private fun ToolCallContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "🖊  $fileName${if (isFailed && !resultText.isNullOrBlank()) " $resultText" else ""}",
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = if (isFailed) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurface,
@@ -556,7 +555,7 @@ private fun ToolCallContent(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = formatDuration(block.durationMs),
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         fontFamily = FontFamily.Monospace
                     )
@@ -565,7 +564,7 @@ private fun ToolCallContent(
             if (filePath != null && filePath.contains("/")) {
                 Text(
                     text = filePath,
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     fontStyle = FontStyle.Italic,
                     color = if (isFailed) MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -590,10 +589,9 @@ private fun ToolCallContent(
                             val formattedArgs = remember(block.toolCall.arguments) { tryFormatJson(block.toolCall.arguments) }
                             Text(
                                 text = formattedArgs,
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                lineHeight = 14.sp
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     } else {
@@ -618,7 +616,7 @@ private fun ToolCallContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "🗑️  $fileName${if (isFailed && !resultText.isNullOrBlank()) " $resultText" else ""}",
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = if (isFailed) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurface,
@@ -630,7 +628,7 @@ private fun ToolCallContent(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = formatDuration(block.durationMs),
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         fontFamily = FontFamily.Monospace
                     )
@@ -639,7 +637,7 @@ private fun ToolCallContent(
             if (filePath != null && filePath.contains("/")) {
                 Text(
                     text = filePath,
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     fontStyle = FontStyle.Italic,
                     color = if (isFailed) MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -659,10 +657,9 @@ private fun ToolCallContent(
                         val formattedArgs = remember(block.toolCall.arguments) { tryFormatJson(block.toolCall.arguments) }
                         Text(
                             text = formattedArgs,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 14.sp
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -686,7 +683,7 @@ private fun ToolCallContent(
             ToolCallStatusIcon(status = block.toolCall.status, expanded = expanded)
             Text(
                 text = BuiltinToolNames.getDisplayName(block.toolCall.name).ifEmpty { block.toolCall.name },
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = FontFamily.Monospace,
                 color = if (isFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
@@ -698,7 +695,7 @@ private fun ToolCallContent(
                 val shortArgs = if (formattedArgs.length > 60) formattedArgs.take(60) + "..." else formattedArgs
                 Text(
                     text = if (isRunning || isPending) "$shortArgs  ${stringResource(R.string.chat_waiting_result_inline)}" else "($shortArgs)",
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     color = if (isRunning || isPending)
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
@@ -712,7 +709,7 @@ private fun ToolCallContent(
             if (isPending) {
                 Text(
                     text = stringResource(R.string.chat_calling),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
@@ -730,7 +727,7 @@ private fun ToolCallContent(
                 )
                 Text(
                     text = stringResource(R.string.chat_executing_with_dots) + ".".repeat(dotCount.toInt().coerceIn(0, 3)),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
@@ -738,7 +735,7 @@ private fun ToolCallContent(
             if (block.durationMs > 0 && !isRunning) {
                 Text(
                     text = formatDuration(block.durationMs),
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     fontFamily = FontFamily.Monospace
                 )
@@ -746,7 +743,7 @@ private fun ToolCallContent(
             if (isFailed) {
                 Text(
                     text = stringResource(R.string.chat_failed),
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Medium
                 )
@@ -770,8 +767,12 @@ private fun ToolCallContent(
                         val removed = diffLines.count { it.type == DiffLineType.REMOVED }
                         val added = diffLines.count { it.type == DiffLineType.ADDED }
                         Text(
-                            text = stringResource(R.string.chat_diff_file_summary, if (removed > 0) "-${removed}行 " else "", if (added > 0) "+${added}行" else ""),
-                            fontSize = 11.sp,
+                            text = stringResource(
+                                R.string.chat_diff_file_summary,
+                                if (removed > 0) context.getString(R.string.chat_diff_removed_lines, removed) else "",
+                                if (added > 0) context.getString(R.string.chat_diff_added_lines, added) else ""
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1
@@ -783,8 +784,12 @@ private fun ToolCallContent(
                     val removed = diffLines.count { it.type == DiffLineType.REMOVED }
                     val added = diffLines.count { it.type == DiffLineType.ADDED }
                     Text(
-                            text = stringResource(R.string.chat_diff_summary, if (removed > 0) "-${removed}行 " else "", if (added > 0) "+${added}行" else ""),
-                        fontSize = 11.sp,
+                            text = stringResource(
+                                R.string.chat_diff_summary,
+                                if (removed > 0) context.getString(R.string.chat_diff_removed_lines, removed) else "",
+                                if (added > 0) context.getString(R.string.chat_diff_added_lines, added) else ""
+                            ),
+                        style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
@@ -794,10 +799,9 @@ private fun ToolCallContent(
                     val displayText = remember(resultText) { shortenWorkspacePaths(resultText) }
                     Text(
                         text = displayText,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 14.sp,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.combinedClickable(
@@ -805,7 +809,7 @@ private fun ToolCallContent(
                             onLongClick = {
                                 try {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n$resultText"))
                                     Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                                 } catch (_: Exception) {
                                     // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
@@ -826,7 +830,7 @@ private fun ToolCallContent(
             if (failPreview.isNotBlank()) {
                 Text(
                     text = "⚠ $failPreview",
-                    fontSize = 10.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -858,7 +862,7 @@ private fun ToolCallContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = stringResource(R.string.chat_params_label),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                         )
@@ -871,10 +875,9 @@ private fun ToolCallContent(
                         ) {
                             Text(
                                 text = formattedArgs,
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                lineHeight = 14.sp,
                                 maxLines = Int.MAX_VALUE,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.padding(6.dp)
@@ -885,7 +888,7 @@ private fun ToolCallContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = stringResource(R.string.chat_result_label),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                         )
@@ -901,11 +904,10 @@ private fun ToolCallContent(
                             ) {
                                 Text(
                                     text = formattedResult,
-                                    fontSize = 11.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     fontFamily = FontFamily.Monospace,
                                     color = if (isFailed) MaterialTheme.colorScheme.error
                                         else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    lineHeight = 14.sp,
                                     maxLines = Int.MAX_VALUE,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.padding(6.dp)
@@ -917,7 +919,7 @@ private fun ToolCallContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = stringResource(R.string.chat_waiting_result),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                         )
@@ -933,7 +935,7 @@ private fun ToolCallContent(
                             onClick = {
                                 try {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "${context.getString(R.string.chat_clipboard_tool_header, block.toolCall.name)}\n$resultText"))
                                     Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
                                 } catch (_: Exception) {
                                     // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
@@ -950,7 +952,7 @@ private fun ToolCallContent(
                         }
                         Text(
                             text = stringResource(R.string.common_collapse),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .clickable { onToggleExpand() }
@@ -974,7 +976,7 @@ private fun ToolCallStatusIcon(
 ) {
     when (status) {
         ToolCallStatus.PENDING -> {
-            Text(text = "⏳", fontSize = 10.sp, modifier = modifier)
+            Text(text = "⏳", style = MaterialTheme.typography.labelSmall, modifier = modifier)
         }
         ToolCallStatus.RUNNING -> {
             val infiniteTransition = rememberInfiniteTransition(label = "gear-spin")
@@ -997,10 +999,10 @@ private fun ToolCallStatusIcon(
             )
         }
         ToolCallStatus.FAILED -> {
-            Icon(Icons.Default.Close, contentDescription = null, modifier = modifier, tint = MaterialTheme.colorScheme.error)
+            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.chat_failed), modifier = modifier, tint = MaterialTheme.colorScheme.error)
         }
         ToolCallStatus.COMPLETED -> {
-            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null, modifier = modifier, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = if (expanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand), modifier = modifier, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -1141,7 +1143,7 @@ private fun DiffView(
     val (filePath, diffLines) = remember(diffText) { parseDiffOutput(diffText) }
     val displayPath = shortenWorkspacePaths(filePath)
     if (diffLines.isEmpty()) {
-        Text(text = diffText, fontSize = 11.sp, fontFamily = FontFamily.Monospace,
+        Text(text = diffText, style = MaterialTheme.typography.labelSmall, fontFamily = FontFamily.Monospace,
              color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
@@ -1156,7 +1158,7 @@ private fun DiffView(
                 DiffLineType.HUNK -> {
                     Text(
                         text = line.content,
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                         modifier = Modifier.padding(vertical = 1.dp)
@@ -1171,7 +1173,7 @@ private fun DiffView(
                     ) {
                         Text(
                             text = "-",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error,
@@ -1179,7 +1181,7 @@ private fun DiffView(
                         )
                         Text(
                             text = line.content,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.85f),
                             textDecoration = TextDecoration.LineThrough // 文字划中线
@@ -1195,7 +1197,7 @@ private fun DiffView(
                     ) {
                         Text(
                             text = "+",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4CAF50), // Green 500
@@ -1203,7 +1205,7 @@ private fun DiffView(
                         )
                         Text(
                             text = line.content,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = Color(0xFF388E3C).copy(alpha = 0.85f) // Green 700
                         )

@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.lin.hippyagent.R
@@ -64,8 +63,8 @@ private fun formatMessageTime(context: Context, timestamp: Instant): String {
     return when {
         localDate == now -> timeFormatter.format(zoned)
         localDate == now.minusDays(1) -> "${context.getString(R.string.common_yesterday)} ${timeFormatter.format(zoned)}"
-        localDate.year == now.year -> DateTimeFormatter.ofPattern("M月d日 HH:mm").format(zoned)
-        else -> DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm").format(zoned)
+        localDate.year == now.year -> DateTimeFormatter.ofPattern(context.getString(R.string.chat_time_format_md)).format(zoned)
+        else -> DateTimeFormatter.ofPattern(context.getString(R.string.chat_time_format_ymd)).format(zoned)
     }
 }
 
@@ -108,7 +107,7 @@ fun UserTurnCard(
     ) {
         Text(
             text = remember(turn.message.timestamp, context) { formatMessageTime(context, turn.message.timestamp) },
-            fontSize = 10.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             modifier = Modifier
                 .fillMaxWidth()
@@ -137,13 +136,13 @@ fun UserTurnCard(
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
                             text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = turn.quotedContent ?: "",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis
@@ -174,11 +173,12 @@ fun UserTurnCard(
                     .padding(12.dp)
             ) {
                 Column {
-                    if (turn.originalImageUri != null) {
-                        val imageModel: Any = if (turn.originalImageUri!!.startsWith("content://")) {
-                            android.net.Uri.parse(turn.originalImageUri)
+                    val imageUri = turn.originalImageUri
+                    if (imageUri != null) {
+                        val imageModel: Any = if (imageUri.startsWith("content://")) {
+                            android.net.Uri.parse(imageUri)
                         } else {
-                            File(turn.originalImageUri!!)
+                            File(imageUri)
                         }
                         AsyncImage(
                             model = imageModel,
@@ -189,7 +189,7 @@ fun UserTurnCard(
                                 .then(
                                     if (onImageClick != null)
                                         Modifier.clickable {
-                                            onImageClick(turn.originalImageUri!!)
+                                            onImageClick(imageUri)
                                         }
                                     else Modifier
                                 ),
@@ -218,14 +218,16 @@ fun UserTurnCard(
             ) {
                 agentReadStates.forEach { (agentId, state) ->
                     val displayName = agentProfiles[agentId] ?: agentId
+                    val repliedText = stringResource(R.string.chat_replied)
+                    val workingText = stringResource(R.string.chat_working)
                     val (stateText, stateColor) = when (state) {
-                        "已回复" -> stringResource(R.string.chat_replied) to MaterialTheme.colorScheme.primary
-                        "工作中" -> stringResource(R.string.chat_working) to MaterialTheme.colorScheme.tertiary
+                        repliedText -> repliedText to MaterialTheme.colorScheme.primary
+                        workingText -> workingText to MaterialTheme.colorScheme.tertiary
                         else -> stringResource(R.string.chat_read) to MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(
                         text = "$displayName $stateText",
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = stateColor,
                         modifier = Modifier.padding(start = 6.dp)
                     )

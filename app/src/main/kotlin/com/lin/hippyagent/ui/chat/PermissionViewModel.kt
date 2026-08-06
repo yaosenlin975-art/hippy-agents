@@ -1,5 +1,6 @@
 package com.lin.hippyagent.ui.chat
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import com.lin.hippyagent.core.accessibility.ActionApprover
@@ -8,6 +9,7 @@ import com.lin.hippyagent.core.agent.AgentFactory
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
 import com.lin.hippyagent.core.security.PermissionManager
+import com.lin.hippyagent.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,8 @@ data class PermissionUiState(
 class PermissionViewModel(
     private val actionApprover: ActionApprover,
     private val agentFactory: AgentFactory,
-    private val permissionManager: PermissionManager
+    private val permissionManager: PermissionManager,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PermissionUiState())
@@ -43,11 +46,15 @@ class PermissionViewModel(
         } else {
             PermissionType.SHELL_COMMAND
         }
-        val title = if (permType == PermissionType.CUSTOM_TOOL) "工具权限请求" else "Shell 执行请求"
+        val title = if (permType == PermissionType.CUSTOM_TOOL) {
+            application.getString(R.string.permission_custom_tool_title)
+        } else {
+            application.getString(R.string.permission_shell_title)
+        }
         val desc = if (permType == PermissionType.CUSTOM_TOOL) {
             command.removePrefix("CUSTOM_TOOL_PERM:")
         } else {
-            "智能体请求执行以下命令"
+            application.getString(R.string.permission_shell_desc)
         }
         val permTurn = ChatTurn.PermissionTurn(
             id = "perm_${System.currentTimeMillis()}",

@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.conversation
 
 import androidx.compose.runtime.Immutable
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.agent.collaboration.AgentGroupManager
 import com.lin.hippyagent.core.agent.collaboration.GroupInfo
@@ -39,7 +41,8 @@ data class GroupSettingsUiState(
 class GroupSettingsViewModel(
     private val groupManager: AgentGroupManager,
     private val agentRepository: AgentRepository,
-    private val modelProviderStore: ModelProviderStore
+    private val modelProviderStore: ModelProviderStore,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GroupSettingsUiState())
@@ -55,7 +58,7 @@ class GroupSettingsViewModel(
             val group = groupManager.getGroup(groupId)
             if (group == null) {
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "群组不存在")
+                    it.copy(isLoading = false, errorMessage = application.getString(R.string.group_not_found))
                 }
                 return@launch
             }

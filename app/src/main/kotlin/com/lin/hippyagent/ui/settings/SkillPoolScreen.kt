@@ -162,7 +162,7 @@ fun SkillPoolScreen(
             ) {
                 Text(
                     text = stringResource(R.string.skill_pool_add_title),
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -209,7 +209,7 @@ fun SkillPoolScreen(
                             refreshTrigger++
                         }
                     }) {
-                        Icon(Icons.Default.WarningAmber, "运行评分", tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Default.WarningAmber, stringResource(R.string.skill_run_scoring), tint = MaterialTheme.colorScheme.onSurface)
                     }
                     IconButton(onClick = onNavigateToStore) {
                         Icon(Icons.Default.Store, stringResource(R.string.skill_pool_store), tint = MaterialTheme.colorScheme.onSurface)
@@ -230,9 +230,9 @@ fun SkillPoolScreen(
         if (skills.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(stringResource(R.string.skill_pool_no_skills), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.skill_pool_no_skills), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.skill_pool_add_hint), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.skill_pool_add_hint), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {
@@ -251,12 +251,12 @@ fun SkillPoolScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(skill.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(skill.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
                                     if (record != null) {
                                         Spacer(Modifier.width(8.dp))
                                         Text(
                                             text = "score ${"%.2f".format(record.score)}",
-                                            fontSize = 11.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         if (record.status == "WARN") {
@@ -279,14 +279,14 @@ fun SkillPoolScreen(
                                             Spacer(Modifier.width(2.dp))
                                             Text(
                                                 text = stringResource(R.string.skill_archived),
-                                                fontSize = 11.sp,
+                                                style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.outline
                                             )
                                         }
                                     }
                                 }
-                                Text(skill.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("v${skill.version}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(skill.description, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("v${skill.version}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             if (!skill.isBuiltin) {
                                 IconButton(onClick = { showDeleteDialog = skill }) {

@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.storage.SecureStorage
 import com.lin.hippyagent.data.repository.AgentRepository
@@ -22,9 +23,9 @@ private val NAME_LINE_REGEX = Regex("""(- \*\*名字[：:]\*\*\s*).*""", RegexOp
 @Immutable
 data class SettingsUiState(
     val agents: List<AgentProfile> = emptyList(),
-    val language: String = "中文",
+    val language: String = "",
     val notificationsEnabled: Boolean = true,
-    val storagePath: String = "内部存储",
+    val storagePath: String = "",
     val apiKeyCount: Int = 0,
     val pendingApprovals: Int = 0,
     val lastBackupTime: String? = null,
@@ -59,11 +60,11 @@ class SettingsViewModel(
                 val apiKeys = secureStorage.listApiKeys()
                 val langCode = prefs.getString("language", "zh") ?: "zh"
                 val langName = when (langCode) {
-                    "zh" -> "中文"
-                    "en" -> "English"
-                    "ja" -> "日本語"
-                    "ko" -> "한국어"
-                    else -> "中文"
+                    "zh" -> application.getString(R.string.settings_lang_zh)
+                    "en" -> application.getString(R.string.settings_lang_en)
+                    "ja" -> application.getString(R.string.settings_lang_ja)
+                    "ko" -> application.getString(R.string.settings_lang_ko)
+                    else -> application.getString(R.string.settings_lang_zh)
                 }
                 val notificationsEnabled = prefs.getBoolean("notifications_enabled", true)
                 val appVersion = try {
@@ -150,10 +151,10 @@ class SettingsViewModel(
 
     fun updateLanguage(language: String) {
         val langCode = when (language) {
-            "中文" -> "zh"
-            "English" -> "en"
-            "日本語" -> "ja"
-            "한국어" -> "ko"
+            application.getString(R.string.settings_lang_zh) -> "zh"
+            application.getString(R.string.settings_lang_en) -> "en"
+            application.getString(R.string.settings_lang_ja) -> "ja"
+            application.getString(R.string.settings_lang_ko) -> "ko"
             else -> "zh"
         }
         prefs.edit().putString("language", langCode).apply()

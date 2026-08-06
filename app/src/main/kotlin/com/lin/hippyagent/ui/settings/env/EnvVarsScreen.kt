@@ -140,7 +140,7 @@ fun EnvVarsScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text(stringResource(R.string.env_vars_add), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text(stringResource(R.string.env_vars_add), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
                         OutlinedTextField(
                             value = newKey,
@@ -202,7 +202,7 @@ fun EnvVarsScreen(
                 Text(
                     stringResource(R.string.env_vars_empty_hint),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
@@ -218,7 +218,7 @@ fun EnvVarsScreen(
                     ) {
                         if (editingKey == item.key) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text(item.key, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                                Text(item.key, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
                                 Spacer(Modifier.height(8.dp))
                                 OutlinedTextField(
                                     value = editingValue,
@@ -263,11 +263,11 @@ fun EnvVarsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(item.key, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                                    Text(item.key, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
                                     Text(
-                                        item.value.ifBlank { "(空)" },
+                                        item.value.ifBlank { stringResource(R.string.envvar_empty_value) },
                                         fontFamily = FontFamily.Monospace,
-                                        fontSize = 13.sp,
+                                        style = MaterialTheme.typography.bodySmall,
                                         color = if (item.value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                                         maxLines = 2
                                     )

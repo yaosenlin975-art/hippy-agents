@@ -406,6 +406,9 @@
     <!-- 设置扩展 -->
 
     <string name="settings_general">General</string>
+    <string name="settings_frequent">Frequent</string>
+    <string name="settings_skill_store">Skill Store</string>
+    <string name="settings_skill_store_desc">Browse, install and manage skills</string>
     <string name="settings_closed">Off</string>
     <string name="settings_ui_settings">UI Settings</string>
     <string name="settings_ui_settings_desc">Inactive conversation timeout and other UI preferences</string>
@@ -2000,5 +2003,32 @@
     <string name="widget_skill_label">Recent Skill: %1$s</string>
     <string name="widget_task_label">Current Task: %1$s</string>
     <string name="shortcut_skill_prompt">Use Skill: %1$s</string>
+    <string name="chat_time_format_md">MMM d, HH:mm</string>
+    <string name="chat_time_format_ymd">yyyy/MM/dd HH:mm</string>
+    <string name="permission_custom_tool_title">Tool Permission Request</string>
+    <string name="permission_shell_title">Shell Execution Request</string>
+    <string name="permission_shell_desc">The agent requests to execute the following command</string>
+    <string name="chat_inline_approval_background_task">Background task</string>
+    <string name="chat_diff_removed_lines">"-%1$d lines "</string>
+    <string name="chat_diff_added_lines">+%1$d lines</string>
+    <string name="chat_clipboard_tool_header">[%1$s]</string>
+    <string name="chat_copy_all_body">Arguments:\n%1$s\n\nResult:\n%2$s</string>
+    <string name="settings_lang_zh">Chinese</string>
+    <string name="settings_lang_en">English</string>
+    <string name="settings_lang_ja">Japanese</string>
+    <string name="settings_lang_ko">Korean</string>
+    <string name="model_connect_success">Connected</string>
+    <string name="model_connect_failed">Connection failed: %1$s</string>
+    <string name="model_fetch_empty">No models fetched. Check the API URL and key.</string>
+    <string name="model_all_exist">All models already exist, no update needed</string>
+    <string name="model_fetch_failed">Failed to fetch models: %1$s</string>
+    <string name="about_tech_stack_items">Kotlin 2.0 + Jetpack Compose\nMaterial Design 3\nKoin (DI)\nkotlinx.serialization (Serialization)\nWorkManager (Scheduled tasks)\nEncryptedSharedPreferences (Secure storage)\nRoom (Database)\nDataStore (Preferences)</string>
+    <string name="skill_run_scoring">Run scoring</string>
+    <string name="env_name_web_access">Web access (OkHttp + WebView)</string>
+    <string name="env_name_curl">cURL (Linux environment)</string>
+    <string name="env_name_system_tts">System TTS</string>
+    <string name="risk_critical">Critical</string>
+    <string name="chat_approval_command_detail">Command details</string>
+    <string name="chat_approval_risk_block">High-risk operation</string>
+    <string name="chat_approval_close">Close</string>
 </resources>
-

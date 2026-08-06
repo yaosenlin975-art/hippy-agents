@@ -57,7 +57,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.TurnElement
@@ -242,13 +241,13 @@ fun AgentTurnCard(
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
                             text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = turn.quotedContent ?: "",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -395,13 +394,13 @@ fun AgentTurnCard(
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
                             text = turn.quotedSenderName ?: stringResource(R.string.chat_quoted_message),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = turn.quotedContent ?: "",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 3,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -452,14 +451,16 @@ fun AgentTurnCard(
             ) {
                 agentReadStates.forEach { (agentId, state) ->
                     val displayName = agentProfiles[agentId] ?: agentId
+                    val repliedText = stringResource(R.string.chat_replied)
+                    val workingText = stringResource(R.string.chat_working)
                     val (stateText, stateColor) = when (state) {
-                        "已回复" -> stringResource(R.string.chat_replied) to MaterialTheme.colorScheme.primary
-                        "工作中" -> stringResource(R.string.chat_working) to MaterialTheme.colorScheme.tertiary
+                        repliedText -> repliedText to MaterialTheme.colorScheme.primary
+                        workingText -> workingText to MaterialTheme.colorScheme.tertiary
                         else -> stringResource(R.string.chat_read) to MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(
                         text = "$displayName $stateText",
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = stateColor,
                         modifier = Modifier.padding(start = 6.dp)
                     )
@@ -504,7 +505,7 @@ fun AgentTurnCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = stringResource(R.string.chat_agent_workflow, agentName), fontSize = 16.sp)
+                    Text(text = stringResource(R.string.chat_agent_workflow, agentName), style = MaterialTheme.typography.bodyLarge)
                 }
             },
             text = {
@@ -601,7 +602,7 @@ private fun ProcessDrawer(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = if (isExpanded) "▼" else "▶",
-                        fontSize = 10.sp
+                        style = MaterialTheme.typography.labelSmall
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -617,7 +618,7 @@ private fun ProcessDrawer(
                         } else {
                             stringResource(R.string.chat_step_process, stepCount)
                         },
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                     )
@@ -678,11 +679,11 @@ private fun ProcessCollapseButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = "▲", fontSize = 10.sp)
+            Text(text = "▲", style = MaterialTheme.typography.labelSmall)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = stringResource(R.string.chat_collapse_process),
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
             )
@@ -744,7 +745,7 @@ private fun AgentHeader(
         }
         Text(
             text = agentName,
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             modifier = if (onAvatarLongClick != null) Modifier.combinedClickable(
@@ -905,7 +906,7 @@ private fun AgentBubbleContent(
         if (isError) {
             Text(
                 text = stringResource(R.string.chat_error_label),
-                fontSize = 10.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -965,9 +966,8 @@ private fun TurnMetadataBar(
             ) {
                 Text(
                     text = items.joinToString(" · "),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    lineHeight = 12.sp
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 )
             }
         }
@@ -988,7 +988,7 @@ private fun TurnMetadataBar(
             ) {
                 Text(
                     text = "${formatTokenCount(metadata.contextTokens)}/${formatTokenCount(metadata.maxContextTokens)} $pct%",
-                    fontSize = 9.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                 )
                 Spacer(modifier = Modifier.width(4.dp))

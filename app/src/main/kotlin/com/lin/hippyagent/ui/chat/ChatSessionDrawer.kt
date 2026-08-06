@@ -33,10 +33,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.agent.session.BadgeLevel
@@ -76,7 +76,7 @@ fun ChatSessionDrawer(
             ) {
                 Text(
                     text = stringResource(R.string.session_list),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f)
                 )
@@ -117,6 +117,7 @@ private fun DrawerSessionItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val bgColor = if (isCurrent) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
     } else {
@@ -144,7 +145,7 @@ private fun DrawerSessionItem(
                 }
                 Text(
                     text = session.title.take(5).ifEmpty { session.title },
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
@@ -155,8 +156,8 @@ private fun DrawerSessionItem(
                     when (agentStatus) {
                         AgentStatus.THINKING -> PulsingStatusDot(isThinking = true, label = stringResource(R.string.thinking))
                         AgentStatus.EXECUTING_TOOL -> PulsingStatusDot(isThinking = false, label = stringResource(R.string.chat_executing))
-                        AgentStatus.ERROR -> Text(stringResource(R.string.error), fontSize = 10.sp, color = MaterialTheme.colorScheme.error)
-                        AgentStatus.STOPPED -> Text(stringResource(R.string.chat_stopped), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        AgentStatus.ERROR -> Text(stringResource(R.string.error), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                        AgentStatus.STOPPED -> Text(stringResource(R.string.chat_stopped), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         AgentStatus.IDLE -> {}
                     }
                 }
@@ -168,7 +169,7 @@ private fun DrawerSessionItem(
             ) {
                 Text(
                     text = session.lastMessage ?: stringResource(R.string.chat_no_messages),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -176,8 +177,8 @@ private fun DrawerSessionItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = formatDrawerTime(session.lastUpdatedAt),
-                    fontSize = 11.sp,
+                    text = formatDrawerTime(context, session.lastUpdatedAt),
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -193,7 +194,7 @@ private fun DrawerSessionItem(
             ) {
                 Text(
                     text = if (effectiveUnreadCount > 99) "99+" else effectiveUnreadCount.toString(),
-                    fontSize = 9.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onError,
                     fontWeight = FontWeight.Bold
                 )
@@ -209,12 +210,12 @@ private fun DrawerSessionItem(
     }
 }
 
-private fun formatDrawerTime(timestamp: Instant): String {
+private fun formatDrawerTime(context: android.content.Context, timestamp: Instant): String {
     val localDate = timestamp.atZone(ZoneId.systemDefault()).toLocalDate()
     val now = java.time.LocalDate.now()
     return when {
         localDate == now -> DateTimeFormatter.ofPattern("HH:mm").format(timestamp.atZone(ZoneId.systemDefault()))
-        localDate == now.minusDays(1) -> "昨天"
+        localDate == now.minusDays(1) -> context.getString(R.string.common_yesterday)
         localDate.year == now.year -> DateTimeFormatter.ofPattern("M/d").format(localDate)
         else -> DateTimeFormatter.ofPattern("yyyy/M/d").format(localDate)
     }

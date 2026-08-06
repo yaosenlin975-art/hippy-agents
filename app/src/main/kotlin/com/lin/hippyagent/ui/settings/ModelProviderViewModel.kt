@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.settings
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.model.AnthropicModelClient
 import com.lin.hippyagent.core.model.ModelClient
 import com.lin.hippyagent.core.model.ModelConfig
@@ -28,7 +30,10 @@ data class ModelProviderUiState(
     val onDeviceRouting: OnDeviceRoutingConfig = OnDeviceRoutingConfig()
 )
 
-class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel() {
+class ModelProviderViewModel(
+    private val store: ModelProviderStore,
+    private val application: Application
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ModelProviderUiState())
     val uiState: StateFlow<ModelProviderUiState> = _uiState.asStateFlow()
@@ -154,12 +159,16 @@ class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel(
                 _uiState.update {
                     it.copy(
                         isTestingConnection = false,
-                        testResult = if (result.isSuccess) "连接成功" else "连接失败: ${result.exceptionOrNull()?.message}"
+                        testResult = if (result.isSuccess) {
+                            application.getString(R.string.model_connect_success)
+                        } else {
+                            application.getString(R.string.model_connect_failed, result.exceptionOrNull()?.message)
+                        }
                     )
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(isTestingConnection = false, testResult = "连接失败: ${e.message}")
+                    it.copy(isTestingConnection = false, testResult = application.getString(R.string.model_connect_failed, e.message))
                 }
             }
         }
@@ -172,7 +181,7 @@ class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel(
                 val client = createClient(provider)
                 val modelNames = client.listModels()
                 if (modelNames.isEmpty()) {
-                    _uiState.update { it.copy(isFetchingModels = false, errorMessage = "未获取到任何模型，请检查 API 地址和密钥是否正确") }
+                    _uiState.update { it.copy(isFetchingModels = false, errorMessage = application.getString(R.string.model_fetch_empty)) }
                     return@launch
                 }
                 val existingIds = provider.models.map { it.id }.toSet()
@@ -189,11 +198,11 @@ class ModelProviderViewModel(private val store: ModelProviderStore) : ViewModel(
                     store.updateProvider(updatedProvider)
                     _uiState.update { it.copy(isFetchingModels = false, errorMessage = null) }
                 } else {
-                    _uiState.update { it.copy(isFetchingModels = false, errorMessage = "所有模型已存在，无需更新") }
+                    _uiState.update { it.copy(isFetchingModels = false, errorMessage = application.getString(R.string.model_all_exist)) }
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(isFetchingModels = false, errorMessage = "获取模型失败: ${e.message}")
+                    it.copy(isFetchingModels = false, errorMessage = application.getString(R.string.model_fetch_failed, e.message))
                 }
             }
         }

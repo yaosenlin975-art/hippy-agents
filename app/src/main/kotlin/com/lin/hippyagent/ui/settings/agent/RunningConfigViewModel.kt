@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.settings.agent
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.config.RunningConfig
 import com.lin.hippyagent.data.repository.AgentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,8 @@ data class RunningConfigUiState(
 class RunningConfigViewModel(
     private val repository: AgentRepository,
     private val agentId: String,
-    private val agentFactory: com.lin.hippyagent.core.agent.AgentFactory
+    private val agentFactory: com.lin.hippyagent.core.agent.AgentFactory,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RunningConfigUiState())
@@ -46,7 +49,7 @@ class RunningConfigViewModel(
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load running config")
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "加载配置失败: ${e.message}")
+                    it.copy(isLoading = false, errorMessage = application.getString(R.string.config_load_failed, e.message))
                 }
             }
         }
@@ -71,13 +74,13 @@ class RunningConfigViewModel(
                     }
                     .onFailure { e ->
                         _uiState.update {
-                            it.copy(isSaving = false, errorMessage = "保存失败: ${e.message}")
+                            it.copy(isSaving = false, errorMessage = application.getString(R.string.config_save_failed, e.message))
                         }
                     }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save running config")
                 _uiState.update {
-                    it.copy(isSaving = false, errorMessage = "保存失败: ${e.message}")
+                    it.copy(isSaving = false, errorMessage = application.getString(R.string.config_save_failed, e.message))
                 }
             }
         }

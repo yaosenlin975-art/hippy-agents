@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import org.json.JSONObject
+import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
@@ -79,8 +80,12 @@ data class EnvItem(
     val descriptionRes: Int,
     val checkCommands: List<String>,
     val installHint: String = "",
-    val categoryRes: Int = R.string.env_cat_essential
+    val categoryRes: Int = R.string.env_cat_essential,
+    val nameRes: Int = 0
 )
+
+fun EnvItem.displayName(context: Context): String =
+    if (nameRes != 0) context.getString(nameRes) else name
 
 /**
  * 环境检测状态
@@ -164,18 +169,20 @@ val BUILTIN_ENV_ITEMS = listOf(
         categoryRes = R.string.env_cat_common
     ),
     EnvItem(
-        name = "网页访问（OkHttp + WebView）",
+        name = "web_access",
         descriptionRes = R.string.env_item_web_access_desc,
         checkCommands = listOf(""),
         installHint = "",
-        categoryRes = R.string.env_cat_network
+        categoryRes = R.string.env_cat_network,
+        nameRes = R.string.env_name_web_access
     ),
     EnvItem(
-        name = "cURL（Linux 环境）",
+        name = "curl",
         descriptionRes = R.string.env_item_curl_desc,
         checkCommands = listOf("curl --version"),
         installHint = "apt-get update && apt-get install -y curl",
-        categoryRes = R.string.env_cat_network
+        categoryRes = R.string.env_cat_network,
+        nameRes = R.string.env_name_curl
     ),
     EnvItem(
         name = "Moonshine STT",
@@ -185,11 +192,12 @@ val BUILTIN_ENV_ITEMS = listOf(
         categoryRes = R.string.env_cat_voice
     ),
     EnvItem(
-        name = "系统 TTS",
+        name = "system_tts",
         descriptionRes = R.string.env_item_system_tts_desc,
         checkCommands = listOf(""),
         installHint = "",
-        categoryRes = R.string.env_cat_voice
+        categoryRes = R.string.env_cat_voice,
+        nameRes = R.string.env_name_system_tts
     )
 )
 
@@ -277,14 +285,14 @@ private fun SystemDiagnosticsCard(diagnostics: List<SystemDiagnostic>) {
             Text(
                 text = stringResource(R.string.env_system_diagnostics),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge
             )
             Spacer(Modifier.height(8.dp))
             if (diagnostics.isEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.env_collecting_info), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.env_collecting_info), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             diagnostics.forEach { d ->
@@ -297,13 +305,13 @@ private fun SystemDiagnosticsCard(diagnostics: List<SystemDiagnostic>) {
                 ) {
                     Text(
                         text = d.label,
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(0.4f)
                     )
                     Text(
                         text = d.value,
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(0.6f)
                     )
@@ -353,7 +361,7 @@ fun EnvCheckScreen(
     LaunchedEffect(Unit) {
         envStates = envStates.toMutableList().apply {
             BUILTIN_ENV_ITEMS.forEachIndexed { i, item ->
-                if (item.categoryRes == R.string.env_cat_network && item.name != "cURL（Linux 环境）") {
+                if (item.categoryRes == R.string.env_cat_network && item.name != "curl") {
                     this[i] = this[i].copy(isInstalled = true, version = context.getString(R.string.env_native_always_available))
                 }
             }
@@ -389,7 +397,7 @@ fun EnvCheckScreen(
             checkAllEnvs(linuxManager, BUILTIN_ENV_ITEMS, context) { newStates ->
                 val merged = envStates.toMutableList()
                 newStates.forEachIndexed { i, s ->
-                    val isNativeNetwork = BUILTIN_ENV_ITEMS[i].categoryRes == R.string.env_cat_network && BUILTIN_ENV_ITEMS[i].name != "cURL（Linux 环境）"
+                    val isNativeNetwork = BUILTIN_ENV_ITEMS[i].categoryRes == R.string.env_cat_network && BUILTIN_ENV_ITEMS[i].name != "curl"
                     val isCurrentlyInstalling = EnvInstallState.installingItemName.value == BUILTIN_ENV_ITEMS[i].name
                     if (!isNativeNetwork && !isCurrentlyInstalling) {
                         merged[i] = s
@@ -422,7 +430,7 @@ fun EnvCheckScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     androidx.compose.material3.Icon(
                         Icons.Default.Warning,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.error),
                         modifier = Modifier.size(36.dp),
                         tint = androidx.compose.ui.graphics.Color(0xFFFF9800)
                     )
@@ -473,7 +481,7 @@ fun EnvCheckScreen(
                                 Text(
                                     text = stringResource(R.string.env_checking),
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -490,12 +498,12 @@ fun EnvCheckScreen(
                                 Text(
                                     text = stringResource(R.string.env_overview),
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     text = stringResource(R.string.env_ready_count, installed, total),
-                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = if (installed == total) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(Modifier.height(12.dp))
@@ -525,7 +533,7 @@ fun EnvCheckScreen(
                     item {
                         Text(
                             text = stringResource(categoryRes),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                         )
@@ -541,7 +549,7 @@ fun EnvCheckScreen(
                                 envItem = envItem,
                                 state = state
                             )
-                        } else if (categoryRes == R.string.env_cat_network && envItem.name != "cURL（Linux 环境）") {
+                        } else if (categoryRes == R.string.env_cat_network && envItem.name != "curl") {
                             NativeNetworkCard(
                                 envItem = envItem,
                                 state = state
@@ -663,6 +671,7 @@ private fun EnvCheckCard(
     isOtherInstalling: Boolean = false,
     onInstall: () -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -703,33 +712,33 @@ private fun EnvCheckCard(
             // 名称和描述
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = envItem.name,
+                    text = envItem.displayName(context),
                     fontWeight = FontWeight.Medium,
-                    fontSize = 15.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = stringResource(envItem.descriptionRes),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (state.version.isNotBlank()) {
                     Text(
                         text = state.version,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFF4CAF50)
                     )
                 }
                 if (state.installOutput.isNotBlank()) {
                     Text(
                         text = state.installOutput,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = if (state.isInstalled == true) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
                     )
                 }
                 if (state.installProgress.isNotBlank()) {
                     Text(
                         text = state.installProgress,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -741,7 +750,7 @@ private fun EnvCheckCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.env_installing), fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.env_installing), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                     }
                 } else if (isOtherInstalling) {
                     Button(
@@ -749,7 +758,7 @@ private fun EnvCheckCard(
                         enabled = false,
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                     ) {
-                        Text(stringResource(R.string.env_waiting), fontSize = 13.sp)
+                        Text(stringResource(R.string.env_waiting), style = MaterialTheme.typography.bodySmall)
                     }
                 } else {
                     Button(
@@ -757,7 +766,7 @@ private fun EnvCheckCard(
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text(stringResource(R.string.env_install_btn), fontSize = 13.sp)
+                        Text(stringResource(R.string.env_install_btn), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -859,7 +868,7 @@ private suspend fun installEnv(
             Timber.w("apt-get update failed (code=$updateCode): ${updateOutput.take(200)}")
         }
 
-        onProgress(context.getString(R.string.env_installing_name, envItem.name))
+        onProgress(context.getString(R.string.env_installing_name, envItem.displayName(context)))
         val (code, output) = linuxManager.exec(
             "DEBIAN_FRONTEND=noninteractive " + envItem.installHint + " -y 2>&1 | tail -10",
             timeout = 300_000
@@ -1042,13 +1051,13 @@ private fun VoiceExtensionCard(
             // 名称和描述
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = envItem.name,
+                    text = envItem.displayName(context),
                     fontWeight = FontWeight.Medium,
-                    fontSize = 15.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = stringResource(envItem.descriptionRes),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (isSttItem) {
@@ -1056,16 +1065,19 @@ private fun VoiceExtensionCard(
                         voiceState.deviceUnsupported -> {
                             Text(
                                 text = stringResource(R.string.env_needs_api_35),
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFFF44336)
                             )
                         }
                         voiceState.sttModel != null -> {
-                            Text(
-                                text = "${voiceState.sttModel!!.size.displayName} · ${voiceState.sttModel!!.language.uppercase()} · ${voiceState.sttModel!!.size.approxSize}",
-                                fontSize = 11.sp,
-                                color = Color(0xFF4CAF50)
-                            )
+                            val sttModel = voiceState.sttModel
+                            if (sttModel != null) {
+                                Text(
+                                    text = "${sttModel.size.displayName} · ${sttModel.language.uppercase()} · ${sttModel.size.approxSize}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFF4CAF50)
+                                )
+                            }
                         }
                         voiceState.isSttDownloading -> {
                             LinearProgressIndicator(
@@ -1079,7 +1091,7 @@ private fun VoiceExtensionCard(
                 } else {
                     Text(
                         text = stringResource(R.string.env_tts_no_download),
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFF4CAF50)
                     )
                 }
@@ -1096,6 +1108,7 @@ private fun NativeNetworkCard(
     envItem: EnvItem,
     state: EnvCheckState
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1119,18 +1132,18 @@ private fun NativeNetworkCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = envItem.name,
+                    text = envItem.displayName(context),
                     fontWeight = FontWeight.Medium,
-                    fontSize = 15.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = stringResource(envItem.descriptionRes),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = stringResource(R.string.env_native_always_available),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = Color(0xFF4CAF50)
                 )
             }

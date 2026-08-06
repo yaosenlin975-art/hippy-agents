@@ -70,19 +70,19 @@ fun AboutScreen(
                 ) {
                     Text(
                         text = "Hippy",
-                        fontSize = 28.sp,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = context.getString(R.string.app_version, versionName),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = stringResource(R.string.about_subtitle),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -94,7 +94,7 @@ fun AboutScreen(
                     Text(
                         text = stringResource(R.string.about_core_features),
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     listOf(
@@ -113,11 +113,11 @@ fun AboutScreen(
                             Text(
                                 text = "• $title",
                                 fontWeight = FontWeight.Medium,
-                                fontSize = 14.sp
+                                style = MaterialTheme.typography.bodyMedium
                             )
                             Text(
                                 text = " — $desc",
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -130,21 +130,12 @@ fun AboutScreen(
                     Text(
                         text = stringResource(R.string.about_tech_stack),
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = """
-Kotlin 2.0 + Jetpack Compose
-Material Design 3
-Koin (依赖注入)
-kotlinx.serialization (序列化)
-WorkManager (定时任务)
-EncryptedSharedPreferences (安全存储)
-Room (数据库)
-DataStore (偏好存储)
-                        """.trimIndent(),
-                        fontSize = 13.sp,
+                        text = stringResource(R.string.about_tech_stack_items),
+                        style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -156,12 +147,12 @@ DataStore (偏好存储)
                     Text(
                         text = stringResource(R.string.about_opensource_license),
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.about_opensource_desc),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

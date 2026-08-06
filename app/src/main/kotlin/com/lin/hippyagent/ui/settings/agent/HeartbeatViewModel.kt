@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.settings.agent
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.config.ActiveHoursConfig
 import com.lin.hippyagent.core.agent.config.HeartbeatConfig
 import com.lin.hippyagent.data.repository.AgentRepository
@@ -30,7 +32,8 @@ data class HeartbeatUiState(
 class HeartbeatViewModel(
     private val repository: AgentRepository,
     private val agentId: String,
-    private val heartbeatScheduler: com.lin.hippyagent.core.heartbeat.HeartbeatScheduler
+    private val heartbeatScheduler: com.lin.hippyagent.core.heartbeat.HeartbeatScheduler,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HeartbeatUiState())
@@ -71,7 +74,7 @@ class HeartbeatViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "加载配置失败: ${e.message}"
+                        errorMessage = application.getString(R.string.config_load_failed, e.message)
                     )
                 }
             }
@@ -193,7 +196,7 @@ class HeartbeatViewModel(
                         _uiState.update {
                             it.copy(
                                 isSaving = false,
-                                errorMessage = "保存失败: ${e.message}"
+                                errorMessage = application.getString(R.string.config_save_failed, e.message)
                             )
                         }
                     }
@@ -202,7 +205,7 @@ class HeartbeatViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        errorMessage = "保存失败: ${e.message}"
+                        errorMessage = application.getString(R.string.config_save_failed, e.message)
                     )
                 }
             }

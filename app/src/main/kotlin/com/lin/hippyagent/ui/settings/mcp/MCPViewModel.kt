@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.settings.mcp
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.config.MCPClientConfig
 import com.lin.hippyagent.core.agent.config.MCPConfig
 import com.lin.hippyagent.data.repository.AgentRepository
@@ -27,7 +29,8 @@ data class MCPUiState(
 
 class MCPViewModel(
     private val repository: AgentRepository,
-    private val agentId: String
+    private val agentId: String,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MCPUiState())
@@ -53,7 +56,7 @@ class MCPViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "加载配置失败: ${e.message}"
+                        errorMessage = application.getString(R.string.config_load_failed, e.message)
                     )
                 }
             }
@@ -127,7 +130,7 @@ class MCPViewModel(
                         _uiState.update {
                             it.copy(
                                 isSaving = false,
-                                errorMessage = "保存失败: ${e.message}"
+                                errorMessage = application.getString(R.string.config_save_failed, e.message)
                             )
                         }
                     }
@@ -136,7 +139,7 @@ class MCPViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        errorMessage = "保存失败: ${e.message}"
+                        errorMessage = application.getString(R.string.config_save_failed, e.message)
                     )
                 }
             }

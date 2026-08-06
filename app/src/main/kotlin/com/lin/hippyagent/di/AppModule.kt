@@ -55,22 +55,22 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { (agentId: String) ->
-        RunningConfigViewModel(repository = get(), agentId = agentId, agentFactory = get())
+        RunningConfigViewModel(repository = get(), agentId = agentId, agentFactory = get(), application = get())
     }
 
     viewModel { (agentId: String) ->
-        HeartbeatViewModel(repository = get(), agentId = agentId, heartbeatScheduler = get())
+        HeartbeatViewModel(repository = get(), agentId = agentId, heartbeatScheduler = get(), application = get())
     }
 
     viewModel { (agentId: String) ->
-        MCPViewModel(repository = get(), agentId = agentId)
+        MCPViewModel(repository = get(), agentId = agentId, application = get())
     }
 
     viewModel { (agentId: String) ->
         CoreFilesViewModel(repository = get(), agentId = agentId)
     }
 
-    viewModel { ModelProviderViewModel(store = get()) }
+    viewModel { ModelProviderViewModel(store = get(), application = get()) }
 
     viewModel { SettingsViewModel(repository = get(), secureStorage = get(), application = get(), storageManager = get(), agentFactory = get()) }
 
@@ -91,7 +91,8 @@ val viewModelModule = module {
         GroupSettingsViewModel(
             groupManager = get(),
             agentRepository = get(),
-            modelProviderStore = get()
+            modelProviderStore = get(),
+            application = get()
         )
     }
 
@@ -120,7 +121,8 @@ val viewModelModule = module {
         PermissionViewModel(
             actionApprover = get(),
             agentFactory = get(),
-            permissionManager = get()
+            permissionManager = get(),
+            application = get()
         )
     }
 
