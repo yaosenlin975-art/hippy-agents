@@ -197,7 +197,7 @@
   5. 支持分组展示（自定义分组）
   6. 支持搜索会话
   7. 支持滑动删除，删除时级联删除关联的 chat_with_agent 私聊会话
-   8. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate）
+   8. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（共 10 个：news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate，与 BuiltinSkillRegistry 内置列表一致）
   9. 底部导航栏切换到会话列表
   10. FAB 按钮新建会话
   11. 多会话状态显示：sessionStatuses 按 sessionId 映射（而非 agentId），多个会话同时执行时各自独立显示智能体状态
@@ -630,7 +630,7 @@
   1. 展示可用语言列表（中文、English、日本語、한국어）
   2. 选择语言后重启应用生效
   3. LanguageManager.kt P0 修复：SharedPreferences key 统一为 `hippy_settings/language`
-  4. 多语言适配现状：strings.xml 87 条已定义但零引用，UI 层 1423 行 + Core 层 1250 行硬编码中文待提取，缺 `values-ja` / `values-ko` 目录，预计 1100+ 条需提取
+  4. 多语言适配现状：`values/strings.xml` 1768 条、`values-en/strings.xml` 1750 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1700 条，`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备
 - **输入规则**：语言选择
 - **输出结果**：语言切换，界面静态文字多语言适配
 
@@ -781,7 +781,7 @@
 - **交互逻辑**
   1. 以手机框架形式展示所有界面，同一时间只显示一个界面
   2. 通过点击交互进行界面跳转，保持原有导航逻辑
-  3. 主页 4 Tab（会收件箱/洞察/设置）底部导航切
+  3. 主页 4 Tab（会话/收件箱/洞察/设置）+ 中间 FAB 底部导航切换（2026-08-06 按实际实现同步：`MainScreen.kt` 为 4 个 NavigationBarItem + 中间 FAB，无独立智能体 Tab）
   4. 设置页分组卡片展开/折叠，点击跳转子页面
   5. Agent 配置卡片提供 12 个子配置入口
   6. 聊天界面支持会话抽屉、模型切换、计划面板、菜单等抽屉弹窗；ChatScreen/GroupChatScreen 共享 Hook（rememberChatSessionState/rememberChatTtsState/rememberChatAutoScrollState），inputText 收归 ChatInputViewModel 消除双源真相
