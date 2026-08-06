@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 import androidx.compose.ui.res.stringResource
+import timber.log.Timber
 
 @Immutable
 private data class PermissionItem(
@@ -363,5 +364,7 @@ private fun requestPermission(context: Context, item: PermissionItem) {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     try {
         context.startActivity(intent)
-    } catch (_: Exception) {}
+    } catch (e: android.content.ActivityNotFoundException) {
+        Timber.w(e, "PermissionCenter: no activity for settings intent")
+    }
 }

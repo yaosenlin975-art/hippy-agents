@@ -80,7 +80,9 @@ fun PrivateTurnCard(
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("discussion", turn.content))
                         Toast.makeText(context, context.getString(R.string.chat_discussion_copied), Toast.LENGTH_SHORT).show()
-                    } catch (_: Exception) {}
+                    } catch (_: Exception) {
+                        // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                    }
                 }
             ),
         shape = RoundedCornerShape(8.dp),

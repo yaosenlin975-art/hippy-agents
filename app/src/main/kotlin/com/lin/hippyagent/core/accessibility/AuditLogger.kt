@@ -86,7 +86,10 @@ class AuditLogger(private val context: Context) {
                 if (entries.size >= limit) return@forEach
                 try {
                     entries.add(json.decodeFromString<AuditEntry>(line))
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    // 单行损坏不阻断读取其余审计日志
+                    Log.w("AuditLogger", "Skip corrupt audit line", e)
+                }
             }
         }
         return entries

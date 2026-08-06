@@ -14,6 +14,7 @@ import okhttp3.sse.EventSources
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import timber.log.Timber
 
 /**
  * LM Studio model client. LM Studio exposes an OpenAI-compatible API
@@ -182,7 +183,9 @@ class LMStudioModelClient(
                             finishReason = firstChoice?.get("finish_reason")?.safeJsonPrimitiveContent()
                         ))
                     ))
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "LMStudio: failed to parse SSE chunk, skipping")
+                }
             }
             override fun onClosed(eventSource: okhttp3.sse.EventSource) { channel.close() }
             override fun onFailure(eventSource: okhttp3.sse.EventSource, t: Throwable?, response: Response?) {

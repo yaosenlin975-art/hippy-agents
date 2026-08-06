@@ -125,7 +125,9 @@ class TTSService(
         _isSpeaking.value = false
         try {
             tts?.setOnUtteranceProgressListener(null)
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.w(e, "TTSService: Error clearing utterance progress listener")
+        }
         try {
             tts?.stop()
         } catch (e: Exception) {
@@ -133,7 +135,9 @@ class TTSService(
         }
         try {
             tts?.speak("", TextToSpeech.QUEUE_FLUSH, null, "stop_flush")
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.w(e, "TTSService: Error flushing TTS queue on stop")
+        }
     }
 
     /**

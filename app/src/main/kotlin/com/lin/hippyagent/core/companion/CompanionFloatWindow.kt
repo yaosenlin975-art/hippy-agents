@@ -8,6 +8,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.lin.hippyagent.R
+import timber.log.Timber
 
 object CompanionFloatWindow {
     private var windowManager: WindowManager? = null
@@ -54,7 +55,10 @@ object CompanionFloatWindow {
         if (!isShowing) return
         try {
             floatView?.let { windowManager?.removeView(it) }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            // 视图可能已被系统移除或窗口已销毁，无需处理
+            Timber.w(e, "CompanionFloatWindow: removeView failed on dismiss")
+        }
         floatView = null
         statusText = null
         isShowing = false

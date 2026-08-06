@@ -157,7 +157,9 @@ class DebugInfoCollector(private val context: Context) {
                         .filter { "ERROR" in it || "CRITICAL" in it || "Exception" in it }
                         .takeLast(10)
                         .forEach { errors.add(it.take(200)) }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.d(e, "DebugInfoCollector: read log file failed: ${file.name}")
+                }
             }
         return errors
     }

@@ -328,7 +328,9 @@ fun ToolCallBlockView(
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_args", "【${block.toolCall.name}】\n${block.toolCall.arguments}"))
                             Toast.makeText(context, context.getString(R.string.chat_params_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {}
+                        } catch (_: Exception) {
+                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                        }
                         showCopyMenu = false
                     },
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
@@ -342,7 +344,9 @@ fun ToolCallBlockView(
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
                             Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {}
+                        } catch (_: Exception) {
+                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                        }
                         showCopyMenu = false
                     },
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
@@ -355,7 +359,9 @@ fun ToolCallBlockView(
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("tool_all", all))
                             Toast.makeText(context, context.getString(R.string.chat_params_and_result_copied), Toast.LENGTH_SHORT).show()
-                        } catch (_: Exception) {}
+                        } catch (_: Exception) {
+                            // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                        }
                         showCopyMenu = false
                     },
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp)) }
@@ -801,7 +807,9 @@ private fun ToolCallContent(
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
                                     Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
-                                } catch (_: Exception) {}
+                                } catch (_: Exception) {
+                                    // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                                }
                             }
                         )
                     )
@@ -927,7 +935,9 @@ private fun ToolCallContent(
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("tool_result", "【${block.toolCall.name}】\n$resultText"))
                                     Toast.makeText(context, context.getString(R.string.chat_result_copied), Toast.LENGTH_SHORT).show()
-                                } catch (_: Exception) {}
+                                } catch (_: Exception) {
+                                    // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                                }
                             },
                             modifier = Modifier.size(24.dp)
                         ) {

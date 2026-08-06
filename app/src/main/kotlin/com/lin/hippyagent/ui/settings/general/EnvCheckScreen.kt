@@ -581,7 +581,9 @@ fun EnvCheckScreen(
                                                     )
                                                     break
                                                 }
-                                            } catch (_: Exception) {}
+                                            } catch (e: Exception) {
+                                                Timber.d(e, "EnvCheck: fallback exec failed for ${envItem.name}: $cmd")
+                                            }
                                         }
                                     }
                                     // 三次验证：尝试 dpkg -L 找到实际二进制路径并直接执行
@@ -603,10 +605,14 @@ fun EnvCheckScreen(
                                                             )
                                                             break
                                                         }
-                                                    } catch (_: Exception) {}
+                                                    } catch (e: Exception) {
+                                                        Timber.d(e, "EnvCheck: version probe failed for $path")
+                                                    }
                                                 }
                                             }
-                                        } catch (_: Exception) {}
+                                        } catch (e: Exception) {
+                                            Timber.d(e, "EnvCheck: dpkg -L probe failed for ${envItem.name}")
+                                        }
                                     }
                                     val installSucceeded = result == context.getString(R.string.env_install_success)
                                     val newState = if (installSucceeded && checkState.isInstalled != true) {
@@ -794,7 +800,9 @@ private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.L
                         version = context.getString(R.string.env_installed_with_path, binPath) + " — " + context.getString(R.string.env_version_unavailable)
                     )
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Timber.d(e, "EnvCheck: test -x probe failed for $binPath")
+            }
             // command -v 找到了但 test -x 失败 — 可能是 proot/符号链接问题
             return EnvCheckState(
                 name = envItem.name,
@@ -802,7 +810,9 @@ private suspend fun checkSingleEnv(linuxManager: com.lin.hippyagent.core.linux.L
                 version = context.getString(R.string.env_path_not_executable, binPath)
             )
         }
-    } catch (_: Exception) {}
+    } catch (e: Exception) {
+        Timber.d(e, "EnvCheck: checkSingleEnv failed for ${envItem.name}")
+    }
     return EnvCheckState(name = envItem.name, isInstalled = false)
 }
 
@@ -835,7 +845,9 @@ private suspend fun installEnv(
         onProgress(context.getString(R.string.env_clearing_locks))
         try {
             linuxManager.exec("rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock 2>/dev/null", timeout = 5_000)
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "EnvCheck: clearing dpkg locks failed")
+        }
 
         if (envItem.installHint == "nodesource") {
             return installNodeSource(linuxManager, context, onProgress)
@@ -854,7 +866,9 @@ private suspend fun installEnv(
         )
         onProgress("")
         if (code == 0) {
-            try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (_: Exception) {}
+            try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (e: Exception) {
+                Timber.d(e, "EnvCheck: hash -r refresh failed")
+            }
             context.getString(R.string.env_install_success)
         } else {
             context.getString(R.string.env_install_failed) + " (exit=$code): ${output.take(300)}"
@@ -896,7 +910,9 @@ private suspend fun installNodeSource(
         )
 
         if (installCode == 0) {
-            try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (_: Exception) {}
+            try { linuxManager.exec("hash -r 2>/dev/null", timeout = 3_000) } catch (e: Exception) {
+                Timber.d(e, "EnvCheck: hash -r refresh failed")
+            }
             val (verCode, verOutput) = linuxManager.exec("node --version && npm --version && npx --version", timeout = 10_000)
             if (verCode == 0) {
                 context.getString(R.string.env_install_success_verify, verOutput)

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.accessibility.PhoneControlAccessibilityService
 import com.lin.hippyagent.ui.components.HippyTopBar
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,6 +167,8 @@ private fun checkAccessibilityEnabled(context: Context): Boolean {
         while (colonSplitter.hasNext()) {
             if (colonSplitter.next().equals(serviceName, ignoreCase = true)) return true
         }
-    } catch (_: Exception) {}
+    } catch (e: Exception) {
+        Timber.w(e, "AccessibilitySetup: read ENABLED_ACCESSIBILITY_SERVICES failed, fallback to isRunning()")
+    }
     return PhoneControlAccessibilityService.isRunning()
 }

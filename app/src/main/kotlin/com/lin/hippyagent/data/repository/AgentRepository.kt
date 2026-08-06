@@ -669,7 +669,9 @@ class AgentRepository(
             if (updated != content) {
                 profileMd.writeText(updated)
             }
-        } catch (_: Exception) { }
+        } catch (e: Exception) {
+            Timber.w(e, "AgentRepository: syncNameToProfileMd failed for agent $agentId")
+        }
     }
 }
 

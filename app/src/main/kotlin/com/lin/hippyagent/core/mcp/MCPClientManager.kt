@@ -205,7 +205,9 @@ class MCPClient(
                 headersObj.forEach { (key, value) ->
                     requestBuilder.addHeader(key, value.jsonPrimitive.content)
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Timber.w(e, "MCPClientManager: invalid headers config, skipping headers")
+            }
         }
     }
 

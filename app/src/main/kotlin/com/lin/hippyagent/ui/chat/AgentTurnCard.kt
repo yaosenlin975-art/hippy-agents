@@ -552,7 +552,9 @@ fun AgentTurnCard(
                 try {
                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText("message", content))
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                    // 剪贴板服务不可用时复制失败，不影响主流程，静默降级
+                }
             },
             onRegenerate = onRegenerate,
             onSpeak = onSpeak,

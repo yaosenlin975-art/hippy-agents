@@ -8,6 +8,7 @@ import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolResult
 import java.io.File
+import timber.log.Timber
 
 /** 文件路径重定向：文件不存在时重定向到智能体工作区（仅相对路径） */
 private fun resolveFilePath(originalPath: String, ctx: ToolContext): String {
@@ -509,7 +510,9 @@ class GlobSearchTool : Tool() {
                             }
                         }
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "FileTools: walk failed for $path")
+                }
             }
 
             walk(rootPath)
@@ -670,7 +673,9 @@ class GrepSearchTool : Tool() {
                             matches.add("---")
                         }
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "FileTools: grep failed for ${searchFile.path}")
+                }
             }
 
             if (searchFile.isFile) {

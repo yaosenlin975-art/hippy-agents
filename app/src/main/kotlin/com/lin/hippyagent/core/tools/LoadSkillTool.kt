@@ -86,7 +86,9 @@ class LoadSkillTool(
                         }
                         if (ids.isNotEmpty()) return ids
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "LoadSkillTool: failed to read skill.json, fallback to config manager")
+                }
             }
 
             val config = com.lin.hippyagent.core.skill.WorkspaceSkillConfigManager(

@@ -100,26 +100,36 @@ class PreviousDataScanner(
         try {
             val externalStorage = Environment.getExternalStorageDirectory()
             dirs.add(externalStorage)
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "PreviousDataScanner: external storage root unavailable")
+        }
 
         // 2. 标准目录
         try {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.let { dirs.add(it) }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "PreviousDataScanner: DOWNLOADS dir unavailable")
+        }
         try {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)?.let { dirs.add(it) }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "PreviousDataScanner: DOCUMENTS dir unavailable")
+        }
 
         // 3. 应用外部存储目录
         try {
             context.getExternalFilesDir(null)?.parentFile?.let { dirs.add(it) }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "PreviousDataScanner: app external dir unavailable")
+        }
 
         // 4. 旧版应用数据目录
         try {
             val legacyDir = File(Environment.getExternalStorageDirectory(), "Android/data/com.lin.hippyagent")
             if (legacyDir.exists()) dirs.add(legacyDir)
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.d(e, "PreviousDataScanner: legacy data dir unavailable")
+        }
 
         // 5. 常见自定义路径
         val customPaths = listOf(

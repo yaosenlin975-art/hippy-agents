@@ -226,7 +226,9 @@ class LlamaCppModelClient(
                             finishReason = firstChoice?.get("finish_reason")?.jsonPrimitive?.content
                         ))
                     ))
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "LlamaCpp: failed to parse SSE chunk, skipping")
+                }
             }
 
             override fun onClosed(eventSource: okhttp3.sse.EventSource) {

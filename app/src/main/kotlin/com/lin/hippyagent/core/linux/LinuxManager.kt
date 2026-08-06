@@ -584,7 +584,9 @@ class LinuxManager(
                         Timber.d("Linux: $name already installed")
                         continue
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    Timber.w(e, "Linux: check failed for $name, proceeding to install")
+                }
 
                 Timber.i("Linux: silent installing $name ($pkg)...")
                 try {

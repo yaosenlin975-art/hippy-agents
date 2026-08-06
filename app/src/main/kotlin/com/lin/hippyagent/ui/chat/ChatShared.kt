@@ -194,7 +194,9 @@ fun rememberChatAutoScrollState(
         state.wasAtBottom = true
         state.userPinnedToBottom = true
         coroutineScope.launch {
-            try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {}
+            try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {
+                // 列表尚未就绪或目标索引越界时自动滚动失败可忽略
+            }
         }
     }
 
@@ -228,7 +230,9 @@ fun rememberChatAutoScrollState(
 
     LaunchedEffect(turns.size) {
         if (turns.isNotEmpty() && state.userPinnedToBottom) {
-            try { listState.animateScrollToItem(turns.size + 1) } catch (_: Exception) {}
+            try { listState.animateScrollToItem(turns.size + 1) } catch (_: Exception) {
+                // 列表尚未就绪或目标索引越界时自动滚动失败可忽略
+            }
         }
     }
 
@@ -237,7 +241,9 @@ fun rememberChatAutoScrollState(
             snapshotFlow {
                 streamingContent.length + streamingThinkingContent.length
             }.collect {
-                try { listState.scrollToItem(turns.size + 2) } catch (_: Exception) {}
+                try { listState.scrollToItem(turns.size + 2) } catch (_: Exception) {
+                    // 流式内容更新瞬间目标索引可能越界，自动滚动失败可忽略
+                }
             }
         }
     }
@@ -252,7 +258,9 @@ fun rememberChatAutoScrollState(
 
     LaunchedEffect(sessionId) {
         if (turns.isNotEmpty()) {
-            try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {}
+            try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {
+                // 列表尚未就绪或目标索引越界时自动滚动失败可忽略
+            }
         }
         state.wasAtBottom = true
         state.userPinnedToBottom = true
@@ -260,7 +268,9 @@ fun rememberChatAutoScrollState(
 
     LaunchedEffect(Unit) {
         snapshotFlow { turns.size }.first { it > 0 }
-        try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {}
+        try { listState.scrollToItem(turns.size + 1) } catch (_: Exception) {
+            // 列表尚未就绪或目标索引越界时自动滚动失败可忽略
+        }
         state.wasAtBottom = true
         state.userPinnedToBottom = true
     }
@@ -268,7 +278,9 @@ fun rememberChatAutoScrollState(
     LaunchedEffect(imeVisible) {
         if (imeVisible && turns.isNotEmpty()) {
             kotlinx.coroutines.delay(100)
-            try { listState.animateScrollToItem(turns.size + 1) } catch (_: Exception) {}
+            try { listState.animateScrollToItem(turns.size + 1) } catch (_: Exception) {
+                // 列表尚未就绪或目标索引越界时自动滚动失败可忽略
+            }
         }
     }
 

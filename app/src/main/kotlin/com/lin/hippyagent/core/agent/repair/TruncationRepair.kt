@@ -33,7 +33,10 @@ class TruncationRepair {
         try {
             JSON.parseToJsonElement(json)
             return json
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            // 解析失败即说明 JSON 被截断，进入修复流程（预期路径）
+            Timber.d(e, "TruncationRepair: original JSON invalid, attempting repair")
+        }
 
         val fixed = tryFix(json)
         return try {

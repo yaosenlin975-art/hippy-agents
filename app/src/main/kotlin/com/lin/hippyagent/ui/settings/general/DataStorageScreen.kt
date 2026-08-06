@@ -65,7 +65,9 @@ fun DataStorageScreen(
                 } else {
                     storageManager.migrateToSaf()
                 }
-                try { linuxManager.initialize() } catch (_: Exception) {}
+                try { linuxManager.initialize() } catch (e: Exception) {
+                    Timber.w(e, "DataStorage: linuxManager.initialize() failed after mount")
+                }
                 withContext(Dispatchers.Main) {
                     isMigrating.value = false
                     info.value = getStorageInfo(ctx, storageManager)
@@ -164,7 +166,9 @@ fun DataStorageScreen(
                                             } else {
                                                 storageManager.migrateToSaf()
                                             }
-                                            try { linuxManager.initialize() } catch (_: Exception) {}
+                                            try { linuxManager.initialize() } catch (e: Exception) {
+                    Timber.w(e, "DataStorage: linuxManager.initialize() failed after mount")
+                }
                                             withContext(Dispatchers.Main) {
                                                 isMigrating.value = false
                                                 info.value = getStorageInfo(ctx, storageManager)

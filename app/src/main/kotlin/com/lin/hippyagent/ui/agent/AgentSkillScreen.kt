@@ -54,7 +54,9 @@ fun AgentSkillScreen(
                     try {
                         val info = skillManager.parseSkillInfo(wsDir)
                         mergedSkills.add(info)
-                    } catch (_: Exception) {}
+                    } catch (e: Exception) {
+                        Timber.w(e, "AgentSkillScreen: parse SKILL.md failed for wsId=$wsId")
+                    }
                 }
             }
         }

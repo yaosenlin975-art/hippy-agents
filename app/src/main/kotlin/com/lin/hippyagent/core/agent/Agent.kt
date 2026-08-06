@@ -2246,7 +2246,9 @@ _你刚醒来。该搞清楚自己是谁了。_
                     }
                 }
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.w(e, "Agent: resolveModelContextWindow failed, fallback to default")
+        }
         return null
     }
 
@@ -2267,7 +2269,9 @@ _你刚醒来。该搞清楚自己是谁了。_
                     return match.maxTokens
                 }
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            Timber.w(e, "Agent: resolveModelMaxTokens failed, fallback to default")
+        }
         return null
     }
 
