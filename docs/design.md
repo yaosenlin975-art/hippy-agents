@@ -166,7 +166,7 @@
 - **交互逻辑**
   1. 展示群组内所有 Agent 的消息，按发言顺序排列
   2. 每个 Agent 消息带有不同颜色/头像标识（始终显示，不受 isGroupedWithPrevious 限制）
-  3. 用户@mention 特定 Agent，只有匹配到群内存在智能体的 @提及 才会渲染为带 agent 专属颜色的内联标签（使用 AnnotatedString + SpanStyle 内联到单个 Text 组件，mention 用 SpanStyle 着色+背景+粗体，换行遵循自然断词）；未匹配的 @提及 保持粗体纯文本显示；同时支持 @displayName @agentId 两种格式匹配，agentId 匹配时标签显示 displayName；skill 标签（/skillname）同样使用 SpanStyle 渲染；mention/skill 标签之间的文本使用 MarkdownText 渲染，确保群聊中 Agent 回复的 markdown 格式正常显示
+  3. 用户@mention 特定 Agent，只有匹配到群内存在智能体的 @提及 才会渲染为带 agent 专属颜色的内联标签（使用 AnnotatedString + SpanStyle 内联到单个 Text 组件，mention 用 SpanStyle 着色+背景+粗体，换行遵循自然断词）；未匹配的 @提及 保持粗体纯文本显示；同时支持 @displayName @agentId 两种格式匹配，agentId 匹配时标签显示 displayName；skill 标签（/skillname）同样使用 SpanStyle 渲染；标签与标签间文本并入同一 AnnotatedString 由单个 Text 渲染（该分支不做 markdown 解析）；不含内联标签的消息整体使用 MarkdownText 渲染，确保 Agent 回复的 markdown 格式正常显示
   4. 群聊中始终显示头像（不受 showAvatars 设置影响），确保用户可区分不同 Agent
   5. isImageAvatar 检查仅判断 URL 是否非空（isNullOrBlank），支持 HTTP/HTTPS/content:// 等任意有效 URL
    6. 已读状态计算：readStateMap 过滤 disabledAgentIds 和已删除智能体（agentId 不在 agentProfiles 中的），禁用和已删除的智能体不显示已读/工作中状态；@提及匹配时同样排除禁用智能体
@@ -197,7 +197,7 @@
   5. 支持分组展示（自定义分组）
   6. 支持搜索会话
   7. 支持滑动删除，删除时级联删除关联的 chat_with_agent 私聊会话
-   8. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate）
+   8. 默认智能体 hippy（agentId="default-agent"）的会话始终显示，不受当前选中智能体过滤影响；默认智能体初始化时自带全部 10 个内置技能（共 10 个：news/himalaya/channel_message/pdf/docx/xlsx/pptx/guidance/qa_source_index/image_generate，与 BuiltinSkillRegistry 内置列表一致）
   9. 底部导航栏切换到会话列表
   10. FAB 按钮新建会话
   11. 多会话状态显示：sessionStatuses 按 sessionId 映射（而非 agentId），多个会话同时执行时各自独立显示智能体状态
@@ -630,7 +630,7 @@
   1. 展示可用语言列表（中文、English、日本語、한국어）
   2. 选择语言后重启应用生效
   3. LanguageManager.kt P0 修复：SharedPreferences key 统一为 `hippy_settings/language`
-  4. 多语言适配现状：strings.xml 87 条已定义但零引用，UI 层 1423 行 + Core 层 1250 行硬编码中文待提取，缺 `values-ja` / `values-ko` 目录，预计 1100+ 条需提取
+  4. 多语言适配现状（2026-08-06 实测，随多语言提取批次持续增长）：`values/strings.xml` 1892 条、`values-en/strings.xml` 1839 条、`values-ja/strings.xml` 与 `values-ko/strings.xml` 各 1769 条，`values-ja` / `values-ko` 目录均已存在，四种语言静态文字资源齐备
 - **输入规则**：语言选择
 - **输出结果**：语言切换，界面静态文字多语言适配
 
@@ -756,7 +756,7 @@
 - **交互逻辑**
   1. 以手机框架形式展示所有界面，同一时间只显示一个界面
   2. 通过点击交互进行界面跳转，保持原有导航逻辑
-  3. 主页 4 Tab（会收件箱/洞察/设置）底部导航切
+  3. 主页 5 Tab（智能体/会话/收件箱/洞察/设置）+ 中间 FAB 底部导航切换（2026-08-06 按实际实现同步，原"4 Tab"描述已废弃）
   4. 设置页分组卡片展开/折叠，点击跳转子页面
   5. Agent 配置卡片提供 12 个子配置入口
   6. 聊天界面支持会话抽屉、模型切换、计划面板、菜单等抽屉弹窗；ChatScreen/GroupChatScreen 共享 Hook（rememberChatSessionState/rememberChatTtsState/rememberChatAutoScrollState），inputText 收归 ChatInputViewModel 消除双源真相
@@ -2622,10 +2622,12 @@
 # 交互设计优化方案（2026-07-05）
 
 > 基于 evo-meta-evolution + expert-brainstorm 交互审查 + 用户确认方向
+>
+> **更新记录：2026-08-06 第 1 项「导航组织」裁决为未采纳（方案 B），以实际实现的底部导航方案为准，详见下文裁决记录；第 3 项「统一审批组件」已实施（WS-4）；第 4 项「ChatScreen 拆分」MatchTagChips 子项已取消（改为 AnnotatedString 内联渲染）；第 5 项「无障碍与字号主题化」已实施第一批量交付（WS-5）。**
 
-## 1. 导航组织（方案 B：扩展侧抽屉）
+## 1. 导航组织（方案 B：扩展侧抽屉）【未采纳 — 已被实际底部导航方案替代】
 
-### 抽屉分组导航
+### 原方案 B（作废，未实施）
 - **功能描述**：扩展 ChatSessionDrawer 侧抽屉，把 Sessions/Settings/Trace 等入口收纳其中，按"会话 / 智能体 / 设置 / 工具"四组分类
 - **交互逻辑**
   1. 主界面（ChatScreen）通过左上角菜单按钮或左滑打开 Drawer
@@ -2634,6 +2636,26 @@
 - **输入规则**：左侧抽屉打开手势或菜单按钮点击
 - **输出结果**：所有 48 路由按 4 组组织，新手可建立心智模型
 
+### 裁决记录（2026-08-06，产品经理）
+
+**裁决：维持现状，不回退。** 2026-07-14 提交 fdd8074 已完成导航重构，实际方案为用户已使用的底部导航，文档原方案 B 描述作废。
+
+- **裁决原因**
+  1. 实际方案已上线且用户已在使用，回退将丢弃已交付成果并引入回归风险；
+  2. 底部导航为移动端主流导航模式，一级入口常驻可见、单手可达，可发现性优于侧抽屉内分组收纳；
+  3. 侧抽屉"四组收纳 48 路由"可替代实现（可收敛到 5 Tab + 设置内分组），无必须回退的功能性理由。
+
+### 实际方案（2026-07-14 实现，提交 fdd8074）
+- **功能描述**：底部导航重构为 5 Tab + 中间 FAB，新增独立智能体列表页 `ui/agent/AgentListScreen.kt`
+- **导航结构**
+  1. 底部导航 5 项：智能体（AgentListScreen）/ 会话（ConversationListScreen）/ 收件箱（InboxScreen，带未读红点）/ 洞察（InsightsScreen）/ 设置（SettingsScreen）；`ui/navigation/MainScreen.kt` 以 HorizontalPager 承载 5 页
+  2. 中间 FAB（+，橙色）：打开 CreateDrawer，提供新建会话 / 新建群组 / 新建会话分组 / 新建智能体
+  3. `ui/agent/AgentListScreen.kt`（158 行）：智能体列表页，职责为浏览、创建、配置智能体并进入聊天；`ui/chat/ChatSessionDrawer.kt` 保持纯会话列表单一职责（222 行），不再承担导航分组
+- **后续演进建议**
+  1. 若主导航项需超过 5 个（如新增"工具/技能商店"入口），再评估将低频入口收纳至"更多"页或侧抽屉，不改变主导航结构
+  2. 保持 ChatSessionDrawer 单一职责（会话列表），导航与设置入口一律以底部 Tab 为准
+  3. 导航/页面变更需同步更新本文件及「界面交互展示页面」章节，避免文档与实现再次漂移
+
 ## 2. 技能商店在设置内位置优化（保持位置）
 
 ### 技能商店在设置内突出
@@ -2641,10 +2663,12 @@
 - **交互逻辑**
   1. SettingsScreen 顶部新增"高频"分组，内含技能商店、模型提供商
   2. 技能商店入口加图标 + 描述文字
-- **输入规则**：从 Drawer 进入 Settings
+- **输入规则**：从底部导航"设置" Tab 进入 Settings
 - **输出结果**：技能商店 2 次点击可达且有视觉突出
 
 ## 3. 统一审批组件（方案 A：风险分级）
+
+> **落地状态：2026-08-06 已实施（WS-4）**，实现文件：`ui/chat/UnifiedApproval.kt`（统一组件 + ApprovalBottomSheet + ApprovalDialog）、`core/security/RiskTranslator.kt`（翻译 + 风险估计）；`PermissionRequestDialog.kt` / `InlineApprovalCard.kt` 变为统一组件入口，`OtherSessionApprovalDialog` 复用同一组件（showAlwaysOptions=false）。单测 `RiskTranslatorTest.kt` 28 条全绿。
 
 ### 风险分层审批 UI
 - **功能描述**：合并 PermissionRequestDialog / InlineApprovalCard / OtherSessionApprovalDialog 为单一审批组件，按 RiskLevel 动态选择展示形态
@@ -2656,13 +2680,18 @@
 - **辅助**：新增 `RiskTranslator` 把 shell/exec 命令转成"它想访问 ~/Downloads 下的所有文件"式自然语言
 - **输入规则**：工具调用被 ToolGuardian 拦截且需人工审批
 - **输出结果**：用户按风险等级获得一致体验；高风险操作清晰可视化
+- **实现说明（2026-08-06）**
+  1. 风险来源：shell 命令用 `RiskTranslator.estimateRisk(command)`；TaskEntity 审批无 riskLevel 字段，暂用 `estimateToolRisk(toolName)` 兜底（execute_shell/delete_file → HIGH，read_file → LOW，其余 MEDIUM）
+  2. MEDIUM 弹层 3 主按钮（拒绝/始终允许/允许一次）+「不再允许」次级 TextButton，保留四选项能力
+  3. HIGH+ 对话框 5 按钮 = 拒绝/不再允许/始终允许/允许一次 + 关闭（dismiss 不决策，超时自动 DENY_ONCE）
+  4. 四选项逻辑（允许一次/始终允许/拒绝/不再允许）未回退：PermissionTurnCard 历史卡片保持原样，HIGH+ 全量四按钮
 
 ## 4. ChatScreen 拆分（方案 A：组件提取）
 
 ### ChatScreen 内残留可独立组件提取
-- **功能描述**：把 ChatScreen.kt 中残留的 7 个 Composable 提取到独立文件，单文件保持 <1200 行
+- **功能描述**：把 ChatScreen.kt 中残留的 5 个 Composable 提取到独立文件，单文件保持 <1200 行
 - **拆分项**
-  - `MatchTagChips.kt`：SkillTagChip + MentionTagChip
+  - ~~`MatchTagChips.kt`：SkillTagChip + MentionTagChip~~（已取消，见下方说明）
   - `FileAttachmentCard.kt`：FileAttachmentCard
   - `SystemTurnCard.kt`：SystemTurnCard
   - `PermissionTurnCard.kt`：PermissionTurnCard
@@ -2672,14 +2701,20 @@
 - **输入规则**：无（重构）
 - **输出结果**：ChatScreen.kt 主框架 <1200 行，每个组件独立文件可单独维护
 
+#### MatchTagChips 拆分项说明（已取消）
+- SkillTagChip / MentionTagChip 组件已删除，不再存在，故不再提取 MatchTagChips.kt
+- @提及 / 技能标签改为 `AnnotatedString + SpanStyle` 内联渲染：`MessageContentWithAttachments`（ChatScreen.kt）在单个 Text 中按标签类型局部着色/加背景（mention 按 agentId hash 生成专属色 + 粗体，未匹配的 @提及 保持粗体纯文本；skill 标签紫色底），普通聊天与群聊共用该渲染路径（UserTurnCard / AgentTurnCard），详细规则见「群聊界面」@mention 章节
+
 ## 5. 无障碍与字号主题化（方案 A：semantics + Typography）
+
+> **落地状态：2026-08-06 已实施第一批量交付（WS-5）**，QA 实测验收：1.3x 系统字号下主要页面（Agents/会话列表/聊天/创建菜单/Inbox/Insights/引导页）无截断重叠、非装饰性图标均有 contentDescription、`.sp` 非 import 引用 756 → 21 处（剩余均为规范定义/动态字号/演示用途）。实施中修复既有缺陷 DEF-1（底部导航索引错位：`AppNavigation.kt` pager 页数 4→5 + `MainScreen.kt` tab 索引 1/2/3→2/3/4，修复前设置页不可达）、OBS-1（scaledTypography 未设置偏好时回退值 1.0f，避免系统字号双重缩放）、OBS-2（会话标题 `take(5)` 硬截断移除）。设置页 1.3x 走查待 QA 复验后收口。
 
 ### 全局无障碍与字号主题化
 - **功能描述**：批量补 contentDescription + 把硬编码字号抽到 MaterialTheme Typography
 - **交互逻辑**
-  1. 全局扫描所有 Icon/Image 缺 contentDescription 的位置，按内容补语义
-  2. 在 Theme.kt 扩展 Typography 自定义类型，所有 `X.sp` 改为主题引用
-  3. Chip 颜色从硬编码 → `MaterialTheme.colorScheme`
+  1. 全局扫描所有 Icon/Image 缺 contentDescription 的位置，按内容补语义（96 处 null 中补 31 处交互/语义图标，其余为装饰性图标保留 null，新增 16 条 common_* 文案）
+  2. 在 Theme.kt 扩展 Typography 自定义类型，所有 `X.sp` 改为主题引用（`MaterialTheme.typography` 引用 0 → 781）；`scaledTypography` 按基准规范 base×scale 缩放，系统字体缩放对所有主题字号生效
+  3. Chip 颜色从硬编码 → `MaterialTheme.colorScheme`（ChatInputBar 4 组输入 Chip、store/ProviderChips 状态点）
 - **输入规则**：无（重构）
 - **输出结果**：满足 Google Play 无障碍合规；用户字体缩放生效
 
