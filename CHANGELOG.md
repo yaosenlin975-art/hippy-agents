@@ -22,10 +22,12 @@
 - docs: design.md 2026-07-05 优化方案更新记录 — 第 1 项导航组织裁决（产品经理：维持底部导航现状，方案 B 作废存档）、第 3 项统一审批组件落地状态、第 5 项无障碍落地状态（WS-1/WS-4/WS-5，2026-08-06 已提交至 git）
 - docs: WS-1 已收口 — QA 终检通过（2026-08-06 06:30 置 done）：design.md 裁决记录/实际方案与代码一致（共享工作树更新已随 a2170cc 提交，推送待网络恢复）
 
+### 📥 已提交待 QA 验收（in_review）
+- [WS-12] 核心引擎单元测试补齐（提交 fdf10ae，09:00 置 in_review）— 新增 14 个测试文件 / 297 条单测全绿（`testDebugUnitTest` 0 失败）：AgentStatus/MessageQueueManager、AgentGroup 群聊纯逻辑（MentionParser/意图检测）、ToolLoopDetection、TaskApprovalService 审批状态机、ChatTurnConverter、CronJobManager 快照、HybridSearchEngine/RRFFuser/LightweightReranker、ToolApprovalManager/RiskTranslator、ToolGuardian 20+ 安全路径；测试暴露并修复 5 处实现缺陷（GroupChatPrompts 模板 `${agent.id}` 失效、ToolGuardian 危险路径双斜杠永不命中（高危误放行）、ToolLoopDetection 轮询/硬阈值、ChatTurnConverter 发送者切换后 TOOL 结果丢失）；覆盖率报告 `docs/ws12-coverage-report.md`（核心纯逻辑层方法触达率 98.4%，JaCoCo 离线用静态分析替代）；已 @QA 待验收
+
 ### 🧹 待提交 / 待修复（工作树在途，未闭环）
-- [WS-12] 核心引擎单元测试补充（Agent/AgentGroup/审批链/混合检索/TurnConverter 等）：新增测试文件已在共享工作树（未提交），存在编译失败待修；需修编译 → `testDebugUnitTest` 全绿 → 覆盖率报告 → 交付三步；08:00 巡检已第三次派发
-- [WS-7] 四个超千行文件拆分（Agent.kt 3080 行 / ChatViewModel.kt 2255 行 / ToolCallBlockView.kt 1208 行 / AgentTurnCard.kt 1020 行）：拆分产出已在工作树（未提交）— Agent.kt→6 文件、ChatViewModel→5 文件、AgentTurnCard→2 文件、ToolCallBlockView→2 文件；需收尾编译验证 + 按 issue 单独 commit + 交付三步；08:00 巡检已第三次派发
-- [WS-5] DEF-2 设置页 7 处 Switch 无障碍标签（`SettingsScreen.kt:454/468/499`、`SharedConfigComponents.kt:245/1062`、`UiSettingsScreen.kt:349`）+ OBS-3 字号滑块回退口径：QA 缺陷清单待修，修复后复验即收口置 done；08:00 巡检已再次派发
+- [WS-7] 四个超千行文件拆分（Agent.kt 3080 行 / ChatViewModel.kt 2255 行 / ToolCallBlockView.kt 1208 行 / AgentTurnCard.kt 1020 行）：拆分 4 commit 已提交（f831807 / b8fc52a / 6954eaa / 3ef2b85，均 ≤900 行），但 QA 08:37 验收不通过（**Critical**：`formatDuration` 重复声明致干净检出无法编译）；修复 2bd6cd7（删除 ThinkingBlockView 私有版，统一复用 ToolCallShared internal 版）已提交但交付三步未闭环，状态 `blocked` 待复验重交付；09:00 巡检已第四次派发
+- [WS-5] DEF-2 设置页 7 处 Switch 无障碍标签（`SettingsScreen.kt:454/468/499`、`SharedConfigComponents.kt:245/1062`、`UiSettingsScreen.kt:349`）+ OBS-3 字号滑块回退口径：QA 缺陷清单待修，修复后复验即收口置 done；07:06/08:00 两次派发无回复，09:00 巡检第三次派发
 
 ## [v0.1.0] — 2026-05-20
 
