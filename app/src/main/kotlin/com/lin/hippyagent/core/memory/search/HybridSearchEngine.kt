@@ -54,6 +54,10 @@ class HybridSearchEngine(
         agentId: String?,
         options: SearchOptions
     ): List<Pair<CommonMemoryEntry, Float>> {
+        // 依赖注入缺失时退化为兼容路径（search() 已分流，此处仅防御）
+        val graphRetriever = this.graphRetriever ?: return emptyList()
+        val postFusionReranker = this.postFusionReranker ?: return emptyList()
+
         // 1. 关键词召回（FTS4）
         val ftsResults = if (agentId != null) {
             memoryRepository.searchFtsByAgentId(query, agentId, options.ftsTopK)
@@ -62,7 +66,7 @@ class HybridSearchEngine(
         }
 
         // 2. 图谱召回
-        val graphResults = graphRetriever!!.retrieve(query, options.finalTopK)
+        val graphResults = graphRetriever.retrieve(query, options.finalTopK)
 
         // 3. RRF 融合（复用 RRFFuser，DRY）
         val ftsScored = ftsResults.mapIndexed { i, e -> ScoredItem(e.id, 1f / (options.rrfK + i + 1)) }
@@ -84,7 +88,7 @@ class HybridSearchEngine(
         }
 
         // 5. post-fusion 重排
-        val reranked = postFusionReranker!!.rerank(query, fused, entries, options.finalTopK * 2)
+        val reranked = postFusionReranker.rerank(query, fused, entries, options.finalTopK * 2)
 
         // 6. cosineReScore（本期 cosineWeight=0，纯 rrf）
         val rescored = reranked.map { item ->

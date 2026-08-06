@@ -68,10 +68,10 @@ class ScreenObserveTool(
         }
 
         val request = ObserveRequest(
-            mode = getOptionalArgument(arguments, "mode", "nodes")!!,
-            target = getOptionalArgument(arguments, "target", "current_window")!!,
+            mode = getOptionalArgument(arguments, "mode", "nodes"),
+            target = getOptionalArgument(arguments, "target", "current_window"),
             depth = (arguments["depth"] as? Number)?.toInt() ?: 5,
-            filter = getOptionalArgument(arguments, "filter", "all")!!,
+            filter = getOptionalArgument(arguments, "filter", "all"),
             includeBounds = arguments["include_bounds"]?.toString()?.toBoolean() ?: true
         )
 

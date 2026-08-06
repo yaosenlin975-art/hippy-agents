@@ -211,7 +211,7 @@ class DualTrackDecisionEngine(
                 ?: DualTrackResult(0f, 0f, 0f, "none")
         }
 
-        if (vlmResult == null) return uiResultFinal!!
+        if (vlmResult == null) return uiResultFinal ?: DualTrackResult(0f, 0f, 0f, "none")
         if (uiResultFinal == null) return vlmResult
 
         return fuseVlmWithUi(vlmResult, uiResultFinal, preferVisual)

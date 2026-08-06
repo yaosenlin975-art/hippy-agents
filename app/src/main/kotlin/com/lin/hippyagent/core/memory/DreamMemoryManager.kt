@@ -580,14 +580,15 @@ class DreamMemoryManager(
             seen.add(trimmed)
 
             // 如果当前节已存在，跳过重复节内容
-            if (sectionHeaders.containsKey(currentSection) && sectionHeaders[currentSection]!!.isNotEmpty()) {
+            val sectionBuilder = sectionHeaders[currentSection]
+            if (sectionBuilder != null && sectionBuilder.isNotEmpty()) {
                 // 追加到现有节（合并同节内容）
-                if (!sectionHeaders[currentSection]!!.contains(trimmed)) {
-                    sectionHeaders[currentSection]!!.appendLine(line)
+                if (!sectionBuilder.contains(trimmed)) {
+                    sectionBuilder.appendLine(line)
                     optimized.add(line)
                 }
             } else {
-                sectionHeaders[currentSection]?.appendLine(line)
+                sectionBuilder?.appendLine(line)
                 optimized.add(line)
             }
         }

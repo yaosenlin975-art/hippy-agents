@@ -151,10 +151,11 @@ fun CommonMemoryScreen(
                 }
             }
 
-            if (uiState.stats != null) {
+            val stats = uiState.stats
+            if (stats != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    stringResource(R.string.memory_count, uiState.entries.size, uiState.stats!!.total),
+                    stringResource(R.string.memory_count, uiState.entries.size, stats.total),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

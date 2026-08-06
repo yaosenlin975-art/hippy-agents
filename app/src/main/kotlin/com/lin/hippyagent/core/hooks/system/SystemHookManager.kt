@@ -92,10 +92,7 @@ class SystemHookManager(
     }
 
     private var _eventFilter: EventFilter? = null
-    val eventFilter: EventFilter get() {
-        if (_eventFilter == null) _eventFilter = EventFilter()
-        return _eventFilter!!
-    }
+    val eventFilter: EventFilter get() = _eventFilter ?: EventFilter().also { _eventFilter = it }
 
     /** 注册 Hook */
     fun register(hook: SystemHook) {

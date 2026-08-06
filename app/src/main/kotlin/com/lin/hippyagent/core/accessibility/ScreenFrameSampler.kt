@@ -85,13 +85,14 @@ class ScreenFrameSampler(
         screenHeight = metrics.heightPixels.let { if (it > 0) it else 1920 }
         screenDensity = metrics.densityDpi.let { if (it > 0) it else 320 }
 
-        imageReader = ImageReader.newInstance(screenWidth, screenHeight, android.graphics.PixelFormat.RGBA_8888, 2)
+        val reader = ImageReader.newInstance(screenWidth, screenHeight, android.graphics.PixelFormat.RGBA_8888, 2)
+        imageReader = reader
 
         virtualDisplay = mediaProjection.createVirtualDisplay(
             "ScreenFrameSampler",
             screenWidth, screenHeight, screenDensity,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            imageReader!!.surface,
+            reader.surface,
             null, handler
         )
 

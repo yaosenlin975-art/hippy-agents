@@ -288,16 +288,17 @@ fun SettingsScreen(
             }
         }
 
-        if (currentAgentId != null) {
-            item(key = "agent_config_${currentAgentId}") {
+        val agentId = currentAgentId
+        if (agentId != null) {
+            item(key = "agent_config_${agentId}") {
                 val agentConfigViewModel: com.lin.hippyagent.ui.agent.AgentConfigViewModel = org.koin.androidx.compose.koinViewModel(
-                    key = currentAgentId,
-                    parameters = { org.koin.core.parameter.parametersOf(currentAgentId!!) }
+                    key = agentId,
+                    parameters = { org.koin.core.parameter.parametersOf(agentId) }
                 )
                 AgentConfigSection(
                     viewModel = agentConfigViewModel,
                     agents = uiState.agents,
-                    currentAgentId = currentAgentId!!,
+                    currentAgentId = agentId,
                     onSwitchAgent = { newId ->
                         currentAgentId = newId
                         com.lin.hippyagent.core.agent.AgentSelectionHolder.setCurrentAgent(newId)

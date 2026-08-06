@@ -26,15 +26,13 @@ object ToolScopeManager {
     private var job: Job? = null
 
     fun getScope(): CoroutineScope {
-        if (scope == null || job?.isActive != true) {
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        }
-        return scope!!
+        val current = scope
+        if (current != null && job?.isActive == true) return current
+        return CoroutineScope(SupervisorJob() + Dispatchers.Default).also { scope = it }
     }
 
     fun launch(block: suspend CoroutineScope.() -> Unit): Job {
-        job = getScope().launch(block = block)
-        return job!!
+        return getScope().launch(block = block).also { job = it }
     }
 
     fun shutdown() {

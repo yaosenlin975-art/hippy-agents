@@ -230,7 +230,7 @@ class GitDiffTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
-        val target = getOptionalArgument(arguments, "target", "HEAD")!!
+        val target = getOptionalArgument(arguments, "target", "HEAD")
         val callId = arguments["callId"] as? String ?: ""
         if (!linuxManager.isReady.value) {
             return ToolResult(callId, false, error = "Linux environment not ready")

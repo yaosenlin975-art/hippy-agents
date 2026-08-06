@@ -92,8 +92,9 @@ class SkillIndexManager(
             Timber.w(it, "computeUserDirsFingerprint failed, fallback to plain loadIndex")
             return loadIndex()
         }
-        if (currentFingerprint == lastFingerprint && cachedIndex != null) {
-            return cachedIndex!!
+        val cached = cachedIndex
+        if (currentFingerprint == lastFingerprint && cached != null) {
+            return cached
         }
         Timber.i("Skill dir fingerprint changed: $lastFingerprint -> $currentFingerprint, rebuilding index")
         lastFingerprint = currentFingerprint

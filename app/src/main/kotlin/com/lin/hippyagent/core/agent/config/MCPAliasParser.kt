@@ -83,7 +83,7 @@ object MCPAliasParser {
 
         fieldAliases.forEach { (alias, target) ->
             if (alias in resolved && target !in resolved) {
-                resolved[target] = resolved[alias]!!
+                resolved[alias]?.let { aliasValue -> resolved[target] = aliasValue }
             }
             resolved.remove(alias)
         }

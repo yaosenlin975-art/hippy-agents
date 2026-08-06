@@ -349,5 +349,5 @@ private val TIMESTAMP_FORMATTER = ThreadLocal.withInitial {
 }
 
 private fun formatTimestamp(timestamp: Long): String {
-    return TIMESTAMP_FORMATTER.get()!!.format(Date(timestamp))
+    return (TIMESTAMP_FORMATTER.get() ?: SimpleDateFormat("MM/dd HH:mm", Locale.getDefault())).format(Date(timestamp))
 }

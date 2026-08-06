@@ -119,7 +119,7 @@ class HybridRetriever(
         }
 
         return rrfScores
-            .map { (id, score) -> SearchResult(entry = entryMap[id]!!, score = score.toFloat()) }
+            .mapNotNull { (id, score) -> entryMap[id]?.let { SearchResult(entry = it, score = score.toFloat()) } }
             .sortedByDescending { it.score }
             .take(maxResults)
     }

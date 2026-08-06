@@ -25,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,7 +45,7 @@ import com.lin.hippyagent.data.repository.AgentRepository
 import org.koin.compose.koinInject
 import androidx.compose.ui.res.stringResource
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AgentListScreen(
     onNavigateToCreateAgent: () -> Unit,
@@ -136,22 +137,12 @@ private fun AgentCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = profile.model.substringAfterLast("/").ifBlank { stringResource(R.string.agent_default_model) },
+                    text = profile.modelName.substringAfterLast("/").ifBlank { stringResource(R.string.agent_default_model) },
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (profile.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = profile.description,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
             }
         }
     }

@@ -215,8 +215,8 @@ class EditFileTool(private val fileLockManager: FileLockManager? = null) : Tool(
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
         val mapped = arguments.toMutableMap()
-        if (!mapped.containsKey("old_text") && mapped.containsKey("old_string")) mapped["old_text"] = mapped["old_string"]!!
-        if (!mapped.containsKey("new_text") && mapped.containsKey("new_string")) mapped["new_text"] = mapped["new_string"]!!
+        if (!mapped.containsKey("old_text") && mapped.containsKey("old_string")) mapped["old_string"]?.let { mapped["old_text"] = it }
+        if (!mapped.containsKey("new_text") && mapped.containsKey("new_string")) mapped["new_string"]?.let { mapped["new_text"] = it }
         val filePath = getRequiredArgument(mapped, "file_path")
         val oldText = getRequiredArgument(mapped, "old_text")
         val newText = getRequiredArgument(mapped, "new_text")
@@ -458,7 +458,7 @@ class GlobSearchTool : Tool() {
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
         val pattern = getRequiredArgument(arguments, "pattern")
-        val searchPath = getOptionalArgument(arguments, "search_path", ".")!!
+        val searchPath = getOptionalArgument(arguments, "search_path", ".")
         val callId = arguments["callId"] as? String ?: ""
 
         return try {
@@ -600,10 +600,10 @@ class GrepSearchTool : Tool() {
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
         val pattern = getRequiredArgument(arguments, "pattern")
-        val searchPath = getOptionalArgument(arguments, "path", ".")!!
-        val isRegex = getOptionalArgument(arguments, "is_regex", "false")!!.toBoolean()
-        val caseSensitive = getOptionalArgument(arguments, "case_sensitive", "true")!!.toBoolean()
-        val contextLines = getOptionalArgument(arguments, "context_lines", "0")!!.toInt().coerceIn(0, maxContextLines)
+        val searchPath = getOptionalArgument(arguments, "path", ".")
+        val isRegex = getOptionalArgument(arguments, "is_regex", "false").toBoolean()
+        val caseSensitive = getOptionalArgument(arguments, "case_sensitive", "true").toBoolean()
+        val contextLines = getOptionalArgument(arguments, "context_lines", "0").toInt().coerceIn(0, maxContextLines)
         val includePattern = getOptionalArgument(arguments, "include_pattern")
         val callId = arguments["callId"] as? String ?: ""
 

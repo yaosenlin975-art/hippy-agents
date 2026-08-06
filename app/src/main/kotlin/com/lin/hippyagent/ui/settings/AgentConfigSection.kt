@@ -178,9 +178,9 @@ fun AgentConfigSection(
                     modifier = Modifier.weight(1f).clickable { isExpanded = !isExpanded },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (uiState.agent != null) {
+                    uiState.agent?.let { agent ->
                         Text(
-                            text = uiState.agent!!.name.ifEmpty { uiState.agent!!.agentId },
+                            text = agent.name.ifEmpty { agent.agentId },
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -218,8 +218,8 @@ fun AgentConfigSection(
                     ) {
                         CircularProgressIndicator()
                     }
-                } else if (uiState.agent != null) {
-                    val agent = uiState.agent!!
+                } else {
+                    val agent = uiState.agent ?: return@AnimatedVisibility
 
                     Column(
                         modifier = Modifier
@@ -562,8 +562,9 @@ fun AgentConfigSection(
         )
     }
 
-    if (editingFilename != null && isEditingContentLoaded) {
-        val currentFilename = editingFilename!!
+    val filename = editingFilename
+    if (filename != null && isEditingContentLoaded) {
+        val currentFilename = filename
         val currentContent = editingContent
         androidx.compose.runtime.key(currentFilename) {
             CoreFileEditorDialog(

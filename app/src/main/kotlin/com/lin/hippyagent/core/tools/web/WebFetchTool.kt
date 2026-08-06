@@ -192,7 +192,7 @@ class WebFetchTool(private val context: Context) : Tool() {
                     }
                 }
 
-                timeoutRunnable = Runnable {
+                val runnable = Runnable {
                     webView.evaluateJavascript(
                         if (extractLinks) JS_EXTRACT_TEXT_AND_LINKS else JS_EXTRACT_TEXT
                     ) { result ->
@@ -203,7 +203,8 @@ class WebFetchTool(private val context: Context) : Tool() {
                         }
                     }
                 }
-                timeoutHandler.postDelayed(timeoutRunnable!!, 20_000)
+                timeoutRunnable = runnable
+                timeoutHandler.postDelayed(runnable, 20_000)
 
                 webView.loadUrl(url)
 

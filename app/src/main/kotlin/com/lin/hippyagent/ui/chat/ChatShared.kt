@@ -458,12 +458,13 @@ fun ChatTurnList(
                         onEnterMultiSelect = onEnterMultiSelect
                     )
                     // Auto 决策结果：在触发本次 auto 决策的用户 turn 下显示 hint
+                    val autoDecidedMode = uiState.autoDecidedMode
                     if (uiState.autoDecidedModeTurnId == turn.id &&
                         uiState.autoDecidedModeSource == com.lin.hippyagent.core.agent.mode.ModeOrchestrator.ModeSource.AUTO_DECIDED.name &&
-                        !uiState.autoDecidedMode.isNullOrBlank()
+                        autoDecidedMode != null && autoDecidedMode.isNotBlank()
                     ) {
                         AutoDecisionHint(
-                            decidedMode = uiState.autoDecidedMode!!,
+                            decidedMode = autoDecidedMode,
                             source = uiState.autoDecidedModeSource ?: "",
                             reasoning = uiState.autoDecidedModeReasoning,
                             onSwitchToManual = { viewModel.selectMode(com.lin.hippyagent.core.skill.AgentMode.CHAT) }

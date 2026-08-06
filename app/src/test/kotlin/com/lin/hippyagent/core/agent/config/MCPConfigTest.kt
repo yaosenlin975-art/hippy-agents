@@ -5,7 +5,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 
 class MCPConfigTest {
@@ -34,9 +33,8 @@ class MCPConfigTest {
         val jsonString = json.encodeToString(config)
         val decoded = json.decodeFromString<MCPConfig>(jsonString)
         assertEquals(1, decoded.clients.size)
-        val tavilyClient = decoded.clients["tavily"]
-        assertNotNull(tavilyClient)
-        assertEquals("tavily_search", tavilyClient!!.name)
+        val tavilyClient = requireNotNull(decoded.clients["tavily"])
+        assertEquals("tavily_search", tavilyClient.name)
         assertEquals("stdio", tavilyClient.transport)
         assertEquals("npx", tavilyClient.command)
         assertEquals(2, tavilyClient.args.size)
@@ -53,9 +51,8 @@ class MCPConfigTest {
         val config = MCPConfig(clients = mapOf("remote" to clientConfig))
         val jsonString = json.encodeToString(config)
         val decoded = json.decodeFromString<MCPConfig>(jsonString)
-        val remoteClient = decoded.clients["remote"]
-        assertNotNull(remoteClient)
-        assertEquals("streamable_http", remoteClient!!.transport)
+        val remoteClient = requireNotNull(decoded.clients["remote"])
+        assertEquals("streamable_http", remoteClient.transport)
         assertEquals("https://mcp.example.com/sse", remoteClient.url)
     }
 

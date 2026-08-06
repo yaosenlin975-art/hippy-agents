@@ -162,8 +162,8 @@ fun AgentConfigScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else if (uiState.agent != null) {
-            val agent = uiState.agent!!
+        } else {
+            val agent = uiState.agent ?: return@Scaffold
 
             val allMdFiles = remember(uiState.workspaceMdFiles, agent.coreFiles) {
                 (uiState.workspaceMdFiles + agent.coreFiles).distinct().sorted()
@@ -452,8 +452,9 @@ fun AgentConfigScreen(
                 )
             }
 
-            if (editingFilename != null && isEditingContentLoaded) {
-                val currentFilename = editingFilename!!
+            val filename = editingFilename
+            if (filename != null && isEditingContentLoaded) {
+                val currentFilename = filename
                 val currentContent = editingContent
                 androidx.compose.runtime.key(currentFilename) {
                     CoreFileEditorDialog(

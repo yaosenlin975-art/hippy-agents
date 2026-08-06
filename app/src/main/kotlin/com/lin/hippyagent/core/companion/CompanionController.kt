@@ -37,8 +37,9 @@ object CompanionController {
         try {
             CompanionFloatWindow.show(application)
             ttsManager = CompanionTtsManager(application).also { it.initialize() }
-            frameBuffer = VisionFrameBuffer()
-            frameSampler = ScreenFrameSampler(frameBuffer!!)
+            val newFrameBuffer = VisionFrameBuffer()
+            frameBuffer = newFrameBuffer
+            frameSampler = ScreenFrameSampler(newFrameBuffer)
 
             this.sessionId = sessionId
             _uiState.value = CompanionUiState(

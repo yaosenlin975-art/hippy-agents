@@ -78,7 +78,7 @@ class LogcatViewModel : ViewModel() {
                 logcatProcess = Runtime.getRuntime().exec(
                     arrayOf("logcat", "-v", "time", "--pid=${android.os.Process.myPid()}")
                 )
-                val reader = logcatProcess!!.inputStream.bufferedReader()
+                val reader = logcatProcess?.inputStream?.bufferedReader() ?: return@launch
                 var line = reader.readLine()
                 while (line != null) {
                     _lines.update { current ->

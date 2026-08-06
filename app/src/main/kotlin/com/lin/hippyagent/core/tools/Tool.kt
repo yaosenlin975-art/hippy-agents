@@ -100,6 +100,11 @@ abstract class Tool {
     protected fun getOptionalArgument(arguments: Map<String, Any>, key: String, defaultValue: String? = null): String? {
         return arguments[key]?.toString() ?: defaultValue
     }
+
+    @JvmName("getOptionalArgumentWithDefault")
+    protected fun getOptionalArgument(arguments: Map<String, Any>, key: String, defaultValue: String): String {
+        return arguments[key]?.toString() ?: defaultValue
+    }
 }
 
 /** 内置工具英文名→中文显示名映射 */

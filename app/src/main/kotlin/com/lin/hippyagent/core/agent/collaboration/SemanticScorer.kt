@@ -34,7 +34,7 @@ class HybridSemanticScorer(
     private fun cosineSimilarity(text1: String, text2: String): Double {
         val vec1 = textToVector(text1)
         val vec2 = textToVector(text2)
-        val dotProduct = vec1.keys.intersect(vec2.keys).sumOf { vec1[it]!! * vec2[it]!! }
+        val dotProduct = vec1.keys.intersect(vec2.keys).sumOf { (vec1[it] ?: 0.0) * (vec2[it] ?: 0.0) }
         val mag1 = sqrt(vec1.values.sumOf { it * it })
         val mag2 = sqrt(vec2.values.sumOf { it * it })
         return if (mag1 == 0.0 || mag2 == 0.0) 0.0 else dotProduct / (mag1 * mag2)

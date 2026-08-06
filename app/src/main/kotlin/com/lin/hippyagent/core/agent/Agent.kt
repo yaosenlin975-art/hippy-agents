@@ -826,7 +826,7 @@ class Agent(
         systemPromptSuffix: String? = null,
         forceEscalate: Boolean = false,
     ): Result<Unit> = getOrCreateSessionMutex(sessionId).withLock {
-    getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
+    getOrCreateSessionContext(sessionId).job = requireNotNull(coroutineContext[Job]) { "Agent loop requires a coroutine Job in context" }
     _currentProcessingSessionId = sessionId
         sessionManager?.createSession(sessionId, profile.agentId, channelId)
         sessionManager?.updateActivity(sessionId)
@@ -1382,7 +1382,7 @@ class Agent(
         var capturedMessages: MutableList<ModelMessage>? = null
         var afterAgentCalled = false
         try {
-            getOrCreateSessionContext(sessionId).job = coroutineContext[Job]!!
+            getOrCreateSessionContext(sessionId).job = requireNotNull(coroutineContext[Job]) { "Agent stream requires a coroutine Job in context" }
             val ctx = prepareMessageContext(sessionId, channelId, content, overrideProviderId, skipUserMessage, systemPromptSuffix, overrideModel, forceEscalate)
             if (ctx == null) {
                 emit(StreamChunk.Content("📡 网络不可用，消息已缓存，网络恢复后自动发送"))

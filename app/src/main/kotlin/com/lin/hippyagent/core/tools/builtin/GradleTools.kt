@@ -25,7 +25,7 @@ class GradleBuildTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
-        val task = getOptionalArgument(arguments, "task", "assembleDebug")!!
+        val task = getOptionalArgument(arguments, "task", "assembleDebug")
         val callId = arguments["callId"] as? String ?: ""
         if (!linuxManager.isReady.value) {
             return ToolResult(callId, false, error = "Linux environment not ready")

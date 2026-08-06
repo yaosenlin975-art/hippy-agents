@@ -39,7 +39,7 @@ class GetSystemInfoTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
-        val category = getOptionalArgument(arguments, "category", "all")!!
+        val category = getOptionalArgument(arguments, "category", "all")
         val callId = arguments["callId"] as? String ?: ""
 
         // 将不识别的类别默认为 "all"
@@ -163,7 +163,7 @@ class GetVolumeTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
-        val streamType = getOptionalArgument(arguments, "stream_type", "music")!!
+        val streamType = getOptionalArgument(arguments, "stream_type", "music")
         val callId = arguments["callId"] as? String ?: ""
 
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -509,7 +509,7 @@ class SetVolumeTool(
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
         val volume = (arguments["volume"] as? Number)?.toInt() ?: return ToolResult("", false, error = "Missing volume value")
-        val streamType = getOptionalArgument(arguments, "stream_type", "music")!!
+        val streamType = getOptionalArgument(arguments, "stream_type", "music")
         val callId = arguments["callId"] as? String ?: ""
 
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager

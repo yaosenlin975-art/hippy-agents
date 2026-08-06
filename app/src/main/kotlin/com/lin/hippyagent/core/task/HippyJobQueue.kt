@@ -66,7 +66,9 @@ class HippyJobQueue(
             database.withTransaction {
                 val newId = dao.insert(entity)
                 if (parent.status != HippyJobStatus.WAITING_CHILDREN) {
-                    dao.updateStatus(opts.parentJobId!!, HippyJobStatus.WAITING_CHILDREN)
+                    opts.parentJobId?.let { parentJobId ->
+                        dao.updateStatus(parentJobId, HippyJobStatus.WAITING_CHILDREN)
+                    }
                 }
                 newId
             }

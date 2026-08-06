@@ -125,9 +125,10 @@ class MissionRunner(
                 val success = lastAssistantMsg?.content?.isNotEmpty() == true
                 
                 var verificationResult: String? = null
-                if (missionState.config.verifyCommand != null && success) {
+                val verifyCommand = missionState.config.verifyCommand
+                if (verifyCommand != null && success) {
                     verificationResult = runVerification(
-                        missionState.config.verifyCommand!!,
+                        verifyCommand,
                         missionState.config.workspaceDir
                     )
                 }

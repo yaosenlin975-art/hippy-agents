@@ -132,7 +132,8 @@ fun PreviousDataDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                if (selectedLocation != null) onUseData(selectedLocation!!, selectedMode)
+                val location = selectedLocation
+                if (location != null) onUseData(location, selectedMode)
             }) {
                 Text(stringResource(R.string.dialog_confirm))
             }

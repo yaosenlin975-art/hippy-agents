@@ -27,7 +27,7 @@ class ReadSensorTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
-        val sensorType = getOptionalArgument(arguments, "sensor_type", "all")!!
+        val sensorType = getOptionalArgument(arguments, "sensor_type", "all")
         val callId = arguments["callId"] as? String ?: ""
 
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager

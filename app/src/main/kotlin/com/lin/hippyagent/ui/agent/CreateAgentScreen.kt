@@ -186,7 +186,12 @@ fun CreateAgentScreen(
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showFallbackModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = (uiState.agent?.fallbackModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.fallbackModelProvider] ?: uiState.agent!!.fallbackModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_fallback_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(text = (uiState.agent?.let { agent ->
+                                    agent.fallbackModelName?.takeIf { it.isNotEmpty() }?.let { name ->
+                                        val p = uiState.providerNames[agent.fallbackModelProvider] ?: agent.fallbackModelProvider
+                                        "$p/$name"
+                                    }
+                                }) ?: stringResource(R.string.agent_fallback_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
@@ -195,7 +200,12 @@ fun CreateAgentScreen(
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showComplexModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = (uiState.agent?.complexModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.complexModelProvider] ?: uiState.agent!!.complexModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_complex_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(text = (uiState.agent?.let { agent ->
+                                    agent.complexModelName?.takeIf { it.isNotEmpty() }?.let { name ->
+                                        val p = uiState.providerNames[agent.complexModelProvider] ?: agent.complexModelProvider
+                                        "$p/$name"
+                                    }
+                                }) ?: stringResource(R.string.agent_complex_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Tune, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
@@ -204,7 +214,12 @@ fun CreateAgentScreen(
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showDecisionModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = (uiState.agent?.decisionModelName?.takeIf { it.isNotEmpty() }?.let { val p = uiState.providerNames[uiState.agent!!.decisionModelProvider] ?: uiState.agent!!.decisionModelProvider; "$p/$it" }) ?: stringResource(R.string.agent_decision_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(text = (uiState.agent?.let { agent ->
+                                    agent.decisionModelName?.takeIf { it.isNotEmpty() }?.let { name ->
+                                        val p = uiState.providerNames[agent.decisionModelProvider] ?: agent.decisionModelProvider
+                                        "$p/$name"
+                                    }
+                                }) ?: stringResource(R.string.agent_decision_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
