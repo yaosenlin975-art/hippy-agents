@@ -63,7 +63,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.skill.SkillInfo
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
@@ -116,21 +115,33 @@ interface ChatInputCallbacks {
     fun onStopVoiceRecording() {}
 }
 
-private val FILE_CHIP_COLORS    get() = ChipColors(container = Color(0xFFE3F2FD), content = Color(0xFF1565C0), icon = Color(0xFF1976D2))
-private val IMAGE_CHIP_COLORS   get() = ChipColors(container = Color(0xFFE8F5E9), content = Color(0xFF2E7D32), icon = Color(0xFF388E3C))
-private val SKILL_CHIP_COLORS   get() = ChipColors(container = Color(0xFFF3E5F5), content = Color(0xFF7B1FA2), icon = Color(0xFF8E24AA))
-private val MENTION_CHIP_COLORS get() = ChipColors(container = Color(0xFFFFF8E1), content = Color(0xFFF57F17), icon = Color(0xFFFFA000))
-
 // 退格整段删除模式：@mention / /skill
 private val WHOLE_DELETE_PATTERN = Regex("(?:@[\\w\\u4e00-\\u9fff-]+ |/[^\\s/]+ )$")
 
 private data class ChipColors(val container: Color, val content: Color, val icon: Color)
 
-private fun chipColorsForType(type: InputChipType) = when (type) {
-    InputChipType.FILE    -> FILE_CHIP_COLORS
-    InputChipType.IMAGE   -> IMAGE_CHIP_COLORS
-    InputChipType.SKILL   -> SKILL_CHIP_COLORS
-    InputChipType.MENTION -> MENTION_CHIP_COLORS
+@Composable
+private fun chipColorsForType(type: InputChipType): ChipColors = when (type) {
+    InputChipType.FILE -> ChipColors(
+        container = MaterialTheme.colorScheme.surfaceVariant,
+        content = MaterialTheme.colorScheme.onSurfaceVariant,
+        icon = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    InputChipType.IMAGE -> ChipColors(
+        container = MaterialTheme.colorScheme.primaryContainer,
+        content = MaterialTheme.colorScheme.onPrimaryContainer,
+        icon = MaterialTheme.colorScheme.onPrimaryContainer
+    )
+    InputChipType.SKILL -> ChipColors(
+        container = MaterialTheme.colorScheme.secondaryContainer,
+        content = MaterialTheme.colorScheme.onSecondaryContainer,
+        icon = MaterialTheme.colorScheme.onSecondaryContainer
+    )
+    InputChipType.MENTION -> ChipColors(
+        container = MaterialTheme.colorScheme.tertiaryContainer,
+        content = MaterialTheme.colorScheme.onTertiaryContainer,
+        icon = MaterialTheme.colorScheme.onTertiaryContainer
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -233,11 +244,11 @@ fun ChatInputBar(
                                 }
                             ) {
                                 Column(modifier = Modifier.padding(10.dp)) {
-                                    Text(skill.name, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    Text(skill.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                     if (skill.description.isNotEmpty()) {
                                         Text(
                                             text = skill.description,
-                                            fontSize = 11.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
@@ -272,13 +283,13 @@ fun ChatInputBar(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = state.quotedMessage.senderName,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = state.quotedMessage.content,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
@@ -351,7 +362,7 @@ fun ChatInputBar(
                             )
                             Text(
                                 text = chip.label,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colors.content,
@@ -365,7 +376,7 @@ fun ChatInputBar(
                             ) {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = null,
+                                    contentDescription = stringResource(R.string.common_remove),
                                     modifier = Modifier.size(12.dp),
                                     tint = colors.content
                                 )
@@ -618,7 +629,7 @@ fun ChatInputBar(
                         ) {
                             Text(
                                 text = "@$displayName",
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -673,14 +684,14 @@ fun ChatInputBar(
                         ) {
                             Text(
                                 text = item.label,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = if (item is SlashItem.Command) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
                                 text = if (item is SlashItem.Command && item.descriptionResId != 0) stringResource(item.descriptionResId) else item.label,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

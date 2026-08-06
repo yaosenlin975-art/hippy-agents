@@ -94,7 +94,7 @@ fun OnboardingScreen(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onComplete) {
-                Text(stringResource(R.string.common_skip), fontSize = 15.sp)
+                Text(stringResource(R.string.common_skip), style = MaterialTheme.typography.bodyLarge)
             }
         }
 
@@ -110,7 +110,7 @@ fun OnboardingScreen(
 
         Text(
             stringResource(step.titleResId),
-            fontSize = 22.sp,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
@@ -120,10 +120,9 @@ fun OnboardingScreen(
 
         Text(
             stringResource(step.descriptionResId),
-            fontSize = 15.sp,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            lineHeight = 24.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
 
@@ -164,7 +163,7 @@ fun OnboardingScreen(
         ) {
             Text(
                 if (currentStep < ONBOARDING_STEPS.size - 1) stringResource(R.string.onboarding_continue) else stringResource(R.string.onboarding_get_started),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -173,7 +172,7 @@ fun OnboardingScreen(
         if (currentStep == 1) {
             Spacer(Modifier.height(12.dp))
             TextButton(onClick = onNavigateToModelProvider) {
-                Text(stringResource(R.string.onboarding_have_api_key), fontSize = 13.sp)
+                Text(stringResource(R.string.onboarding_have_api_key), style = MaterialTheme.typography.bodySmall)
             }
         }
 

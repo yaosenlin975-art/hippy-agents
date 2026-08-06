@@ -221,7 +221,7 @@ private fun CronDropdown(
             value = stringResource(selected.labelRes),
             onValueChange = {},
             readOnly = true,
-            label = { Text(label, fontSize = 12.sp) },
+            label = { Text(label, style = MaterialTheme.typography.labelMedium) },
             trailingIcon = {
                 Icon(Icons.Default.KeyboardArrowDown, null,
                     modifier = Modifier.menuAnchor())
@@ -239,8 +239,8 @@ private fun CronDropdown(
                 DropdownMenuItem(
                     text = {
                         Column {
-                            Text(stringResource(opt.labelRes), fontSize = 13.sp)
-                            Text(opt.value, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(opt.labelRes), style = MaterialTheme.typography.bodySmall)
+                            Text(opt.value, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     },
                     onClick = {
@@ -325,7 +325,7 @@ fun CronJobsScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(stringResource(R.string.cron_no_jobs), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text(stringResource(R.string.cron_add_first), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    Text(stringResource(R.string.cron_add_first), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
         } else {
@@ -394,7 +394,7 @@ fun CronJobsScreen(
                                 value = selectedSession?.title ?: stringResource(R.string.cron_new_session),
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text(stringResource(R.string.cron_select_session), fontSize = 12.sp) },
+                                label = { Text(stringResource(R.string.cron_select_session), style = MaterialTheme.typography.labelMedium) },
                                 trailingIcon = {
                                     Icon(Icons.Default.KeyboardArrowDown, null,
                                         modifier = Modifier.menuAnchor())
@@ -410,7 +410,7 @@ fun CronJobsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.cron_new_session), fontSize = 13.sp) },
+                                    text = { Text(stringResource(R.string.cron_new_session), style = MaterialTheme.typography.bodySmall) },
                                     onClick = {
                                         selectedSessionId = ""
                                         sessionExpanded = false
@@ -421,7 +421,7 @@ fun CronJobsScreen(
                                         text = {
                                             Text(
                                                 session.title.ifBlank { session.id.take(8) },
-                                                fontSize = 13.sp,
+                                                style = MaterialTheme.typography.bodySmall,
                                                 maxLines = 1,
                                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                             )
@@ -442,7 +442,7 @@ fun CronJobsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(stringResource(R.string.cron_silent_mode), fontSize = 14.sp)
+                        Text(stringResource(R.string.cron_silent_mode), style = MaterialTheme.typography.bodyMedium)
                         Switch(
                             checked = silentMode,
                             onCheckedChange = { silentMode = it },
@@ -451,7 +451,7 @@ fun CronJobsScreen(
                     }
 
                     // Cron 表达式多项选择
-                    Text(stringResource(R.string.cron_frequency), fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text(stringResource(R.string.cron_frequency), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         CronDropdown(stringResource(R.string.cron_field_minute), MINUTE_OPTIONS, selMinute, { selMinute = it }, Modifier.weight(1f))
@@ -471,7 +471,7 @@ fun CronJobsScreen(
                     ) {
                         Text(
                             text = "Cron: $builtSchedule",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
@@ -542,11 +542,11 @@ private fun CronJobCard(
                     Text(
                         text = job.name,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = job.schedule,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 2.dp)
                     )
@@ -569,7 +569,7 @@ private fun CronJobCard(
             }
             Text(
                 text = job.query,
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 maxLines = 2,
                 modifier = Modifier.padding(top = 4.dp)
@@ -577,7 +577,7 @@ private fun CronJobCard(
             if (job.silentMode) {
                 Text(
                     text = stringResource(R.string.cron_silent_label),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     modifier = Modifier.padding(top = 2.dp)
                 )

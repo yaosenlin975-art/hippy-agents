@@ -122,7 +122,7 @@ fun RunningConfigScreen(
 private fun ReactConfigSection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.running_config_react_agent), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_react_agent), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             NumberField(stringResource(R.string.running_config_max_iters), config.maxIters) { onUpdate(config.copy(maxIters = it)) }
             SwitchField(stringResource(R.string.running_config_auto_continue), config.autoContinueOnTextOnly) { onUpdate(config.copy(autoContinueOnTextOnly = it)) }
             NumberField(stringResource(R.string.running_config_max_input_length), config.maxInputLength) { onUpdate(config.copy(maxInputLength = it)) }
@@ -134,7 +134,7 @@ private fun ReactConfigSection(config: RunningConfig, onUpdate: (RunningConfig) 
 private fun LlmRetrySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.running_config_llm_auto_retry), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_llm_auto_retry), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             SwitchField(stringResource(R.string.running_config_enable_retry), config.llmRetryEnabled) { onUpdate(config.copy(llmRetryEnabled = it)) }
             if (config.llmRetryEnabled) {
                 NumberField(stringResource(R.string.running_config_max_retries), config.llmRetryMaxRetries) { onUpdate(config.copy(llmRetryMaxRetries = it)) }
@@ -149,7 +149,7 @@ private fun LlmRetrySection(config: RunningConfig, onUpdate: (RunningConfig) -> 
 private fun LlmConcurrencySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.running_config_llm_concurrent), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_llm_concurrent), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             NumberField(stringResource(R.string.running_config_max_concurrent), config.llmMaxConcurrent) { onUpdate(config.copy(llmMaxConcurrent = it)) }
             NumberField(stringResource(R.string.running_config_max_qpm), config.llmMaxQpm) { onUpdate(config.copy(llmMaxQpm = it)) }
             FloatField(stringResource(R.string.running_config_rate_limit_pause), config.llmRateLimitPause) { onUpdate(config.copy(llmRateLimitPause = it)) }
@@ -163,7 +163,7 @@ private fun LlmConcurrencySection(config: RunningConfig, onUpdate: (RunningConfi
 private fun ContextCompressionSection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.running_config_context_compression), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_context_compression), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
                 value = config.contextManagerBackend,
                 onValueChange = { onUpdate(config.copy(contextManagerBackend = it)) },
@@ -184,7 +184,7 @@ private fun ContextCompressionSection(config: RunningConfig, onUpdate: (RunningC
 private fun LongTermMemorySection(config: RunningConfig, onUpdate: (RunningConfig) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.running_config_long_term_memory_label), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.running_config_long_term_memory_label), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             SwitchField(stringResource(R.string.running_config_memory_on_compact), config.remeLightMemoryConfig.summarizeWhenCompact) { v ->
                 onUpdate(config.copy(remeLightMemoryConfig = config.remeLightMemoryConfig.copy(summarizeWhenCompact = v)))
             }

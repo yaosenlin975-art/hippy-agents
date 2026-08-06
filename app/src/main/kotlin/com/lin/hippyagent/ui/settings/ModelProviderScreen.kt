@@ -182,12 +182,12 @@ private fun ProviderCard(
                     Text(
                         text = provider.name,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     if (provider.isDefault) {
                         Text(
                             text = stringResource(R.string.provider_default_suffix),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -195,7 +195,7 @@ private fun ProviderCard(
                 }
                 Text(
                     text = provider.baseUrl.ifEmpty { stringResource(R.string.provider_no_url) },
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )
@@ -206,20 +206,20 @@ private fun ProviderCard(
                             "ollama" -> "Ollama"
                             else -> "OpenAI"
                         },
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(end = 8.dp)
                     )
                     Text(
                         text = if (provider.apiKey.isNotEmpty()) "API Key: ✓" else "API Key: ✗",
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = if (provider.apiKey.isNotEmpty()) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.error
                     )
                 }
                 Text(
                     text = stringResource(R.string.provider_model_count, provider.models.size),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )
@@ -278,7 +278,7 @@ private fun AddProviderDialog(
                         trailingIcon = {
                             Icon(
                                 imageVector = if (expanded) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null
+                                contentDescription = if (expanded) stringResource(R.string.common_hide_key) else stringResource(R.string.common_show_key)
                             )
                         },
                         modifier = Modifier.fillMaxWidth().clickable { expanded = true }
@@ -323,7 +323,7 @@ private fun AddProviderDialog(
                             Icon(
                                 imageVector = if (showKey) Icons.Default.VisibilityOff
                                 else Icons.Default.Visibility,
-                                contentDescription = null
+                                contentDescription = if (showKey) stringResource(R.string.common_hide_key) else stringResource(R.string.common_show_key)
                             )
                         }
                     },
@@ -508,7 +508,7 @@ private fun OnDeviceRoutingConfigSection(
                     trailingIcon = {
                         Icon(
                             imageVector = if (onDeviceExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                            contentDescription = null
+                            contentDescription = if (onDeviceExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand)
                         )
                     }
                 )
@@ -544,7 +544,7 @@ private fun OnDeviceRoutingConfigSection(
                     trailingIcon = {
                         Icon(
                             imageVector = if (routerExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                            contentDescription = null
+                            contentDescription = if (routerExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand)
                         )
                     }
                 )

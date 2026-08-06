@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 
 @Composable
@@ -41,7 +40,7 @@ fun PlanToggle(
         Text(
             text = stringResource(R.string.chat_plan),
             fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = if (enabled) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurface
         )

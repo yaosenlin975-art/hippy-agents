@@ -48,7 +48,7 @@ fun HippyBottomNav(
                 label = {
                     Text(
                         text = item.label,
-                        fontSize = 10.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
                     )
                 },

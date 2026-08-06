@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.plan.PlanState
 
 @Composable
@@ -37,7 +36,7 @@ fun PlanProgressChip(
             label = {
                 Text(
                     text = "${plan.doneCount}/${plan.totalCount} ${plan.progress}%",
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             leadingIcon = {

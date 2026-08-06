@@ -185,12 +185,12 @@ fun PermissionCenterScreen(
                             Text(
                                 stringResource(R.string.perm_granted_count, grantedCount, totalCount),
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 stringResource(R.string.perm_center_hint),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 4.dp)
                             )
@@ -205,7 +205,7 @@ fun PermissionCenterScreen(
                 item {
                     Text(
                         stringResource(categoryRes),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
@@ -243,11 +243,11 @@ fun PermissionCenterScreen(
                                     Text(
                                         stringResource(item.nameRes),
                                         fontWeight = FontWeight.Medium,
-                                        fontSize = 14.sp
+                                        style = MaterialTheme.typography.bodyMedium
                                     )
                                     Text(
                                         stringResource(item.descriptionRes),
-                                        fontSize = 12.sp,
+                                        style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -266,14 +266,14 @@ fun PermissionCenterScreen(
                                 }
                                 Text(
                                     if (isGranted) stringResource(R.string.perm_granted) else stringResource(R.string.perm_not_granted),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = statusColor
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Icon(
                                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = null,
+                                    contentDescription = stringResource(R.string.common_expand),
                                     tint = MaterialTheme.colorScheme.outline,
                                     modifier = Modifier.size(20.dp)
                                 )

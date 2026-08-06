@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-
-private val StatusGreen = Color(0xFF2E7D32)
-private val StatusYellow = Color(0xFFF9A825)
-private val StatusGray = Color(0xFF9E9E9E)
 
 private val ProviderOrder = listOf("lobehub", "skills_sh", "clawhub")
 private val ProviderFallbackNames = mapOf(
@@ -46,9 +43,9 @@ fun ProviderChips(
                 lastError = "unknown"
             )
             val color = when {
-                !status.available -> StatusGray
-                errorProviderKeys.contains(key) -> StatusYellow
-                else -> StatusGreen
+                !status.available -> MaterialTheme.colorScheme.outline
+                errorProviderKeys.contains(key) -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.tertiary
             }
             AssistChip(
                 onClick = {},

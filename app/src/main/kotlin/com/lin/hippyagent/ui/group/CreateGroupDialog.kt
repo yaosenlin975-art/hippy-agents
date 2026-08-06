@@ -54,7 +54,7 @@ fun CreateGroupDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(stringResource(R.string.group_select_members), fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                Text(stringResource(R.string.group_select_members), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (agents.isEmpty()) {
@@ -88,19 +88,19 @@ fun CreateGroupDialog(
                                 Column {
                                     Text(
                                         text = agent.name.ifEmpty { agent.agentId },
-                                        fontSize = 14.sp,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = if (isBootstrap) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurface
                                     )
                                     if (isBootstrap) {
                                         Text(
                                             text = stringResource(R.string.group_agent_not_initialized),
-                                            fontSize = 11.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                                         )
                                     } else {
                                         Text(
                                             text = agent.modelName,
-                                            fontSize = 12.sp,
+                                            style = MaterialTheme.typography.labelMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }

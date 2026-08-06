@@ -108,7 +108,7 @@ fun PluginScreen(
             ) {
                 Text(stringResource(R.string.plugin_no_plugins), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
-                Text(stringResource(R.string.plugin_add_hint), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.plugin_add_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(
@@ -149,9 +149,9 @@ private fun PluginCard(manifest: PluginManifest, onDelete: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(manifest.name, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(manifest.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
                     if (manifest.description.isNotBlank()) {
-                        Text(manifest.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(manifest.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 IconButton(onClick = onDelete) {
@@ -160,9 +160,9 @@ private fun PluginCard(manifest: PluginManifest, onDelete: () -> Unit) {
             }
             if (manifest.tools.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
-                Text(stringResource(R.string.plugin_tool_label), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.plugin_tool_label), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                 manifest.tools.forEach { tool ->
-                    Text("  • ${tool.name}: ${tool.description}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("  • ${tool.name}: ${tool.description}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

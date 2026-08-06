@@ -46,25 +46,25 @@ fun ToolDetailScreen(
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(stringResource(R.string.tools_basic_info), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.tools_basic_info), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(stringResource(R.string.tools_name_label_fmt, toolDefinition.name), fontSize = 14.sp)
-                            Text(stringResource(R.string.tools_desc_label_fmt, toolDefinition.description), fontSize = 14.sp)
+                            Text(stringResource(R.string.tools_name_label_fmt, toolDefinition.name), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.tools_desc_label_fmt, toolDefinition.description), style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
 
                 item {
-                    Text(stringResource(R.string.tools_params), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.tools_params), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 }
 
                 items(toolDefinition.parameters.entries.toList(), key = { it.key }) { (paramName, param) ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(paramName, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                            Text(stringResource(R.string.tools_type_label_fmt, param.type), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(stringResource(R.string.tools_desc_label_fmt, param.description), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(stringResource(R.string.tools_required_label_fmt, if (param.required) stringResource(R.string.tools_required_yes) else stringResource(R.string.tools_required_no)), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(paramName, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.tools_type_label_fmt, param.type), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.tools_desc_label_fmt, param.description), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.tools_required_label_fmt, if (param.required) stringResource(R.string.tools_required_yes) else stringResource(R.string.tools_required_no)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }

@@ -37,7 +37,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.chat.ChatTurn
@@ -92,11 +91,11 @@ fun PrivateTurnCard(
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = if (expanded) "▼" else "▶", fontSize = 10.sp)
+                Text(text = if (expanded) "▼" else "▶", style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = context.getString(R.string.chat_discussion_with, targetName),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontStyle = FontStyle.Italic
                 )
@@ -108,7 +107,7 @@ fun PrivateTurnCard(
             ) {
                 Text(
                     text = turn.content,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     modifier = Modifier.padding(top = 4.dp)
                 )

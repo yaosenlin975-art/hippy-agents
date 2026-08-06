@@ -73,6 +73,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lin.hippyagent.R
@@ -240,7 +242,7 @@ fun SettingsScreen(
                 actions = {
                     Text(
                         text = uiState.appVersion,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(end = 12.dp)
                     )
@@ -262,7 +264,7 @@ fun SettingsScreen(
                     value = searchText,
                     onValueChange = { searchText = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.settings_search_hint), fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.settings_search_hint), style = MaterialTheme.typography.bodyMedium) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.outline) },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -359,13 +361,13 @@ fun SettingsScreen(
                                 Text(
                                     stringResource(group.nameRes),
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Icon(
                                     if (isExpanded) Icons.Default.KeyboardArrowDown
                                     else Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = null,
+                                    contentDescription = if (isExpanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
                                     tint = MaterialTheme.colorScheme.outline,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -383,13 +385,13 @@ fun SettingsScreen(
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
                                                 stringResource(item.titleRes),
-                                                fontSize = 14.sp,
+                                                style = MaterialTheme.typography.bodyMedium,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                             if (!item.subtitle.isNullOrBlank()) {
                                                 Text(
                                                     item.subtitle,
-                                                    fontSize = 12.sp,
+                                                    style = MaterialTheme.typography.labelMedium,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                     modifier = Modifier.padding(top = 2.dp)
                                                 )
@@ -397,7 +399,7 @@ fun SettingsScreen(
                                         }
                                         Icon(
                                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                            contentDescription = null,
+                                            contentDescription = stringResource(R.string.common_expand),
                                             tint = MaterialTheme.colorScheme.outline,
                                             modifier = Modifier.size(18.dp)
                                         )
@@ -426,6 +428,9 @@ fun DebugSection(
     val fullLlm by traceSettings.fullLlmContent.collectAsStateWithLifecycle(initialValue = false)
     val scope = rememberCoroutineScope()
     val repository: TraceRepository = org.koin.compose.koinInject()
+    val traceEnableLabel = stringResource(R.string.trace_enable)
+    val traceMaskingLabel = stringResource(R.string.trace_sensitive_masking)
+    val traceFullLlmLabel = stringResource(R.string.trace_full_llm_content)
     val retentionOptions = remember {
         listOf(
             TraceSettings.RETENTION_1_DAY to R.string.trace_retention_1_day,
@@ -439,8 +444,7 @@ fun DebugSection(
         Text(
             stringResource(R.string.trace_settings_group),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.height(8.dp))
         Row(
@@ -449,10 +453,11 @@ fun DebugSection(
         ) {
             Text(
                 stringResource(R.string.trace_enable),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
             Switch(
+                modifier = Modifier.semantics { contentDescription = traceEnableLabel },
                 checked = enabled,
                 onCheckedChange = { v -> scope.launch { traceSettings.setEnabled(v) } }
             )
@@ -463,17 +468,18 @@ fun DebugSection(
         ) {
             Text(
                 stringResource(R.string.trace_sensitive_masking),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
             Switch(
+                modifier = Modifier.semantics { contentDescription = traceMaskingLabel },
                 checked = masking,
                 onCheckedChange = { v -> scope.launch { traceSettings.setSensitiveMasking(v) } }
             )
         }
         Text(
             stringResource(R.string.trace_retention),
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Row(
@@ -484,7 +490,7 @@ fun DebugSection(
                 FilterChip(
                     selected = retention == value,
                     onClick = { scope.launch { traceSettings.setRetentionDays(value) } },
-                    label = { Text(stringResource(labelRes), fontSize = 12.sp) }
+                    label = { Text(stringResource(labelRes), style = MaterialTheme.typography.labelMedium) }
                 )
             }
         }
@@ -494,10 +500,11 @@ fun DebugSection(
         ) {
             Text(
                 stringResource(R.string.trace_full_llm_content),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
             Switch(
+                modifier = Modifier.semantics { contentDescription = traceFullLlmLabel },
                 checked = fullLlm,
                 onCheckedChange = { v -> scope.launch { traceSettings.setFullLlmContent(v) } }
             )

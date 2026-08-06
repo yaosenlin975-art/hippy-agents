@@ -141,7 +141,7 @@ private fun AgentSessionCountCard(counts: List<AgentSessionCount>) {
             Text(stringResource(R.string.insights_agent_chat_count), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             if (counts.isEmpty()) {
-                Text(stringResource(R.string.insights_no_data), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.insights_no_data), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val maxCount = counts.maxOf { it.sessionCount }.coerceAtLeast(1)
                 counts.forEach { item ->
@@ -150,8 +150,8 @@ private fun AgentSessionCountCard(counts: List<AgentSessionCount>) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(item.agentName, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                        Text(stringResource(R.string.insights_times, item.sessionCount), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(item.agentName, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.insights_times, item.sessionCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -183,7 +183,7 @@ private fun OverviewCard(report: InsightsReport) {
 @Composable
 private fun StatItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        Text(value, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -195,11 +195,11 @@ private fun SkillsBreakdownCard(skills: List<ToolUsage>) {
             Text(stringResource(R.string.insights_skill_ranking), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             if (skills.isEmpty()) {
-                Text(stringResource(R.string.insights_no_data), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.insights_no_data), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else skills.take(10).forEach { s ->
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(s.toolName, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                    Text(stringResource(R.string.insights_times, s.callCount), fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(s.toolName, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.insights_times, s.callCount), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -217,8 +217,8 @@ private fun ToolBreakdownCard(tools: List<ToolUsage>) {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(t.toolName, modifier = Modifier.weight(1f), fontSize = 13.sp)
-                    Text(stringResource(R.string.insights_call_times, t.callCount), fontSize = 13.sp)
+                    Text(t.toolName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.insights_call_times, t.callCount), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -233,12 +233,12 @@ private fun ActivityCard(report: InsightsReport) {
             Text(stringResource(R.string.insights_activity_pattern), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.insights_peak_hours), fontSize = 13.sp)
-                Text("${a.peakHour}:00", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(stringResource(R.string.insights_peak_hours), style = MaterialTheme.typography.bodySmall)
+                Text("${a.peakHour}:00", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.insights_peak_day), fontSize = 13.sp)
-                Text(weekdayName(a.peakWeekday), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(stringResource(R.string.insights_peak_day), style = MaterialTheme.typography.bodySmall)
+                Text(weekdayName(a.peakWeekday), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -260,14 +260,14 @@ private fun TokenTrendChart(dailyTokens: List<com.lin.hippyagent.core.insights.D
                 drawRect(inputColor)
             }
             Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.insights_input), fontSize = 11.sp)
+            Text(stringResource(R.string.insights_input), style = MaterialTheme.typography.labelSmall)
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Canvas(modifier = Modifier.size(10.dp)) {
                 drawRect(outputColor)
             }
             Spacer(Modifier.width(4.dp))
-            Text(stringResource(R.string.insights_output), fontSize = 11.sp)
+            Text(stringResource(R.string.insights_output), style = MaterialTheme.typography.labelSmall)
         }
     }
     Spacer(Modifier.height(8.dp))
@@ -307,7 +307,7 @@ private fun TokenTrendChart(dailyTokens: List<com.lin.hippyagent.core.insights.D
         dailyTokens.forEachIndexed { index, daily ->
             if (index % labelInterval == 0 || index == dailyTokens.lastIndex) {
                 val label = daily.date.takeLast(5)
-                Text(label, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -386,14 +386,14 @@ private fun TokenUsageDetailCard(
                     onClick = { showStartDatePicker = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(startDate.format(formatter), fontSize = 12.sp, maxLines = 1)
+                    Text(startDate.format(formatter), style = MaterialTheme.typography.labelMedium, maxLines = 1)
                 }
                 Text(stringResource(R.string.insights_to), modifier = Modifier.align(Alignment.CenterVertically))
                 OutlinedButton(
                     onClick = { showEndDatePicker = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(endDate.format(formatter), fontSize = 12.sp, maxLines = 1)
+                    Text(endDate.format(formatter), style = MaterialTheme.typography.labelMedium, maxLines = 1)
                 }
             }
 
@@ -411,7 +411,7 @@ private fun TokenUsageDetailCard(
 
                 Text(
                     text = stringResource(R.string.insights_by_model),
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -424,7 +424,7 @@ private fun TokenUsageDetailCard(
                 }
             } ?: Text(
                 text = stringResource(R.string.insights_no_stats),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -500,7 +500,7 @@ private fun TokenUsageSummaryCard(
         ) {
             Text(
                 text = stringResource(R.string.insights_total),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -563,13 +563,13 @@ private fun TokenUsageModelCard(
                 Column {
                     Text(
                         text = "${model.providerId} / ${model.modelName}",
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
                 Text(
                     text = stringResource(R.string.insights_call_times, model.calls),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -602,13 +602,13 @@ private fun TokenStatItem(
     ) {
         Text(
             text = value,
-            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = label,
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

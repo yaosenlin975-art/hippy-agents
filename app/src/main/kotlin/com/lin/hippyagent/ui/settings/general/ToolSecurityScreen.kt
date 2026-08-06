@@ -32,21 +32,21 @@ fun ToolSecurityScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     var smsAccess by remember { mutableStateOf(false) }
     Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.tool_security_policy), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
-            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.tool_security_execution_policy), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
+            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.tool_security_execution_policy), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         listOf(0 to stringResource(R.string.tool_security_allow_all), 1 to stringResource(R.string.tool_security_require_approval), 2 to stringResource(R.string.tool_security_deny_all)).forEach { (v, label) ->
                             Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(selected = policy == v, onClick = { policy = v }, colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary))
-                                Text(label, fontSize = 14.sp, modifier = Modifier.padding(start = 8.dp))
+                                Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 8.dp))
                             }
                         }
-                        if (policy == 1) Text(stringResource(R.string.tool_security_manual_confirm), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 36.dp, top = 4.dp))
+                        if (policy == 1) Text(stringResource(R.string.tool_security_manual_confirm), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 36.dp, top = 4.dp))
                     }
                 }
             }
-            item { Text(stringResource(R.string.tool_security_permission_control), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
+            item { Text(stringResource(R.string.tool_security_permission_control), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column {
@@ -65,7 +65,7 @@ fun ToolSecurityScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun SecRow(title: String, desc: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-        Column(Modifier.weight(1f)) { Text(title, fontSize = 14.sp); Text(desc, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        Column(Modifier.weight(1f)) { Text(title, style = MaterialTheme.typography.bodyMedium); Text(desc, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         Switch(checked = checked, onCheckedChange = onToggle, colors = SwitchDefaults.colors(checkedTrackColor = MaterialTheme.colorScheme.primary))
     }
 }

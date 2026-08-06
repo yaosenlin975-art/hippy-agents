@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Switch
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.components.HippyTopBar
 
@@ -62,8 +64,8 @@ fun writeInactiveThreshold(context: Context, minutes: Int) {
 fun readChatFontSize(context: Context): Int {
     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     val base = if (!prefs.contains(KEY_CHAT_FONT_SIZE)) {
-        val systemFontScale = context.resources.configuration.fontCoerce
-        (DEFAULT_CHAT_FONT_SIZE * systemFontScale).toInt()
+        // 不叠加系统 fontScale：chatFontSize.sp 本身已随系统缩放（与 Theme.kt 回退口径一致）
+        DEFAULT_CHAT_FONT_SIZE
     } else {
         prefs.getInt(KEY_CHAT_FONT_SIZE, DEFAULT_CHAT_FONT_SIZE)
     }
@@ -77,12 +79,10 @@ fun readFontScale(context: Context): Float {
     return if (prefs.contains(KEY_FONT_SCALE)) {
         prefs.getFloat(KEY_FONT_SCALE, 1.0f)
     } else {
-        context.resources.configuration.fontCoerce
+        // 与 Theme.kt 回退口径一致：未设置应用内偏好时不叠加系统 fontScale（sp 本身已随系统缩放）
+        1.0f
     }
 }
-
-private val Configuration.fontCoerce: Float
-    get() = fontScale.coerceIn(0.5f, 2.0f)
 
 fun writeFontScale(context: Context, scale: Float) {
     context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -110,6 +110,7 @@ fun UiSettingsScreen(
         mutableStateOf(readInactiveThreshold(context).toString())
     }
     var isError by remember { mutableStateOf(false) }
+    val showAgentAvatarLabel = stringResource(R.string.ui_show_agent_avatar)
 
     Scaffold(
         topBar = {
@@ -130,7 +131,7 @@ fun UiSettingsScreen(
             item {
                 Text(
                     text = stringResource(R.string.ui_session_list),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
                 )
@@ -160,12 +161,12 @@ fun UiSettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.ui_inactive_threshold),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
                                 text = stringResource(R.string.ui_inactive_threshold_desc),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
@@ -184,7 +185,7 @@ fun UiSettingsScreen(
                             modifier = Modifier.width(88.dp),
                             singleLine = true,
                             isError = isError,
-                            suffix = { Text(stringResource(R.string.ui_minutes), fontSize = 12.sp) },
+                            suffix = { Text(stringResource(R.string.ui_minutes), style = MaterialTheme.typography.labelMedium) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                     }
@@ -195,7 +196,7 @@ fun UiSettingsScreen(
                 if (isError) {
                     Text(
                         text = stringResource(R.string.ui_invalid_number),
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(start = 8.dp, top = 4.dp)
                     )
@@ -205,7 +206,7 @@ fun UiSettingsScreen(
             item {
                 Text(
                     text = stringResource(R.string.ui_chat_interface),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
                 )
@@ -240,12 +241,12 @@ fun UiSettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(R.string.ui_font_scale),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
                                 text = stringResource(R.string.ui_font_scale_desc),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
@@ -258,7 +259,7 @@ fun UiSettingsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.ui_font_small),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Slider(
@@ -273,12 +274,12 @@ fun UiSettingsScreen(
                         )
                         Text(
                             text = stringResource(R.string.ui_font_large),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = "${(fontScale * 100).toInt()}%",
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.width(44.dp)
@@ -293,7 +294,7 @@ fun UiSettingsScreen(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
                                 text = stringResource(R.string.ui_preview),
-                                fontSize = 10.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(bottom = 6.dp)
                             )
@@ -343,10 +344,12 @@ fun UiSettingsScreen(
                     ) {
                         Icon(Icons.Default.Face, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.ui_show_agent_avatar), fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
-                            Text(stringResource(R.string.ui_show_agent_avatar_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_show_agent_avatar), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
+                            Text(stringResource(R.string.ui_show_agent_avatar_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        Switch(checked = showAvatar, onCheckedChange = {
+                        Switch(
+                            modifier = Modifier.semantics { contentDescription = showAgentAvatarLabel },
+                            checked = showAvatar, onCheckedChange = {
                             showAvatar = it
                             writeShowAgentAvatar(context, it)
                         })

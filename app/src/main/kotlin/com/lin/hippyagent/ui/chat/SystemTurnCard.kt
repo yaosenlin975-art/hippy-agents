@@ -95,7 +95,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
@@ -134,8 +133,7 @@ internal fun SystemTurnCard(
     ) {
         Text(
             text = turn.content,
-            fontSize = 12.sp,
-            lineHeight = 17.sp,
+            style = MaterialTheme.typography.labelMedium,
             fontFamily = FontFamily.Monospace,
             color = textColor,
             modifier = Modifier.padding(12.dp)

@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 
@@ -89,7 +88,9 @@ fun HippyTheme(
         if (prefs.contains("app_font_scale")) {
             prefs.getFloat("app_font_scale", 1.0f)
         } else {
-            context.resources.configuration.fontScale.coerceIn(0.5f, 2.0f)
+            // 未设置应用内字号偏好时不再叠加系统 fontScale：sp 单位本身已随系统缩放，
+            // 叠加会导致双重缩放（如系统 1.3x 时实际 ≈1.69x）。
+            1.0f
         }
     }
 
@@ -108,21 +109,18 @@ fun HippyTheme(
     )
 }
 
-private fun scaledTypography(base: Typography, scale: Float): Typography {
-    fun scaled(value: Float): TextUnit = (value * scale).sp
-    return base.copy(
-        headlineLarge = base.headlineLarge.copy(fontSize = scaled(32f), lineHeight = scaled(40f)),
-        headlineMedium = base.headlineMedium.copy(fontSize = scaled(28f), lineHeight = scaled(36f)),
-        headlineSmall = base.headlineSmall.copy(fontSize = scaled(24f), lineHeight = scaled(32f)),
-        titleLarge = base.titleLarge.copy(fontSize = scaled(22f), lineHeight = scaled(28f)),
-        titleMedium = base.titleMedium.copy(fontSize = scaled(16f), lineHeight = scaled(24f)),
-        titleSmall = base.titleSmall.copy(fontSize = scaled(14f), lineHeight = scaled(20f)),
-        bodyLarge = base.bodyLarge.copy(fontSize = scaled(16f), lineHeight = scaled(24f)),
-        bodyMedium = base.bodyMedium.copy(fontSize = scaled(14f), lineHeight = scaled(20f)),
-        bodySmall = base.bodySmall.copy(fontSize = scaled(12f), lineHeight = scaled(16f)),
-        labelLarge = base.labelLarge.copy(fontSize = scaled(14f), lineHeight = scaled(20f)),
-        labelMedium = base.labelMedium.copy(fontSize = scaled(12f), lineHeight = scaled(16f)),
-        labelSmall = base.labelSmall.copy(fontSize = scaled(11f), lineHeight = scaled(16f))
-    )
-}
+private fun scaledTypography(base: Typography, scale: Float): Typography = base.copy(
+    headlineLarge = base.headlineLarge.copy(fontSize = base.headlineLarge.fontSize * scale, lineHeight = base.headlineLarge.lineHeight * scale),
+    headlineMedium = base.headlineMedium.copy(fontSize = base.headlineMedium.fontSize * scale, lineHeight = base.headlineMedium.lineHeight * scale),
+    headlineSmall = base.headlineSmall.copy(fontSize = base.headlineSmall.fontSize * scale, lineHeight = base.headlineSmall.lineHeight * scale),
+    titleLarge = base.titleLarge.copy(fontSize = base.titleLarge.fontSize * scale, lineHeight = base.titleLarge.lineHeight * scale),
+    titleMedium = base.titleMedium.copy(fontSize = base.titleMedium.fontSize * scale, lineHeight = base.titleMedium.lineHeight * scale),
+    titleSmall = base.titleSmall.copy(fontSize = base.titleSmall.fontSize * scale, lineHeight = base.titleSmall.lineHeight * scale),
+    bodyLarge = base.bodyLarge.copy(fontSize = base.bodyLarge.fontSize * scale, lineHeight = base.bodyLarge.lineHeight * scale),
+    bodyMedium = base.bodyMedium.copy(fontSize = base.bodyMedium.fontSize * scale, lineHeight = base.bodyMedium.lineHeight * scale),
+    bodySmall = base.bodySmall.copy(fontSize = base.bodySmall.fontSize * scale, lineHeight = base.bodySmall.lineHeight * scale),
+    labelLarge = base.labelLarge.copy(fontSize = base.labelLarge.fontSize * scale, lineHeight = base.labelLarge.lineHeight * scale),
+    labelMedium = base.labelMedium.copy(fontSize = base.labelMedium.fontSize * scale, lineHeight = base.labelMedium.lineHeight * scale),
+    labelSmall = base.labelSmall.copy(fontSize = base.labelSmall.fontSize * scale, lineHeight = base.labelSmall.lineHeight * scale)
+)
 

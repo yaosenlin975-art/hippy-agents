@@ -101,7 +101,7 @@ fun QrAuthScreen(
                     } else {
                         Icon(
                             Icons.Default.Error,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.error),
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.error
                         )
@@ -141,7 +141,7 @@ fun QrAuthScreen(
                     Text(stringResource(R.string.channel_scanned_confirm))
                 }
                 is QrAuthState.Success -> {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.success), tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.height(16.dp))
                     Text(stringResource(R.string.channel_bind_success))
                     LaunchedEffect(s) {
@@ -150,7 +150,7 @@ fun QrAuthScreen(
                     }
                 }
                 is QrAuthState.Error -> {
-                    Icon(Icons.Default.Error, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Error, contentDescription = stringResource(R.string.error), tint = MaterialTheme.colorScheme.error)
                     Spacer(Modifier.height(16.dp))
                     Text(s.message, color = MaterialTheme.colorScheme.error)
                     if (s.retryable) {

@@ -39,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.skill.AgentMode
 
@@ -128,7 +127,7 @@ private fun ModeSegment(
             Spacer(Modifier.width(4.dp))
             Text(
                 text = label,
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = fg
             )
         }
@@ -178,7 +177,7 @@ fun ChatModeDropdown(
                 ) {
                     Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text(text = label, fontSize = 13.sp)
+                    Text(text = label, style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.width(2.dp))
                     Icon(
                         imageVector = Icons.Filled.ArrowDropDown,
@@ -244,14 +243,14 @@ fun AutoDecisionHint(
         Spacer(Modifier.width(4.dp))
         Text(
             text = stringResource(R.string.chat_mode_auto_decision, decidedMode, source),
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (!reasoning.isNullOrBlank()) {
             Spacer(Modifier.width(6.dp))
             Text(
                 text = stringResource(R.string.chat_mode_auto_decision_reasoning, reasoning),
-                fontSize = 10.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 maxLines = 1
             )
@@ -259,7 +258,7 @@ fun AutoDecisionHint(
         Spacer(Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.chat_mode_switch_to_manual),
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))

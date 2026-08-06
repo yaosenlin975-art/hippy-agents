@@ -92,8 +92,8 @@ fun DataStorageScreen(
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.storage_total_capacity), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("${info.value.totalGB}GB", fontSize = 14.sp)
+                            Text(stringResource(R.string.storage_total_capacity), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${info.value.totalGB}GB", style = MaterialTheme.typography.bodyMedium)
                         }
                         Spacer(Modifier.height(8.dp))
                         LinearProgressIndicator(
@@ -104,8 +104,8 @@ fun DataStorageScreen(
                         )
                         Spacer(Modifier.height(8.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.storage_used_gb, info.value.usedGB), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(stringResource(R.string.storage_available_gb, info.value.availGB), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.storage_used_gb, info.value.usedGB), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.storage_available_gb, info.value.availGB), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -120,14 +120,14 @@ fun DataStorageScreen(
                             Icon(
                                 if (isSafEnabled.value) Icons.Default.Check
                                 else Icons.Default.Warning,
-                                contentDescription = null,
+                                contentDescription = if (isSafEnabled.value) stringResource(R.string.common_enabled) else stringResource(R.string.common_disabled),
                                 modifier = Modifier.size(18.dp),
                                 tint = if (isSafEnabled.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = if (isSafEnabled.value) stringResource(R.string.storage_external_authorized) else stringResource(R.string.storage_internal_data),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
                                 color = if (isSafEnabled.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                             )
@@ -138,9 +138,8 @@ fun DataStorageScreen(
                                 stringResource(R.string.storage_data_migrated_desc)
                             else
                                 stringResource(R.string.storage_data_internal_desc),
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 18.sp
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.height(12.dp))
 
@@ -214,8 +213,8 @@ fun DataStorageScreen(
                             stringResource(R.string.storage_database_label) to info.value.db
                         ).forEach { (k, v) ->
                             Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(k, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(v, fontSize = 14.sp)
+                                Text(k, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(v, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
@@ -235,16 +234,15 @@ fun DataStorageScreen(
                         )
                         items.forEach { (name, path) ->
                             Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                                Text(name, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                                Text(path, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                                Text(name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                                Text(path, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(
                             stringResource(R.string.storage_room_note),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            lineHeight = 16.sp
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -284,7 +282,7 @@ fun DataStorageScreen(
 private fun SectionHeader(text: String) {
     Text(
         text = text,
-        fontSize = 13.sp,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
     )

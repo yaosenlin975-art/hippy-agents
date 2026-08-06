@@ -49,11 +49,11 @@ fun NotificationScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
 
     Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.notifications), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
-            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.notification_settings), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
+            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.notification_settings), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
             item {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column(Modifier.weight(1f)) { Text(stringResource(R.string.notification_enable), fontSize = 15.sp); Text(stringResource(R.string.notification_need_permission), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        Column(Modifier.weight(1f)) { Text(stringResource(R.string.notification_enable), style = MaterialTheme.typography.bodyLarge); Text(stringResource(R.string.notification_need_permission), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         Switch(checked = enabled, onCheckedChange = { on ->
                             if (on && Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                                 launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -67,7 +67,7 @@ fun NotificationScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 }
             }
             if (enabled) {
-                item { Text(stringResource(R.string.notification_types), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
+                item { Text(stringResource(R.string.notification_types), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) }
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column {
@@ -95,7 +95,7 @@ fun NotificationScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun NotiRow(title: String, desc: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-        Column(Modifier.weight(1f)) { Text(title, fontSize = 14.sp); Text(desc, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        Column(Modifier.weight(1f)) { Text(title, style = MaterialTheme.typography.bodyMedium); Text(desc, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         Switch(checked = checked, onCheckedChange = onToggle, colors = SwitchDefaults.colors(checkedTrackColor = MaterialTheme.colorScheme.primary))
     }
 }

@@ -25,14 +25,14 @@ fun DebugInfoScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
             item { Spacer(Modifier.height(8.dp)) }
             info.forEach { (section, items) ->
-                item { Text(section, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)) }
+                item { Text(section, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)) }
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column(Modifier.padding(16.dp)) {
                             items.forEach { (k, v) ->
                                 Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(k, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Text(v, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                    Text(k, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(v, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }

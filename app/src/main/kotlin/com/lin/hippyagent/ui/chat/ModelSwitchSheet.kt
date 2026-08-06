@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,7 +100,7 @@ fun ModelSwitchSheet(
             ) {
                 Text(
                     text = stringResource(R.string.chat_select_model),
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 IconButton(onClick = onNavigateToSettings) {
@@ -148,14 +147,14 @@ fun ModelSwitchSheet(
                             ) {
                                 Text(
                                     text = providerName,
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Text(
                                     text = "${models.size}",
-                                    fontSize = 11.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     modifier = Modifier.padding(end = 8.dp)
                                 )
@@ -221,7 +220,7 @@ private fun ModelItem(
         ) {
             Text(
                 text = model,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 modifier = Modifier.weight(1f),
                 color = if (isSelected) MaterialTheme.colorScheme.primary

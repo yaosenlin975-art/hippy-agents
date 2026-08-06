@@ -96,7 +96,7 @@ fun ProviderDetailScreen(
                 }
                 Text(
                     text = provider.name,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -137,7 +137,7 @@ fun ProviderDetailScreen(
             item {
                 Text(
                     text = stringResource(R.string.provider_model_list, provider.models.size),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
@@ -243,7 +243,7 @@ private fun ProviderInfoCard(
         ) {
             Text(
                 text = "Base URL: ${provider.baseUrl}",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
@@ -252,12 +252,12 @@ private fun ProviderInfoCard(
                     "ollama" -> "Ollama"
                     else -> "OpenAI"
                 }),
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = stringResource(R.string.provider_api_key_configured, if (provider.apiKey.isNotEmpty()) stringResource(R.string.provider_api_key_status_configured) else stringResource(R.string.provider_api_key_status_not_configured)),
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = if (provider.apiKey.isNotEmpty()) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.error
             )
@@ -345,12 +345,12 @@ private fun ModelCard(
                     Text(
                         text = model.displayName.ifEmpty { model.name },
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     if (model.isDefault) {
                         Text(
                             text = stringResource(R.string.provider_default_suffix),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -363,21 +363,21 @@ private fun ModelCard(
                     model.temperature?.let {
                         Text(
                             text = "T: $it",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     model.maxTokens?.let {
                         Text(
                             text = "Max: $it",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     model.contextWindow?.let {
                         Text(
                             text = "Ctx: $it",
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -429,7 +429,7 @@ private fun EditApiKeyDialog(
             Column {
                 Text(
                     text = stringResource(R.string.provider_enter_new_api_key),
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -444,7 +444,7 @@ private fun EditApiKeyDialog(
                             Icon(
                                 imageVector = if (showKey) Icons.Default.VisibilityOff
                                 else Icons.Default.Visibility,
-                                contentDescription = null
+                                contentDescription = if (showKey) stringResource(R.string.common_hide_key) else stringResource(R.string.common_show_key)
                             )
                         }
                     },
@@ -485,7 +485,7 @@ private fun SwitchProtocolDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = stringResource(R.string.provider_current_protocol, protocols.firstOrNull { it.first == currentProtocol }?.second ?: currentProtocol),
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -516,7 +516,7 @@ private fun SwitchProtocolDialog(
                             )
                             Text(
                                 text = label,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = if (selectedProtocol == value) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurface
                             )

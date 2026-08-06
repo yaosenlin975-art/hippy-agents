@@ -90,7 +90,7 @@ fun HeartbeatScreen(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 item {
-                    Text(stringResource(R.string.heartbeat_enable_section), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_enable_section), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -100,7 +100,7 @@ fun HeartbeatScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(stringResource(R.string.heartbeat_enable_label), fontSize = 14.sp)
+                            Text(stringResource(R.string.heartbeat_enable_label), style = MaterialTheme.typography.bodyMedium)
                             Switch(
                                 checked = uiState.heartbeatConfig.enabled,
                                 onCheckedChange = viewModel::updateEnabled
@@ -110,7 +110,7 @@ fun HeartbeatScreen(
                 }
 
                 item {
-                    Text(stringResource(R.string.heartbeat_interval), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_interval), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -150,7 +150,7 @@ fun HeartbeatScreen(
                 }
 
                 item {
-                    Text(stringResource(R.string.heartbeat_reply_target), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_reply_target), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     androidx.compose.material3.Card(
                         colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -177,7 +177,7 @@ fun HeartbeatScreen(
                 }
 
                 item {
-                    Text(stringResource(R.string.heartbeat_active_hours), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.heartbeat_active_hours), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
                     val activeHoursEnabled = uiState.heartbeatConfig.activeHours != null
                     androidx.compose.material3.Card(
@@ -189,8 +189,8 @@ fun HeartbeatScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text(stringResource(R.string.heartbeat_enable_active_hours), fontSize = 14.sp)
-                                Text(stringResource(R.string.heartbeat_active_hours_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_enable_active_hours), style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.heartbeat_active_hours_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(
                                 checked = activeHoursEnabled,
@@ -207,10 +207,10 @@ fun HeartbeatScreen(
                             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(stringResource(R.string.heartbeat_start_time), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_start_time), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = uiState.heartbeatConfig.activeHours?.start ?: "08:00",
-                                    fontSize = 18.sp,
+                                    style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
@@ -224,10 +224,10 @@ fun HeartbeatScreen(
                             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(stringResource(R.string.heartbeat_end_time), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.heartbeat_end_time), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = uiState.heartbeatConfig.activeHours?.end ?: "22:00",
-                                    fontSize = 18.sp,
+                                    style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )

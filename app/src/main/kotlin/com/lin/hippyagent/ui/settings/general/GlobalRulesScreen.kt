@@ -132,7 +132,7 @@ fun GlobalRulesScreen(
         ) {
             Text(
                 text = stringResource(R.string.global_rules_hint),
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
             )

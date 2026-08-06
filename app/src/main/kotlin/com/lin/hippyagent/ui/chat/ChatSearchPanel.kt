@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.chat
+package com.lin.hippyagent.ui.chat
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -77,7 +76,7 @@ fun ChatSearchPanel(
                 TextField(
                     value = uiState.query,
                     onValueChange = viewModel::onQueryChanged,
-                    placeholder = { Text(stringResource(R.string.chat_search_all_messages), fontSize = 14.sp) },
+                    placeholder = { Text(stringResource(R.string.chat_search_all_messages), style = MaterialTheme.typography.bodyMedium) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                     colors = TextFieldDefaults.textFieldColors(
@@ -111,7 +110,7 @@ fun ChatSearchPanel(
                     modifier = Modifier.fillMaxWidth().padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.chat_search_no_results), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                    Text(stringResource(R.string.chat_search_no_results), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                 }
             } else {
                 LazyColumn {
@@ -149,7 +148,7 @@ private fun SearchResultItem(
         ) {
             Text(
                 text = result.sessionName,
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -158,18 +157,17 @@ private fun SearchResultItem(
             )
             Text(
                 text = formatSearchTime(LocalContext.current, result.timestamp),
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = result.matchedText,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            lineHeight = 16.sp
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

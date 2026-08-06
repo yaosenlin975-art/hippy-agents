@@ -91,13 +91,13 @@ private fun QueueItemRow(
             }
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onMoveUp, enabled = index > 0, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.ArrowUpward, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.common_up), modifier = Modifier.size(16.dp))
             }
             IconButton(onClick = onMoveDown, enabled = index < totalCount - 1, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.ArrowDownward, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.common_down), modifier = Modifier.size(16.dp))
             }
             IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete), modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.error)
             }
         }
     }

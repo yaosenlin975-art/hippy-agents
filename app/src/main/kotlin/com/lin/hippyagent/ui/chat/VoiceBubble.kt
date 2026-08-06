@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.R
 import kotlinx.coroutines.delay
 import java.io.File
@@ -175,7 +174,7 @@ fun VoiceBubble(
 
         Text(
             text = durationText,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = if (isUser) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant
         )

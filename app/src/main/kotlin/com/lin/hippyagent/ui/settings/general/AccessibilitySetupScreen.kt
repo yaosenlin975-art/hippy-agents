@@ -45,19 +45,19 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                     Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = if (isServiceEnabled) Icons.Default.CheckCircle else Icons.Default.Warning,
-                            contentDescription = null,
+                            contentDescription = if (isServiceEnabled) stringResource(R.string.common_service_enabled) else stringResource(R.string.common_service_disabled),
                             tint = if (isServiceEnabled) Color(0xFF4CAF50) else Color(0xFFFF9800)
                         )
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = if (isServiceEnabled) stringResource(R.string.accessibility_service_enabled) else stringResource(R.string.accessibility_service_disabled_title),
-                                fontSize = 16.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = if (isServiceEnabled) stringResource(R.string.accessibility_can_control) else stringResource(R.string.accessibility_need_enable),
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -68,7 +68,7 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
             item { Spacer(Modifier.height(16.dp)) }
 
             item {
-                Text(stringResource(R.string.accessibility_steps_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.accessibility_steps_title), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             item {
@@ -92,7 +92,7 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(stringResource(R.string.accessibility_go_to_settings), fontSize = 15.sp)
+                    Text(stringResource(R.string.accessibility_go_to_settings), style = MaterialTheme.typography.bodyLarge)
                 }
             }
 
@@ -103,14 +103,14 @@ fun AccessibilitySetupScreen(onBackClick: () -> Unit, modifier: Modifier = Modif
                     onClick = { isServiceEnabled = checkAccessibilityEnabled(ctx) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.accessibility_refresh_status), fontSize = 15.sp)
+                    Text(stringResource(R.string.accessibility_refresh_status), style = MaterialTheme.typography.bodyLarge)
                 }
             }
 
             item { Spacer(Modifier.height(24.dp)) }
 
             item {
-                Text(stringResource(R.string.accessibility_safety_title), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.accessibility_safety_title), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             item {
@@ -138,20 +138,20 @@ private fun StepItem(step: String, text: String) {
             modifier = Modifier.size(28.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text(step, color = Color.White, fontSize = 14.sp)
+                Text(step, color = Color.White, style = MaterialTheme.typography.bodyMedium)
             }
         }
         Spacer(Modifier.width(12.dp))
-        Text(text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
 @Composable
 private fun InfoRow(text: String) {
     Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("•", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("•", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.width(8.dp))
-        Text(text, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.chat
+package com.lin.hippyagent.ui.chat
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.mission.MissionState
@@ -54,7 +53,7 @@ fun MissionProgressBar(
                     MissionStatus.COMPLETED -> Icons.Default.CheckCircle
                     else -> Icons.Default.Cancel
                 },
-                contentDescription = null,
+                contentDescription = if (mission.status == MissionStatus.COMPLETED) stringResource(R.string.common_mission_completed) else stringResource(R.string.common_mission_cancelled),
                 tint = when (mission.status) {
                     MissionStatus.RUNNING -> MaterialTheme.colorScheme.primary
                     MissionStatus.COMPLETED -> Color(0xFF4CAF50)
@@ -65,7 +64,7 @@ fun MissionProgressBar(
             Spacer(Modifier.width(8.dp))
             Text(
                 text = "Mission: ${mission.config.taskDescription.take(30)}${if (mission.config.taskDescription.length > 30) "…" else ""}",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -75,7 +74,7 @@ fun MissionProgressBar(
             Spacer(Modifier.width(8.dp))
             Text(
                 text = "$completedStories/$totalStories",
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (mission.status == MissionStatus.RUNNING) {

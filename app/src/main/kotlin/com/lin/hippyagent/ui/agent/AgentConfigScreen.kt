@@ -179,7 +179,7 @@ fun AgentConfigScreen(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 item {
-                    Text(stringResource(R.string.agent_basic_info), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.agent_basic_info), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
                 }
 
@@ -212,7 +212,7 @@ fun AgentConfigScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         stringResource(R.string.agent_quick_config),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
@@ -278,7 +278,7 @@ fun AgentConfigScreen(
                 }
 
                 item {
-                    Text(stringResource(R.string.core_files), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Text(stringResource(R.string.core_files), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
                 }
 
@@ -328,10 +328,10 @@ fun AgentConfigScreen(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(stringResource(R.string.agent_memories_section), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    Text(stringResource(R.string.agent_memories_section), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                     Text(
                                         context.getString(R.string.agent_file_count, memoryFiles.size),
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }

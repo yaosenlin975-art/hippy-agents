@@ -122,8 +122,8 @@ fun PreviousDataDialog(
                             Icon(mode.icon, contentDescription = null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text(stringResource(mode.labelResId), fontWeight = FontWeight.Medium, fontSize = 13.sp)
-                                Text(stringResource(mode.descriptionResId), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(mode.labelResId), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(mode.descriptionResId), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

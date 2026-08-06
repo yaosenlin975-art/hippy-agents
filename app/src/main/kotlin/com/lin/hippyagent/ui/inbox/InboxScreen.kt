@@ -166,7 +166,7 @@ private fun TasksTab(
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
                         text = task.title,
-                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -174,7 +174,7 @@ private fun TasksTab(
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = "${task.status.name} · ${formatTimestamp(task.createdAt)}",
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -252,7 +252,7 @@ private fun EventCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = event.title,
-                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (!event.read) FontWeight.SemiBold else FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
@@ -276,7 +276,7 @@ private fun EventCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = event.body,
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -289,14 +289,14 @@ private fun EventCard(
                 ) {
                     Text(
                         text = event.sourceType,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline,
                         fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = formatTimestamp(event.createdAt),
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )
                 }
@@ -337,7 +337,7 @@ private fun EmptyStateView(message: String) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = message,
-                fontSize = 15.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

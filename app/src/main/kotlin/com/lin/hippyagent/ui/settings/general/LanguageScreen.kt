@@ -33,7 +33,7 @@ fun LanguageScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     val langs = remember { langManager.getSupportedLanguages() }
     Scaffold(topBar = { HippyTopBar(title = stringResource(R.string.language_title), showBackButton = true, onBackClick = onBackClick) }) { padding ->
         LazyColumn(modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp)) {
-            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.language_select), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
+            item { Spacer(Modifier.height(8.dp)); Text(stringResource(R.string.language_select), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) }
             items(langs, key = { it.code }) { lang ->
                 Card(modifier = Modifier.fillMaxWidth().padding(bottom = 1.dp).clickable {
                     selected = lang.code
@@ -44,7 +44,7 @@ fun LanguageScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 },
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("${lang.name} (${lang.nativeName})", fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
+                        Text("${lang.name} (${lang.nativeName})", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground)
                         if (selected == lang.code) Icon(Icons.Default.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                     }
                 }

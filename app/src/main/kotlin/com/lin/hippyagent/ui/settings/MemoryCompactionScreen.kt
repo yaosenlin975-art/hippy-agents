@@ -38,11 +38,11 @@ fun MemoryCompactionScreen(
             // 说明
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.memory_compaction), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.memory_compaction), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.memory_compaction_desc),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -55,8 +55,8 @@ fun MemoryCompactionScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.memory_auto_compact), fontSize = 14.sp)
-                        Text(stringResource(R.string.memory_auto_compact_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.memory_auto_compact), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.memory_auto_compact_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = autoCompact, onCheckedChange = { autoCompact = it })
                 }
@@ -65,7 +65,7 @@ fun MemoryCompactionScreen(
             // 压缩阈值
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.memory_compact_threshold), fontSize = 14.sp)
+                    Text(stringResource(R.string.memory_compact_threshold), style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = compactThreshold,
@@ -80,7 +80,7 @@ fun MemoryCompactionScreen(
             // 保留最近记忆
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.memory_keep_recent), fontSize = 14.sp)
+                    Text(stringResource(R.string.memory_keep_recent), style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = keepRecent,

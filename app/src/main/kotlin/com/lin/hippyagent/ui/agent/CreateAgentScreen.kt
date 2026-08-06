@@ -128,12 +128,12 @@ fun CreateAgentScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.SmartToy,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.common_agent),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(Modifier.width(12.dp))
-                            Text(stringResource(R.string.agent_basic_info), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_basic_info), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
                         }
 
                         Spacer(Modifier.height(16.dp))
@@ -154,7 +154,7 @@ fun CreateAgentScreen(
 
                         Spacer(Modifier.height(16.dp))
 
-                        Text(stringResource(R.string.agent_default_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_default_model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(
                             modifier = Modifier
@@ -172,7 +172,7 @@ fun CreateAgentScreen(
                                         val pName = uiState.providerNames[agent.modelProvider] ?: agent.modelProvider
                                         "$pName/${agent.modelName}"
                                     } else stringResource(R.string.agent_select_model_hint),
-                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = if (agent?.modelName?.isNotEmpty() == true) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f),
                                     maxLines = 1,
@@ -182,7 +182,7 @@ fun CreateAgentScreen(
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(stringResource(R.string.agent_fallback_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_fallback_model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showFallbackModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -191,12 +191,12 @@ fun CreateAgentScreen(
                                         val p = uiState.providerNames[agent.fallbackModelProvider] ?: agent.fallbackModelProvider
                                         "$p/$name"
                                     }
-                                }) ?: stringResource(R.string.agent_fallback_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }) ?: stringResource(R.string.agent_fallback_model_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Build, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(stringResource(R.string.agent_complex_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_complex_model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showComplexModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -205,12 +205,12 @@ fun CreateAgentScreen(
                                         val p = uiState.providerNames[agent.complexModelProvider] ?: agent.complexModelProvider
                                         "$p/$name"
                                     }
-                                }) ?: stringResource(R.string.agent_complex_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }) ?: stringResource(R.string.agent_complex_model_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Tune, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(stringResource(R.string.agent_decision_model), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.agent_decision_model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
                         Card(modifier = Modifier.fillMaxWidth().clickable { showDecisionModelSelector = true }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                             Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -219,7 +219,7 @@ fun CreateAgentScreen(
                                         val p = uiState.providerNames[agent.decisionModelProvider] ?: agent.decisionModelProvider
                                         "$p/$name"
                                     }
-                                }) ?: stringResource(R.string.agent_decision_model_hint), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }) ?: stringResource(R.string.agent_decision_model_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 Icon(Icons.Default.Psychology, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             }
                         }
@@ -237,11 +237,11 @@ fun CreateAgentScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(stringResource(R.string.agent_initial_skills), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_initial_skills), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 stringResource(R.string.agent_initial_skills_hint),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.height(8.dp))
@@ -257,7 +257,7 @@ fun CreateAgentScreen(
                                             .padding(vertical = 4.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(skill, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                                        Text(skill, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                                         Switch(
                                             checked = skill in selectedSkills,
                                             onCheckedChange = {
@@ -283,11 +283,11 @@ fun CreateAgentScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(stringResource(R.string.agent_tool_switch), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.agent_tool_switch), fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 stringResource(R.string.agent_tool_switch_hint),
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.height(8.dp))
@@ -305,9 +305,9 @@ fun CreateAgentScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(display, fontSize = 14.sp)
+                                            Text(display, style = MaterialTheme.typography.bodyMedium)
                                             if (display != def.name) {
-                                                Text(def.name, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                Text(def.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                             }
                                         }
                                         Switch(
@@ -350,7 +350,7 @@ fun CreateAgentScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(stringResource(R.string.agent_create), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.agent_create), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                     }
                 }
                 Spacer(Modifier.height(40.dp))

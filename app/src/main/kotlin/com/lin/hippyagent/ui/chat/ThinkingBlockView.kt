@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.lin.hippyagent.R
 import com.lin.hippyagent.core.chat.ThinkingBlock
@@ -116,7 +115,7 @@ fun ThinkingBlockView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = if (expanded) "▼" else "▶",
-                        fontSize = 10.sp
+style = MaterialTheme.typography.labelSmall
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -126,7 +125,7 @@ fun ThinkingBlockView(
                                 append(" · ${formatDuration(block.durationMs)}")
                             }
                         },
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontStyle = FontStyle.Italic
                     )
@@ -151,7 +150,7 @@ fun ThinkingBlockView(
                     if (preview.isNotBlank()) {
                         Text(
                             text = preview,
-                            fontSize = 10.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -172,10 +171,9 @@ fun ThinkingBlockView(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = if (isStreaming) block.content + STREAMING_CURSOR else block.content,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            fontStyle = FontStyle.Italic,
-                            lineHeight = 16.sp
+                            fontStyle = FontStyle.Italic
                         )
                         block.children.forEach { child ->
                             Spacer(modifier = Modifier.height(4.dp))

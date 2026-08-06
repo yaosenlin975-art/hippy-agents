@@ -141,11 +141,11 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.dream_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.dream_title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             stringResource(R.string.dream_desc),
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -159,8 +159,8 @@ fun DreamScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.dream_enable), fontSize = 14.sp)
-                            Text(stringResource(R.string.dream_enable_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.dream_enable), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.dream_enable_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(
                             checked = dreamEnabled,
@@ -175,7 +175,7 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.dream_interval_hours), fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_interval_hours), style = MaterialTheme.typography.bodyMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = dreamIntervalHours,
@@ -193,19 +193,19 @@ fun DreamScreen(
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(stringResource(R.string.dream_charge_only), fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_charge_only), style = MaterialTheme.typography.bodyMedium)
                             }
                             Switch(checked = dreamOnCharge, onCheckedChange = { dreamOnCharge = it }, enabled = dreamEnabled)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(stringResource(R.string.dream_wifi_required), fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_wifi_required), style = MaterialTheme.typography.bodyMedium)
                             }
                             Switch(checked = dreamOnWifi, onCheckedChange = { dreamOnWifi = it }, enabled = dreamEnabled)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(stringResource(R.string.dream_idle_only), fontSize = 14.sp)
+                                Text(stringResource(R.string.dream_idle_only), style = MaterialTheme.typography.bodyMedium)
                             }
                             Switch(checked = dreamOnIdle, onCheckedChange = { dreamOnIdle = it }, enabled = dreamEnabled)
                         }
@@ -216,7 +216,7 @@ fun DreamScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.dream_retention_days), fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_retention_days), style = MaterialTheme.typography.bodyMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = retentionDays,
@@ -244,7 +244,7 @@ fun DreamScreen(
 
             if (history.isNotEmpty()) {
                 item {
-                    Text(stringResource(R.string.dream_history), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.dream_history), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 }
                 items(history, key = { it.triggeredAt }) { entry ->
                     Card(modifier = Modifier.fillMaxWidth()) {
@@ -252,21 +252,21 @@ fun DreamScreen(
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(
                                     formatTimestamp(entry.triggeredAt),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     entry.status,
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = if (entry.status == "completed") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                 )
                             }
                             entry.message?.let {
-                                Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             entry.elapsedMs?.let { ms ->
-                                Text(stringResource(R.string.dream_elapsed_ms, ms), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.dream_elapsed_ms, ms), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -275,18 +275,18 @@ fun DreamScreen(
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(stringResource(R.string.dream_curator_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.dream_curator_title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.dream_auto_skill_mgmt), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(stringResource(R.string.dream_auto_skill_mgmt), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             stringResource(R.string.dream_curator_desc),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -313,19 +313,19 @@ fun DreamScreen(
                             ) {
                                 Text(
                                     skill.name,
-                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
                                     stringResource(R.string.dream_skill_usage_count, skill.usageCount),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             if (skill.description.isNotBlank()) {
                                 Text(
                                     skill.description,
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 2
                                 )
@@ -336,7 +336,7 @@ fun DreamScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(stringResource(R.string.memory_confidence), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.memory_confidence), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                                     LinearProgressIndicator(
                                         progress = { skill.confidence },
@@ -345,7 +345,7 @@ fun DreamScreen(
                                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                                     Text(
                                         "${(skill.confidence * 100).toInt()}%",
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -358,7 +358,7 @@ fun DreamScreen(
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             stringResource(R.string.dream_no_auto_skills),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -374,8 +374,8 @@ fun DreamScreen(
 @Composable
 private fun StatItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
-        Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

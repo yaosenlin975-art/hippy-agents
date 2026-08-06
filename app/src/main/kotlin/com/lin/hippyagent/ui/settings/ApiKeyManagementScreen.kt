@@ -155,11 +155,11 @@ private fun ApiKeyCard(
                 Text(
                     text = providerId,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = if (hasKey) stringResource(R.string.api_key_configured) else stringResource(R.string.api_key_not_configured),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = if (hasKey) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.error
                 )
@@ -213,7 +213,7 @@ private fun AddApiKeyDialog(
                         IconButton(onClick = { showKey = !showKey }) {
                             Icon(
                                 imageVector = if (showKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null
+                                contentDescription = if (showKey) stringResource(R.string.common_hide_key) else stringResource(R.string.common_show_key)
                             )
                         }
                     },

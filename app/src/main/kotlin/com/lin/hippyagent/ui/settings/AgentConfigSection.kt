@@ -181,7 +181,7 @@ fun AgentConfigSection(
                     uiState.agent?.let { agent ->
                         Text(
                             text = agent.name.ifEmpty { agent.agentId },
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -430,10 +430,10 @@ fun AgentConfigSection(
                                                 )
                                                 Spacer(Modifier.width(12.dp))
                                                 Column(modifier = Modifier.weight(1f)) {
-                                                    Text(stringResource(R.string.agent_memories_section), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                                    Text(stringResource(R.string.agent_memories_section), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                                     Text(
                                                         context.getString(R.string.agent_file_count, memoryFiles.size),
-                                                        fontSize = 11.sp,
+                                                        style = MaterialTheme.typography.labelSmall,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
@@ -640,14 +640,14 @@ private fun SectionHeader(
     ) {
         Text(
             title,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Icon(
             if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-            contentDescription = null,
+            contentDescription = if (expanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp)
         )

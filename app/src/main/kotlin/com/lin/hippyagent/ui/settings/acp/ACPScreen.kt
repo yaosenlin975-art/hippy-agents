@@ -68,7 +68,7 @@ fun ACPScreen(
                 }
                 Text(
                     text = stringResource(R.string.acp_settings),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 8.dp)
                 )
@@ -122,12 +122,12 @@ fun ACPScreen(
                         Text(
                             text = "ACP (Agent Communication Protocol)",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.acp_protocol_desc),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -154,20 +154,20 @@ fun ACPScreen(
                             Text(
                                 text = stringResource(R.string.acp_server_status),
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 15.sp
+                                style = MaterialTheme.typography.bodyLarge
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = if (isServerRunning) Icons.Default.Check
                                     else Icons.Default.Close,
-                                    contentDescription = null,
+                                    contentDescription = if (isServerRunning) stringResource(R.string.common_running) else stringResource(R.string.common_stopped),
                                     tint = if (isServerRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = if (isServerRunning) stringResource(R.string.acp_running) else stringResource(R.string.acp_stopped),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = if (isServerRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                 )
                             }
@@ -175,7 +175,7 @@ fun ACPScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.acp_port_label, serverPort),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -197,7 +197,7 @@ fun ACPScreen(
                         Text(
                             text = stringResource(R.string.acp_config),
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp
+                            style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
@@ -209,11 +209,11 @@ fun ACPScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = stringResource(R.string.acp_enable),
-                                    fontSize = 14.sp
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                                 Text(
                                     text = stringResource(R.string.acp_enable_desc),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -227,7 +227,7 @@ fun ACPScreen(
 
                         Text(
                             text = stringResource(R.string.acp_supported_methods),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -243,13 +243,13 @@ fun ACPScreen(
                             ) {
                                 Text(
                                     text = "• $method",
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.width(120.dp)
                                 )
                                 Text(
                                     text = desc,
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -273,14 +273,13 @@ fun ACPScreen(
                         Text(
                             text = stringResource(R.string.acp_usage_guide),
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp
+                            style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = stringResource(R.string.acp_usage_guide_steps, serverPort),
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 20.sp
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

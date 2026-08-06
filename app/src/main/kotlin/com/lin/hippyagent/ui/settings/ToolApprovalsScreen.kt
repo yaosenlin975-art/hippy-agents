@@ -39,11 +39,11 @@ fun ToolApprovalsScreen(
         ) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.tool_approval_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(stringResource(R.string.tool_approval_title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.tool_approval_desc),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -55,8 +55,8 @@ fun ToolApprovalsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.tool_approval_required), fontSize = 14.sp)
-                        Text(stringResource(R.string.tool_approval_required_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.tool_approval_required), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.tool_approval_required_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Switch(checked = requireApproval, onCheckedChange = { requireApproval = it })
                 }
@@ -64,7 +64,7 @@ fun ToolApprovalsScreen(
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(stringResource(R.string.tool_approval_timeout_seconds_label), fontSize = 14.sp)
+                    Text(stringResource(R.string.tool_approval_timeout_seconds_label), style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = approvalTimeout,
@@ -77,7 +77,7 @@ fun ToolApprovalsScreen(
             }
 
             if (pendingApprovals.isNotEmpty()) {
-                Text(stringResource(R.string.tool_approval_pending_label), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(stringResource(R.string.tool_approval_pending_label), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -88,8 +88,8 @@ fun ToolApprovalsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(toolName, fontSize = 14.sp)
-                                    Text(stringResource(R.string.tool_approval_waiting), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(toolName, style = MaterialTheme.typography.bodyMedium)
+                                    Text(stringResource(R.string.tool_approval_waiting), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 TextButton(onClick = { pendingApprovals.remove(toolName) }) {
                                     Text(stringResource(R.string.tool_approval_approve))

@@ -205,7 +205,7 @@ private fun MCPClientCard(
                     Text(
                         text = client.name,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
                         text = stringResource(R.string.mcp_transport_label, client.transport),

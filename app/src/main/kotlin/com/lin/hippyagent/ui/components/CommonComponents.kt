@@ -47,7 +47,7 @@ fun HippyTopBar(
         title = {
             Text(
                 text = title,
-                fontSize = 17.sp,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -81,7 +81,7 @@ fun SectionHeader(
 ) {
     Text(
         text = title,
-        fontSize = 16.sp,
+        style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier
@@ -109,14 +109,14 @@ fun SettingCard(
         ) {
             Text(
                 text = title,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onSurface
             )
             if (description != null) {
                 Text(
                     text = description,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )

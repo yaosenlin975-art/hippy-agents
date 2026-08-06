@@ -64,7 +64,7 @@ fun ToolsListScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp),
                     singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
+                    textStyle = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -73,7 +73,7 @@ fun ToolsListScreen(
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Text(
                     if (searchQuery.isNotBlank()) stringResource(R.string.tools_no_match) else stringResource(R.string.agent_no_tools),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -106,7 +106,7 @@ private fun ToolItem(
     val displayName = buildAnnotatedString {
         if (cnName.isNotEmpty()) {
             append(cnName)
-            withStyle(SpanStyle(fontStyle = FontStyle.Italic, fontSize = 11.sp, fontWeight = FontWeight.Normal)) {
+            withStyle(SpanStyle(fontStyle = FontStyle.Italic, fontSize = MaterialTheme.typography.labelSmall.fontSize, fontWeight = FontWeight.Normal)) {
                 append("  ${definition.name}")
             }
         } else {
@@ -120,9 +120,9 @@ private fun ToolItem(
             .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(displayName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text(definition.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(stringResource(R.string.tools_params_count, definition.parameters.size), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(displayName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+            Text(definition.description, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.tools_params_count, definition.parameters.size), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
             com.lin.hippyagent.ui.agent.ModeVisibilityChips(
                 visible = visible,

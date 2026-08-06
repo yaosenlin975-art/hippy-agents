@@ -186,7 +186,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 status?.let { s ->
                     Spacer(Modifier.height(8.dp))
                     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-                        Text(s, Modifier.padding(12.dp), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(s, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -200,20 +200,20 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                     FilterChip(
                         selected = selectedLevel == null,
                         onClick = { selectedLevel = null },
-                        label = { Text(stringResource(R.string.log_filter_all), fontSize = 11.sp) }
+                        label = { Text(stringResource(R.string.log_filter_all), style = MaterialTheme.typography.labelSmall) }
                     )
                     listOf('V' to "Verbose", 'D' to "Debug", 'I' to "Info", 'W' to "Warn", 'E' to "Error", 'F' to "Fatal").forEach { (level, label) ->
                         FilterChip(
                             selected = selectedLevel == level,
                             onClick = { selectedLevel = if (selectedLevel == level) null else level },
-                            label = { Text(label, fontSize = 11.sp) }
+                            label = { Text(label, style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = onlyHippy, onCheckedChange = { onlyHippy = it })
-                    Text(stringResource(R.string.log_only_hippy), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.log_only_hippy), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
@@ -231,7 +231,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                         } else stringResource(R.string.log_no_match),
                         color = Color(0xFF888888),
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(8.dp)
                     )
                 } else {
@@ -250,8 +250,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                                     parseLogcatLine(line),
                                     color = textColor,
                                     fontFamily = FontFamily.Monospace,
-                                    fontSize = 11.sp,
-                                    lineHeight = 15.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     modifier = Modifier.horizontalScroll(rememberScrollState())
                                 )
                             }
@@ -273,7 +272,7 @@ fun ExportLogScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                                 contentColor = Color.White
                             )
                         ) {
-                            Text(if (autoScroll) stringResource(R.string.log_auto_scroll) else stringResource(R.string.log_manual_scroll), fontSize = 11.sp)
+                            Text(if (autoScroll) stringResource(R.string.log_auto_scroll) else stringResource(R.string.log_manual_scroll), style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }

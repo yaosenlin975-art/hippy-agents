@@ -95,6 +95,8 @@ import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolRegistry
 import com.lin.hippyagent.ui.components.getAvatarIcon
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.lin.hippyagent.R
 
 @Composable
@@ -112,7 +114,7 @@ fun ModelSelectorRow(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 8.dp))
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 8.dp))
         Card(
             modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -123,7 +125,7 @@ fun ModelSelectorRow(
             ) {
                 Text(
                     text = if (modelText.isNotEmpty()) modelText else placeholder,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = if (modelText.isNotEmpty()) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
@@ -225,10 +227,7 @@ fun AgentProfileFields(
                     onValueChange = onNameChange,
                     placeholder = { Text(stringResource(R.string.agent_nickname_hint)) },
                     modifier = Modifier.weight(1f),
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                 )
                 if (trailingContent != null) {
                     trailingContent()
@@ -242,10 +241,12 @@ fun AgentProfileFields(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.agent_enable), fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-                    Text(stringResource(R.string.agent_enable_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.agent_enable), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+                    Text(stringResource(R.string.agent_enable_desc), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                val agentEnableLabel = stringResource(R.string.agent_enable)
                 Switch(
+                    modifier = Modifier.semantics { contentDescription = agentEnableLabel },
                     checked = enabled,
                     onCheckedChange = onEnabledChange,
                     colors = SwitchDefaults.colors(
@@ -334,7 +335,7 @@ fun SkillVisibilityPicker(
                     activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             ) {
-                Text(label, fontSize = 11.sp, maxLines = 1, softWrap = false)
+                Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false)
             }
         }
     }
@@ -359,7 +360,7 @@ fun ModeVisibilityChips(
                     val newSet = if (mode in visible) visible - mode else visible + mode
                     onChange(newSet)
                 },
-                label = { Text(mode, fontSize = 10.sp) },
+                label = { Text(mode, style = MaterialTheme.typography.labelSmall) },
                 modifier = Modifier.padding(horizontal = 2.dp)
             )
         }
@@ -409,7 +410,7 @@ fun SkillsManagementSheet(
         ) {
             Text(
                 text = stringResource(R.string.skill_management),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -418,7 +419,7 @@ fun SkillsManagementSheet(
                 value = skillSearchQuery,
                 onValueChange = { skillSearchQuery = it },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                placeholder = { Text(stringResource(R.string.agent_search_skills), fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.agent_search_skills), style = MaterialTheme.typography.bodySmall) },
                 leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp)) },
                 singleLine = true
             )
@@ -446,7 +447,7 @@ fun SkillsManagementSheet(
                     ) {
                         Icon(icon, null, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(2.dp))
-                        Text(label, fontSize = 11.sp, maxLines = 1)
+                        Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                     }
                 }
             }
@@ -461,7 +462,7 @@ fun SkillsManagementSheet(
                     (info?.description?.contains(skillSearchQuery, ignoreCase = true) == true)
             }
             if (skills.isEmpty()) {
-                Text(text = stringResource(R.string.no_skills), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.no_skills), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredSkills, key = { it }) { skillId ->
@@ -482,21 +483,21 @@ fun SkillsManagementSheet(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = skillInfo?.displayNameOrName() ?: skillId,
-                                        fontSize = 14.sp,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Medium,
                                         color = if (isOn) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
                                     if (skillInfo != null) {
                                         Text(
                                             text = skillInfo.description,
-                                            fontSize = 11.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             text = stringResource(R.string.skill_version_format, skillInfo.version),
-                                            fontSize = 10.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                             modifier = Modifier.padding(top = 2.dp)
                                         )
@@ -598,7 +599,7 @@ fun SkillDetailDialog(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(skill.displayNameOrName(), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text(stringResource(R.string.skill_version_format, skill.version), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.skill_version_format, skill.version), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         text = {
@@ -614,7 +615,7 @@ fun SkillDetailDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(stringResource(R.string.agent_enable_skill), fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+                        Text(stringResource(R.string.agent_enable_skill), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                         Switch(
                             checked = isSkillEnabled,
                             onCheckedChange = { enabled -> onToggleSkill(skill.id, enabled) },
@@ -629,9 +630,8 @@ fun SkillDetailDialog(
                 }
                 Text(
                     text = skillMdContent,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace,
-                    lineHeight = 18.sp
+                    style = MaterialTheme.typography.labelMedium,
+                    fontFamily = FontFamily.Monospace
                 )
             }
         },
@@ -681,14 +681,14 @@ fun LoadFromPoolSheet(
         ) {
             Text(
                 text = stringResource(R.string.agent_load_from_pool),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             if (loadableSkills.isEmpty()) {
                 Text(
                     text = stringResource(R.string.agent_no_skills_in_pool),
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -714,34 +714,34 @@ fun LoadFromPoolSheet(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = skill.displayNameOrName(),
-                                            fontSize = 14.sp,
+                                            style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Spacer(Modifier.width(6.dp))
                                         if (entry.isUpdate) {
                                             Text(
                                                 text = context.getString(R.string.agent_skill_update_available, entry.agentVersion ?: "", skill.version),
-                                                fontSize = 10.sp,
+                                                style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary
                                             )
                                         } else {
                                             Text(
                                                 text = stringResource(R.string.agent_new),
-                                                fontSize = 10.sp,
+                                                style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.tertiary
                                             )
                                         }
                                     }
                                     Text(
                                         text = skill.description,
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
                                         text = stringResource(R.string.skill_version_format, skill.version),
-                                        fontSize = 10.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                         modifier = Modifier.padding(top = 2.dp)
                                     )
@@ -793,7 +793,7 @@ fun ToolsManagementSheet(
         ) {
             Text(
                 text = stringResource(R.string.agent_tool_management),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -802,7 +802,7 @@ fun ToolsManagementSheet(
                 value = toolSearchQuery,
                 onValueChange = { toolSearchQuery = it },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                placeholder = { Text(stringResource(R.string.agent_search_tools), fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.agent_search_tools), style = MaterialTheme.typography.bodySmall) },
                 leadingIcon = { Icon(Icons.Default.Search, null, modifier = Modifier.size(18.dp)) },
                 singleLine = true
             )
@@ -816,7 +816,7 @@ fun ToolsManagementSheet(
             }
 
             if (filteredTools.isEmpty()) {
-                Text(text = stringResource(R.string.agent_no_tools), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.agent_no_tools), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = 400.dp)) {
                     items(filteredTools, key = { it.name }) { toolDef ->
@@ -834,13 +834,13 @@ fun ToolsManagementSheet(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = toolDef.displayName.ifEmpty { toolDef.name },
-                                        fontSize = 14.sp,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Medium,
                                         color = if (isOn) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
                                     Text(
                                         text = toolDef.description,
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
@@ -882,36 +882,36 @@ fun ToolDetailDialog(
             Column {
                 Text(
                     text = tool.description,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (tool.parameters.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text(stringResource(R.string.agent_params), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.agent_params), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(4.dp))
                     tool.parameters.values.forEach { param ->
                         Row(modifier = Modifier.padding(vertical = 2.dp)) {
                             Text(
                                 text = param.name,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = " (${param.type})",
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             if (param.required) {
-                                Text(text = " *", fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+                                Text(text = " *", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
                             }
                         }
                         if (param.description.isNotBlank()) {
                             Text(
                                 text = param.description,
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
                             )
@@ -986,7 +986,7 @@ fun CoreFileEditorDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = filename, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(text = filename, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 TextButton(onClick = { onSave(editedContent) }) { Text(stringResource(R.string.save)) }
             }
             Spacer(Modifier.height(8.dp))
@@ -996,9 +996,8 @@ fun CoreFileEditorDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                textStyle = androidx.compose.ui.text.TextStyle(
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 13.sp
+                textStyle = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = FontFamily.Monospace
                 ),
                 maxLines = 50
             )
@@ -1031,7 +1030,7 @@ fun QuickActionButton(
         ) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
-            Text(label, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
         }
     }
 }
@@ -1062,9 +1061,10 @@ fun CoreFileItem(
             Icon(Icons.Default.Description, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(filename, fontSize = 14.sp)
+                Text(filename, style = MaterialTheme.typography.bodyMedium)
             }
             Switch(
+                modifier = Modifier.semantics { contentDescription = filename },
                 checked = isEnabled,
                 onCheckedChange = onToggle
             )

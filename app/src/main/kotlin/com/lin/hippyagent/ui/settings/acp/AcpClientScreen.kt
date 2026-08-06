@@ -256,7 +256,7 @@ private fun ServerCard(
                     ) {
                         Icon(
                             imageVector = if (agent.enabled) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                            contentDescription = null,
+                            contentDescription = if (agent.enabled) stringResource(R.string.common_enabled) else stringResource(R.string.common_disabled),
                             modifier = Modifier.size(16.dp),
                             tint = if (agent.enabled) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurfaceVariant
                         )

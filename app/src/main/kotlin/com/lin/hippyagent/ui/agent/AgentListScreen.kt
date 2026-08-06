@@ -120,7 +120,7 @@ private fun AgentCard(
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.common_agent_avatar),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp)),
@@ -130,7 +130,7 @@ private fun AgentCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = profile.name.ifBlank { agentId },
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -138,7 +138,7 @@ private fun AgentCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = profile.modelName.substringAfterLast("/").ifBlank { stringResource(R.string.agent_default_model) },
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

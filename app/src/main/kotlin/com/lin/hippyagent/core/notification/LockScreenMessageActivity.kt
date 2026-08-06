@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -121,14 +122,14 @@ private fun LockScreenContent(
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = message,
                     color = Color(0xFFE0E0E0),
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 6,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -136,7 +137,7 @@ private fun LockScreenContent(
                 Text(
                     text = "点击进入会话",
                     color = Color(0xFF80CBC4),
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         }

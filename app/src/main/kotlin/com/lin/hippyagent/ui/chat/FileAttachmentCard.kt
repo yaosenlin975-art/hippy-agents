@@ -95,7 +95,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
@@ -161,7 +160,7 @@ internal fun FileAttachmentCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = fileName,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     color = if (isUser) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurface,
@@ -172,7 +171,7 @@ internal fun FileAttachmentCard(
                     if (ext.isNotEmpty()) {
                         Text(
                             text = ext.uppercase(),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
                             else MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -181,7 +180,7 @@ internal fun FileAttachmentCard(
                         if (ext.isNotEmpty()) Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = fileSize,
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
                             else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )

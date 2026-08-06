@@ -86,7 +86,7 @@ fun PlanPanel(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.chat_execute_plan),
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -107,7 +107,7 @@ fun PlanPanel(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "📋",
-                            fontSize = 48.sp
+                            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 48.sp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -133,13 +133,13 @@ private fun PlanContent(plan: PlanState) {
     ) {
         Text(
             text = plan.name,
-            fontSize = 16.sp,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = plan.description,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -153,12 +153,12 @@ private fun PlanContent(plan: PlanState) {
         ) {
             Text(
                 text = context.getString(R.string.chat_progress) + " ${plan.doneCount}/${plan.totalCount}",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = "${plan.progress}%",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -198,12 +198,12 @@ private fun PlanContent(plan: PlanState) {
                     Text(
                         text = stringResource(R.string.chat_completion_summary),
                         fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = plan.outcome,
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -239,13 +239,13 @@ private fun SubTaskItem(
                 text = "$index. ${subtask.name}",
                 fontWeight = if (subtask.state == SubTaskState.IN_PROGRESS)
                     FontWeight.SemiBold else FontWeight.Normal,
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodyMedium
             )
             if (subtask.description.isNotBlank()) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = subtask.description,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -263,7 +263,7 @@ private fun SubTaskItem(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "✓ ${subtask.outcome}",
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFF4CAF50)
                     )
                 }

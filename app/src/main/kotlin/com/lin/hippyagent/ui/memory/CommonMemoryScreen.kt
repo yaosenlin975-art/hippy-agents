@@ -117,7 +117,7 @@ fun CommonMemoryScreen(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.search(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.memory_search_hint), fontSize = 14.sp) },
+                placeholder = { Text(stringResource(R.string.memory_search_hint), style = MaterialTheme.typography.bodyMedium) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.outline) },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -137,7 +137,7 @@ fun CommonMemoryScreen(
                     FilterChip(
                         selected = uiState.filterType == null,
                         onClick = { viewModel.filterByType(null) },
-                        label = { Text(stringResource(R.string.memory_all), fontSize = 12.sp) }
+                        label = { Text(stringResource(R.string.memory_all), style = MaterialTheme.typography.labelMedium) }
                     )
                 }
                 TYPE_LABEL_RES.forEach { (type, resId) ->
@@ -145,7 +145,7 @@ fun CommonMemoryScreen(
                         FilterChip(
                             selected = uiState.filterType == type,
                             onClick = { viewModel.filterByType(type) },
-                            label = { Text(stringResource(resId), fontSize = 12.sp) }
+                            label = { Text(stringResource(resId), style = MaterialTheme.typography.labelMedium) }
                         )
                     }
                 }
@@ -156,7 +156,7 @@ fun CommonMemoryScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     stringResource(R.string.memory_count, uiState.entries.size, stats.total),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -171,7 +171,7 @@ fun CommonMemoryScreen(
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         stringResource(R.string.memory_no_data),
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -224,7 +224,7 @@ private fun MemoryCard(
                 ) {
                     Text(
                         typeLabel,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium,
                         color = typeColor
                     )
@@ -233,7 +233,7 @@ private fun MemoryCard(
                 val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
                 Text(
                     dateFormat.format(Date(entry.updatedAt)),
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.width(4.dp))
@@ -244,7 +244,7 @@ private fun MemoryCard(
                 ) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.delete),
                         tint = MaterialTheme.colorScheme.outline,
                         modifier = Modifier.size(16.dp)
                     )
@@ -271,7 +271,7 @@ private fun MemoryCard(
 
             Text(
                 entry.summary,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -280,7 +280,7 @@ private fun MemoryCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     entry.detail,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3
                 )
@@ -306,7 +306,7 @@ private fun ConfidenceBar(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(label, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(2.dp))
         LinearProgressIndicator(
             progress = { value.coerceIn(0f, 1f) },

@@ -192,16 +192,16 @@ private fun RuleCard(rule: ApprovalRule, onDelete: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(toolName, fontSize = 14.sp, fontFamily = FontFamily.Monospace)
+                Text(toolName, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace)
                 if (argHint.isNotEmpty()) {
                     Text(
                         argHint,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
                     )
                 }
-                Text(actionLabel, fontSize = 12.sp, color = actionColor)
+                Text(actionLabel, style = MaterialTheme.typography.labelMedium, color = actionColor)
             }
             IconButton(onClick = onDelete) {
                 Icon(

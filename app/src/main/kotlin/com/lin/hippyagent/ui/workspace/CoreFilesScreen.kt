@@ -185,7 +185,7 @@ private fun CoreFileItem(
                     Text(
                         text = file.filename,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         color = if (file.enabled)
                             MaterialTheme.colorScheme.onSurface
                         else
@@ -194,7 +194,7 @@ private fun CoreFileItem(
                     if (!file.exists) {
                         Text(
                             text = stringResource(R.string.core_files_not_created),
-                            fontSize = 11.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Medium
                         )
@@ -207,18 +207,18 @@ private fun CoreFileItem(
                     if (file.exists) {
                         Text(
                             text = formatFileSize(file.size),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = formatTimestamp(file.lastModified),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
                         Text(
                             text = stringResource(R.string.core_files_click_to_create),
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
@@ -256,8 +256,7 @@ fun FileEditorDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp),
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontSize = 14.sp,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Monospace
                     )
                 )

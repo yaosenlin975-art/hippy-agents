@@ -95,7 +95,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
@@ -149,7 +148,7 @@ internal fun ClarificationTurnCard(
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = turn.question,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -158,7 +157,7 @@ internal fun ClarificationTurnCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = turn.context,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -172,7 +171,7 @@ internal fun ClarificationTurnCard(
                             .padding(vertical = 2.dp),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(option, fontSize = 12.sp)
+                        Text(option, style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -182,7 +181,7 @@ internal fun ClarificationTurnCard(
                     OutlinedButton(
                         onClick = onSkip,
                         shape = RoundedCornerShape(8.dp)
-                    ) { Text(stringResource(R.string.common_skip), fontSize = 12.sp) }
+                    ) { Text(stringResource(R.string.common_skip), style = MaterialTheme.typography.labelMedium) }
                 }
             }
             if (turn.isResolved) {
@@ -199,7 +198,7 @@ internal fun ClarificationTurnCard(
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = if (turn.selectedOption != null) stringResource(R.string.chat_option_selected, turn.selectedOption) else stringResource(R.string.chat_skipped),
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

@@ -52,7 +52,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.res.stringResource
@@ -110,7 +109,7 @@ fun AgentListDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(R.string.chat_group_members),
-                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -224,14 +223,14 @@ private fun AgentListItem(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = statusText,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (agent.currentTask != null) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = agent.currentTask,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -248,7 +247,7 @@ private fun AgentListItem(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text(stringResource(R.string.chat_interrupt), fontSize = 14.sp)
+                Text(stringResource(R.string.chat_interrupt), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

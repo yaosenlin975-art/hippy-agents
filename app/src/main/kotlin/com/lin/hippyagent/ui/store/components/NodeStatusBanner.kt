@@ -48,7 +48,7 @@ internal fun NodeStatusBanner(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (nodeCheckState is NodeStatus.Installing) stringResource(R.string.store_installing_nodejs) else stringResource(R.string.store_checking_nodejs),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -66,7 +66,7 @@ internal fun NodeStatusBanner(
                 ) {
                     Text(
                         text = stringResource(R.string.store_nodejs_install_failed),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -74,7 +74,7 @@ internal fun NodeStatusBanner(
                         onClick = onNavigateToEnvCheck,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text(stringResource(R.string.store_go_to_env_check), fontSize = 12.sp)
+                        Text(stringResource(R.string.store_go_to_env_check), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }

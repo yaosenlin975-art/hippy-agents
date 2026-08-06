@@ -95,7 +95,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.chat.ChatTurn
 import com.lin.hippyagent.core.chat.PermissionType
@@ -149,7 +148,7 @@ internal fun PermissionTurnCard(
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = turn.title,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = onContainerColor
                 )
@@ -157,7 +156,7 @@ internal fun PermissionTurnCard(
             Spacer(Modifier.height(4.dp))
             Text(
                 text = turn.description,
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = onContainerColor.copy(alpha = 0.85f)
             )
             if (!turn.pendingCommand.isNullOrBlank()) {
@@ -168,7 +167,7 @@ internal fun PermissionTurnCard(
                 ) {
                     Text(
                         text = turn.pendingCommand,
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(8.dp)
@@ -182,14 +181,14 @@ internal fun PermissionTurnCard(
                         for (finding in turn.findings.take(3)) {
                             Text(
                                 text = "• [${finding.severity.value}] ${finding.title}",
-                                fontSize = 10.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = onContainerColor.copy(alpha = 0.7f)
                             )
                         }
                         if (turn.findings.size > 3) {
                             Text(
                                 text = stringResource(R.string.chat_more_items, turn.findings.size - 3),
-                                fontSize = 10.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = onContainerColor.copy(alpha = 0.5f)
                             )
                         }
@@ -204,24 +203,24 @@ internal fun PermissionTurnCard(
                         onClick = onDenyOnce,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                    ) { Text(stringResource(R.string.chat_deny), fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_deny), style = MaterialTheme.typography.labelSmall) }
                     OutlinedButton(
                         onClick = onDenyAlways,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                    ) { Text(stringResource(R.string.chat_deny_always), fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_deny_always), style = MaterialTheme.typography.labelSmall) }
                     Button(
                         onClick = onApproveOnce,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                    ) { Text(stringResource(R.string.chat_approve_once), fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_approve_once), style = MaterialTheme.typography.labelSmall) }
                     Button(
                         onClick = onApproveAlways,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) { Text(stringResource(R.string.chat_approve_always), fontSize = 11.sp) }
+                    ) { Text(stringResource(R.string.chat_approve_always), style = MaterialTheme.typography.labelSmall) }
                 }
             } else {
                 Spacer(Modifier.height(4.dp))
@@ -237,7 +236,7 @@ internal fun PermissionTurnCard(
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.chat_processed),
-                        fontSize = 11.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = onContainerColor.copy(alpha = 0.6f)
                     )
                 }

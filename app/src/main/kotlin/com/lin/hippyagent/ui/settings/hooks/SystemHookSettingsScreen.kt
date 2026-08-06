@@ -147,11 +147,11 @@ fun SystemHookSettingsScreen(
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.hooks_system_title), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.hooks_system_title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             stringResource(R.string.hooks_desc),
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -182,23 +182,23 @@ fun SystemHookSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(type.description, fontSize = 14.sp)
+                            Text(type.description, style = MaterialTheme.typography.bodyMedium)
                             if (!hasPermission) {
                                 Text(
                                     stringResource(R.string.hooks_missing_permission),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.error
                                 )
                             } else if (isEnabled) {
                                 Text(
                                     stringResource(R.string.hooks_enabled),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Text(
                                     stringResource(R.string.hooks_not_enabled),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -220,10 +220,10 @@ fun SystemHookSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(stringResource(R.string.hooks_silent_hours), fontSize = 14.sp)
+                                Text(stringResource(R.string.hooks_silent_hours), style = MaterialTheme.typography.bodyMedium)
                                 Text(
                                     stringResource(R.string.hooks_silent_hours_desc),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

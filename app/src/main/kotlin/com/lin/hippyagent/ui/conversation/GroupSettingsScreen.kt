@@ -90,7 +90,7 @@ fun GroupSettingsScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.group_settings),
-                        fontSize = 17.sp,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
                 },
@@ -153,13 +153,13 @@ fun GroupSettingsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.group_name_label),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             if (!isEditing) {
                                 Text(
                                     text = uiState.groupName,
-                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -208,12 +208,12 @@ fun GroupSettingsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.group_id),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
                                 text = uiState.group?.groupId ?: "",
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -229,12 +229,12 @@ fun GroupSettingsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.group_member_count),
-                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
                             Text(
                                 text = stringResource(R.string.group_people_count, uiState.memberAgents.size),
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -253,12 +253,12 @@ fun GroupSettingsScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = stringResource(R.string.group_mention_only),
-                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
                                     text = stringResource(R.string.group_mention_only_desc),
-                                    fontSize = 11.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -283,12 +283,12 @@ fun GroupSettingsScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = stringResource(R.string.group_decision_model),
-                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
                                     text = stringResource(R.string.group_decision_model_desc),
-                                    fontSize = 11.sp,
+                                    style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -298,7 +298,7 @@ fun GroupSettingsScreen(
                             ) {
                                 Text(
                                     text = uiState.llmSelectorModelName ?: stringResource(R.string.group_default),
-                                    fontSize = 13.sp,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = if (uiState.llmSelectorModelName != null)
                                         MaterialTheme.colorScheme.primary
                                     else
@@ -330,12 +330,12 @@ fun GroupSettingsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.group_member_list),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = stringResource(R.string.group_people_count, uiState.memberAgents.size),
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -394,7 +394,7 @@ fun GroupSettingsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.group_dissolve),
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -437,8 +437,7 @@ fun GroupSettingsScreen(
             text = {
                 Text(
                     text = stringResource(R.string.group_dissolve_confirm, uiState.groupName),
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp
+                        style = MaterialTheme.typography.bodyMedium
                 )
             },
             confirmButton = {
@@ -523,7 +522,7 @@ private fun MemberAvatar(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = agent.name.ifEmpty { agent.agentId },
-                fontSize = 11.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
             )
@@ -577,7 +576,7 @@ private fun AddMemberButton(
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.group_add),
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -656,20 +655,20 @@ private fun AddMemberPickerDialog(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = agent.name.ifEmpty { agent.agentId },
-                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = if (isBootstrap) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurface
                                 )
                                 if (isBootstrap) {
                                     Text(
                                         text = stringResource(R.string.group_agent_not_initialized),
-                                        fontSize = 11.sp,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                                     )
                                 } else {
                                     Text(
                                         text = agent.modelName,
-                                        fontSize = 12.sp,
+                                        style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
