@@ -244,7 +244,7 @@ private fun PreviewSection(
                 if (result != null) {
                     AssistChip(
                         onClick = {},
-                        label = { Text(parseMethodLabel(result.parseMethod), fontSize = 11.sp) }
+                        label = { Text(parseMethodLabel(result.parseMethod), style = MaterialTheme.typography.labelSmall) }
                     )
                 }
             }
@@ -436,7 +436,7 @@ private fun ErrorSection(
                     )
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = null
+                        contentDescription = if (expanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand)
                     )
                 }
                 AnimatedVisibility(visible = expanded || manualMode) {
@@ -510,10 +510,11 @@ private fun SaveButton(
     }
 }
 
+@Composable
 private fun parseMethodLabel(method: ParseMethod): String = when (method) {
     ParseMethod.LLM -> "LLM"
-    ParseMethod.RULE -> "规则兜底"
-    ParseMethod.FALLBACK -> "手动"
+    ParseMethod.RULE -> stringResource(R.string.schedule_parse_rule)
+    ParseMethod.FALLBACK -> stringResource(R.string.schedule_parse_manual)
 }
 
 private fun formatTimestamp(epochMs: Long): String {

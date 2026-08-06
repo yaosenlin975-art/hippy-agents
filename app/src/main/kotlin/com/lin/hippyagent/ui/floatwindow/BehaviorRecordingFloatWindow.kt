@@ -8,6 +8,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.behavior.BehaviorRecordingController
 import com.lin.hippyagent.core.behavior.RecordingState
 import com.lin.hippyagent.core.behavior.RecordingUiState
@@ -41,12 +42,12 @@ object BehaviorRecordingFloatWindow {
             setBackgroundColor(0xE0222222.toInt())
         }
         val statusText = TextView(context).apply {
-            text = "录制中 · 事件 0"
+            text = context.getString(R.string.float_recording) + " · " + context.getString(R.string.float_events_format, 0)
             setTextColor(0xFFFFFFFF.toInt())
             textSize = 12f
         }
         val messageText = TextView(context).apply {
-            text = "最新消息：—"
+            text = context.getString(R.string.float_latest_message, "—")
             setTextColor(0xFFCCCCCC.toInt())
             textSize = 11f
             setPadding(0, 8, 0, 8)
@@ -55,11 +56,11 @@ object BehaviorRecordingFloatWindow {
             orientation = LinearLayout.HORIZONTAL
         }
         val bookmarkBtn = Button(context).apply {
-            text = "收藏当前页"
+            text = context.getString(R.string.float_favorite_page)
             setOnClickListener { controller.bookmarkCurrentPage() }
         }
         val stopBtn = Button(context).apply {
-            text = "停止录制"
+            text = context.getString(R.string.float_stop_recording)
             setOnClickListener {
                 controller.stop()
                 dismiss()
@@ -92,20 +93,20 @@ object BehaviorRecordingFloatWindow {
         collectJob?.cancel()
         collectJob = floatScope.launch {
             controller.uiState.collectLatest { state ->
-                updateView(state)
+                updateView(context, state)
             }
         }
     }
 
-    private fun updateView(state: RecordingUiState) {
+    private fun updateView(context: Context, state: RecordingUiState) {
         val stateLabel = when (state.state) {
-            RecordingState.IDLE -> "空闲"
-            RecordingState.RECORDING -> "录制中"
-            RecordingState.FINALIZING -> "落盘中"
+            RecordingState.IDLE -> context.getString(R.string.float_idle)
+            RecordingState.RECORDING -> context.getString(R.string.float_recording)
+            RecordingState.FINALIZING -> context.getString(R.string.float_finalizing)
         }
-        val pageLabel = state.currentPageTitle?.let { " · 当前页：$it" } ?: ""
-        statusTextView?.text = "$stateLabel · 事件 ${state.eventCount}$pageLabel"
-        messageTextView?.text = "最新消息：${state.latestMessage ?: "—"}"
+        val pageLabel = state.currentPageTitle?.let { " · " + context.getString(R.string.float_current_page, it) } ?: ""
+        statusTextView?.text = "$stateLabel · " + context.getString(R.string.float_events_format, state.eventCount) + pageLabel
+        messageTextView?.text = context.getString(R.string.float_latest_message, state.latestMessage ?: "—")
     }
 
     fun dismiss() {

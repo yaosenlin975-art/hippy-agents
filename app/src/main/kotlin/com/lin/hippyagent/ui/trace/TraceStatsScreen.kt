@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.data.SpanTypeStatsRow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,8 +28,8 @@ fun TraceStatsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("追踪统计") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("返回") } }
+                title = { Text(stringResource(R.string.trace_stats_title)) },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.common_back)) } }
             )
         }
     ) { padding ->
@@ -53,7 +55,7 @@ fun TraceStatsScreen(
                 }
                 state.error != null -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("错误：${state.error}", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.error_format, state.error ?: ""), color = MaterialTheme.colorScheme.error)
                     }
                 }
                 else -> {
@@ -78,12 +80,12 @@ private fun StatCard(stat: SpanTypeStatsRow) {
             Text(stat.type, style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(4.dp))
             Row {
-                Text("次数: ${stat.count}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                Text("平均: ${stat.avgDurationMs.toInt()}ms", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.trace_count_format, stat.count), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.trace_avg_format, stat.avgDurationMs.toInt()), style = MaterialTheme.typography.bodySmall)
             }
             if (stat.errorCount > 0) {
                 Text(
-                    "错误: ${stat.errorCount} (${(stat.errorCount.toFloat() / stat.count * 100).toInt()}%)",
+                    stringResource(R.string.trace_error_percent_format, stat.errorCount, (stat.errorCount.toFloat() / stat.count * 100).toInt()),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )

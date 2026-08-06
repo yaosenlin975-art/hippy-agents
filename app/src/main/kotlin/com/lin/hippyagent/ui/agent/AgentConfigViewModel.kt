@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.AgentProfile
 import com.lin.hippyagent.core.agent.session.SessionStore
 import com.lin.hippyagent.core.model.ModelProviderStore
@@ -104,13 +105,13 @@ class AgentConfigViewModel(
                     }
                 } else {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "智能体不存在: $agentId")
+                        it.copy(isLoading = false, errorMessage = application.getString(R.string.agent_not_found_format, agentId))
                     }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load agent: $agentId")
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "加载失败: ${e.message}")
+                    it.copy(isLoading = false, errorMessage = application.getString(R.string.agent_load_failed_with_msg, e.message))
                 }
             }
         }
@@ -209,7 +210,7 @@ class AgentConfigViewModel(
 
     fun createAgent(name: String, onCreated: (String) -> Unit) {
         val currentAgent = _uiState.value.agent ?: return
-        val effectiveName = name.ifBlank { "新建智能体" }
+        val effectiveName = name.ifBlank { application.getString(R.string.agent_new_agent) }
         val newAgent = currentAgent.copy(name = effectiveName)
         viewModelScope.launch {
             repository.saveAgentProfile(newAgent)
@@ -288,7 +289,7 @@ class AgentConfigViewModel(
                 onResult(persistentPath)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to save avatar to internal storage")
-                _uiState.update { it.copy(errorMessage = "保存头像失败: ${e.message}") }
+                _uiState.update { it.copy(errorMessage = application.getString(R.string.agent_avatar_save_failed, e.message)) }
             }
         }
     }
@@ -402,7 +403,7 @@ class AgentConfigViewModel(
     fun updateMaxIters(value: Int) {
         _uiState.update {
             it.copy(
-                agent = it.agent?.copy(running = it.agent!!.running.copy(maxIters = value)),
+                agent = it.agent?.let { agent -> agent.copy(running = agent.running.copy(maxIters = value)) },
                 isEditing = true
             )
         }
@@ -412,7 +413,7 @@ class AgentConfigViewModel(
     fun updateMaxInputLength(value: Int) {
         _uiState.update {
             it.copy(
-                agent = it.agent?.copy(running = it.agent!!.running.copy(maxInputLength = value)),
+                agent = it.agent?.let { agent -> agent.copy(running = agent.running.copy(maxInputLength = value)) },
                 isEditing = true
             )
         }
@@ -433,7 +434,7 @@ class AgentConfigViewModel(
                 .onSuccess { onDone() }
                 .onFailure { e ->
                     Timber.e(e, "Failed to save core file: $filename")
-                    _uiState.update { it.copy(errorMessage = "保存失败: ${e.message}") }
+                    _uiState.update { it.copy(errorMessage = application.getString(R.string.config_save_failed, e.message)) }
                 }
         }
     }
@@ -460,7 +461,7 @@ class AgentConfigViewModel(
                 onDone()
             } catch (e: Exception) {
                 Timber.e(e, "Failed to delete core file: $filename")
-                _uiState.update { it.copy(errorMessage = "删除失败: ${e.message}") }
+                _uiState.update { it.copy(errorMessage = application.getString(R.string.agent_delete_failed, e.message)) }
             }
         }
     }
@@ -476,7 +477,7 @@ class AgentConfigViewModel(
                 }
                 .onFailure { e ->
                     Timber.e(e, "Failed to save agent: $agentId")
-                    _uiState.update { it.copy(errorMessage = "保存失败: ${e.message}") }
+                    _uiState.update { it.copy(errorMessage = application.getString(R.string.config_save_failed, e.message)) }
                 }
         }
     }
@@ -495,7 +496,7 @@ class AgentConfigViewModel(
                 .onSuccess { onDeleted() }
                 .onFailure { e ->
                     Timber.e(e, "Failed to delete agent: $agentId")
-                    _uiState.update { it.copy(errorMessage = "删除失败: ${e.message}") }
+                    _uiState.update { it.copy(errorMessage = application.getString(R.string.agent_delete_failed, e.message)) }
                 }
         }
     }

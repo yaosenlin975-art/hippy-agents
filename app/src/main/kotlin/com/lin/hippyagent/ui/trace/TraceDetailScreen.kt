@@ -11,8 +11,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.data.TraceSpanEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +34,7 @@ fun TraceDetailScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Trace ${traceId.take(8)}") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("返回") } }
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.common_back)) } }
             )
         }
     ) { padding ->
@@ -44,7 +46,7 @@ fun TraceDetailScreen(
             }
             state.error != null -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text("错误：${state.error}", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.error_format, state.error ?: ""), color = MaterialTheme.colorScheme.error)
                 }
             }
             else -> {
@@ -84,7 +86,7 @@ private fun SpanNode(
                 IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(24.dp)) {
                     Icon(
                         if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = null
+                        contentDescription = if (expanded) stringResource(R.string.common_collapse) else stringResource(R.string.common_expand)
                     )
                 }
             } else {
@@ -121,21 +123,21 @@ private fun LlmDetailPanel(span: TraceSpanEntity) {
     Card(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, top = 4.dp)) {
         Column(modifier = Modifier.padding(8.dp)) {
             val props = parseProps(span.propsJson)
-            Text("模型: ${props["modelId"]}", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.trace_model_format, props["modelId"] ?: ""), style = MaterialTheme.typography.bodySmall)
             Text("Provider: ${props["providerId"]}", style = MaterialTheme.typography.bodySmall)
             Text("Prompt tokens: ${props["promptTokens"]}", style = MaterialTheme.typography.bodySmall)
             Text("Completion tokens: ${props["completionTokens"]}", style = MaterialTheme.typography.bodySmall)
             Text("Finish reason: ${props["finishReason"]}", style = MaterialTheme.typography.bodySmall)
-            props["messageCount"]?.let { Text("消息数: $it（已脱敏）", style = MaterialTheme.typography.bodySmall) }
-            props["responseChars"]?.let { Text("响应字符数: $it（已脱敏）", style = MaterialTheme.typography.bodySmall) }
+            props["messageCount"]?.let { Text(stringResource(R.string.trace_message_count_format, it), style = MaterialTheme.typography.bodySmall) }
+            props["responseChars"]?.let { Text(stringResource(R.string.trace_response_chars_format, it), style = MaterialTheme.typography.bodySmall) }
             (props["requestMessages"] as? String)?.let {
                 Spacer(Modifier.height(4.dp))
-                Text("请求消息:", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.trace_request_label), style = MaterialTheme.typography.labelSmall)
                 Text(it, style = MaterialTheme.typography.bodySmall)
             }
             (props["responseText"] as? String)?.let {
                 Spacer(Modifier.height(4.dp))
-                Text("响应文本:", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.trace_response_label), style = MaterialTheme.typography.labelSmall)
                 Text(it, style = MaterialTheme.typography.bodySmall)
             }
         }

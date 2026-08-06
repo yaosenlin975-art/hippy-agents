@@ -253,7 +253,7 @@ class SkillStoreViewModel(
                 }
                 _uiState.update { it.copy(isLoadingMore = false, hasMore = cursors.isNotEmpty()) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoadingMore = false, error = "加载更多失败: ${e.message}") }
+                _uiState.update { it.copy(isLoadingMore = false, error = getApplication<Application>().getString(R.string.store_load_more_failed, e.message)) }
             }
         }
     }
@@ -282,7 +282,7 @@ class SkillStoreViewModel(
                 prefetchDescriptions(all)
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load hot skills")
-                _uiState.update { it.copy(isLoading = false, error = "加载失败: ${e.message}") }
+                _uiState.update { it.copy(isLoading = false, error = getApplication<Application>().getString(R.string.store_load_failed, e.message)) }
             }
         }
     }
@@ -314,7 +314,7 @@ class SkillStoreViewModel(
             _uiState.update { it.copy(hasMore = cursors.isNotEmpty()) }
         } catch (e: Exception) {
             Timber.e(e, "Search failed")
-            _uiState.update { it.copy(error = "搜索失败: ${e.message}") }
+            _uiState.update { it.copy(error = getApplication<Application>().getString(R.string.store_search_failed, e.message)) }
         } finally {
             _uiState.update {
                 it.copy(

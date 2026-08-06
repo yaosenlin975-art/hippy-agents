@@ -66,7 +66,7 @@ fun TaskDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(task?.title ?: "任务详情") },
+                title = { Text(task?.title ?: stringResource(R.string.task_detail_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
@@ -84,7 +84,7 @@ fun TaskDetailScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("加载中...", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.loading), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             return@Scaffold
         }
@@ -99,8 +99,8 @@ fun TaskDetailScreen(
             item { TaskSummaryCard(current) }
             item {
                 Text(
-                    "执行步骤",
-                    fontSize = 13.sp,
+                    stringResource(R.string.task_steps),
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                 )
@@ -111,8 +111,8 @@ fun TaskDetailScreen(
             if (current.approvalNodes.isNotEmpty()) {
                 item {
                     Text(
-                        "审批节点",
-                        fontSize = 13.sp,
+                        stringResource(R.string.task_approval_nodes),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                     )
@@ -128,8 +128,8 @@ fun TaskDetailScreen(
             current.result?.let { result ->
                 item {
                     Text(
-                        "结果",
-                        fontSize = 13.sp,
+                        stringResource(R.string.task_result),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                     )
@@ -141,7 +141,7 @@ fun TaskDetailScreen(
                     ) {
                         Text(
                             result,
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(12.dp),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -171,39 +171,39 @@ private fun TaskSummaryCard(task: TaskEntity) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "状态",
-                    fontSize = 12.sp,
+                    stringResource(R.string.task_status),
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     task.status.name,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = statusColor
                 )
             }
             Spacer(Modifier.size(4.dp))
             Row {
-                Text("智能体", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                Text(task.agentId, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(stringResource(R.string.task_agent), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                Text(task.agentId, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(Modifier.size(4.dp))
             Row {
-                Text("创建", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                Text(formatDate(task.createdAt), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(stringResource(R.string.task_created), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                Text(formatDate(task.createdAt), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
             }
             task.completedAt?.let { completed ->
                 Spacer(Modifier.size(4.dp))
                 Row {
-                    Text("完成", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    Text(formatDate(completed), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.task_completed), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    Text(formatDate(completed), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
             task.errorMessage?.takeIf { it.isNotBlank() }?.let { err ->
                 Spacer(Modifier.size(6.dp))
                 Text(
-                    "错误: $err",
-                    fontSize = 12.sp,
+                    stringResource(R.string.error_format, err),
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -233,31 +233,31 @@ private fun StepRow(step: TaskStep) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
             Spacer(Modifier.size(8.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(step.description, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(step.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
                 if (step.status == StepStatus.RUNNING) {
                     Spacer(Modifier.size(2.dp))
-                    Text("执行中...", fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.task_executing), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
                 step.result?.takeIf { it.isNotBlank() }?.let {
                     Spacer(Modifier.size(4.dp))
                     Text(
                         it,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 step.error?.takeIf { it.isNotBlank() }?.let {
                     Spacer(Modifier.size(4.dp))
                     Text(
-                        "错误: $it",
-                        fontSize = 11.sp,
+                        stringResource(R.string.error_format, it),
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             }
             Text(
                 step.status.name,
-                fontSize = 10.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = color
             )
         }
@@ -278,11 +278,11 @@ private fun ApprovalRow(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(node.prompt, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(node.prompt, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.size(6.dp))
             Text(
-                "状态: ${node.status.name}${node.decidedBy?.let { " · $it" } ?: ""}",
-                fontSize = 11.sp,
+                stringResource(R.string.task_approval_status_format, node.status.name, node.decidedBy?.let { " · $it" } ?: ""),
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (pending) {
@@ -292,10 +292,10 @@ private fun ApprovalRow(
                         onClick = onApprove,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("通过", fontSize = 12.sp)
+                        Text(stringResource(R.string.task_approved), style = MaterialTheme.typography.labelMedium)
                     }
                     OutlinedButton(onClick = onReject) {
-                        Text("拒绝", fontSize = 12.sp)
+                        Text(stringResource(R.string.task_rejected), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }

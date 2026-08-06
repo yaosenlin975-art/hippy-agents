@@ -1,8 +1,10 @@
 package com.lin.hippyagent.ui.workspace
 
+import android.app.Application
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lin.hippyagent.R
 import com.lin.hippyagent.core.agent.config.CoreFile
 import com.lin.hippyagent.data.repository.AgentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +26,8 @@ data class CoreFilesUiState(
 
 class CoreFilesViewModel(
     private val repository: AgentRepository,
-    private val agentId: String
+    private val agentId: String,
+    private val application: Application
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CoreFilesUiState())
@@ -47,7 +50,7 @@ class CoreFilesViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "加载文件列表失败: ${e.message}"
+                        errorMessage = application.getString(R.string.core_files_load_failed, e.message)
                     )
                 }
             }
@@ -99,7 +102,7 @@ class CoreFilesViewModel(
                 }
                 .onFailure { e ->
                     _uiState.update {
-                        it.copy(errorMessage = "保存失败: ${e.message}")
+                        it.copy(errorMessage = application.getString(R.string.core_file_save_failed, e.message))
                     }
                 }
         }

@@ -1,5 +1,6 @@
 package com.lin.hippyagent.ui.channel
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,8 +29,12 @@ data class ChannelTypeInfo(
     val iconRes: Int,
     val descriptionResId: Int,
     val configFields: List<ConfigField>,
-    val authType: AuthType = AuthType.MANUAL
+    val authType: AuthType = AuthType.MANUAL,
+    val nameRes: Int = 0
 )
+
+fun ChannelTypeInfo.displayName(context: Context): String =
+    if (nameRes != 0) context.getString(nameRes) else name
 
 @Immutable
 data class ConfigField(
@@ -47,10 +52,11 @@ enum class AuthType {
 val SUPPORTED_CHANNELS = listOf(
     ChannelTypeInfo(
         id = "feishu",
-        name = "飞书",
+        name = "feishu",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_feishu,
         descriptionResId = R.string.channel_config_feishu_desc,
         authType = AuthType.QR_CODE,
+        nameRes = R.string.channel_feishu,
         configFields = listOf(
             ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_feishu_webhook_hint),
             ConfigField("appId", R.string.channel_config_app_id, R.string.channel_config_auto_obtain),
@@ -59,10 +65,11 @@ val SUPPORTED_CHANNELS = listOf(
     ),
     ChannelTypeInfo(
         id = "dingtalk",
-        name = "钉钉",
+        name = "dingtalk",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_dingtalk,
         descriptionResId = R.string.channel_config_dingtalk_desc,
         authType = AuthType.QR_CODE,
+        nameRes = R.string.channel_dingtalk,
         configFields = listOf(
             ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_dingtalk_webhook_hint),
             ConfigField("secret", R.string.channel_config_secret_key, R.string.channel_config_secret_key_desc, isSecret = true)
@@ -70,10 +77,11 @@ val SUPPORTED_CHANNELS = listOf(
     ),
     ChannelTypeInfo(
         id = "wechat",
-        name = "企业微信",
+        name = "wechat",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_wechat,
         descriptionResId = R.string.channel_config_wechat_desc,
         authType = AuthType.QR_CODE,
+        nameRes = R.string.channel_wechat,
         configFields = listOf(
             ConfigField("webhookUrl", R.string.channel_config_webhook_url, R.string.channel_config_wechat_webhook_hint),
             ConfigField("corpId", R.string.channel_config_corp_id, R.string.channel_config_corp_id_desc),
@@ -82,10 +90,11 @@ val SUPPORTED_CHANNELS = listOf(
     ),
     ChannelTypeInfo(
         id = "weixin",
-        name = "个人微信",
+        name = "weixin",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_weixin,
         descriptionResId = R.string.channel_config_weixin_desc,
         authType = AuthType.QR_CODE,
+        nameRes = R.string.channel_weixin,
         configFields = listOf(
             ConfigField("botToken", R.string.channel_config_bot_token, R.string.channel_config_bot_token_desc_weixin),
             ConfigField("baseUrl", R.string.channel_config_api_address, R.string.channel_config_weixin_api_url_hint)
@@ -93,9 +102,10 @@ val SUPPORTED_CHANNELS = listOf(
     ),
     ChannelTypeInfo(
         id = "qq",
-        name = "QQ 机器人",
+        name = "qq",
         iconRes = com.lin.hippyagent.R.drawable.ic_channel_qq,
         descriptionResId = R.string.channel_config_qq_desc,
+        nameRes = R.string.channel_qq,
         configFields = listOf(
             ConfigField("appId", R.string.channel_config_app_id, R.string.channel_config_bot_token_desc_qq),
             ConfigField("appSecret", R.string.channel_config_app_secret, R.string.channel_config_bot_token_desc_qq_secret, isSecret = true)
@@ -154,7 +164,7 @@ fun ChannelConfigScreen(
     Scaffold(
         topBar = {
             HippyTopBar(
-                title = if (selectedChannel != null) selectedChannel!!.name else stringResource(R.string.channel_config),
+                title = selectedChannel?.displayName(context) ?: stringResource(R.string.channel_config),
                 showBackButton = true,
                 onBackClick = {
                     if (selectedChannel != null) {
@@ -166,19 +176,20 @@ fun ChannelConfigScreen(
             )
         }
     ) { padding ->
-        if (selectedChannel != null) {
+        val channel = selectedChannel
+        if (channel != null) {
             ChannelEditView(
-                channelType = selectedChannel!!,
+                channelType = channel,
                 agentId = agentId,
-                existingConfig = savedConfigs[selectedChannel!!.id],
+                existingConfig = savedConfigs[channel.id],
                 onSave = { config ->
-                    configStore.saveConfig(selectedChannel!!.id, config)
+                    configStore.saveConfig(channel.id, config)
                     savedConfigs = configStore.listConfigs()
                     showSaveSuccess = true
                     selectedChannel = null
                 },
                 onDelete = {
-                    configStore.deleteConfig(selectedChannel!!.id)
+                    configStore.deleteConfig(channel.id)
                     savedConfigs = configStore.listConfigs()
                     selectedChannel = null
                 },
@@ -236,6 +247,7 @@ private fun ChannelCard(
     isConfigured: Boolean,
     onClick: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
@@ -248,14 +260,14 @@ private fun ChannelCard(
         ) {
             Image(
                 painter = painterResource(id = channel.iconRes),
-                contentDescription = channel.name,
+                contentDescription = channel.displayName(context),
                 modifier = Modifier.size(36.dp)
             )
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        channel.name,
+                        channel.displayName(context),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -291,6 +303,7 @@ private fun ChannelEditView(
     onBack: () -> Unit,
     onQrAuthClick: (agentId: String, channelId: String) -> Unit = { _, _ -> }
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val configValues = remember {
         mutableStateMapOf<String, String>().apply {
             channelType.configFields.forEach { field ->
@@ -311,12 +324,12 @@ private fun ChannelEditView(
             Spacer(Modifier.width(8.dp))
             Image(
                 painter = painterResource(id = channelType.iconRes),
-                contentDescription = channelType.name,
+                contentDescription = channelType.displayName(context),
                 modifier = Modifier.size(32.dp)
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                channelType.name,
+                channelType.displayName(context),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )

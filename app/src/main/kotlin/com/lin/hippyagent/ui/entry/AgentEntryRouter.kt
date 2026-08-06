@@ -8,6 +8,7 @@ import com.lin.hippyagent.core.agent.QueuedMessage
 import com.lin.hippyagent.core.behavior.BehaviorRecorder
 import com.lin.hippyagent.core.companion.CompanionController
 import com.lin.hippyagent.core.service.AgentForegroundService
+import com.lin.hippyagent.R
 import com.lin.hippyagent.ui.MainActivity
 import org.koin.core.context.GlobalContext
 import timber.log.Timber
@@ -16,7 +17,7 @@ import timber.log.Timber
  * 统一路由层：所有系统入口点构造 [AgentAction] 后调 [route]，
  * 由本 object 转为 Intent 启动 Activity 或直接调 Controller。
  *
- * 协程合规（coding.md）：本类不持有 scope；Controller 调用同步；
+ * 协程合规：本类不持有 scope；Controller 调用同步；
  * 异步路径由调用方自行处理。
  */
 object AgentEntryRouter {
@@ -35,7 +36,7 @@ object AgentEntryRouter {
             AgentAction.StartRecording -> triggerRecordingStart(context)
             // 当前由 RecordingTileService 直接调用 BehaviorRecordingController，不经此路由；保留以匹配 sealed class 穷尽性
             AgentAction.StopRecording -> triggerRecordingStop()
-            AgentAction.CreateCron -> launchChatWithPrefill(context, "我想设置一个定时任务...")
+            AgentAction.CreateCron -> launchChatWithPrefill(context, context.getString(R.string.entry_cron_prefill))
             AgentAction.CompanionMode -> triggerCompanionMode(context)
             is AgentAction.SendQuickMessage -> enqueueMessage(action.text, action.sessionId, action.channelId)
             AgentAction.ToggleAgent -> AgentForegroundService.toggle(context)

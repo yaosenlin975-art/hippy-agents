@@ -67,7 +67,7 @@ val viewModelModule = module {
     }
 
     viewModel { (agentId: String) ->
-        CoreFilesViewModel(repository = get(), agentId = agentId)
+        CoreFilesViewModel(repository = get(), agentId = agentId, application = get())
     }
 
     viewModel { ModelProviderViewModel(store = get(), application = get()) }

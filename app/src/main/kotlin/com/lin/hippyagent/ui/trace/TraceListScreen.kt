@@ -10,8 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lin.hippyagent.R
 import com.lin.hippyagent.data.TraceSummaryRow
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -31,11 +33,11 @@ fun TraceListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("执行追踪") },
+                title = { Text(stringResource(R.string.trace_list_title)) },
                 actions = {
-                    TextButton(onClick = onOpenStats) { Text("统计") }
+                    TextButton(onClick = onOpenStats) { Text(stringResource(R.string.trace_statistics)) }
                     IconButton(onClick = { viewModel.clearAllTraces() }) {
-                        Icon(Icons.Default.Delete, contentDescription = "清空")
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.trace_clear))
                     }
                 }
             )
@@ -49,12 +51,12 @@ fun TraceListScreen(
             }
             state.error != null -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text("错误：${state.error}", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.error_format, state.error ?: ""), color = MaterialTheme.colorScheme.error)
                 }
             }
             state.traces.isEmpty() -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text("暂无追踪记录\n开启追踪后发起对话即可生成", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.trace_empty_hint), style = MaterialTheme.typography.bodyMedium)
                 }
             }
             else -> {
@@ -101,7 +103,7 @@ private fun TraceItem(trace: TraceSummaryRow, onClick: () -> Unit) {
                 )
                 if (trace.errorCount > 0) {
                     Text(
-                        text = "错误: ${trace.errorCount}",
+                        text = stringResource(R.string.error_format, trace.errorCount),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
