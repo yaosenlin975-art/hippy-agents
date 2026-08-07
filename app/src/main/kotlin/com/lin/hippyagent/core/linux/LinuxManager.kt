@@ -206,6 +206,15 @@ class LinuxManager(
      */
     suspend fun cleanup() {
         withContext(Dispatchers.IO) {
+            // 快照 + 非空检查（与 exec() 的引擎快照一致，WS-30）：
+            // 先销毁引擎内所有 PRoot 进程（WS-31），再置空引用，避免并发下读到 null
+            engine?.let { engineSnapshot ->
+                try {
+                    engineSnapshot.destroy()
+                } catch (e: Exception) {
+                    Timber.w(e, "Failed to destroy PRoot engine during cleanup")
+                }
+            }
             engine = null
             _isReady.value = false
             _status.value = LinuxStatus()

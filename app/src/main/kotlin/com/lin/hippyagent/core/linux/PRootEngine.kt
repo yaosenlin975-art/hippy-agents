@@ -3,6 +3,7 @@
 import android.content.Context
 import timber.log.Timber
 import java.io.File
+import java.util.concurrent.CopyOnWriteArraySet
 import com.lin.hippyagent.core.security.PermissionManager
 import com.lin.hippyagent.core.security.ShellPermissionResult
 import kotlinx.coroutines.runBlocking
@@ -17,6 +18,12 @@ class PRootEngine(
     private val config: ContainerConfig = ContainerConfig(),
     private val permissionManager: PermissionManager? = null
 ) {
+    /**
+     * 当前存活（执行中）的 PRoot 进程集合，供 [destroy] 在清理时统一销毁。
+     * 多线程安全：exec() 可能被并发调用（WS-30），清理与执行也会竞争。
+     * internal 便于同模块单元测试直接注入进程验证销毁逻辑。
+     */
+    internal val liveProcesses = CopyOnWriteArraySet<Process>()
     val version: String by lazy {
         try {
             PRootBridge.getVersion()
@@ -81,6 +88,7 @@ class PRootEngine(
             workingDir = rootfsDir,
             environment = prootEnv
         )
+        liveProcesses.add(process)
 
         return try {
             // 修复管道死锁（WS-29）：runLinuxProcess 在独立线程并发读取输出，
@@ -96,6 +104,69 @@ class PRootEngine(
             Timber.e(e, "Failed to execute command")
             process.destroyForcibly()
             Pair(-3, "Execution failed: ${e.message}")
+        } finally {
+            // 正常退出 / 超时 / 异常路径上 runLinuxProcess 都会终结进程，这里只负责注销跟踪
+            liveProcesses.remove(process)
+        }
+    }
+
+    /**
+     * 销毁引擎当前管理的所有 PRoot 进程及其容器内子进程（WS-31）。
+     *
+     * PRoot 只是 ptrace 追踪器：仅 destroyForcibly() 只能杀掉 PRoot 本体，
+     * 容器内通过 `&`/nohup 启动的后台进程（如 sshd -D ... &）会变成孤儿
+     * 继续运行、泄漏资源。因此先沿 /proc/<pid>/task/*/children 递归收集
+     * 全部后代 PID 并逐个 SIGKILL，最后再强杀根进程本身。
+     */
+    fun destroy() {
+        val snapshot = liveProcesses.toList()
+        if (snapshot.isEmpty()) {
+            Timber.d("PRootEngine: no live processes to destroy")
+            return
+        }
+        Timber.i("PRootEngine: destroying ${snapshot.size} live process(es)")
+        snapshot.forEach { process ->
+            try {
+                killProcessTree(process.pid())
+                process.destroyForcibly()
+            } catch (e: Exception) {
+                Timber.w(e, "PRootEngine: failed to destroy process")
+            }
+        }
+        liveProcesses.clear()
+    }
+
+    /**
+     * 递归收集 pid 进程的全部后代 PID 并 SIGKILL。
+     * 不用 kill -9 -<pgid>：Android 上子进程继承宿主进程组，组杀会误伤 App 自身；
+     * android.os.Process.killProcessGroup 是隐藏 API，因此逐 PID 精确回收。
+     * 进程在读取期间退出属于正常竞态，静默跳过。
+     */
+    internal fun killProcessTree(
+        pid: Int,
+        killSignal: (Int) -> Unit = { p -> android.os.Process.sendSignal(p, android.os.Process.SIGNAL_KILL) }
+    ) {
+        val taskDir = File("/proc/$pid/task")
+        val tasks = taskDir.listFiles() ?: return
+        val children = mutableListOf<Int>()
+        tasks.forEach { task ->
+            val content = try {
+                File(task, "children").readText()
+            } catch (e: Exception) {
+                ""
+            }
+            content.trim().split(' ').forEach { token ->
+                val childPid = token.toIntOrNull() ?: return@forEach
+                children += childPid
+                killProcessTree(childPid, killSignal)
+            }
+        }
+        children.forEach { childPid ->
+            try {
+                killSignal(childPid)
+            } catch (e: Exception) {
+                Timber.w("PRootEngine: failed to kill child pid=$childPid: ${e.message}")
+            }
         }
     }
 
