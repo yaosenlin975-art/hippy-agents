@@ -43,9 +43,11 @@ fun AppNavigation(
 
     var lastActiveAgentId by remember { mutableStateOf<String?>(null) }
 
-    remember {
+    LaunchedEffect(deepLinkSessionId) {
         deepLinkSessionId?.let { sessionId ->
-            navController.navigate(Screen.Chat.createRoute(sessionId, com.lin.hippyagent.data.repository.AgentRepository.DEFAULT_AGENT_ID))
+            navController.navigate(Screen.Chat.createRoute(sessionId, com.lin.hippyagent.data.repository.AgentRepository.DEFAULT_AGENT_ID)) {
+                launchSingleTop = true
+            }
         }
     }
 
