@@ -42,7 +42,7 @@ class RoomSessionStore(
                         createdAt = now.toEpochMilli(),
                         lastUpdatedAt = now.toEpochMilli()
                     ))
-                    sessionStatsDao.insert(SessionStatsEntity(sessionId = id))
+                    sessionStatsDao.upsert(SessionStatsEntity(sessionId = id))
                 }
                 Session(
                     id = id,
@@ -222,7 +222,7 @@ class RoomSessionStore(
             val now = Instant.now().toEpochMilli()
             database.withTransaction {
                 sessionDao.updateModel(sessionId, model)
-                sessionStatsDao.insert(SessionStatsEntity(sessionId = sessionId))
+                sessionStatsDao.upsert(SessionStatsEntity(sessionId = sessionId))
                 sessionStatsDao.updateTokenUsage(sessionId, inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, estimatedCostUsd)
                 sessionDao.updateStatus(sessionId, "completed")
                 sessionStatsDao.updateFinishedAt(sessionId, now)
@@ -234,7 +234,7 @@ class RoomSessionStore(
             val now = Instant.now().toEpochMilli()
             database.withTransaction {
                 sessionDao.updateModel(sessionId, model)
-                sessionStatsDao.insert(SessionStatsEntity(sessionId = sessionId))
+                sessionStatsDao.upsert(SessionStatsEntity(sessionId = sessionId))
                 sessionStatsDao.updateTokenUsage(sessionId, inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, estimatedCostUsd)
                 sessionDao.updateStatus(sessionId, "failed")
                 sessionStatsDao.updateFinishedAt(sessionId, now)
@@ -246,7 +246,7 @@ class RoomSessionStore(
 
     override suspend fun updateSessionTokenUsage(sessionId: String, inputTokens: Int, outputTokens: Int, cacheReadTokens: Int, cacheWriteTokens: Int, estimatedCostUsd: Double?): Result<Unit> =
         runCatching {
-            sessionStatsDao.insert(SessionStatsEntity(sessionId = sessionId))
+            sessionStatsDao.upsert(SessionStatsEntity(sessionId = sessionId))
             sessionStatsDao.updateTokenUsage(sessionId, inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, estimatedCostUsd)
         }
 

@@ -7,10 +7,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Entity(
@@ -225,8 +225,8 @@ interface SessionDao {
 
 @Dao
 interface SessionStatsDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(entity: SessionStatsEntity)
+    @Upsert
+    suspend fun upsert(entity: SessionStatsEntity)
 
     @Query("UPDATE session_stats SET inputTokens = :inputTokens, outputTokens = :outputTokens, cacheReadTokens = :cacheReadTokens, cacheWriteTokens = :cacheWriteTokens, estimatedCostUsd = :costUsd WHERE sessionId = :sessionId")
     suspend fun updateTokenUsage(sessionId: String, inputTokens: Int, outputTokens: Int, cacheReadTokens: Int, cacheWriteTokens: Int, costUsd: Double?)
