@@ -40,12 +40,17 @@ internal fun Agent.processMessageStream(
     ): Flow<StreamChunk> = flow {
         val sessionMutex = getOrCreateSessionMutex(sessionId)
 
-        // 同一会话的消息排队等待，而非直接拒绝
-        if (!sessionMutex.tryLock()) {
-            // 会话内已有请求在处理，使用 withLock 排队等待
-            // 但因为 flow builder 不能直接 suspend withLock，
-            // 所以先尝试 tryLock，失败则抛出让 ChatViewModel 排队
-            throw IllegalStateException("Session $sessionId is busy, please queue the message")
+        // 同一会话的消息排队等待，而非直接拒绝（WS-20 修复）：
+        // 忙时挂起排队等待锁释放（flow builder 为 suspend 上下文，可直接挂起），
+        // 不再 tryLock 失败抛 IllegalStateException；同时记录是否持锁，
+        // finally 仅在实际持锁时 unlock()，避免对未持有的 mutex 调用 unlock() 崩溃
+        var mutexHeld = false
+        if (sessionMutex.tryLock()) {
+            mutexHeld = true
+        } else {
+            // 会话内已有请求在处理：挂起等待锁释放（排队），而非抛异常
+            sessionMutex.lock()
+            mutexHeld = true
         }
 
         var streamFailed = false
@@ -420,7 +425,9 @@ internal fun Agent.processMessageStream(
             }
         } finally {
             // 先释放 mutex，再更新状态为 IDLE，防止 sendMessage 读到 IDLE 但 mutex 仍被锁住的竞态
-            sessionMutex.unlock()
+            if (mutexHeld) {
+                sessionMutex.unlock()
+            }
             sessionContexts[sessionId]?.job = null
             _currentProcessingSessionId = null
             val currentSessionState = _state.value.getSessionState(sessionId)
