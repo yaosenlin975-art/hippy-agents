@@ -19,12 +19,12 @@ import timber.log.Timber
  */
 object OnDeviceToolCallParser {
 
-    /** 代码块格式正则 — 顶层 private val，符合 coding.md */
+    /** 代码块格式正则 — 顶层 private val */
     private val TOOL_CALL_BLOCK = Regex(
         """```tool_call\s*\n(\{[\s\S]*?\})\s*\n```"""
     )
 
-    /** 内联标签格式正则 — 顶层 private val，符合 coding.md */
+    /** 内联标签格式正则 — 顶层 private val */
     private val TOOL_CALL_INLINE = Regex(
         """<tool_call>\s*(\{[\s\S]*?\})\s*</tool_call>"""
     )

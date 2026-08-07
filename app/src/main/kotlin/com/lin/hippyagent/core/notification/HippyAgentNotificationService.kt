@@ -528,7 +528,7 @@ class HippyAgentNotificationService(
      * - CronJobManager.getEnabledJobs().firstOrNull()?.name — 下个定时任务
      * - 当前任务 — MissionRunner 无 currentTask 状态暴露，兜底显示 "—"
      *
-     * 协程合规（coding.md）：suspend 函数，不再用 runBlocking 阻塞主线程；
+     * 协程合规：suspend 函数，不再用 runBlocking 阻塞主线程；
      * channel 复用 AgentForegroundService.CHANNEL_ID（IMPORTANCE_LOW），避免 CHANNEL_HEARTBEAT 发声震动。
      */
     suspend fun buildEnhancedForegroundNotification(

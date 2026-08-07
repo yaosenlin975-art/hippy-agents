@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
  * 5. 任务派发完成后释放 wake lock (WakeActivity 自身 3500ms 后 finish)
  *
  * 幂等去重: dispatchedTokens 上限 10000, 超限清空重建
- * (符合 coding.md "Set去重无上限 → ✅ 上限10k, 超限淘汰")
+ * (Set去重有上限 → 上限10k, 超限淘汰)
  */
 class ScreenWakeCoordinator(
     private val context: Context,

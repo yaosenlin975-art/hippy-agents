@@ -45,7 +45,7 @@ class BootReceiver : BroadcastReceiver() {
     /**
      * 升级后重注册 cron: 通过 Koin 取 CronJobManager + applicationScope, 异步触发 rescheduleAll.
      *
-     * 协程合规: 使用 Koin 单例 applicationScope, 不新建 CoroutineScope() (符合 coding.md).
+     * 协程合规: 使用 Koin 单例 applicationScope, 不新建 CoroutineScope().
      * 容错: runCatching 各走各路, Koin 未初始化时静默失败 (升级后首次启动可能 Koin 未就绪).
      */
     private fun rescheduleAllCronJobs(context: Context) {

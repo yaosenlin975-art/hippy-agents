@@ -136,7 +136,7 @@ class AgentForegroundService : Service() {
     /**
      * 异步刷新为 enhanced 通知（含 model / cron 多行）。
      *
-     * 协程合规（coding.md）：复用 Koin 注册的 applicationScope，不自建 CoroutineScope；
+     * 协程合规：复用 Koin 注册的 applicationScope，不自建 CoroutineScope；
      * buildEnhancedForegroundNotification 内部已改为 suspend，主线程不阻塞。
      */
     private fun launchRefreshEnhanced(agentId: String) {

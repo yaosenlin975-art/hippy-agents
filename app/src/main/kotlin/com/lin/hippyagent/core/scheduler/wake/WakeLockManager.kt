@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  *   现代替代方案是 Activity.setTurnScreenOn(true) (见 ScheduledTaskWakeActivity),
  *   WakeLock 作为 Activity 启动前的 early-wakeup 桥接.
  *
- * 合规: 严格遵守 coding.md "Map缓存无清理 → ✅ remove用完即清",
+ * 合规: 严格遵守 "Map缓存无清理 → remove用完即清",
  * acquire 后必配对 release, 超时兜底.
  */
 class WakeLockManager(private val context: Context) {

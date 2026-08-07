@@ -2,7 +2,7 @@ package com.lin.hippyagent.core.deeplink
 
 /**
  * dumpsys 输出的 Intent 解析器。
- * 正则全部放 companion object 或顶层 private val，遵循 coding.md 规则。
+ * 正则全部放 companion object 或顶层 private val。
  * 动态 Hist 正则用 ConcurrentHashMap + getOrPut 缓存。
  */
 object DeeplinkIntentParser {
