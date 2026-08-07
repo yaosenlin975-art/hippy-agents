@@ -250,7 +250,7 @@ fun AgentTurnCard(
             displayElements.forEachIndexed { index, element ->
                 when (element) {
                     is TurnElement.ThinkingSegment -> {
-                        val displayBlock = if (streamingThinkingContent != null && streamingThinkingContent.isNotBlank() && element == turn.elements.last { it is TurnElement.ThinkingSegment }) {
+                        val displayBlock = if (streamingThinkingContent != null && streamingThinkingContent.isNotBlank() && element == turn.elements.lastOrNull { it is TurnElement.ThinkingSegment }) {
                             com.lin.hippyagent.core.chat.ThinkingBlock(content = streamingThinkingContent)
                         } else {
                             element.block
