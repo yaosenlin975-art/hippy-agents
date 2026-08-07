@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 
 class SkillStoreViewModel(
     application: Application,
@@ -38,7 +39,7 @@ class SkillStoreViewModel(
 
     private val cursors = mutableMapOf<String, Int>()
 
-    private val descriptionCache = mutableMapOf<String, String>()
+    private val descriptionCache = ConcurrentHashMap<String, String>()
 
     private val _installQueue = InstallQueue(
         scope = viewModelScope,
