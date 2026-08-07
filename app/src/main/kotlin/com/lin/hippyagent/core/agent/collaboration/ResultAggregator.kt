@@ -1,12 +1,11 @@
 package com.lin.hippyagent.core.agent.collaboration
 
 import com.lin.hippyagent.core.agent.AgentFactory
+import com.lin.hippyagent.core.agent.session.MessageRole
 import com.lin.hippyagent.core.agent.session.SessionStore
-import com.lin.hippyagent.core.agent.processMessageStream
-import com.lin.hippyagent.core.agent.processMessage
+import com.lin.hippyagent.core.chat.ChatTurnConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 /**
  * Aggregates results from multiple agent executions into a unified summary.
@@ -35,7 +34,7 @@ class ResultAggregator(
                 results.add(AgentResult(
                     agentId = agentId,
                     success = result.isSuccess,
-                    content = if (result.isSuccess) "OK" else "",
+                    content = if (result.isSuccess) extractReply(sessionId) else "",
                     error = result.exceptionOrNull()?.message
                 ))
             } catch (e: Exception) {
@@ -57,6 +56,18 @@ class ResultAggregator(
             totalAgents = agentIds.size,
             successfulAgents = results.count { it.success }
         )
+    }
+
+    /**
+     * Reads the final assistant reply of the given session from the store.
+     * Agent.processMessage returns Result<Unit>; the actual reply is persisted
+     * in the session store, so it must be fetched from there.
+     */
+    private suspend fun extractReply(sessionId: String): String {
+        val messages = sessionStore.getMessages(sessionId).getOrDefault(emptyList())
+        val lastAssistant = messages.lastOrNull { it.role == MessageRole.ASSISTANT } ?: return ""
+        val (_, reply) = ChatTurnConverter.parseThinkingAndReply(lastAssistant.content)
+        return reply.ifBlank { lastAssistant.content }
     }
 }
 
@@ -84,7 +95,9 @@ data class AggregatedResult(
 private fun mergeResults(results: List<AgentResult>): String {
     val successful = results.filter { it.success }
     if (successful.isEmpty()) return "No successful results from any agent."
-    return "Aggregated Results (${successful.size}/${results.size} agents): ${successful.joinToString { it.agentId }}"
+    return successful.joinToString("\n\n") { agent ->
+        "【${agent.agentId}】\n${agent.content.ifBlank { "（无回复内容）" }}"
+    }
 }
 
 private fun selectBestResult(results: List<AgentResult>): String {
@@ -98,6 +111,8 @@ private fun buildConsensus(results: List<AgentResult>): String {
     val successful = results.filter { it.success }
     if (successful.isEmpty()) return "No successful results from any agent."
     if (successful.size == 1) return successful.first().content
-    return "Consensus (${successful.size} agents): ${successful.joinToString { it.agentId }}"
+    return successful.joinToString("\n\n") { agent ->
+        "【${agent.agentId}】\n${agent.content.ifBlank { "（无回复内容）" }}"
+    }
 }
 
