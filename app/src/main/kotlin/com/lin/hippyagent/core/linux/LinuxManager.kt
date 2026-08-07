@@ -28,8 +28,10 @@ import java.util.concurrent.TimeUnit
 class LinuxManager(
     private val context: Context
 ) {
-    private var engine: PRootEngine? = null
-    private var config: LinuxConfig? = null
+    // initialize()/exec()/cleanup() 运行在不同协程与线程上，
+    // 用 @Volatile 保证字段写入对所有线程可见，避免读到过期值或 null
+    @Volatile private var engine: PRootEngine? = null
+    @Volatile private var config: LinuxConfig? = null
     private val migrationManager = LinuxMigrationManager(context)
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
@@ -166,8 +168,14 @@ class LinuxManager(
         return withContext(Dispatchers.IO) {
             try {
                 val rootfsDir = File(getRootfsPath())
-                engine?.exec(rootfsDir, command, timeout)
-                    ?: Pair(-1, "Engine not initialized")
+                // 本地快照：即使 cleanup() 并发将 engine 置 null，
+                // 本次调用也使用一致的 engine 实例，不会 NPE 或读到半初始化状态
+                val engineSnapshot = engine
+                if (engineSnapshot == null) {
+                    Pair(-1, "Engine not initialized")
+                } else {
+                    engineSnapshot.exec(rootfsDir, command, timeout)
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to execute command: $command")
                 Pair(-3, "Execution failed: ${e.message}")
