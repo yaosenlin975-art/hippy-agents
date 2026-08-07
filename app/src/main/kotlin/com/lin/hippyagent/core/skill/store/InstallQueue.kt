@@ -92,7 +92,11 @@ class InstallQueue(
     private fun runNext() {
         scope.launch {
             val next = mutex.withLock {
-                _items.value.find { it.status == QueueItem.Status.QUEUED } ?: return@launch
+                if (currentJob?.isActive == true) return@launch
+                val candidate = _items.value.find { it.status == QueueItem.Status.QUEUED } ?: return@launch
+                // 在锁内原子性抢占该队列项（QUEUED -> INSTALLING），并发的 runNext() 无法再选中同一项
+                updateItem(candidate.id, status = QueueItem.Status.INSTALLING)
+                candidate
             }
             currentJob = scope.launch {
                 try {
