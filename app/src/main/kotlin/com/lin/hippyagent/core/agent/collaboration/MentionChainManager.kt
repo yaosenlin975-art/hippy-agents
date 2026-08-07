@@ -38,6 +38,11 @@ data class PropagationResult(
     val cycleTargets: List<String> = emptyList()
 )
 
+data class ProcessedPathKey(
+    val groupId: String,
+    val sourceMessageId: String
+)
+
 class MentionChainManager {
 
     data class CircuitBreakerState(
@@ -48,7 +53,7 @@ class MentionChainManager {
         val coolDownMs: Long = 60_000L
     )
 
-    private val processedMap = ConcurrentHashMap<String, String>()
+    private val processedMap = ConcurrentHashMap<ProcessedPathKey, String>()
     private val activePaths = ConcurrentHashMap<String, MentionPath>()
     private val circuitBreakers = ConcurrentHashMap<String, CircuitBreakerState>()
 
@@ -121,10 +126,10 @@ class MentionChainManager {
 
     fun cleanup(groupId: String) {
         val keysToRemove = activePaths.keys.filter { pathId ->
-            processedMap.entries.any { it.value == pathId }
+            processedMap.entries.any { it.key.groupId == groupId && it.value == pathId }
         }
         keysToRemove.forEach { activePaths.remove(it) }
-        processedMap.entries.removeIf { true }
+        processedMap.entries.removeIf { it.key.groupId == groupId }
         circuitBreakers.remove(groupId)
         Timber.d("Cleaned up mention chain state for group: $groupId")
     }
