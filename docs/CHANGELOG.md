@@ -2,7 +2,7 @@
 
 ## [v0.1.1] — 2026-08-06
 
-> 当日已完成并通过 QA 验收的任务汇总（issue 标识 WS-*）；2026-08-06 全部 13 个 issue 已收口 done，无在途/卡死任务；沙箱至 GitHub 网络不通，所有提交均已本地落地（本地分支 `feat/android-system-integration` ahead 20），推送待网络恢复后执行。11:00 巡检：本小时无新完成任务、无卡死任务；WS-4 `UnifiedApproval.kt` 未入库提示持续有效。
+> 当日已完成并通过 QA 验收的任务汇总（issue 标识 WS-*）；2026-08-06 全部 13 个 issue 已收口 done，无在途/卡死任务；沙箱至 GitHub 网络不通，所有提交均已本地落地（本地分支 `feat/android-system-integration` ahead 21），推送待网络恢复后执行。11:00 巡检：本小时无新完成任务、无卡死任务；WS-4 `UnifiedApproval.kt` 未入库提示持续有效。01:00 巡检（08-07）：本小时（08:00–09:00 CST）无新完成任务、无卡死任务，13/13 issue 保持 done；WS-4 `UnifiedApproval.kt` 未入库提示持续有效。
 
 ### 🚀 新功能
 - feat(security): 统一审批组件按风险分级落地（WS-4，QA 已验收 ✅，代码未入库详见下方「交付完整性提示」）— 新增 `ui/chat/UnifiedApproval.kt`（LOW→inline 卡片 / MEDIUM→ApprovalBottomSheet / HIGH+→ApprovalDialog 5 按钮）、`core/security/RiskTranslator.kt`（命令自然语言翻译 + `estimateRisk`/`estimateToolRisk` 风险估计，40+ 规则）；`PermissionRequestDialog`/`InlineApprovalCard`/`OtherSessionApprovalDialog` 改为统一组件入口，四选项审批逻辑未回退；单测 `RiskTranslatorTest.kt` 28 条全绿
