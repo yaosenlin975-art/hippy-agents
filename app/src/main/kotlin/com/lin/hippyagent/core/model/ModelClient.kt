@@ -14,6 +14,7 @@ import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
 import timber.log.Timber
 import java.io.IOException
+import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -175,13 +176,16 @@ val sharedOkHttpClient: okhttp3.OkHttpClient by lazy {
 }
 
 /**
- * 工具 JSON 序列化缓存 — 基于 LLinkedHashMap 的 LRU 驱逐策略
+ * 工具 JSON 序列化缓存 — 基于 LinkedHashMap 的 LRU 驱逐策略
  * 使用内容哈希（而非 System.identityHashCode）作为 key，避免 GC 后 key 失效
+ * 外层使用 Collections.synchronizedMap 包装，保证多会话并发调用时的线程安全
  */
-private val toolsJsonCache = object : LinkedHashMap<String, String>(16, 0.75f, true) {
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>): Boolean =
-        size > 64 // 最多保留 64 条缓存
-}
+internal val toolsJsonCache: java.util.Map<String, String> = Collections.synchronizedMap(
+    object : LinkedHashMap<String, String>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>): Boolean =
+            size > 64 // 最多保留 64 条缓存
+    }
+)
 
 private fun List<ModelToolDefinition>.cacheKey(): String {
     var hash = 1
@@ -193,9 +197,11 @@ private fun List<ModelToolDefinition>.cacheKey(): String {
     return hash.toString()
 }
 
-private fun List<ModelToolDefinition>.toToolsJsonArray(): String {
+internal fun List<ModelToolDefinition>.toToolsJsonArray(): String {
     val key = cacheKey()
-    return toolsJsonCache.getOrPut(key) {
+    // computeIfAbsent 在 synchronizedMap 的互斥锁内执行，读取-计算-写入-驱逐整体原子，
+    // 避免多线程并发 getOrPut 破坏 LinkedHashMap 内部链表（accessOrder 结构）
+    return toolsJsonCache.computeIfAbsent(key) {
         val sb = sharedSbPool.acquire()
         try {
             sb.append('[')
