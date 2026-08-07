@@ -3,7 +3,6 @@
 import android.content.Context
 import timber.log.Timber
 import java.io.File
-import java.util.concurrent.TimeUnit
 import com.lin.hippyagent.core.security.PermissionManager
 import com.lin.hippyagent.core.security.ShellPermissionResult
 import kotlinx.coroutines.runBlocking
@@ -83,20 +82,15 @@ class PRootEngine(
             environment = prootEnv
         )
 
-        val output = StringBuilder()
-        val reader = process.inputStream.bufferedReader()
-
         return try {
-            val completed = process.waitFor(timeout, TimeUnit.MILLISECONDS)
-            if (completed) {
-                reader.forEachLine { line ->
-                    output.appendLine(line)
-                }
-                val exitCode = process.exitValue()
-                Pair(exitCode, output.toString())
-            } else {
-                process.destroyForcibly()
+            // 修复管道死锁（WS-29）：runLinuxProcess 在独立线程并发读取输出，
+            // 与 waitFor 并行。若先 waitFor 再读输出，进程输出量超过 OS
+            // 管道缓冲区（约 64KB）时会阻塞在写管道上永不退出，导致 waitFor 超时。
+            val result = runLinuxProcess(process, timeout)
+            if (result.timedOut) {
                 Pair(-2, "Command timed out after ${timeout}ms")
+            } else {
+                Pair(result.exitCode, result.output)
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to execute command")
