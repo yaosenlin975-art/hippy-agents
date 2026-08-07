@@ -4,6 +4,7 @@ import com.lin.hippyagent.core.model.ModelCallRequest
 import com.lin.hippyagent.core.model.ModelCallResponse
 import com.lin.hippyagent.core.model.ModelClient
 import com.lin.hippyagent.core.model.ModelMessage
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -103,6 +104,8 @@ class LLMSpeakerSelector(
                     SelectorResult.Error("Invalid LLM response: $responseText", TurnStrategy.ROUND_ROBIN)
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.e(e, "LLM speaker selection failed")
             SelectorResult.Error(e.message ?: "Unknown error", TurnStrategy.ROUND_ROBIN)
@@ -147,6 +150,8 @@ class LLMSpeakerSelector(
 
             val responseText = response.choices.firstOrNull()?.message?.content?.trim() ?: ""
             parseTerminationResponse(responseText) == true
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.e(e, "LLM termination check failed")
             false
@@ -162,6 +167,8 @@ class LLMSpeakerSelector(
             kotlinx.coroutines.withTimeoutOrNull(unit.toMillis(timeout)) {
                 block()
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             null
         }
