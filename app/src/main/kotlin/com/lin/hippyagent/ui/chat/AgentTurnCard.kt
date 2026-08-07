@@ -64,6 +64,24 @@ private fun isEmptyJsonObject(arguments: String): Boolean {
     return trimmed == "{}"
 }
 
+/**
+ * 聚合用于复制/引用的回复文本：
+ * - displayElements 非空时，从其中聚合所有 TextSegment 内容（按显示顺序，换行分隔）；
+ * - 否则回退到 legacy 的 response.content。
+ */
+internal fun aggregateAgentReplyText(
+    displayElements: List<TurnElement>,
+    legacyContent: String?
+): String {
+    if (displayElements.isEmpty()) return legacyContent ?: ""
+    val text = displayElements
+        .filterIsInstance<TurnElement.TextSegment>()
+        .map { it.content }
+        .filter { it.isNotBlank() }
+        .joinToString("\n")
+    return text.ifBlank { legacyContent ?: "" }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AgentTurnCard(
@@ -535,7 +553,7 @@ fun AgentTurnCard(
     }
 
     if (showActions) {
-        val content = turn.response?.content ?: ""
+        val content = aggregateAgentReplyText(displayElements, turn.response?.content)
         MessageActionsSheet(
             isAgent = true,
             onCopy = {
