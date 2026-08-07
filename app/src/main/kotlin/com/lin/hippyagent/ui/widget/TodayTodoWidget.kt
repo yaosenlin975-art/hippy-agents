@@ -22,7 +22,7 @@ import java.util.Locale
  * - 因 CronJob.schedule 是 cron 表达式字符串，本 Widget 简化处理：只显示 enabled=true 的所有 CronJob 名
  * - 真正"今日"过滤需要解析 cron 表达式，超出本 plan 范围
  *
- * 协程合规（coding.md）：
+ * 协程合规：
  * - 复用 Koin 注册的 applicationScope（named("applicationScope")），不自建 CoroutineScope
  * - 不用 Thread.sleep / isActive / 裸 CoroutineScope()
  */

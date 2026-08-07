@@ -23,11 +23,11 @@ import timber.log.Timber
  * Plan G 入口点：调用 BehaviorRecordingController.start()/stop() 控制 BehaviorRecorder + DeeplinkBookmarkSession，
  * 并通过 BehaviorRecordingFloatWindow 显示录制浮窗（收藏当前页 / 停止按钮）。
  *
- * 协程合规（coding.md）：用 MainScope()（TileService 生命周期短，等价 applicationScope 短生命周期版）；
+ * 协程合规：用 MainScope()（TileService 生命周期短，等价 applicationScope 短生命周期版）；
  * onStartListening 启动 collect，onStopListening cancel scope；
  * 循环检查用 coroutineContext.isActive（此处是 collect 不需要）。
  *
- * 注：MainScope() = SupervisorJob() + Dispatchers.Main，等价 coding.md 推荐的"已有 scope"模式。
+ * 注：MainScope() = SupervisorJob() + Dispatchers.Main，等价推荐的"已有 scope"模式。
  */
 @RequiresApi(Build.VERSION_CODES.N)
 class RecordingTileService : TileService() {

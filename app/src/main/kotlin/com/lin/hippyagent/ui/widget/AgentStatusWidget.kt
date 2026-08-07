@@ -26,7 +26,7 @@ import timber.log.Timber
  *   注：SkillIndexManager 未在 Koin 注册，改用 SkillManager.loadIndex()
  * - 当前任务：因 MissionRunner 无状态暴露，显示 "-" 兜底
  *
- * 协程合规（coding.md）：
+ * 协程合规：
  * - 复用 Koin 注册的 applicationScope（named("applicationScope")），不自建 CoroutineScope
  */
 class AgentStatusWidget : AppWidgetProvider() {

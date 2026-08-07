@@ -17,7 +17,7 @@ import java.util.LinkedHashMap
  * - 用 setRank 调整顺序（最近用的 rank=0）
  * - 缓存最近 4 个 skill 元数据用于 rank 重新计算
  *
- * 内存合规（coding.md）：[recentSkillsCache] 用 LinkedHashMap LRU 上限 8，超限淘汰。
+ * 内存合规：[recentSkillsCache] 用 LinkedHashMap LRU 上限 8，超限淘汰。
  */
 object AgentShortcuts {
 
