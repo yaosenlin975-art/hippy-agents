@@ -377,6 +377,12 @@ class AgentRepository(
     fun getProfiles(): Flow<Map<String, AgentProfile>> = profilesStateFlow.asStateFlow()
 
     /**
+     * 获取当前 Profile 快照（内存缓存，非阻塞）。
+     * 用于需要在非挂起上下文读取最新 profile 的场景，避免 runBlocking 阻塞调用线程。
+     */
+    fun getProfilesSnapshot(): Map<String, AgentProfile> = profilesStateFlow.value
+
+    /**
      * 从磁盘重新加载所有智能体 Profile，更新内存缓存。
      * 在智能体通过文件工具（write_file/edit_file）修改 PROFILE.md 或 agent.json 后调用，
      * 同时扫描 PROFILE.md 与 agent.json 的名字差异并同步。

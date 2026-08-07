@@ -54,3 +54,11 @@ docs/design.md.bak
 docs/RELEASE_NOTES.md
 /docs/superpowers
 /evo-forge
+/references
+
+# Agent runtime state (do not commit)
+/.agent_context
+/.multica
+/.qwen
+AGENTS.md
+description.md
