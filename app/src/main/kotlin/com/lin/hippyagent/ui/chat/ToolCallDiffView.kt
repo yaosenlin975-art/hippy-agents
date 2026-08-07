@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -121,7 +120,7 @@ internal fun DiffView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFFFCDD2).copy(alpha = 0.4f)) // 红色背景
+                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f))
                             .padding(start = 10.dp, end = 4.dp, top = 1.dp, bottom = 1.dp)
                     ) {
                         Text(
@@ -145,7 +144,7 @@ internal fun DiffView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFC8E6C9).copy(alpha = 0.4f)) // 绿色背景
+                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f))
                             .padding(start = 10.dp, end = 4.dp, top = 1.dp, bottom = 1.dp)
                     ) {
                         Text(
@@ -153,14 +152,14 @@ internal fun DiffView(
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50), // Green 500
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.width(10.dp)
                         )
                         Text(
                             text = line.content,
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF388E3C).copy(alpha = 0.85f) // Green 700
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
                         )
                     }
                 }
