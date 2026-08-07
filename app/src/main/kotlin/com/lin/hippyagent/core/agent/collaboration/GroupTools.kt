@@ -3,6 +3,7 @@ import com.lin.hippyagent.core.agent.processMessageStream
 import com.lin.hippyagent.core.agent.processMessage
 
 import com.lin.hippyagent.core.tools.Tool
+import com.lin.hippyagent.core.tools.ToolContext
 import com.lin.hippyagent.core.tools.ToolDefinition
 import com.lin.hippyagent.core.tools.ToolParameter
 import com.lin.hippyagent.core.tools.ToolResult
@@ -40,6 +41,10 @@ class MentionInGroupTool(
     )
 
     override suspend fun execute(arguments: Map<String, Any>): ToolResult {
+        return execute(ToolContext(), arguments)
+    }
+
+    override suspend fun execute(ctx: ToolContext, arguments: Map<String, Any>): ToolResult {
         val groupId = getRequiredArgument(arguments, "group_id")
         val agentIdsStr = getRequiredArgument(arguments, "agent_ids")
         val message = getRequiredArgument(arguments, "message")
@@ -59,8 +64,9 @@ class MentionInGroupTool(
         return try {
             val agentGroup = agentGroupManager.getOrCreateAgentGroup(groupId)
                 ?: return ToolResult(callId, false, error = "Failed to create AgentGroup for: $groupId")
+            val senderId = ctx.agentId.ifBlank { USER_ID }
             val result = agentGroup.processMessage(
-                senderId = "user",
+                senderId = senderId,
                 content = message,
                 mentionedAgentIds = mentionedAgentIds
             )

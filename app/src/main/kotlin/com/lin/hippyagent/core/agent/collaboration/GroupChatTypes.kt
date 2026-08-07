@@ -1,5 +1,8 @@
 package com.lin.hippyagent.core.agent.collaboration
 
+/** 群聊消息中代表真实用户的 senderId 约定 */
+const val USER_ID = "user"
+
 data class GroupChatConfig(
     val groupId: String,
     val groupName: String,

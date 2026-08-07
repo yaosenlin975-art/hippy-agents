@@ -247,7 +247,7 @@ class AgentGroup(
                 content = content,
                 round = _messages.value.size,
                 timestamp = System.currentTimeMillis(),
-                senderIsUser = true
+                senderIsUser = senderId == USER_ID
             )
             _messages.update { it + userMessage }
 
@@ -326,7 +326,7 @@ class AgentGroup(
                         content = content,
                         mentions = mentionedAgentIds,
                         timestamp = System.currentTimeMillis(),
-                        senderIsUser = true
+                        senderIsUser = senderId == USER_ID
                     ))
                     Timber.d("AgentGroup: enqueued message for $agentId (queue size=${queue.pendingCount})")
                 } else {
@@ -370,7 +370,7 @@ class AgentGroup(
                         agentId = agentId,
                         groupId = groupId,
                         sessionLockId = "${groupId}_$agentId",
-                        priority = TriggerPriority.USER_DIRECT
+                        priority = if (userMessage.senderIsUser) TriggerPriority.USER_DIRECT else TriggerPriority.AI_MENTION
                     )
                     when (acquireResult) {
                         is AcquireResult.Granted -> {
@@ -500,7 +500,7 @@ class AgentGroup(
             return null
         }
 
-        if (senderId != "user") {
+        if (senderId != USER_ID) {
             val senderName = getAgentName(senderId)
             sessionStore.addMessage(groupId, MessageRole.PRIVATE, "[$senderName]: $userContent", senderId = senderId)
         }
@@ -539,7 +539,7 @@ class AgentGroup(
                 val isOtherAgentMessage = (msg.role == MessageRole.TOOL || msg.role == MessageRole.ASSISTANT)
                     && msg.senderId != null
                     && msg.senderId != agentId
-                    && msg.senderId != "user"
+                    && msg.senderId != USER_ID
                 !isOtherAgentMessage && (msg.role != MessageRole.TOOL || msg.id !in previousToolMsgIds)
             }
             val result = agent.processMessage(

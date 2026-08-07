@@ -12,6 +12,7 @@ import com.lin.hippyagent.core.agent.Agent
 import com.lin.hippyagent.core.agent.AgentStatus
 import com.lin.hippyagent.core.agent.QueuedMessage
 import com.lin.hippyagent.core.agent.collaboration.MentionParser
+import com.lin.hippyagent.core.agent.collaboration.USER_ID
 import com.lin.hippyagent.core.agent.session.MessageRole
 import com.lin.hippyagent.core.agent.session.SessionMessage
 import com.lin.hippyagent.core.agent.processMessageStream
@@ -486,7 +487,7 @@ internal suspend fun ChatViewModel.deliverGroupMessage(sessionId: String, conten
                 if (!group.isActive.value) break
             }
         }
-        val result = group.processMessage("user", content, mentionedIds)
+        val result = group.processMessage(USER_ID, content, mentionedIds)
         // processMessage 返回后异步 @传播可能仍在进行，等待 isActive 变为 false
         while (group.isActive.value) {
             kotlinx.coroutines.delay(500)

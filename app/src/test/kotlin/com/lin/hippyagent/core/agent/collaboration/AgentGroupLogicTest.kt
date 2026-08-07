@@ -236,4 +236,77 @@ class AgentGroupLogicTest {
         assertEquals(100, config.maxRounds)
         assertEquals(5000L, config.selectorTimeoutMs)
     }
+
+    // ═══════════ senderIsUser 归因与路由 ═══════════
+
+    private fun routerWith(agentIds: List<String>): GroupMessageRouter {
+        val queues = agentIds.associateWith { AgentMessageQueue(it) }
+        return GroupMessageRouter(groupId = "g1", agentQueues = queues)
+    }
+
+    private fun userMessage(content: String): GroupChatMessage =
+        GroupChatMessage(agentId = USER_ID, content = content, round = 1, senderIsUser = true)
+
+    private fun agentMessage(agentId: String, content: String): GroupChatMessage =
+        GroupChatMessage(agentId = agentId, content = content, round = 1, senderIsUser = false)
+
+    @Test
+    fun userMessage_withoutMentions_routesToAllAgents() {
+        val result = kotlinx.coroutines.runBlocking {
+            routerWith(listOf("a", "b")).route(userMessage("大家好"))
+        }
+        assertEquals(setOf("a", "b"), result.deliverToAgents.toSet())
+    }
+
+    @Test
+    fun agentMessage_withoutMentions_routesToNoOne() {
+        val result = kotlinx.coroutines.runBlocking {
+            routerWith(listOf("a", "b")).route(agentMessage("a", "这段内容只对 a 自己可见"))
+        }
+        assertTrue(result.deliverToAgents.isEmpty())
+    }
+
+    @Test
+    fun agentMessage_withMentions_routesOnlyToMentioned() {
+        val result = kotlinx.coroutines.runBlocking {
+            routerWith(listOf("a", "b", "c")).route(agentMessage("a", "@b 请确认方案"))
+        }
+        assertEquals(listOf("b"), result.deliverToAgents)
+    }
+
+    @Test
+    fun userMessage_withMentions_routesOnlyToMentioned() {
+        val result = kotlinx.coroutines.runBlocking {
+            routerWith(listOf("a", "b", "c")).route(userMessage("@c 请处理"))
+        }
+        assertEquals(listOf("c"), result.deliverToAgents)
+    }
+
+    // ═══════════ 发言者标签: senderIsUser 决定展示为「用户」还是 agentId ═══════════
+
+    @Test
+    fun speakerSelectionPrompt_labelsAgentAndUserMessages() {
+        val history = listOf(
+            agentMessage("a", "我来处理 @b"),
+            userMessage("好的，谢谢")
+        )
+        val prompt = GroupChatPrompts.buildSpeakerSelectionPrompt(
+            agents = listOf(GroupChatPrompts.AgentInfo("a", "desc a"), GroupChatPrompts.AgentInfo("b", "desc b")),
+            history = history
+        )
+        assertTrue(prompt.contains("[a]: 我来处理 @b"))
+        assertTrue(prompt.contains("[用户]: 好的，谢谢"))
+        assertFalse(prompt.contains("[用户]: 我来处理 @b"))
+    }
+
+    @Test
+    fun terminationPrompt_labelsAgentAndUserMessages() {
+        val history = listOf(
+            agentMessage("b", "方案已确认"),
+            userMessage("好的，请继续")
+        )
+        val prompt = GroupChatPrompts.buildTerminationPrompt(history, maxRounds = 10, currentRound = 2)
+        assertTrue(prompt.contains("[b]: 方案已确认"))
+        assertTrue(prompt.contains("[用户]: 好的，请继续"))
+    }
 }
