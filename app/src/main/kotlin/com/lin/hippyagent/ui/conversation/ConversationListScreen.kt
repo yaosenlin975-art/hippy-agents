@@ -657,7 +657,7 @@ private fun SessionCard(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = session.title.take(5).ifEmpty { session.title },
+                            text = session.title,
                             fontSize = 15.sp,
                             fontWeight = if (badgeLevel != BadgeLevel.NONE) FontWeight.SemiBold else FontWeight.Normal,
                             color = MaterialTheme.colorScheme.onBackground,

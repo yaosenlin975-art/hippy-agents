@@ -144,7 +144,7 @@ private fun DrawerSessionItem(
                     Spacer(modifier = Modifier.width(4.dp))
                 }
                 Text(
-                    text = session.title.take(5).ifEmpty { session.title },
+                    text = session.title,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface,
