@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /** JSON 序列化用的持久化模型（不含 embedding，太大数据不适合 JSON） */
 @Serializable
@@ -23,7 +24,7 @@ class LocalMemoryStore(
     private val memoryDir: File
 ) : MemoryStore {
 
-    private val entries = mutableMapOf<String, MemoryEntry>()
+    private val entries = ConcurrentHashMap<String, MemoryEntry>()
 
     private val json = Json {
         ignoreUnknownKeys = true
