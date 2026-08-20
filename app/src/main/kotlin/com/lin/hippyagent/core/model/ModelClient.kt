@@ -185,7 +185,7 @@ internal val toolsJsonCache: java.util.Map<String, String> = Collections.synchro
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>): Boolean =
             size > 64 // 最多保留 64 条缓存
     }
-)
+) as java.util.Map<String, String>
 
 private fun List<ModelToolDefinition>.cacheKey(): String {
     var hash = 1

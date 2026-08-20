@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux
+package com.lin.hippyagent.core.linux
 
 import android.content.Context
 import java.io.File

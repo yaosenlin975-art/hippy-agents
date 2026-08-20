@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.store
+package com.lin.hippyagent.ui.store
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues

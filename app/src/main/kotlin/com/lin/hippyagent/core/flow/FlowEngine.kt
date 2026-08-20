@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.flow
+package com.lin.hippyagent.core.flow
 
 import com.lin.hippyagent.core.agent.session.FlowRecordDao
 import com.lin.hippyagent.core.agent.session.FlowRecordEntity

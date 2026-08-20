@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.bootstrap
+package com.lin.hippyagent.core.bootstrap
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

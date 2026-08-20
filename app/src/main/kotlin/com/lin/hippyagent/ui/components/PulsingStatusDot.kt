@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.components
+package com.lin.hippyagent.ui.components
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat

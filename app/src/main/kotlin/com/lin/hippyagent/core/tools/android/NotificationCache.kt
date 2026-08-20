@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.tools.android
+package com.lin.hippyagent.core.tools.android
 
 import android.app.Notification
 import android.service.notification.StatusBarNotification

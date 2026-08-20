@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.model
+package com.lin.hippyagent.core.model
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

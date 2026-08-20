@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.knowledge
+package com.lin.hippyagent.core.knowledge
 
 /**
  * 实体提取模式定义 - 用于从文本中识别各类实体的正则表达式和关键词。

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.insights
+package com.lin.hippyagent.core.insights
 
 data class CostBreakdown(
     val inputCost: Double,

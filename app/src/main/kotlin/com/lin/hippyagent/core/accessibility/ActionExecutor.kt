@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.accessibility
+package com.lin.hippyagent.core.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context

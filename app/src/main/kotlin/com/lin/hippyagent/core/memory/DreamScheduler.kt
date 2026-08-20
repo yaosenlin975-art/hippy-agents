@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.memory
+package com.lin.hippyagent.core.memory
 
 import android.content.Context
 import androidx.work.Constraints

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.plugin
+package com.lin.hippyagent.core.plugin
 
 import timber.log.Timber
 import java.io.File

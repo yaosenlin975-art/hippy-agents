@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux
+package com.lin.hippyagent.core.linux
 
 /**
  * 容器运行配置：定义容器内执行命令、环境变量、工作目录等参数。

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent
+package com.lin.hippyagent.core.agent
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers

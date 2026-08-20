@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.context
+package com.lin.hippyagent.core.context
 
 import com.lin.hippyagent.core.agent.session.SessionMessage
 import kotlin.math.roundToInt

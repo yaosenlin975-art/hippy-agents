@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.security
+package com.lin.hippyagent.core.security
 
 import android.content.Context
 import androidx.biometric.BiometricManager

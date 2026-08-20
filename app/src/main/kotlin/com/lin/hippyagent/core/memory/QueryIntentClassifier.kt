@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.memory
+package com.lin.hippyagent.core.memory
 
 enum class QueryIntent { ENTITY, TEMPORAL, EVENT, GENERAL }
 enum class RetrievalDetail { LOW, MEDIUM, HIGH }

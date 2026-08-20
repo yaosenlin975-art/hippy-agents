@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.ui.settings.acp
+package com.lin.hippyagent.ui.settings.acp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

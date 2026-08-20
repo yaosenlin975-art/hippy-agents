@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.tools.web
+package com.lin.hippyagent.core.tools.web
 
 import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolDefinition

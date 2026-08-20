@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.accessibility
+package com.lin.hippyagent.core.accessibility
 
 import android.view.accessibility.AccessibilityNodeInfo
 import kotlinx.serialization.Serializable

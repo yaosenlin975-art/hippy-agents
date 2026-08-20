@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux
+package com.lin.hippyagent.core.linux
 
 import timber.log.Timber
 

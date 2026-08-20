@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.stats
+package com.lin.hippyagent.core.stats
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.security
+package com.lin.hippyagent.core.security
 
 data class WorkspaceContext(
     val workspaceDir: java.io.File,

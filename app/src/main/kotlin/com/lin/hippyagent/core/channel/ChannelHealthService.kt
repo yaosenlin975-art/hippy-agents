@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.channel
+package com.lin.hippyagent.core.channel
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

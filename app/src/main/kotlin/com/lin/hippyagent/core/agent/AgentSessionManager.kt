@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent
+package com.lin.hippyagent.core.agent
 
 import java.util.concurrent.ConcurrentHashMap
 

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.channel
+package com.lin.hippyagent.core.channel
 
 import android.content.Context
 import android.content.Intent

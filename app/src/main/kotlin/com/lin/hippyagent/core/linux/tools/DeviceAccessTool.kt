@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux.tools
+package com.lin.hippyagent.core.linux.tools
 
 import android.content.Context
 import android.content.pm.PackageManager

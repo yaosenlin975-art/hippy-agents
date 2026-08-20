@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.skill.store
+package com.lin.hippyagent.core.skill.store
 
 object SkillIdNormalizer {
     private val suffixRegex = Regex("""(?:^.*/|^)([^/@]+)(?:@.*)?$""")

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.memory
+package com.lin.hippyagent.core.memory
 
 import com.lin.hippyagent.core.pool.FloatArrayPool
 import kotlin.math.sqrt

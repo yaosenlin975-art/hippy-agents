@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux.tools
+package com.lin.hippyagent.core.linux.tools
 
 import com.lin.hippyagent.core.linux.LinuxManager
 import com.lin.hippyagent.core.tools.Tool

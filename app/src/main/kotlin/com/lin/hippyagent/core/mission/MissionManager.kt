@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.mission
+package com.lin.hippyagent.core.mission
 
 import android.content.Context
 import com.lin.hippyagent.core.agent.session.SessionStore

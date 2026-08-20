@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.tools.android
+package com.lin.hippyagent.core.tools.android
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothClass

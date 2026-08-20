@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.skill.builtin
+package com.lin.hippyagent.core.skill.builtin
 
 import android.content.Context
 import timber.log.Timber

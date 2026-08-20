@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.pool
+package com.lin.hippyagent.core.pool
 
 import java.util.concurrent.atomic.AtomicLong
 

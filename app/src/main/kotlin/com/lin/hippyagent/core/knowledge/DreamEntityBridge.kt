@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.knowledge
+package com.lin.hippyagent.core.knowledge
 
 import com.lin.hippyagent.core.pool.FastId
 import kotlinx.coroutines.Dispatchers

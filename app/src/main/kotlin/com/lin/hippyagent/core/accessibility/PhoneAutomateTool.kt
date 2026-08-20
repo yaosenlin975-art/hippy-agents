@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.accessibility
+package com.lin.hippyagent.core.accessibility
 
 import com.lin.hippyagent.core.tools.Tool
 import com.lin.hippyagent.core.tools.ToolDefinition

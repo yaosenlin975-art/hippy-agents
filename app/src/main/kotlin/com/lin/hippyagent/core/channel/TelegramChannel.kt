@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.channel
+package com.lin.hippyagent.core.channel
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

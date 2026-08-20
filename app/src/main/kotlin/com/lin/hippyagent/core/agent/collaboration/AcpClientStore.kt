@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent.collaboration
+package com.lin.hippyagent.core.agent.collaboration
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.linux.security
+package com.lin.hippyagent.core.linux.security
 
 import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap

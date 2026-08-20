@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent
+package com.lin.hippyagent.core.agent
 
 import com.lin.hippyagent.core.tools.ToolRegistry
 import kotlinx.coroutines.flow.MutableStateFlow

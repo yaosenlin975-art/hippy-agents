@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent.config
+package com.lin.hippyagent.core.agent.config
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName

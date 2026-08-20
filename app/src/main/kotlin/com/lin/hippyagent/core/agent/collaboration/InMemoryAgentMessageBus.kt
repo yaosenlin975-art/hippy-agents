@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent.collaboration
+package com.lin.hippyagent.core.agent.collaboration
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

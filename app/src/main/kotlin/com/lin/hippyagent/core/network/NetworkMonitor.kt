@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.network
+package com.lin.hippyagent.core.network
 
 import android.content.Context
 import android.net.ConnectivityManager

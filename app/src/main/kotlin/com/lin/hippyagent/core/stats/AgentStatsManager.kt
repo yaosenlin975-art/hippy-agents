@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.stats
+package com.lin.hippyagent.core.stats
 
 import com.lin.hippyagent.core.agent.session.MessageRole
 import com.lin.hippyagent.core.agent.session.SessionStore

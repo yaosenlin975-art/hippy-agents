@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.security
+package com.lin.hippyagent.core.security
 
 import androidx.datastore.preferences.core.*
 import kotlinx.coroutines.flow.first

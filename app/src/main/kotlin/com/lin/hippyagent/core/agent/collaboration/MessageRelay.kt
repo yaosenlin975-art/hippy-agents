@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.agent.collaboration
+package com.lin.hippyagent.core.agent.collaboration
 
 import com.lin.hippyagent.core.channel.Channel
 import com.lin.hippyagent.core.channel.ChannelManager

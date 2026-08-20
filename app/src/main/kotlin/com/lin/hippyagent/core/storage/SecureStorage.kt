@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.storage
+package com.lin.hippyagent.core.storage
 
 import android.content.Context
 import android.content.SharedPreferences

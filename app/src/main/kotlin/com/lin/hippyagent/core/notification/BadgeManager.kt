@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.notification
+package com.lin.hippyagent.core.notification
 
 import android.content.Context
 import android.content.Intent

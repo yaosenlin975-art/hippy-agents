@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.tools.builtin
+package com.lin.hippyagent.core.tools.builtin
 
 import android.content.Context
 import android.graphics.BitmapFactory

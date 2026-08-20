@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.model
+package com.lin.hippyagent.core.model
 
 import com.lin.hippyagent.core.agent.config.RunningConfig
 import kotlinx.coroutines.sync.Semaphore

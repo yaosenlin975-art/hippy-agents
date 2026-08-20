@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.mission
+package com.lin.hippyagent.core.mission
 
 import kotlinx.serialization.Serializable
 

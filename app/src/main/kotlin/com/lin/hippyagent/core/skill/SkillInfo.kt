@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.skill
+package com.lin.hippyagent.core.skill
 
 import kotlinx.serialization.Serializable
 

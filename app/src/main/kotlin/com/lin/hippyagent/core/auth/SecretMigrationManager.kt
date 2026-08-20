@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.auth
+package com.lin.hippyagent.core.auth
 
 import android.content.Context
 import com.lin.hippyagent.core.storage.SecureStorage

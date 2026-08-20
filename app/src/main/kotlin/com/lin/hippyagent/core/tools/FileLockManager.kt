@@ -1,4 +1,4 @@
-﻿package com.lin.hippyagent.core.tools
+package com.lin.hippyagent.core.tools
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
